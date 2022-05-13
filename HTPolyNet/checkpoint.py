@@ -5,18 +5,23 @@ import pandas as pd
 from enum import Enum
 class CPstate(Enum):
     fresh=0 # nothing there at all
-    bondsearch=1
-    bondsearch_complete=2 # a bondsfile exists and bonds_are=='unrelaxed'
-    update=3
-    relaxing=4 # 
-    equilibrating=5
-    post_equilibration=5
-    finished=7
+    generated_templates=1
+    generated_initial_topology=2
+    generated_initial_coordinates=3
+    initial_equilibration=4
+    bondsearch=5
+#    bondsearch_complete=6
+    update=7
+    relax_prestage=8
+    relax_poststage=9 
+    equilibrate=10
+    post_equilibration=11
+    finished=12
     unknown=99
     def __str__(self):
         return self.name
 
-class CURECheckpoint:
+class Checkpoint:
     def __init__(self,checkpoint_file='checkpoint.yaml',filename_format='cure-{iter}-{stage}',bonds_file='bonds.csv',n_stages=10):
         self.state=CPstate.fresh
         self.iter=0
@@ -76,7 +81,7 @@ class CURECheckpoint:
 
     def write_checkpoint(self,system,state):
         self.state=state
-        prefix=self.filename_format.format(iter=self.iter,stage=self.current_stage)
+        prefix=self.filename_format.format(stage=self.current_stage)
         self.top,self.gro,self.grx=[prefix+x for x in ['.top','.gro','.grx']]
         system.register_system(CP=self)
         with open(self.checkpoint_file,'w') as f:
