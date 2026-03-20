@@ -93,7 +93,7 @@ class CureState:
         """
         with open(filename,'r') as f:
             yaml_string=f.read()
-        return yaml.load(yaml_string,Loader=yaml.Loader)
+        return yaml.load(yaml_string,Loader=yaml.FullLoader)
 
     def reset(self):
         """reset resets this CureState object to begin a new CURE iteration
