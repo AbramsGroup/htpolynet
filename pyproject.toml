@@ -30,6 +30,9 @@ dependencies = [
     "gputil>=1.4"
 ]
 
+[project.optional-dependencies]
+dev = ["pytest"]
+
 [project.urls]
 "Source" = "https://github.com/AbramsGroup/HTPolyNet"
 "Documentation" = "https://abramsgroup.github.io/HTPolyNet/"
