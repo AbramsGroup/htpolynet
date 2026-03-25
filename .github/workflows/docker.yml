@@ -1,0 +1,33 @@
+name: Build and push Docker image
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Rebuild weekly (Monday 03:00 UTC) to pick up latest Gromacs/AmberTools
+    - cron: '0 3 * * 1'
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: true
+        tags: |
+          ghcr.io/abramsgroup/htpolynet:latest
+          ghcr.io/abramsgroup/htpolynet:${{ github.sha }}

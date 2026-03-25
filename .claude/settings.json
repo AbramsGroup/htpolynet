@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "additionalDirectories": [
+      "/home/cfa/Git/HTPolyNet/.github/workflows"
+    ]
+  }
+}
