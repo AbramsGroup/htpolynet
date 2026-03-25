@@ -1,0 +1,30 @@
+# HTPolyNet container image
+# Includes Gromacs and AmberTools (antechamber, tleap, parmchk2) via conda-forge.
+#
+# Usage:
+#   docker run --rm -v $(pwd):/work ghcr.io/abramsgroup/htpolynet htpolynet run config.yaml
+#
+# To avoid files being written as root, pass your host uid/gid:
+#   docker run --rm -v $(pwd):/work --user $(id -u):$(id -g) ghcr.io/abramsgroup/htpolynet htpolynet run config.yaml
+#
+# GPU support (requires nvidia-container-toolkit):
+#   docker run --rm --gpus all -v $(pwd):/work ghcr.io/abramsgroup/htpolynet htpolynet run config.yaml
+
+FROM continuumio/miniconda3:latest
+
+# Install Gromacs and AmberTools (latest available on conda-forge)
+RUN conda install -y -c conda-forge \
+        ambertools \
+        gromacs \
+    && conda clean -afy
+
+# Install HTPolyNet
+COPY . /htpolynet
+WORKDIR /htpolynet
+RUN pip install --no-cache-dir .
+
+# User data is mounted here at runtime
+WORKDIR /work
+
+ENTRYPOINT ["htpolynet"]
+CMD ["--help"]

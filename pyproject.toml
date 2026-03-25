@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "HTPolyNet"
+name = "htpolynet"
 version = "1.0.9"
 authors = [
   { name="Cameron F Abrams", email="cfa22@drexel.edu" },
@@ -34,9 +34,9 @@ dependencies = [
 dev = ["pytest"]
 
 [project.urls]
-"Source" = "https://github.com/AbramsGroup/HTPolyNet"
-"Documentation" = "https://abramsgroup.github.io/HTPolyNet/"
-"Bug Tracker" = "https://github.com/AbramsGroup/HTPolyNet/issues"
+"Source" = "https://github.com/AbramsGroup/htpolynet"
+"Documentation" = "https://abramsgroup.github.io/htpolynet/"
+"Bug Tracker" = "https://github.com/AbramsGroup/htpolynet/issues"
 
 [tool.pytest.ini_options]
 log_cli = true
