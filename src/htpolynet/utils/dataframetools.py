@@ -1,10 +1,6 @@
-"""
+"""Some convenient tools for handling pandas dataframes in the context of htpolynet coordinates.
 
-.. module:: dataframetools
-   :synopsis: Some convenient tools for handling pandas dataframes in the context of htpolynet coordinates
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import pandas as pd
 import logging
@@ -25,17 +21,15 @@ def get_row(df:pd.DataFrame,attributes:dict):
     return pd.Series(sdf.iloc[0,:])
 
 def get_row_attribute(df:pd.DataFrame,name,attributes):
-    """get_row_attribute returns a scalar value of attribute "name" in row
-        expected to be uniquely defined by attributes dict
+    """Returns a scalar value of attribute "name" in row expected to be uniquely defined by attributes dict.
 
-    :param df: dataframe to search
-    :type df: pandas.DataFrame
-    :param name: name of attribute whose value you want
-    :type name: str
-    :param attributes: dictionary of attribute:value pairs that defines target set or row
-    :type attributes: dict
-    :return: value of attribute name
-    :rtype: scalar
+    Args:
+        df (pandas.DataFrame): dataframe to search
+        name (str): name of attribute whose value you want
+        attributes (dict): dictionary of attribute:value pairs that defines target set or row
+
+    Returns:
+        scalar: value of attribute name
     """
     row=get_row(df,attributes)
     # res=row[name]
@@ -43,15 +37,14 @@ def get_row_attribute(df:pd.DataFrame,name,attributes):
     return row[name]
 
 def get_row_as_string(df:pd.DataFrame,attributes):
-    """get_row_as_string returns a scalar value of attribute "name" in row
-        expected to be uniquely defined by attributes dict
+    """Returns the selected rows as a string, with rows expected to be uniquely defined by attributes dict.
 
-    :param df: a pandas dataframe
-    :type df: pd.DataFrame
-    :param attributes: dictionary of column names (keys) and values that specify set of rows to be returned
-    :type attributes: dict(str,obj)
-    :return: selected dataframe converted to a string
-    :rtype: str
+    Args:
+        df (pd.DataFrame): a pandas dataframe
+        attributes (dict(str,obj)): dictionary of column names (keys) and values that specify set of rows to be returned
+
+    Returns:
+        str: selected dataframe converted to a string
     """
     ga={k:v for k,v in attributes.items() if k in df}
     c=[df[k] for k in ga]
@@ -62,12 +55,10 @@ def get_row_as_string(df:pd.DataFrame,attributes):
     return df[list(l)].to_string()
 
 def get_rows_w_attribute(df:pd.DataFrame,name,attributes:dict):
-    ''' '''
-    """get_rows_w_attribute returns a series of values of attribute "name" from
-        all rows matching attributes dict 
+    """Returns a series of values of attribute "name" from all rows matching attributes dict.
 
-    :return: list of values from selected rows
-    :rtype: whatever pd.dataframe.values type is?
+    Returns:
+        values: list of values from selected rows
     """
     ga={k:v for k,v in attributes.items() if k in df}
     assert len(ga)>0,f'Cannot find any rows with attributes {attributes}'
@@ -84,16 +75,13 @@ def get_rows_w_attribute(df:pd.DataFrame,name,attributes:dict):
     return df[list(l)][name].values
 
 def set_row_attribute(df:pd.DataFrame,name,value,attributes):
-    """set_row_attribute set value of attribute name to value in all rows matching attributes dict
+    """Sets value of attribute name to value in all rows matching attributes dict.
 
-    :param df: a pandas dataframe
-    :type df: pd.DataFrame
-    :param name: name of attribute whose value is to be set
-    :type name: str
-    :param value: value the attribute is to be set to
-    :type value: scalar
-    :param attributes: dictionary of attribute:value pairs that specify the atoms whose attribute is to be set
-    :type attributes: dict
+    Args:
+        df (pd.DataFrame): a pandas dataframe
+        name (str): name of attribute whose value is to be set
+        value (scalar): value the attribute is to be set to
+        attributes (dict): dictionary of attribute:value pairs that specify the atoms whose attribute is to be set
     """
     ga={k:v for k,v in attributes.items() if k in df}
     exla={k:v for k,v in attributes.items() if not k in df}
@@ -109,15 +97,12 @@ def set_row_attribute(df:pd.DataFrame,name,value,attributes):
         df.loc[list(l),cidx]=value
 
 def set_rows_attributes_from_dict(df:pd.DataFrame,valdict,attributes):
-    """set_rows_attributes_from_dict set values of attributes in valdict dict of all rows
-        matching attributes dict
+    """Sets values of attributes in valdict dict of all rows matching attributes dict.
 
-    :param df: a pandas dataframe
-    :type df: pd.DataFrame
-    :param valdict: dictionary of attribute:value pairs to set
-    :type valdict: dict
-    :param attributes: dictionary of attribute:value pairs that specify the atoms whose attribute is to be set
-    :type attributes: dict
+    Args:
+        df (pd.DataFrame): a pandas dataframe
+        valdict (dict): dictionary of attribute:value pairs to set
+        attributes (dict): dictionary of attribute:value pairs that specify the atoms whose attribute is to be set
     """
     ga={k:v for k,v in attributes.items() if k in df}
     exla={k:v for k,v in attributes.items() if not k in df}

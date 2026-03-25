@@ -1,10 +1,6 @@
-"""
+"""Manages the link-cell structure used for searching for pierced rings.
 
-.. module:: linkcell
-   :synopsis: manages the link-cell structure used for searching for pierced rings
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import numpy as np
 import pandas as pd
@@ -20,27 +16,24 @@ class Linkcell:
         cutoff distance from each other
     """
     def __init__(self,box=[],cutoff=None,pbc_wrapper=None):
-        """__init__ Constructor for an empty Linkcell object
+        """Constructor for an empty Linkcell object.
 
-        :param box: system box size, defaults to []
-        :type box: list, optional
-        :param cutoff: cutoff distance, defaults to None
-        :type cutoff: float, optional
-        :param pbc_wrapper: function used on any 3-D point to wrap it into the central image (provided by HTPolyNet.configuration)
+        Args:
+            box (list): system box size, defaults to []
+            cutoff (float): cutoff distance, defaults to None
+            pbc_wrapper: function used on any 3-D point to wrap it into the central image (provided by HTPolyNet.configuration)
         """
         self.box=box
         self.cutoff=cutoff
         self.pbc_wrapper=pbc_wrapper
 
     def create(self,cutoff,box,origin=np.array([0.,0.,0.])):
-        """create Creates the link-cell structure in a previously initialized instance
+        """Creates the link-cell structure in a previously initialized instance.
 
-        :param cutoff: cutoff distance
-        :type cutoff: float
-        :param box: box size
-        :type box: numpy.ndarray
-        :param origin: origin, defaults to np.array([0.,0.,0.])
-        :type origin: numpy.ndarry, optional
+        Args:
+            cutoff (float): cutoff distance
+            box (numpy.ndarray): box size
+            origin (numpy.ndarray): origin, defaults to np.array([0.,0.,0.])
         """
         if box.shape==(3,3):
             box=np.diagonal(box)
@@ -65,12 +58,13 @@ class Linkcell:
         logger.debug(f'Linkcell structure: {len(self.cellndx)} cells ({self.ncells}) dim {self.celldim}')
 
     def cellndx_of_point(self,R):
-        """cellndx_of_point returns the (i,j,k) cell index of point R
+        """Returns the (i,j,k) cell index of point R.
 
-        :param R: a 3-space point
-        :type R: numpy.ndarray
-        :return: (i,j,k) index of cell
-        :rtype: (int,int,int)
+        Args:
+            R (numpy.ndarray): a 3-space point
+
+        Returns:
+            (int,int,int): (i,j,k) index of cell
         """
         wrapR,bl=self.pbc_wrapper(R)
         C=np.floor(wrapR*np.reciprocal(self.celldim)).astype(int)
@@ -84,73 +78,75 @@ class Linkcell:
         return C
 
     def point_in_cellndx(self,R,C):
-        """point_in_cellndx returns True if point R is located in cell with (i,j,k) index C
+        """Returns True if point R is located in cell with (i,j,k) index C.
 
-        :param R: 3-space point
-        :type R: numpy.ndarray
-        :param C: (i,j,k) cell index
-        :type C: (int,int,int)
-        :return: 
-            - True: R in C
-            - False: R not in C
-        :rtype: boolean
+        Args:
+            R (numpy.ndarray): 3-space point
+            C ((int,int,int)): (i,j,k) cell index
+
+        Returns:
+            bool: True if R is in C, False otherwise
         """
         LL,UU=self.corners_of_cellndx(C)
         wrapR,bl=self.pbc_wrapper(R)
         return all(wrapR<UU) and all(wrapR>=LL)
 
     def corners_of_cellndx(self,C):
-        """corners_of_cellndx returns the lower-left and upper-right corners of cell with (i,j,k) index C, as an array of 3-space points
+        """Returns the lower-left and upper-right corners of cell with (i,j,k) index C, as an array of 3-space points.
 
-        :param C: (i,j,k) index
-        :type C: (int,int,int)
-        :return: 2x3 array of lower-left and upper-right corner coordinates
-        :rtype: numpy.ndarray
+        Args:
+            C ((int,int,int)): (i,j,k) index
+
+        Returns:
+            numpy.ndarray: 2x3 array of lower-left and upper-right corner coordinates
         """
         LL=self.cells[C[0],C[1],C[2]]
         UU=LL+self.celldim
         return np.array([LL,UU])
 
     def cellndx_in_structure(self,C):
-        """cellndx_in_structure test to see if (i,j,k) index given is within the established linkcell structure
+        """Tests to see if (i,j,k) index given is within the established linkcell structure.
 
-        :param C: (i,j,k) index
-        :type C: (int,int,int)
-        :return:  - True: C is in the linkcell structure
-                  - False: C is not in the linkcell structure
-        :rtype: boolean
+        Args:
+            C ((int,int,int)): (i,j,k) index
+
+        Returns:
+            bool: True if C is in the linkcell structure, False otherwise
         """
         return all(np.zeros(3)<=C) and all(C<self.ncells)
 
     def ldx_of_cellndx(self,C):
-        """ldx_of_cellndx return scalar index of cell with (i,j,k)-index C
+        """Returns scalar index of cell with (i,j,k)-index C.
 
-        :param C: (i,j,k)-index
-        :type C: (int,int,int)
-        :return: scalar index of C
-        :rtype: int
+        Args:
+            C ((int,int,int)): (i,j,k)-index
+
+        Returns:
+            int: scalar index of C
         """
         nc=self.ncells
         xc=C[0]*nc[1]*nc[2]+C[1]*nc[2]+C[2]
         return xc
 
     def cellndx_of_ldx(self,i):
-        """cellndx_of_ldx returns (i,j,k)-index of cell with scalar index i
+        """Returns (i,j,k)-index of cell with scalar index i.
 
-        :param i: scalar cell index
-        :type i: int
-        :return: (i,j,k)-index of cell
-        :rtype: (int,int,int)
+        Args:
+            i (int): scalar cell index
+
+        Returns:
+            (int,int,int): (i,j,k)-index of cell
         """
         return self.cellndx[i]
 
     def populate_par(self,adf):
-        """populate_par populate the linkcell structure by setting the "linkcell_idx" attribute of each atom in the coordinates dataframe adf
+        """Populates the linkcell structure by setting the "linkcell_idx" attribute of each atom in the coordinates dataframe adf.
 
-        :param adf: gromacs-format coordinate dataframe
-        :type adf: pandas.DataFrame
-        :return: modified dataframe
-        :rtype: pandas.DataFrame
+        Args:
+            adf (pandas.DataFrame): gromacs-format coordinate dataframe
+
+        Returns:
+            pandas.DataFrame: modified dataframe
         """
         sp=adf[['posX','posY','posZ']]
         for i,srow in sp.iterrows():
@@ -161,25 +157,26 @@ class Linkcell:
         return adf
 
     def _return_list_lens(self,idx_list,mlists):
-        """_return_list_lens returns a list of lengths of lists in list mlists
+        """Returns a list of lengths of lists in list mlists.
 
-        :param idx_list: indicies of mlists that will be tallied
-        :type idx_list: list of ints
-        :param mlists: list of lists, each a list of integer atom global indices
-        :type mlists: list of list of ints
-        :return: list of lengths of lists
-        :rtype: list of ints
+        Args:
+            idx_list (list of ints): indices of mlists that will be tallied
+            mlists (list of list of ints): list of lists, each a list of integer atom global indices
+
+        Returns:
+            list of ints: list of lengths of lists
         """
         return [len(mlists[i]) for i in idx_list]
 
     def populate(self,Coordinates,ncpu=1):
-        """populate Populates linkcell structure
+        """Populates linkcell structure.
 
-        :param Coordinates: Coordinates instance from which atom coordinates are taken
-        :type Coordinates: Coordinates
-        :param ncpu: number of processors to split the operation over, defaults to 1
-        :type ncpu: int, optional
-        :raises Exception: dies if a point's assigned (i,j,k) cell is outside the cell structure (this would mean the atom's position is outside the periodic box, which is an error.  Atom coordinates are always to be held in wrapped configuration, but be careful: gro files unwrap!)
+        Args:
+            Coordinates (Coordinates): Coordinates instance from which atom coordinates are taken
+            ncpu (int): number of processors to split the operation over, defaults to 1
+
+        Raises:
+            Exception: dies if a point's assigned (i,j,k) cell is outside the cell structure (this would mean the atom's position is outside the periodic box, which is an error. Atom coordinates are always to be held in wrapped configuration, but be careful: gro files unwrap!)
         """
         N=Coordinates.A.shape[0]
         logger.debug(f'Linkcell: assigning cell indices to {N} atoms in {self.box}...')
@@ -219,8 +216,7 @@ class Linkcell:
         # logger.debug(f'Linkcell.populate() ends.')
 
     def make_neighborlists(self):
-        """make_neighborlists populates the neighborlist member, one element per cell; each element is the list of neighbors of that cell
-        """
+        """Populates the neighborlist member, one element per cell; each element is the list of neighbors of that cell."""
         self.neighborlists=[[] for _ in range(self.cellndx.shape[0])]
         for C in self.cellndx:
             idx=self.ldx_of_cellndx(C)
@@ -229,10 +225,10 @@ class Linkcell:
                     self.neighborlists[idx].append(self.ldx_of_cellndx(D))
 
     def make_memberlists(self,cdf):
-        """make_memberlists populates the memberlists member, one element per cell; each element is the list of atom indices in that cell 
+        """Populates the memberlists member, one element per cell; each element is the list of atom indices in that cell.
 
-        :param cdf: coordinates data frame
-        :type cdf: pd.DataFrame
+        Args:
+            cdf (pd.DataFrame): coordinates data frame
         """
         self.memberlists=[[] for _ in range(self.cellndx.shape[0])]
         rdf=cdf[cdf['linkcell_idx']!=-1]
@@ -249,12 +245,13 @@ class Linkcell:
         logger.debug(f'Avg/min/max cell pop: {avg_cell_pop:>8.3f}/{min_cell_pop:>8d}/{max_cell_pop:>8d}')
 
     def neighbors_of_cellndx(self,Ci):
-        """neighbors_of_cellndx returns the list of neighbors of cell Ci by their (i,j,k) indices
+        """Returns the list of neighbors of cell Ci by their (i,j,k) indices.
 
-        :param Ci: _description_
-        :type Ci: _type_
-        :return: _description_
-        :rtype: _type_
+        Args:
+            Ci (numpy.ndarray): (i,j,k) cell index
+
+        Returns:
+            list: list of (i,j,k) indices of neighbor cells
         """
         assert self.cellndx_in_structure(Ci),f'Error: cell {Ci} outside of cell structure {self.ncells}'
         retlist=[]
@@ -273,12 +270,13 @@ class Linkcell:
         return retlist
 
     def searchlist_of_ldx(self,i):
-        """searchlist_of_ldx returns the list of scalar cell indices of cells that are neighbors of cell with scalar index i
+        """Returns the list of scalar cell indices of cells that are neighbors of cell with scalar index i.
 
-        :param i: scalar cell index
-        :type i: int
-        :return: list of scalar indices of neighbor cells
-        :rtype: list
+        Args:
+            i (int): scalar cell index
+
+        Returns:
+            list: list of scalar indices of neighbor cells
         """
         assert i!=-1
         retlist=[]
@@ -289,14 +287,14 @@ class Linkcell:
         return retlist
 
     def are_cellndx_neighbors(self,Ci,Cj):
-        """are_cellndx_neighbors returns True if cells with (i,j,k) indices Ci and Cj are neighbors
+        """Returns True if cells with (i,j,k) indices Ci and Cj are neighbors.
 
-        :param Ci: cell index
-        :type Ci: np.ndarray(3,int)
-        :param Cj: cell index
-        :type Cj: np.ndarray(3,int)
-        :return: True if cells are neighbors, False otherwise
-        :rtype: bool
+        Args:
+            Ci (np.ndarray(3,int)): cell index
+            Cj (np.ndarray(3,int)): cell index
+
+        Returns:
+            bool: True if cells are neighbors, False otherwise
         """
         assert self.cellndx_in_structure(Ci),f'Error: cell {Ci} outside of cell structure {self.ncells}'
         assert self.cellndx_in_structure(Cj),f'Error: cell {Cj} outside of cell structure {self.ncells}'
@@ -307,14 +305,14 @@ class Linkcell:
         return all([x in [-1,0,1] for x in dij])
 
     def are_ldx_neighbors(self,ildx,jldx):
-        """are_ldx_neighbors returns True if cells with scalar indices ildx and jldx are neighbors
+        """Returns True if cells with scalar indices ildx and jldx are neighbors.
 
-        :param ildx: scalar cell index
-        :type ildx: int
-        :param jldx: scalar cell index
-        :type jldx: int
-        :return: True if cells are neighbors, False otherwise
-        :rtype: bool
+        Args:
+            ildx (int): scalar cell index
+            jldx (int): scalar cell index
+
+        Returns:
+            bool: True if cells are neighbors, False otherwise
         """
         # should never call this for atoms with unset lc indices
         assert ildx!=-1

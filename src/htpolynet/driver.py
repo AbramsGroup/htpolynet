@@ -1,10 +1,6 @@
-"""
+"""Manages the HTPolyNet application, provides the command-line interface entry point.
 
-.. module:: driver
-   :synopsis: manages the HTPolyNet application, provides the command-line interface entry point
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import logging
 import os
@@ -26,10 +22,10 @@ from .analysis.analyze import analyze
 logger=logging.getLogger(__name__)
 
 def info(args):
-    """info handles the info subcommmand
+    """Handles the info subcommand.
 
-    :param args: parsed arguments
-    :type args: argparse.Namespace
+    Args:
+        args (argparse.Namespace): parsed arguments
     """
     print('This is some information on your installed version of HTPolyNet')
     l=pfs.lib_setup()
@@ -43,10 +39,10 @@ def info(args):
             print(f'   {p}')
 
 def run(args):
-    """run handles the run subcommand
+    """Handles the run subcommand.
 
-    :param args: parsed arguments
-    :type args: argparse.Namespace
+    Args:
+        args (argparse.Namespace): parsed arguments
     """
     logrotate(args.diag)
     ''' set up logger with all debug+-level messages going to the diagnostic log file and info to console '''
@@ -67,10 +63,10 @@ def run(args):
     my_logger('HTPolyNet runtime ends',logger.info)
 
 def parameterize(args):
-    """parameterize handles the parameterize subcommand
+    """Handles the parameterize subcommand.
 
-    :param args: parsed arguments
-    :type args: argparse.Namespace
+    Args:
+        args (argparse.Namespace): parsed arguments
     """
     logrotate(args.diag)
     ''' set up logger with all debug+-level messages going to the diagnostic log file and info to console '''
@@ -93,10 +89,10 @@ def parameterize(args):
     my_logger('HTPolynet parameterization ends',logger.info)
 
 def fetch_example(args):
-    """fetch_example handles the fetch-example subcommand
+    """Handles the fetch-example subcommand.
 
-    :param args: parsed arguments
-    :type args: argparse.Namespace
+    Args:
+        args (argparse.Namespace): parsed arguments
     """
     l=pfs.system()
     nm=args.n
@@ -162,8 +158,7 @@ def pack_example(args):
     logger.debug(e)
 
 def cli():
-    """cli Command-line interface
-    """
+    """Command-line interface."""
     l=pfs.lib_setup()
     example_names=l.get_example_names()
     example_ids=[x.split('-')[0] for x in example_names]

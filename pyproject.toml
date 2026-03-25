@@ -25,7 +25,7 @@ dependencies = [
     "requests>=2.28",
     "pandas>=2",
     "scipy>=1.10",
-    "parmed>=4",
+    "parmed>=4",  # parmed 4.x requires compiled extensions; 3.x is pure Python and sufficient for our use of parmed.load_file()
     "networkx>=3.2",
     "gputil>=1.4"
 ]

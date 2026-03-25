@@ -1,34 +1,23 @@
-"""
+"""Manages bond templates (bonds defined by type) and reaction bonds (bonds defined by instances).
 
-.. module:: bondtemplate
-   :synopsis: Manages bond templates (bonds defined by type) and reaction bonds (bonds defined by instances)
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import logging
 from copy import deepcopy
 
 class BondTemplate:
     def __init__(self,names,resnames,intraresidue,order,bystander_resnames,bystander_atomnames,oneaway_resnames,oneaway_atomnames):
-        """__init__ create a BondTemplate object
+        """Creates a BondTemplate object.
 
-        :param names: names of atoms in the bond
-        :type names: list-like container of two ints
-        :param resnames: names of the two residues to which the atoms belong
-        :type resnames: list-like container of two strs
-        :param intraresidue: True if this is an intraresidue bond
-        :type intraresidue: bool
-        :param order: bond order (1=single, 2=double, ...)
-        :type order: int
-        :param bystander_resnames: lists of names of bystander residues (residues also bound to one of the atoms)
-        :type bystander_resnames: list of two list-like containers of strs, one for each atom in names
-        :param bystander_atomnames: lists of names of atoms in bystander residues
-        :type bystander_atomnames: list of two list-like containers of strs (parallel to bystander_resnames)
-        :param oneaway_resnames: names of one-away residues (residues bound one bond away from the new interresidue bond; only relevant for C=C free-radical polymerization)
-        :type oneaway_resnames: list-like container of strs
-        :param oneaway_atomnames: names of atoms in one-away residues
-        :type oneaway_atomnames: list-like container of strs
+        Args:
+            names (list-like container of two ints): names of atoms in the bond
+            resnames (list-like container of two strs): names of the two residues to which the atoms belong
+            intraresidue (bool): True if this is an intraresidue bond
+            order (int): bond order (1=single, 2=double, ...)
+            bystander_resnames (list of two list-like containers of strs): lists of names of bystander residues (residues also bound to one of the atoms), one for each atom in names
+            bystander_atomnames (list of two list-like containers of strs): lists of names of atoms in bystander residues (parallel to bystander_resnames)
+            oneaway_resnames (list-like container of strs): names of one-away residues (residues bound one bond away from the new interresidue bond; only relevant for C=C free-radical polymerization)
+            oneaway_atomnames (list-like container of strs): names of atoms in one-away residues
         """
         self.names=names
         self.resnames=resnames
@@ -39,8 +28,7 @@ class BondTemplate:
         self.oneaway_atomnames=oneaway_atomnames
         self.order=order
     def reverse(self):
-        """reverse the order of all parallel lists in a BondTemplate object
-        """
+        """Reverses the order of all parallel lists in a BondTemplate object."""
         self.names=self.names[::-1]
         self.resnames=self.resnames[::-1]
         self.bystander_resnames=self.bystander_resnames[::-1]
@@ -59,12 +47,13 @@ class BondTemplate:
         check=check and self.oneaway_atomnames==other.oneaway_atomnames
         return check
     def is_reverse_of(self,other):
-        """is_reverse_of return True if self and other are reverse of each other
+        """Returns True if self and other are reverse of each other.
 
-        :param other: another BondTemplate object
-        :type other: BondTemplate
-        :return: True if self and other are reverse copies of each other
-        :rtype: bool
+        Args:
+            other (BondTemplate): another BondTemplate object
+
+        Returns:
+            bool: True if self and other are reverse copies of each other
         """
         rb=deepcopy(other)
         rb.reverse()
@@ -74,22 +63,16 @@ BondTemplateList=list[BondTemplate]
 
 class ReactionBond:
     def __init__(self,idx,resids,order,bystanders,bystanders_atomidx,oneaways,oneaways_atomidx):
-        """__init__ generate a new ReactionBond object
+        """Generates a new ReactionBond object.
 
-        :param idx: indices of two atoms that form the bond
-        :type idx: list-like container of two ints
-        :param resids: resids of the two atoms that form the bond
-        :type resids: list-like container of two ints
-        :param order: order of the bond (1=single, 2=double, ...)
-        :type order: int
-        :param bystanders: two lists of indices of interresidue resids already bound to each atom in idx 
-        :type bystanders: list of two list-like containers of ints
-        :param bystanders_atomidx: two lists of indices of interresidue atoms already bound to each atom in idx 
-        :type bystanders_atomidx: list of two list-like containers of ints
-        :param oneaways: list of one-away resids
-        :type oneaways: list of ints
-        :param oneaways_atomidx: list of one-away atom indices
-        :type oneaways_atomidx: list of ints
+        Args:
+            idx (list-like container of two ints): indices of two atoms that form the bond
+            resids (list-like container of two ints): resids of the two atoms that form the bond
+            order (int): order of the bond (1=single, 2=double, ...)
+            bystanders (list of two list-like containers of ints): two lists of indices of interresidue resids already bound to each atom in idx
+            bystanders_atomidx (list of two list-like containers of ints): two lists of indices of interresidue atoms already bound to each atom in idx
+            oneaways (list of ints): list of one-away resids
+            oneaways_atomidx (list of ints): list of one-away atom indices
         """
         self.idx=idx
         self.resids=resids

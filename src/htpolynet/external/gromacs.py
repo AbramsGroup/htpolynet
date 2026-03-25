@@ -1,10 +1,6 @@
-"""
+"""Methods for handling the gmx suite of executables.
 
-.. module:: gromacs
-   :synopsis: methods for handling the gmx suite of executables
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import logging
 import os
@@ -18,17 +14,16 @@ logger=logging.getLogger(__name__)
 
 
 def insert_molecules(composition,boxSize,outName,inputs_dir='.',**kwargs):
-    """insert_molecules launcher for gmx insert-molecules
+    """Launcher for gmx insert-molecules.
 
-    :param composition: dictionary of molecule_name:count
-    :type composition: dict
-    :param boxSize: size of box as 3 floats or 1 float (if cubic box)
-    :type boxSize: list(3,float) or float
-    :param outName: basename of output files
-    :type outName: str
-    :param inputs_dir: directory to search for input structures, defaults to '.'
-    :type inputs_dir: str, optional
-    :raises Exception: if gmx-insert molecules fails to insert the requested number of molecules
+    Args:
+        composition (dict): dictionary of molecule_name:count
+        boxSize (list(3,float) or float): size of box as 3 floats or 1 float (if cubic box)
+        outName (str): basename of output files
+        inputs_dir (str): directory to search for input structures, defaults to '.'
+
+    Raises:
+        Exception: if gmx-insert molecules fails to insert the requested number of molecules
     """
     if type(boxSize)==int:
         boxSize=float(boxSize)
@@ -64,20 +59,15 @@ def insert_molecules(composition,boxSize,outName,inputs_dir='.',**kwargs):
                 raise Exception('need bigger box')
 
 def grompp_and_mdrun(gro='',top='',out='',mdp='',boxSize=[],single_molecule=False,**kwargs):
-    """grompp_and_mdrun launcher for grompp and mdrun
+    """Launcher for grompp and mdrun.
 
-    :param gro: input gro file, defaults to ''
-    :type gro: str, optional
-    :param top: input top file, defaults to ''
-    :type top: str, optional
-    :param out: output file basename, defaults to ''
-    :type out: str, optional
-    :param mdp: input mdp file, defaults to ''
-    :type mdp: str, optional
-    :param boxSize: explicit box size, defaults to []
-    :type boxSize: list, optional
-    :param single_molecule: if true, a single-molecule system is simulated, defaults to False
-    :type single_molecule: bool, optional
+    Args:
+        gro (str): input gro file, defaults to ''
+        top (str): input top file, defaults to ''
+        out (str): output file basename, defaults to ''
+        mdp (str): input mdp file, defaults to ''
+        boxSize (list): explicit box size, defaults to []
+        single_molecule (bool): if true, a single-molecule system is simulated, defaults to False
     """
     logger.debug(kwargs)
     quiet=kwargs.get('quiet',True)
@@ -114,12 +104,13 @@ def grompp_and_mdrun(gro='',top='',out='',mdp='',boxSize=[],single_molecule=Fals
         raise Exception(f'{sw.mdrun} ended prematurely; {out}.gro not found.')
 
 def get_energy_menu(edr,**kwargs):
-    """get_energy_menu gets the menu provided by 'gmx energy' when applied to a particular edr file
+    """Gets the menu provided by 'gmx energy' when applied to a particular edr file.
 
-    :param edr: name of edr file
-    :type edr: str
-    :return: menu dictionary
-    :rtype: dict
+    Args:
+        edr (str): name of edr file
+
+    Returns:
+        dict: menu dictionary
     """
     assert os.path.exists(edr+'.edr'),f'Error: {edr} not found'
     with open('_menugetter_','w') as f:
@@ -142,18 +133,16 @@ def get_energy_menu(edr,**kwargs):
     return menu
 
 def gmx_energy_trace(edr,names=[],report_averages=False,keep_files=False,**kwargs):
-    """Generate traces of data in edr file
+    """Generates traces of data in edr file.
 
-    :param edr: name of edr file
-    :type edr: str
-    :param names: list of data names, defaults to []
-    :type names: list
-    :param report_averages: flag to indicate if averages of all data are to be computed here, default False
-    :type report_averages: bool, optional
-    :param keep_files: flag indicating caller would like to keep the raw input and output files for gmx energy, default False
-    :type keep_files: bool
-    :return: dataframe of traces
-    :rtype: pandas DataFrame
+    Args:
+        edr (str): name of edr file
+        names (list): list of data names, defaults to []
+        report_averages (bool): flag to indicate if averages of all data are to be computed here, defaults to False
+        keep_files (bool): flag indicating caller would like to keep the raw input and output files for gmx energy, defaults to False
+
+    Returns:
+        pandas.DataFrame: dataframe of traces
     """
     assert os.path.exists(edr+'.edr'),f'Error: {edr}.edr not found'
     assert len(names)>0,f'Nothing to plot'
@@ -175,7 +164,7 @@ def gmx_energy_trace(edr,names=[],report_averages=False,keep_files=False,**kwarg
     c.run()
     colnames=[x[0] for x in namvals]
     colnames.insert(0,'time(ps)')
-    data=pd.read_csv(f'{edr}-out.xvg',sep='\s+',header=None,names=colnames)
+    data=pd.read_csv(f'{edr}-out.xvg',sep=r'\s+',header=None,names=colnames)
     data.iloc[:,0]+=xshift
     ndata=data.shape[0]
     if report_averages:
@@ -193,20 +182,17 @@ def gmx_energy_trace(edr,names=[],report_averages=False,keep_files=False,**kwarg
 _abc='abcdefghijklmnopqrstuwxyz'
 _fnames=[''.join(i) for i in product(_abc,_abc,_abc)]
 def gromacs_distance(idf,gro,new_column_name='r',pfx='tmp',force_recalculate=False,keep_files=False):
-    """Use 'gmx distance' to measure interatomic distances
+    """Uses 'gmx distance' to measure interatomic distances.
 
-    :param idf: dataframe of atom indexes in pairs ['ai','aj']
-    :type idf: pandas DataFrame
-    :param gro: name of gromacs input file for 'gmx distance' to use
-    :type gro: str
-    :param new_column_name: name of column in idf where distances are stored, default 'r'
-    :type new_column_name: str, optional
-    :param force_recalculate: flag to force calculation of distances even if a distance column exists in idf, default False
-    :type force_recalculate: boolean, optional
-    :param keep_files: flag indicating caller would like to keep the raw input and output files for gmx energy default False
-    :type keep_files: bool, optional
-    :return: list of distances parallel to idf columns
-    :rtype: numpy.ndarray
+    Args:
+        idf (pandas.DataFrame): dataframe of atom indexes in pairs ['ai','aj']
+        gro (str): name of gromacs input file for 'gmx distance' to use
+        new_column_name (str): name of column in idf where distances are stored, defaults to 'r'
+        force_recalculate (bool): flag to force calculation of distances even if a distance column exists in idf, defaults to False
+        keep_files (bool): flag indicating caller would like to keep the raw input and output files for gmx energy, defaults to False
+
+    Returns:
+        numpy.ndarray: list of distances parallel to idf columns
     """
     if type(idf)==tuple: # this is being called in parallel
         i,idf=idf # unpack index and actual data frame
@@ -262,16 +248,13 @@ def mdp_get(mdp_filename,key):
     return all_dict.get(key,'NOT FOUND!')
 
 def mdp_modify(mdp_filename,opt_dict,new_filename=None,add_if_missing=True):
-    """Modify a gromacs mdp file
+    """Modifies a gromacs mdp file.
 
-    :param mdp_filename: name of mdp file to modify; overwritten if new_filename==None
-    :type mdp_filename: str
-    :param opt_dict: keyword:value dictionary of mdp options
-    :type opt_dict: dict
-    :param new_filename: name of outputile, defaults to None
-    :type new_filename: str, optional
-    :param add_if_missing: Flag indicating whether to insert key:value into mdp file if not already there, defaults to True
-    :type add_if_missing: bool, optional
+    Args:
+        mdp_filename (str): name of mdp file to modify; overwritten if new_filename==None
+        opt_dict (dict): keyword:value dictionary of mdp options
+        new_filename (str): name of output file, defaults to None
+        add_if_missing (bool): flag indicating whether to insert key:value into mdp file if not already there, defaults to True
     """
     all_dict=mdp_to_dict(mdp_filename)
     # logger.debug(f'mdp_modify: all_dict: {all_dict}')
