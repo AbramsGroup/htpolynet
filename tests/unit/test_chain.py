@@ -10,7 +10,7 @@ import pytest
 import unittest
 import logging
 logger=logging.getLogger(__name__)
-from HTPolyNet.chain import *
+from htpolynet.cure.chain import *
 import networkx as nx
 import pandas as pd
 import numpy as np

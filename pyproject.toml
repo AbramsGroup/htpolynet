@@ -38,9 +38,12 @@ dev = ["pytest"]
 "Documentation" = "https://abramsgroup.github.io/htpolynet/"
 "Bug Tracker" = "https://github.com/AbramsGroup/htpolynet/issues"
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/htpolynet"]
+
 [tool.pytest.ini_options]
 log_cli = true
 
 [project.scripts]
-htpolynet = "HTPolyNet.driver:cli"
+htpolynet = "htpolynet.driver:cli"
 

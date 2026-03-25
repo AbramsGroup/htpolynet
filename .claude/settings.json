@@ -1,5 +1,15 @@
 {
   "permissions": {
+    "allow": [
+      "Bash(wc -l /home/cfa/Git/HTPolyNet/src/htpolynet/*.py)",
+      "Bash(grep -rn \"^\\\\s*\\\\\\(from\\\\|import\\\\\\)\" /home/cfa/Git/HTPolyNet/src/htpolynet/core/*.py)",
+      "Bash(grep -rn \"^\\\\s*\\\\\\(from\\\\|import\\\\\\)\" /home/cfa/Git/HTPolyNet/src/htpolynet/cure/*.py)",
+      "Bash(grep -rn \"^\\\\s*\\\\\\(from\\\\|import\\\\\\)\" /home/cfa/Git/HTPolyNet/src/htpolynet/geometry/*.py)",
+      "Bash(sort grep:*)",
+      "Bash(grep -rn \"^\\\\s*\\\\\\(from\\\\|import\\\\\\)\" /home/cfa/Git/HTPolyNet/src/htpolynet/analysis/*.py)",
+      "Bash(BASE=/home/cfa/Git/HTPolyNet __NEW_LINE_9d067e0cee514a78__ SED_CMD=':*)",
+      "Bash(xargs sed:*)"
+    ],
     "additionalDirectories": [
       "/home/cfa/Git/HTPolyNet/.github/workflows"
     ]

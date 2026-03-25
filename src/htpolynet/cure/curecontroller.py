@@ -12,17 +12,17 @@ import yaml
 import numpy as np
 import os
 from itertools import product
-from HTPolyNet.topocoord import TopoCoord, BTRC
-from HTPolyNet.gromacs import gromacs_distance, mdp_modify
-from HTPolyNet.configuration import ReactionList
-from HTPolyNet.molecule import MoleculeDict
-from HTPolyNet.reaction import reaction_stage
+from htpolynet.core.topocoord import TopoCoord, BTRC
+from htpolynet.external.gromacs import gromacs_distance, mdp_modify
+from htpolynet.utils.configuration import ReactionList
+from htpolynet.core.molecule import MoleculeDict
+from htpolynet.cure.reaction import reaction_stage
 from multiprocessing import Pool
 from functools import partial
-import HTPolyNet.projectfilesystem as pfs
-from HTPolyNet.stringthings import my_logger
-import HTPolyNet.checkpoint as cp
-from HTPolyNet.plot import trace
+import htpolynet.utils.projectfilesystem as pfs
+from htpolynet.utils.stringthings import my_logger
+import htpolynet.utils.checkpoint as cp
+from htpolynet.analysis.plot import trace
 
 import logging
 

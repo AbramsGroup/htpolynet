@@ -9,7 +9,7 @@
 import unittest
 import logging
 logger=logging.getLogger(__name__)
-import HTPolyNet.topology as tp
+import htpolynet.core.topology as tp
 import os
 import pandas as pd
 import numpy as np

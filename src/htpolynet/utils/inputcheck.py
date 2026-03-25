@@ -6,10 +6,10 @@
 .. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
 
 """
-from HTPolyNet.topocoord import TopoCoord
-from HTPolyNet.configuration import Configuration
-from HTPolyNet.coordinates import Coordinates
-from HTPolyNet.command import Command
+from htpolynet.core.topocoord import TopoCoord
+from htpolynet.utils.configuration import Configuration
+from htpolynet.core.coordinates import Coordinates
+from htpolynet.external.command import Command
 import os
 
 def input_check(args):

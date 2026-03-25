@@ -13,7 +13,7 @@ logger=logging.getLogger(__name__)
 from numpy import dtype
 import os
 
-from HTPolyNet.gromacs import gmx_energy_trace
+from htpolynet.external.gromacs import gmx_energy_trace
 
 class TestGmxEnergyTrace(unittest.TestCase):
     def setUp(self,loglevel='debug',logfile='testlog.log'):

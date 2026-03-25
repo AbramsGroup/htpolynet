@@ -12,8 +12,8 @@ import pandas as pd
 import numpy as np
 from itertools import product
 from collections import namedtuple
-from HTPolyNet.command import Command
-import HTPolyNet.software as sw
+from htpolynet.external.command import Command
+import htpolynet.external.software as sw
 logger=logging.getLogger(__name__)
 
 

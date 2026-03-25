@@ -14,11 +14,11 @@ import os
 import logging
 from itertools import product
 
-from HTPolyNet.bondlist import Bondlist
-from HTPolyNet.linkcell import Linkcell
-from HTPolyNet.ring import Ring,Segment
-from HTPolyNet.dataframetools import *
-from HTPolyNet.matrix4 import Matrix4
+from htpolynet.geometry.bondlist import Bondlist
+from htpolynet.geometry.linkcell import Linkcell
+from htpolynet.geometry.ring import Ring,Segment
+from htpolynet.utils.dataframetools import *
+from htpolynet.geometry.matrix4 import Matrix4
 
 logger=logging.getLogger(__name__)
 

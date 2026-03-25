@@ -10,7 +10,7 @@ import logging
 from copy import deepcopy
 from enum import Enum
 import networkx as nx
-from HTPolyNet.plot import network_graph
+from htpolynet.analysis.plot import network_graph
 logger=logging.getLogger(__name__)
 
 class reaction_stage(Enum):

@@ -11,7 +11,7 @@ import importlib.resources
 import logging
 logger=logging.getLogger(__name__)
 
-from HTPolyNet.gromacs import get_energy_menu
+from htpolynet.external.gromacs import get_energy_menu
 
 class TestGetEnergyMenu(unittest.TestCase):
     def setUp(self,loglevel='debug',logfile='testlog.log'):

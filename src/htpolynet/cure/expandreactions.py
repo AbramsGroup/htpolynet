@@ -8,8 +8,8 @@
 """
 from itertools import product
 import logging
-from HTPolyNet.molecule import Molecule, MoleculeList, MoleculeDict
-from HTPolyNet.reaction import reaction_stage, Reaction, ReactionList
+from htpolynet.core.molecule import Molecule, MoleculeList, MoleculeDict
+from htpolynet.cure.reaction import reaction_stage, Reaction, ReactionList
 
 logger=logging.getLogger(__name__)
 

@@ -10,7 +10,7 @@ import unittest
 import os
 import logging
 logger=logging.getLogger(__name__)
-from HTPolyNet.dataframetools import *
+from htpolynet.utils.dataframetools import *
 import pandas as pd
 
 class TestDataframeTools(unittest.TestCase):

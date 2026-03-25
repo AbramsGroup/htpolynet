@@ -10,7 +10,7 @@ import shutil
 import logging
 import os
 import glob
-from . import resources
+from .. import resources
 logger=logging.getLogger(__name__)
 excludes=['__pycache__','__init__.py']
 class RuntimeLibrary:

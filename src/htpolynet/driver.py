@@ -12,16 +12,16 @@ import argparse as ap
 import textwrap
 import shutil
 import glob
-from .banner import banner, banner_message
-from .runtime import Runtime,logrotate
-from .command import Command
-import HTPolyNet.projectfilesystem as pfs
-import HTPolyNet.software as software
-from .plot import plots
-from .stringthings import my_logger
-from .inputcheck import input_check
-from .postsim import postsim
-from .analyze import analyze
+from .utils.banner import banner, banner_message
+from .cure.runtime import Runtime, logrotate
+from .external.command import Command
+import htpolynet.utils.projectfilesystem as pfs
+import htpolynet.external.software as software
+from .analysis.plot import plots
+from .utils.stringthings import my_logger
+from .utils.inputcheck import input_check
+from .analysis.postsim import postsim
+from .analysis.analyze import analyze
 
 logger=logging.getLogger(__name__)
 
