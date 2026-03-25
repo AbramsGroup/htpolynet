@@ -1,10 +1,6 @@
-"""
+"""Various utility methods for plotting and postprocessing.
 
-.. module:: utils
-   :synopsis: various utility methods for plotting and postprocessing
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 from htpolynet.core.coordinates import Coordinates
 from htpolynet.core.topocoord import TopoCoord
@@ -20,16 +16,15 @@ import logging
 logger=logging.getLogger(__name__)
 
 def density_from_gro(gro,mollib='./lib/molecules/parameterized',units='SI'):
-    """density_from_gro computes density from a Gromacs gro file
+    """Computes density from a Gromacs gro file.
 
-    :param gro: name of gro file
-    :type gro: str
-    :param mollib: location of parameterized molecular templates, defaults to './lib/molecules/parameterized'
-    :type mollib: str, optional
-    :param units: string indicating unit system, defaults to 'SI'
-    :type units: str, optional
-    :return: density
-    :rtype: float
+    Args:
+        gro (str): name of gro file
+        mollib (str): location of parameterized molecular templates, defaults to './lib/molecules/parameterized'
+        units (str): string indicating unit system, defaults to 'SI'
+
+    Returns:
+        float: density
     """
     C=Coordinates.read_gro(gro)
     resnames=list(set(C.A['resName']))
@@ -69,20 +64,17 @@ _indir_pfx['iter-n']=[r'1-cure_drag-stage-{stage:d}-{ens:s}',r'3-cure_relax-stag
 _indir_pfx['capping']=[r'7-cap_relax-stage-{stage:d}-{ens:s}',r'8-cap_equilibrate-{ens:s}']
 _indir_pfx['postcure']=[r'preequilibration-{ens:s}',r'annealed',r'postequilibration-{ens:s}']
 def _concat_from_edr(df,edr,names,add=[],add_if_missing=[('Density',0.0)]):
-    """_concat_from_edr concentates rows onto dataframe df by reading data from an edr file
+    """Concatenates rows onto dataframe df by reading data from an edr file.
 
-    :param df: a dataframe with data read in from edr files
-    :type df: pandas.DataFrame
-    :param edr: name of a new edr file to read from
-    :type edr: str
-    :param names: names of energy-like quantities to be read in; each must have a column in df already
-    :type names: list of strings
-    :param add: names and values to add to dataset, defaults to []
-    :type add: list, optional
-    :param add_if_missing: names and values to add if not found in edr file, defaults to [('Density',0.0)]
-    :type add_if_missing: list, optional
-    :return: a tuple of the dataframe and the scalar value of last time *before* this data increment is read in
-    :rtype: tuple
+    Args:
+        df (pandas.DataFrame): a dataframe with data read in from edr files
+        edr (str): name of a new edr file to read from
+        names (list of str): names of energy-like quantities to be read in; each must have a column in df already
+        add (list): names and values to add to dataset, defaults to []
+        add_if_missing (list): names and values to add if not found in edr file, defaults to [('Density',0.0)]
+
+    Returns:
+        tuple: the dataframe and the scalar value of last time before this data increment is read in
     """
     xshift=0.0
     if not df.empty: xshift=df.iloc[-1]['time(ps)']
@@ -100,13 +92,13 @@ def _concat_from_edr(df,edr,names,add=[],add_if_missing=[('Density',0.0)]):
     return df,xshift
 
 def postsim_density_evolution(proj_dir,append_dirname=False):
-    """postsim_density_evolution returns a single dataframe that is a concatenation of the csv files
-    in the 'postsim' subdirectories
+    """Returns a single dataframe that is a concatenation of the csv files in the 'postsim' subdirectories.
 
-    :param proj_dir: name of complete project directory
-    :type proj_dir: str
-    :return: the dataframe
-    :rtype: pandas.DataFrame
+    Args:
+        proj_dir (str): name of complete project directory
+
+    Returns:
+        pandas.DataFrame: the dataframe
     """
     if not os.path.exists(proj_dir): return
     sysd=os.path.join(proj_dir,'postsim')
@@ -124,12 +116,13 @@ def postsim_density_evolution(proj_dir,append_dirname=False):
     return df
 
 def density_evolution(proj_dir):
-    """density_evolution returns a single dataframe containing density, temperture, number of bonds vs time by reading all edrs in the correct order from a complete project directory
+    """Returns a single dataframe containing density, temperature, number of bonds vs time by reading all edrs in the correct order from a complete project directory.
 
-    :param proj_dir: name of complete project directory
-    :type proj_dir: str
-    :return: the dataframe
-    :rtype: pandas.DataFrame
+    Args:
+        proj_dir (str): name of complete project directory
+
+    Returns:
+        pandas.DataFrame: the dataframe
     """
     if not os.path.exists(proj_dir): return
     sysd=os.path.join(proj_dir,'systems')
@@ -154,11 +147,11 @@ def density_evolution(proj_dir):
                 dirkey='iter-n' if subd==r'iter-{iter:d}' else subd
                 if subd==r'iter-{iter:d}':
                     if os.path.exists(os.path.join(iter_subd,'2-cure_update-bonds.csv')):
-                        bdf=pd.read_csv(os.path.join(iter_subd,'2-cure_update-bonds.csv'),sep='\s+',header=0,index_col=None)
+                        bdf=pd.read_csv(os.path.join(iter_subd,'2-cure_update-bonds.csv'),sep=r'\s+',header=0,index_col=None)
                         nbonds+=bdf.shape[0]
                     else:
                         if os.path.exists(os.path.join(iter_subd,'6-cap_update-bonds.csv')):
-                            bdf=pd.read_csv(os.path.join(iter_subd,'6-cap_update-bonds.csv'),sep='\s+',header=0,index_col=None)
+                            bdf=pd.read_csv(os.path.join(iter_subd,'6-cap_update-bonds.csv'),sep=r'\s+',header=0,index_col=None)
                             nbonds+=bdf.shape[0]
                 # print(f'iter_subd {iter_subd} dirkey {dirkey}')
                 for pfx in _indir_pfx[dirkey]:
@@ -237,30 +230,30 @@ def density_evolution(proj_dir):
     return df,transition_times,markers,interval_labels
 
 def graph_from_bondsfile(bondsfile):
-    """graph_from_bondsfile generates a networkx Graph in which each node is a molecule (from 'mi' and 'mj' records in the bondsfile) and edges indicate two molecules are joined by a covalent bond
+    """Generates a networkx Graph in which each node is a molecule (from 'mi' and 'mj' records in the bondsfile) and edges indicate two molecules are joined by a covalent bond.
 
-    :param bondsfile: name of bondsfile
-    :type bondsfile: str
-    :return: the graph
-    :rtype: networkx.Graph
+    Args:
+        bondsfile (str): name of bondsfile
+
+    Returns:
+        networkx.Graph: the graph
     """
     G=nx.Graph()
-    df=pd.read_csv(bondsfile,header=0,index_col=None,sep='\s+')
+    df=pd.read_csv(bondsfile,header=0,index_col=None,sep=r'\s+')
     for i,r in df.iterrows():
         G.add_edge(r['mi'],r['mj'])
     return G
 
 def mwbxl(G:nx.Graph,crosslinker='GMA',monomer='STY'):
-    """mwbxl computes the histogram of monomer counts 'n' between crosslinking sites using a molecular connectivity graph; used mainly for vinyl-based polymerizations
+    """Computes the histogram of monomer counts 'n' between crosslinking sites using a molecular connectivity graph; used mainly for vinyl-based polymerizations.
 
-    :param G: molecular connectivity graph
-    :type G: nx.Graph
-    :param crosslinker: name of crosslinker molecule, defaults to 'GMA'
-    :type crosslinker: str, optional
-    :param monomer: name of monomer, defaults to 'STY'
-    :type monomer: str, optional
-    :return: a dataframe of 'n' and 'count'
-    :rtype: pd.DataFrame
+    Args:
+        G (nx.Graph): molecular connectivity graph
+        crosslinker (str): name of crosslinker molecule, defaults to 'GMA'
+        monomer (str): name of monomer, defaults to 'STY'
+
+    Returns:
+        pd.DataFrame: a dataframe of 'n' and 'count'
     """
     xG=G.copy()
     # traverse edges and label hetero/homo participants
@@ -322,12 +315,13 @@ def mwbxl(G:nx.Graph,crosslinker='GMA',monomer='STY'):
     return df
 
 def clusters(G:nx.Graph):
-    """clusters performs a clustering analysis and returns a histgram of cluster sizes (in numbers of molecules) as a pandas DataFrame
+    """Performs a clustering analysis and returns a histogram of cluster sizes (in numbers of molecules) as a pandas DataFrame.
 
-    :param G: molecular connectivity graph
-    :type G: nx.Graph
-    :return: cluster size histogram
-    :rtype: pd.DataFrame
+    Args:
+        G (nx.Graph): molecular connectivity graph
+
+    Returns:
+        pd.DataFrame: cluster size histogram
     """
     counts={}
     for c in sorted(nx.connected_components(G),key=len,reverse=True):
@@ -345,14 +339,12 @@ def clusters(G:nx.Graph):
     return df
 
 def compute_tg(T,v,n_points=[10,20]):
-    """compute_tg peforms a Tg determination from (volume or density) vs temperature data by fitting lines to the low-T region and another to the high-T region, taking Tg as the temperature at which they intersect.
+    """Performs a Tg determination from (volume or density) vs temperature data by fitting lines to the low-T region and another to the high-T region, taking Tg as the temperature at which they intersect.
 
-    :param T: temperature values
-    :type T: numpy.array
-    :param v: volume or density data
-    :type v: numpy.array
-    :param n_points: number of points on the low and high side to fit lines to, defaults to [10,20]
-    :type n_points: list, optional
+    Args:
+        T (numpy.array): temperature values
+        v (numpy.array): volume or density data
+        n_points (list): number of points on the low and high side to fit lines to, defaults to [10,20]
     """
     def func(x,a,b):
         return x*a+b
@@ -381,16 +373,15 @@ def compute_tg(T,v,n_points=[10,20]):
     return Tg,cold_par,hot_par
 
 def compute_E(strain,stress,fit_domain=[10,100]):
-    """compute_E compute the Young's modulus by peforming a linear fit to an elastic regime in stress-vs-strain data
+    """Computes the Young's modulus by performing a linear fit to an elastic regime in stress-vs-strain data.
 
-    :param strain: strain values
-    :type strain: numpy.array
-    :param stress: stress values
-    :type stress: numpy.array
-    :param fit_domain: domain over which fit is made, defaults to [10,100]
-    :type fit_domain: list, optional
-    :return: E and R2 from fit
-    :rtype: tuple(float,float)
+    Args:
+        strain (numpy.array): strain values
+        stress (numpy.array): stress values
+        fit_domain (list): domain over which fit is made, defaults to [10,100]
+
+    Returns:
+        tuple(float,float): E and R2 from fit
     """
     x=np.array(strain[fit_domain[0]:fit_domain[1]])
     y=np.array(stress[fit_domain[0]:fit_domain[1]])

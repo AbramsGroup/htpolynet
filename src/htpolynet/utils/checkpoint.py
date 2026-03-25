@@ -1,10 +1,6 @@
-"""
+"""Implements a simple checkpointing scheme using a wrapper.
 
-.. module:: checkpoint
-   :synopsis: Implements a simple checkpointing scheme using a wrapper
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import os
 import yaml
@@ -40,12 +36,13 @@ class Checkpoint:
 _CP_=Checkpoint()
 
 def enableCheckpoint(method):
-    """enableCheckpoint wraps any method so that every call is registered in a history of calls in a written checkpoint file
+    """Wraps any method so that every call is registered in a history of calls in a written checkpoint file.
 
-    :param method: name of method to be wrapped
-    :type method: method
-    :return: wrapped method
-    :rtype: method
+    Args:
+        method: name of method to be wrapped
+
+    Returns:
+        method: wrapped method
     """
     @functools.wraps(method)
     def wrapper_method(self,*args,**kwargs):
@@ -68,18 +65,17 @@ def enableCheckpoint(method):
     return wrapper_method
 
 def _write_checkpoint():
-    """_write_checkpoint writes the checkpoint file in its globally resolved location
-    """
+    """Writes the checkpoint file in its globally resolved location."""
     sv=os.getcwd()
     os.chdir(_CP_.my_abspath)
     _CP_.to_yaml()
     os.chdir(sv)
 
 def read_checkpoint():
-    """read_checkpoint creates a new global Checkpoint object by reading from the default file
+    """Creates a new global Checkpoint object by reading from the default file.
 
-    :return: current results dictionary with any pathnames resolved as absolute
-    :rtype: dict
+    Returns:
+        dict: current results dictionary with any pathnames resolved as absolute
     """
     global _CP_
     _CP_=Checkpoint.from_yaml()

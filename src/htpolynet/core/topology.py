@@ -1,10 +1,6 @@
-"""
+"""Class for managing gromacs .top file data.
 
-.. module:: topology
-   :synopsis: Class for managing gromacs .top file data
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import logging
 import json
@@ -24,13 +20,13 @@ logger=logging.getLogger(__name__)
 _PAD_=-99.99
 
 def typeorder(a):
-    """typeorder correctly order the tuple of atom types for particular
-        interaction types to maintain sorted type dataframes
+    """Correctly orders the tuple of atom types for particular interaction types.
 
-    :param a: tuple of atom indicies/types from a [ bond ], [ pair ], [ angle ], or [ dihedral ] record
-    :type a: tuple
-    :return: same atom indices/types correctly ordered to allow for easy searching/sorting
-    :rtype: tuple
+    Args:
+        a (tuple): atom indices/types from a [ bond ], [ pair ], [ angle ], or [ dihedral ] record
+
+    Returns:
+        tuple: same atom indices/types correctly ordered to allow for easy searching/sorting
     """
     assert type(a)==tuple, 'error: typeorder() requires a tuple argument'
     if len(a)==2: # bond
@@ -44,24 +40,22 @@ def typeorder(a):
 idxorder=typeorder  # same syntax to order global atom indices in an interaction index
 
 def repeat_check(t,msg=''):
-    """repeat_check Check for repeated index tuples
+    """Checks for repeated index tuples.
 
-    :param t: list of index tuples
-    :type t: list
-    :param msg: optional message, defaults to ''
-    :type msg: str, optional
+    Args:
+        t (list): list of index tuples
+        msg (str): optional message, defaults to ''
     """
     for i in range(len(t)):
         for j in range(i+1,len(t)):
             assert t[i]!=t[j],f'Error: repeated index in {len(t)}-tuple {t}: t({i})={t[i]}\n{msg}'
 
 def df_typeorder(df,typs):
-    """df_typeorder type-orders the atom type attributes in each row of dataframe df
+    """Type-orders the atom type attributes in each row of dataframe df.
 
-    :param df: a Topology type-directive dataframe; [ atomtypes ], [ bondtypes ], etc.
-    :type df: pandas.DataFrame
-    :param typs: list of type-attribute names; typically ['i','j',...]
-    :type typs: list
+    Args:
+        df (pandas.DataFrame): a Topology type-directive dataframe; [ atomtypes ], [ bondtypes ], etc.
+        typs (list): list of type-attribute names; typically ['i','j',...]
     """
     for i in df.index:
         df.loc[i,typs]=typeorder(tuple(df.loc[i,typs]))
@@ -115,16 +109,15 @@ _GromacsTopologyDirectiveDefaults_={
 }
 
 def select_topology_type_option(options,typename='dihedraltypes',rule='stiffest'):
-    """select_topology_type_option select from a list of topological interaction options of type typename using the provided rule
+    """Selects from a list of topological interaction options of type typename using the provided rule.
 
-    :param options: list of parameterization options for a particular interaction
-    :type options: list
-    :param typename: string designation of interaction type, defaults to 'dihedraltypes'
-    :type typename: str, optional
-    :param rule: string describing the selection rule, defaults to 'stiffest'
-    :type rule: str, optional
-    :return: the selection parameterization option
-    :rtype: element of options (dict)
+    Args:
+        options (list): list of parameterization options for a particular interaction
+        typename (str): string designation of interaction type, defaults to 'dihedraltypes'
+        rule (str): string describing the selection rule, defaults to 'stiffest'
+
+    Returns:
+        dict: the selected parameterization option (an element of options)
     """
     hashables=_GromacsTopologyHashables_[typename]
     headers=_GromacsTopologyDirectiveHeaders_[typename].copy()
@@ -148,10 +141,10 @@ class Topology:
     """ Class for handling gromacs top data
     """
     def __init__(self,system_name=''):
-        """__init__ Constructor for Topology class
+        """Constructor for Topology class.
 
-        :param system_name: optional name of system, defaults to ''
-        :type system_name: str, optional
+        Args:
+            system_name (str): optional name of system, defaults to ''
         """
         ''' D: a dictionay keyed on Gromacs topology directives with values that are lists of
                one or more pandas dataframes corresponding to sections '''
@@ -169,16 +162,20 @@ class Topology:
 
     @classmethod
     def read_top(cls,filename,pad=_PAD_):
-        """read_top Reads a Gromacs-style topology file 'filename' and returns a dictionary keyed on directive names.
-        Each value in the dictionary is a pandas dataframe.  Each
-        dataframe represents an individual section found with its directive in the file, with columns corresponding to the fields in the section.  Note that the we allow for input topology/itp files to have two 'dihedrals' and 'dihedraltypes' sections; these
-        are merged in the result.
+        """Reads a GROMACS-style topology file and returns a Topology instance.
 
-        :param filename: name of gromacs top file to read
-        :type filename: str
-        :raises KeyError: If an unrecognized topology directive is encountered, program exits on error
-        :return: a Topology instance
-        :rtype: Topology
+        Each directive section is stored as a pandas DataFrame. Duplicate 'dihedrals' and
+        'dihedraltypes' sections are merged.
+
+        Args:
+            filename (str): name of GROMACS top file to read
+            pad (float): padding value for missing fields, defaults to _PAD_
+
+        Raises:
+            KeyError: if an unrecognized topology directive is encountered
+
+        Returns:
+            Topology: a new Topology instance
         """
         assert os.path.exists(filename), f'Error: {filename} not found.'
         inst=cls()
@@ -265,8 +262,7 @@ class Topology:
             return inst
 
     def bond_source_check(self):
-        """bond_source_check Checks to ensure the 'bonds' dataframe and 'mol2_bonds' dataframe contain the same bonds.  A mol2 dataframe is only created when a mol2 file is read by the Coordinates module.
-        """
+        """Checks that the 'bonds' and 'mol2_bonds' dataframes contain the same bonds."""
         if 'bonds' in self.D and 'mol2_bonds' in self.D:
             # logger.debug(f'Consistency check between gromacs-top bonds and mol2-bonds requested.')
             grobonds=self.D['bonds'].sort_values(by=['ai','aj'])
@@ -285,25 +281,20 @@ class Topology:
                     logger.debug(f'{x} {y} {x==y}')
 
     def shiftatomsidx(self,idxshift,directive,rows=[],idxlabels=[]):
-        """shiftatomsidx shifts all atoms indexes in topology directive dataframe
+        """Shifts all atom indexes in a topology directive dataframe.
 
-        :param idxshift: integer index shift
-        :type idxshift: int
-        :param directive: name of gromacs topology directive ('atoms','bonds','pairs','angles','dihedrals')
-        :type directive: string
-        :param rows: row boundaries, defaults to []
-        :type rows: list, optional
-        :param idxlabels: names of columns that contain atom indexes, defaults to []
-        :type idxlabels: list, optional
+        Args:
+            idxshift (int): integer index shift
+            directive (str): name of GROMACS topology directive ('atoms','bonds','pairs','angles','dihedrals')
+            rows (list): row boundaries [start, end], defaults to []
+            idxlabels (list): names of columns that contain atom indexes, defaults to []
         """
         if directive in self.D:
             cols=self.D[directive].columns.get_indexer(idxlabels)
             self.D[directive].iloc[rows[0]:rows[1],cols]+=idxshift
 
     def detect_rings(self):
-        """detect_rings detect unique rings in the topology
-
-        """
+        """Detects unique rings in the topology."""
         g=self.bondlist.graph()
         self.rings=RingList([])
         for c in nx.chordless_cycles(g):
@@ -332,11 +323,13 @@ class Topology:
                 f.write(' '.join([str(x) for x in r.idx])+'\n')
 
     def rep_ex(self,count=0):
-        """Replicate extensive topology components (atoms, pairs, bonds, angles, dihedrals)
+        """Replicates extensive topology components (atoms, pairs, bonds, angles, dihedrals).
 
-        :param count: number of replicas to generate, defaults to 0
-        :type count: int, optional
-        :raises Exception: Dies if self is missing an atoms dataframe
+        Args:
+            count (int): number of replicas to generate, defaults to 0
+
+        Raises:
+            Exception: if self is missing an atoms dataframe
         """
         if count>0:
             counts={k:0 for k in _GromacsExtensiveDirectives_}
@@ -373,13 +366,13 @@ class Topology:
 
     @classmethod
     def from_ex(cls,other):
-        """from_ex make a new Topology instance by copying only the extensive dataframes
-            from an existing topology, plust the bondlist and ringlist
+        """Makes a new Topology instance by copying only the extensive dataframes from an existing topology.
 
-        :param other: the other topology
-        :type other: Topology
-        :return: a new Topology generated by the extensive dataframes of other
-        :rtype: Topology
+        Args:
+            other (Topology): the other topology
+
+        Returns:
+            Topology: a new Topology built from the extensive dataframes of other
         """
         ''' '''
         inst=cls()
@@ -392,10 +385,10 @@ class Topology:
         return inst
 
     def write_top(self,filename):
-        """Write topology to a gromacs-format top file
+        """Writes topology to a GROMACS-format top file.
 
-        :param filename: name of top file to write
-        :type filename: str
+        Args:
+            filename (str): name of top file to write
         """
         # This is required as of pandas v 2.2.0 to suppress an annoying warning
         pd.set_option('future.no_silent_downcasting', True)
@@ -422,11 +415,13 @@ class Topology:
             f.write('; end\n')
 
     def null_check(self,msg=''):
-        """Paranoid checking for NaNs in dataframe locations that SHOULD NEVER HAVE NANS
+        """Checks for NaNs in dataframe locations that should never have NaNs.
 
-        :param msg: a nice message, defaults to ''
-        :type msg: str, optional
-        :raises Exception: exits if a NaN is found
+        Args:
+            msg (str): context message, defaults to ''
+
+        Raises:
+            Exception: if a NaN is found in a required field
         """
         check = True
         for k in _GromacsTopologyDirectiveOrder_:
@@ -439,26 +434,26 @@ class Topology:
                             raise Exception('NaN error')
 
     def total_charge(self):
-        """Compute and return total system charge
+        """Computes and returns total system charge.
 
-        :return: charge
-        :rtype: float
+        Returns:
+            float: total system charge
         """
         if 'atoms' in self.D:
             return self.D['atoms']['charge'].sum()
         return 0.0
 
     def adjust_charges(self,atoms=[],desired_charge=0.0,overcharge_threshhold=0.1,msg=''):
-        """Adjust atom partial charges a tiny bit so that total system charge is zero
+        """Adjusts atom partial charges so that total system charge equals the desired value.
 
-        :param desired_charge: target system charge, defaults to 0.0
-        :type desired_charge: float, optional
-        :param overcharge_threshhold: threshold overcharge that triggers a message, defaults to 0.1
-        :type overcharge_threshhold: float, optional
-        :param msg: A message to write if pre-adjusted system charge is too high, defaults to ''
-        :type msg: str, optional
-        :return: self topology
-        :rtype: Topology
+        Args:
+            atoms (list): global atom indices to adjust, defaults to []
+            desired_charge (float): target system charge, defaults to 0.0
+            overcharge_threshhold (float): threshold overcharge that triggers a warning message, defaults to 0.1
+            msg (str): message to write if pre-adjusted system charge is too high, defaults to ''
+
+        Returns:
+            Topology: self
         """
         apparent_charge=self.total_charge()
         overcharge=apparent_charge-desired_charge
@@ -475,10 +470,11 @@ class Topology:
     def total_mass(self,units='gromacs'):
         """Returns total mass of all atoms in the Topology.
 
-        :param units: unit system designation; if 'SI' returns kg, defaults to 'gromacs'
-        :type units: str, optional
-        :return: mass (in amu if units is 'gromacs' or kg if units is 'SI')
-        :rtype: float
+        Args:
+            units (str): unit system; 'SI' returns kg, 'gromacs' returns amu, defaults to 'gromacs'
+
+        Returns:
+            float: total mass in amu (gromacs) or kg (SI)
         """
         fac=1.0
         if units=='SI':
@@ -490,25 +486,22 @@ class Topology:
         return 0.0
 
     def atomcount(self):
-        """atomcount Returns the total number of atoms
+        """Returns the total number of atoms.
 
-        :return: number of atoms
-        :rtype: int
+        Returns:
+            int: number of atoms
         """
         if 'atoms' in self.D:
             return self.D['atoms'].shape[0]
         return 0
     
     def add_restraints(self,pairdf,typ=6,kb=300000.):
-        """Add type-6 (non-topoogical) bonds to help drag atoms destined to be bonded
-        closer together in a series of dragging simulations
+        """Adds type-6 (non-topological) bonds to help drag atoms toward each other.
 
-        :param pairdf: dataframe of pairs ['ai','aj']
-        :type pairdf: pandas DataFrame
-        :param typ: bond type, defaults to 6
-        :type typ: int, optional
-        :param kb: bond spring constant (kJ/mol/nm^2), defaults to 300000
-        :type kb: float, optional
+        Args:
+            pairdf (pandas.DataFrame): dataframe of pairs ['ai','aj']
+            typ (int): bond type, defaults to 6
+            kb (float): bond spring constant (kJ/mol/nm^2), defaults to 300000
         """
         bmi=self.D['bonds'].set_index(['ai','aj']).sort_index().index
         for i,b in pairdf.iterrows():
@@ -522,13 +515,12 @@ class Topology:
                 self.D['bonds']=pd.concat((self.D['bonds'],bdtoadd),ignore_index=True)
 
     def remove_restraints(self,pairdf):
-        """Remove all bonds represented in in pairdf.
-        These are interpreted as non-topological
-        restraints, so deleting these 'bonds' does 
-        not influence angles or dihedrals
+        """Removes all non-topological restraint bonds represented in pairdf.
 
-        :param pairdf: dataframe of pairs ['ai','aj']
-        :type pairdf: pandas DataFrame
+        Deleting these bonds does not influence angles or dihedrals.
+
+        Args:
+            pairdf (pandas.DataFrame): dataframe of pairs ['ai','aj']
         """
         d=self.D['bonds']
         to_drop=[]
@@ -538,11 +530,13 @@ class Topology:
         self.D['bonds']=self.D['bonds'].drop(to_drop)
 
     def add_bonds(self,pairs=[]):
-        """add_bonds Adds bonds indicated in list pairs to the topology
+        """Adds bonds indicated in list pairs to the topology.
 
-        :param pairs: list of pairs of atom indexes, defaults to []
-        :type pairs: list, optional
-        :raises Exception: dies if an existing bond is in the list of pairs
+        Args:
+            pairs (list): list of (ai, aj, order) tuples, defaults to []
+
+        Raises:
+            Exception: if an existing bond is in the list of pairs
         """
         # logger.debug('begins')
         at=self.D['atoms']
@@ -620,16 +614,15 @@ class Topology:
 
 
     def delete_atoms(self,idx=[],reindex=True,return_idx_of=[],**kwargs):
-        """Delete atoms from topology
+        """Deletes atoms from topology.
 
-        :param idx: list of atom indexes to delete, defaults to []
-        :type idx: list, optional
-        :param reindex: reindex atoms after deleting, defaults to True
-        :type reindex: bool, optional
-        :param return_idx_of: list of old indices to report new indices of, defaults to []
-        :type return_idx_of: list, optional
-        :return: old-index-to-new-index mapper
-        :rtype: dict
+        Args:
+            idx (list): atom indexes to delete, defaults to []
+            reindex (bool): reindex atoms after deleting, defaults to True
+            return_idx_of (list): old indices whose new indices should be returned, defaults to []
+
+        Returns:
+            dict: old-index-to-new-index mapper
         """
         #logger.debug(f'Delete atoms: {idx}')
         paranoid_about_pairs=kwargs.get('paranoid_about_pairs',False)
@@ -793,10 +786,10 @@ class Topology:
             self.D[directive]=other.D[directive]
 
     def merge(self,other):
-        """Merge topologies
+        """Merges another topology into self.
 
-        :param other: a topology
-        :type other: Topology
+        Args:
+            other (Topology): topology to merge in
         """
         # logger.debug('Topology.merge begins')
         # look for duplicated types between self and other.  If any are found, delete those types from other and copy their parameters into the explicit interactions they correspond to.
@@ -956,11 +949,13 @@ class Topology:
         return true_duplicate_types
 
     def dup_check(self,die=True):
-        """Check for duplicate type-like topology records
+        """Checks for duplicate type-like topology records.
 
-        :param die: flag telling HTPolyNet to exit if duplicate found, defaults to True
-        :type die: bool, optional
-        :raises Exception: Exception raised if duplicate found and die is True
+        Args:
+            die (bool): if True, raise an exception when a duplicate is found, defaults to True
+
+        Raises:
+            Exception: if a duplicate type with different parameters is detected and die is True
         """
         L=['atomtypes','bondtypes','angletypes']
         Not=' not' if not die else ''
@@ -975,10 +970,10 @@ class Topology:
                     raise Exception('duplicate topology types with different parameters detected')
 
     def merge_types(self,other):
-        """Merge type-like topology dataframes from other to self
+        """Merges type-like topology dataframes from other to self.
 
-        :param other: topology containing attribute D, a dictionary of dataframes
-        :type other: Topology
+        Args:
+            other (Topology): topology containing attribute D, a dictionary of dataframes
         """
         # self.handle_duplicate_types(other,typename='dihedraltypes',funcidx=4,drop_directive='drop_from_self')
         L=['atomtypes','bondtypes','angletypes','dihedraltypes']
@@ -1007,24 +1002,25 @@ class Topology:
         self.rings.extend(other.rings)
 
     def get_atom_attribute(self,idx,attribute):
-        """Return value of attribute of atom idx
+        """Returns value of attribute of atom idx.
 
-        :param idx: global atom index
-        :type idx: int
-        :param attribute: atom attribute name
-        :type attribute: str
-        :return: atom attribute value
-        :rtype: varies
+        Args:
+            idx (int): global atom index
+            attribute (str): atom attribute name
+
+        Returns:
+            atom attribute value
         """
         return self.D['atoms'].iloc[idx-1][attribute]
 
     def get_atomtype(self,idx):
-        """Get atom type of atom with global index idx
+        """Gets atom type of atom with global index idx.
 
-        :param idx: atom global index
-        :type idx: int
-        :return: atom typ
-        :rtype: str
+        Args:
+            idx (int): atom global index
+
+        Returns:
+            str: atom type
         """
 #        logger.debug(f'Asking get_atomtype for type of atom with index {idx}')
         return self.D['atoms'].iloc[idx-1].type
@@ -1108,13 +1104,13 @@ class Topology:
                     f.write(str(the_data)+'\n')
 
     def copy_bond_parameters(self,bonds):
-        """Generate and return a copy of a bonds dataframe that contains all bonds
-           listed in bonds
+        """Generates and returns a copy of a bonds dataframe that contains all bonds listed in bonds.
 
-        :param bonds: dataframe of bonds managed by runtime, 'ai','aj','reactantName'
-        :type bonds: pandas.DataFrame
-        :return: [ bonds ] dataframe extracted from system with all parameters
-        :rtype: pandas.DataFrame
+        Args:
+            bonds (pandas.DataFrame): dataframe of bonds managed by runtime, 'ai','aj','reactantName'
+
+        Returns:
+            pandas.DataFrame: bonds dataframe extracted from system with all parameters
         """
         bdf=self.D['bonds']
         assert not(any(bdf['c0'].isna()))
@@ -1134,20 +1130,17 @@ class Topology:
         return saveme
 
     def attenuate_bond_parameters(self,bondsdf,stage,max_stages,minimum_distance=0.0,init_colname='initial_distance'):
-        """Alter the kb and b0 parameters for new crosslink bonds according to the values prior to 
-            relaxation (stored in lengths), their equilibrium values, and the ratio stage/max_stages.
-            Let stage/max_stages be x, and 1/max_stages <= x <= 1.  The spring constant for each
-            bond is multiplied by x and the distance is 1 xth of the way from its maximum value 
-            to its equilibrium value.
+        """Alters the kb and b0 parameters for new crosslink bonds according to the values prior to relaxation, their equilibrium values, and the ratio stage/max_stages.
 
-        :param bonds: dataframe of bonds managed by runtime, 'ai','aj','reactantName'
-        :type bonds: pandas.DataFrame
-        :param stage: index of stage in the series of post-bond-formation relaxation ("R" of SCUR)
-        :type stage: int
-        :param max_stages: total number of relaxation stages for this iteration
-        :type max_stages: int
-        :param minimum_distance: minimum bondlegth allowed, overriding type-specific b0 (if greater than 0)
-        :type lengths: float
+        Let stage/max_stages be x, and 1/max_stages <= x <= 1. The spring constant for each
+        bond is multiplied by x and the distance is 1/x of the way from its maximum value to
+        its equilibrium value.
+
+        Args:
+            bondsdf (pandas.DataFrame): dataframe of bonds managed by runtime, 'ai','aj','reactantName'
+            stage (int): index of stage in the series of post-bond-formation relaxation
+            max_stages (int): total number of relaxation stages for this iteration
+            minimum_distance (float): minimum bond length allowed, overriding type-specific b0 if greater than 0
         """
         bdf=self.D['bonds']
         factor=(stage+1)/max_stages
@@ -1166,14 +1159,14 @@ class Topology:
             bdf.loc[(bdf['ai']==ai)&(bdf['aj']==aj),'c1']=new_kb
 
     def get_bond_parameters(self,ai,aj):
-        """Gets b0 and kb for bond between atoms with global indexes ai and aj
+        """Gets b0 and kb for bond between atoms with global indexes ai and aj.
 
-        :param ai: global atom index
-        :type ai: int
-        :param aj: global atom index
-        :type aj: int
-        :return: b0, kb -- equilibrium bond length and spring constant
-        :rtype: 2-tuple
+        Args:
+            ai (int): global atom index
+            aj (int): global atom index
+
+        Returns:
+            tuple: b0, kb — equilibrium bond length and spring constant
         """
         ai,aj=idxorder((ai,aj))
         adf=self.D['atoms']
@@ -1191,10 +1184,10 @@ class Topology:
         return b0,kb
 
     def restore_bond_parameters(self,df):
-        """Copy data from all bonds in dataframe df to global dataframe
+        """Copies data from all bonds in dataframe df to global dataframe.
 
-        :param df: dataframe of bonds ['ai','aj','c0','c1']
-        :type df: pandas DataFrame
+        Args:
+            df (pandas.DataFrame): dataframe of bonds ['ai','aj','c0','c1']
         """
         bdf=self.D['bonds']
         for r in df.itertuples():
@@ -1204,19 +1197,13 @@ class Topology:
             bdf.loc[(bdf['ai']==ai)&(bdf['aj']==aj),'c1']=c1
 
     def attenuate_pair_parameters(self,pairsdf,stage,max_stages,draglimit_nm=0.3):
-        """Alter the kb and b0 parameters for new pre-crosslink pairs according 
-            to the values prior to dragging (stored in pairdf['initial_distances']), 
-            the desired lower limit of interatomic distance 'draglimit_nm', 
-            and the ratio stage/max_stages.
-            
-        :param pairdf: pairs dataframe (['ai'],['aj'],['initial_distance'])
-        :type pairdf: pandas.DataFrame
-        :param stage: index of stage in the series of pre-bond-formation dragging
-        :type stage: int
-        :param max_stages: total number of drag stages for this iteration
-        :type max_stages: int
-        :param draglimit_nm: lower limit of interatomic distance requested from drag
-        :type draglimit_nm: float
+        """Alters the kb and b0 parameters for new pre-crosslink pairs according to the values prior to dragging, the desired lower limit of interatomic distance, and the ratio stage/max_stages.
+
+        Args:
+            pairsdf (pandas.DataFrame): pairs dataframe (['ai'],['aj'],['initial_distance'])
+            stage (int): index of stage in the series of pre-bond-formation dragging
+            max_stages (int): total number of drag stages for this iteration
+            draglimit_nm (float): lower limit of interatomic distance requested from drag
         """
         pdf=self.D['pairs']
         ess='s' if pairsdf.shape[0]>1 else ''

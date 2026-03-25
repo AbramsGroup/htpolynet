@@ -1,10 +1,6 @@
-"""
+"""Manages generation of molecular templates.
 
-.. module:: molecule
-   :synopsis: manages generation of molecular templates
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import os
 import pandas as pd
@@ -27,14 +23,14 @@ from htpolynet.cure.chain import ChainManager
 logger=logging.getLogger(__name__)
 
 def _rotmat(axis,radians):
-    """_rotmat generates a rotation matrix that rotates coordinates around axis by radians
+    """Generates a rotation matrix that rotates coordinates around axis by radians.
 
-    :param axis: 0=x,1=y,2=z
-    :type axis: int
-    :param radians: angle measure
-    :type radians: float
-    :return: rotation matrix
-    :rtype: np.ndarray(3,float)
+    Args:
+        axis (int): 0=x, 1=y, 2=z
+        radians (float): angle measure
+
+    Returns:
+        np.ndarray(3,float): rotation matrix
     """
     R=np.identity(3)
     sr=np.sin(radians)
@@ -57,16 +53,15 @@ def _rotmat(axis,radians):
     return R
 
 def yield_bonds(R:Reaction,TC:TopoCoord,resid_mapper):
-    """yield_bonds for each bond pattern in the reaction R, yield the specific bond represented by this pattern in the molecule's topology
+    """For each bond pattern in the reaction R, yields the specific bond represented by this pattern in the molecule's topology.
 
-    :param R: a Reaction
-    :type R: Reaction
-    :param TC: molecule topology and coordinates
-    :type TC: TopoCoord
-    :param resid_mapper: dictionary that maps in-reactant resids to in-product resids
-    :type resid_mapper: dict
-    :yield: a reaction bond
-    :rtype: ReactionBond
+    Args:
+        R (Reaction): a Reaction
+        TC (TopoCoord): molecule topology and coordinates
+        resid_mapper (dict): dictionary that maps in-reactant resids to in-product resids
+
+    Yields:
+        ReactionBond: a reaction bond
     """
     nreactants=len(R.reactants)
     for bondrec in R.bonds:
@@ -86,16 +81,15 @@ def yield_bonds(R:Reaction,TC:TopoCoord,resid_mapper):
         yield ReactionBond(atom_idx,in_product_resids,order,bystander_resids,bystander_atomidx,oneaway_resids,oneaway_atomidx)
 
 def yield_bonds_as_df(R:Reaction,TC:TopoCoord,resid_mapper):
-    """yield_bonds_as_df returns a pandas DataFrame identifying all reaction bonds obtained by matching the reaction template bonds to instances in the molecule topology
+    """Returns a pandas DataFrame identifying all reaction bonds obtained by matching the reaction template bonds to instances in the molecule topology.
 
-    :param R: a Reaction
-    :type R: Reaction
-    :param TC: molecule topology and coordinates
-    :type TC: TopoCoord
-    :param resid_mapper: dictionary that maps in-reactant resids to in-product resids
-    :type resid_mapper: dict
-    :return: dataframe with all reaction bonds
-    :rtype: pd.DataFrame
+    Args:
+        R (Reaction): a Reaction
+        TC (TopoCoord): molecule topology and coordinates
+        resid_mapper (dict): dictionary that maps in-reactant resids to in-product resids
+
+    Returns:
+        pd.DataFrame: dataframe with all reaction bonds
     """
     bdf=pd.DataFrame()
     nreactants=len(R.reactants)
@@ -137,16 +131,15 @@ class Molecule:
 
     @classmethod
     def New(cls,mol_name,generator:Reaction,molrec={}):
-        """New generates a new, partially populated Molecule based on directives in the configuration input
+        """Generates a new, partially populated Molecule based on directives in the configuration input.
 
-        :param mol_name: name of molecule
-        :type mol_name: str
-        :param generator: reaction that generates this molecule, if applicable
-        :type generator: Reaction
-        :param molrec: dictionary of directive for this molecule, defaults to {}
-        :type molrec: dict, optional
-        :return: a new Molecule object
-        :rtype: Molecule
+        Args:
+            mol_name (str): name of molecule
+            generator (Reaction): reaction that generates this molecule, if applicable
+            molrec (dict, optional): dictionary of directives for this molecule, defaults to {}
+
+        Returns:
+            Molecule: a new Molecule object
         """
         M=cls(name=mol_name)
         M.generator=generator
@@ -172,28 +165,27 @@ class Molecule:
         return M
 
     def set_origin(self,value):
-        """set_origin sets the value of the origin member
+        """Sets the value of the origin member.
 
-        :param value: value
-        :type value: anything
+        Args:
+            value: value to assign
         """
         self.origin=value
 
     def get_origin(self):
-        """get_origin returns the value of the origin member
+        """Returns the value of the origin member.
 
-        :return: value of origin member
-        :rtype: anything
+        Returns:
+            value of origin member
         """
         return self.origin
 
     def update_zrecs(self,zrecs,moldict):
-        """update_zrecs updates the "z-records" based on z's declared in the input configuration file
+        """Updates the "z-records" based on z's declared in the input configuration file.
 
-        :param zrecs: zrecs extracted from configuration file for this molecule
-        :type zrecs: dict
-        :param moldict: dictionary of available molecules
-        :type moldict: dicts
+        Args:
+            zrecs (dict): zrecs extracted from configuration file for this molecule
+            moldict (dict): dictionary of available molecules
         """
         def replace_if_greater(rec,D,matchattr=[],maxattr=[]):
             if not matchattr or not maxattr: return
@@ -218,12 +210,13 @@ class Molecule:
             logger.debug(f'-> {target.name} {target.zrecs}')
 
     def determine_sequence(self,moldict):
-        """determine_sequence recursively determine the sequence of a molecule using the network of reactions that must be executed to generate it from primitives
+        """Recursively determines the sequence of a molecule using the network of reactions that must be executed to generate it from primitives.
 
-        :param moldict: dictionary of available molecules
-        :type moldict: dict
-        :return: list of resnames in order of sequence
-        :rtype: list
+        Args:
+            moldict (dict): dictionary of available molecules
+
+        Returns:
+            list: list of resnames in order of sequence
         """
         if not self.generator: return [self.parentname]
         R:Reaction=self.generator
@@ -235,12 +228,13 @@ class Molecule:
         return thisseq
     
     def set_sequence_from_moldict(self,moldict):
-        """set_sequence_from_moldict set the sequence of this molecule using the recursive determine_sequence method
+        """Sets the sequence of this molecule using the recursive determine_sequence method.
 
-        :param moldict: dictionary of available molecules
-        :type moldict: dict
-        :return: self
-        :rtype: Molecule
+        Args:
+            moldict (dict): dictionary of available molecules
+
+        Returns:
+            Molecule: self
         """
         self.sequence=self.determine_sequence(moldict)
         return self
@@ -261,10 +255,10 @@ class Molecule:
         return self
 
     def create_new_stereoisomers(self):
-        """create_new_stereoisomers generate new molecules to hold stereoisomers of self
+        """Generates new molecules to hold stereoisomers of self.
 
-        :return: None if no action taken
-        :rtype: none
+        Returns:
+            None: returns early if no action taken
         """
         if self.generator: return  # we only consider stereoisomers on monomers
         if not self.stereocenters: return
@@ -360,10 +354,10 @@ class Molecule:
         self.initialize_molecule_rings()
 
     def previously_parameterized(self):
-        """previously_parameterized if a gro file exists in the project molecule/parameterized directory for this molecule, return True
+        """Returns True if a gro file exists in the project molecule/parameterized directory for this molecule.
 
-        :return: True if gro file found
-        :rtype: bool
+        Returns:
+            bool: True if gro file found
         """
         rval=True
         for ext in ['gro']:
@@ -371,12 +365,11 @@ class Molecule:
         return rval
 
     def parameterize(self,outname='',input_structure_format='mol2',**kwargs):
-        """parameterize manages GAFF parameterization of this molecule
+        """Manages GAFF parameterization of this molecule.
 
-        :param outname: output file basename, defaults to ''
-        :type outname: str, optional
-        :param input_structure_format: input structure format, defaults to 'mol2' ('pdb' is other possibility)
-        :type input_structure_format: str, optional
+        Args:
+            outname (str, optional): output file basename, defaults to ''
+            input_structure_format (str, optional): input structure format, defaults to 'mol2' ('pdb' is other possibility)
         """
         assert os.path.exists(f'{self.name}.{input_structure_format}'),f'Cannot parameterize molecule {self.name} without {self.name}.{input_structure_format} as input'
         if outname=='':
@@ -387,20 +380,20 @@ class Molecule:
         self.TopoCoord.write_tpx(f'{outname}.tpx')
 
     def minimize(self,outname='',**kwargs):
-        """minimize manages invocation of vacuum minimization
+        """Manages invocation of vacuum minimization.
 
-        :param outname: output file basename, defaults to ''
-        :type outname: str, optional
+        Args:
+            outname (str, optional): output file basename, defaults to ''
         """
         if outname=='':
             outname=f'{self.name}'
         self.TopoCoord.vacuum_minimize(outname,**kwargs)
 
     def relax(self,relax_dict):
-        """relax manages invocation of MD relaxations
+        """Manages invocation of MD relaxations.
 
-        :param relax_dict: dictionary of simulation directives
-        :type relax_dict: dict
+        Args:
+            relax_dict (dict): dictionary of simulation directives
         """
         deffnm=relax_dict.get('deffnm',f'{self.name}-relax')
         nsteps=relax_dict.get('nsteps',10000)
@@ -415,20 +408,19 @@ class Molecule:
         self.TopoCoord.grompp_and_mdrun(out=deffnm,mdp=mdp_prefix,boxSize=boxsize)
 
     def center_coords(self,new_boxsize:np.ndarray=None):
-        """center_coords wrapper for the TopoCoord.center_coords method
+        """Wrapper for the TopoCoord.center_coords method.
 
-        :param new_boxsize: new box size, defaults to None
-        :type new_boxsize: np.ndarray, optional
+        Args:
+            new_boxsize (np.ndarray, optional): new box size, defaults to None
         """
         self.TopoCoord.center_coords(new_boxsize)
 
     def generate(self,outname='',available_molecules={},**kwargs):
-        """generate manages generating topology and coordinates for self
+        """Manages generating topology and coordinates for self.
 
-        :param outname: output file basename, defaults to ''
-        :type outname: str, optional
-        :param available_molecules: dictionary of available molecules, defaults to {}
-        :type available_molecules: dict, optional
+        Args:
+            outname (str, optional): output file basename, defaults to ''
+            available_molecules (dict, optional): dictionary of available molecules, defaults to {}
         """
         logger.debug(f'{self.name}.generate() begins')
         if outname=='': outname=f'{self.name}'
@@ -523,19 +515,19 @@ class Molecule:
         logger.debug('Done.')
 
     def get_molecular_weight(self):
-        """get_molecular_weight returns the molecular weight of self
+        """Returns the molecular weight of self.
 
-        :return: _description_
-        :rtype: _type_
+        Returns:
+            float: molecular weight in g/mol
         """
         mass=self.TopoCoord.total_mass(units='gromacs') # g
         return mass
 
     def prepare_new_bonds(self,available_molecules={}):
-        """prepare_new_bonds populates the bond templates and reaction bonds for self
+        """Populates the bond templates and reaction bonds for self.
 
-        :param available_molecules: dictionary of available molecules, defaults to {}
-        :type available_molecules: dict, optional
+        Args:
+            available_molecules (dict, optional): dictionary of available molecules, defaults to {}
         """
         # logger.debug(f'set_reaction_bonds: molecules {list(available_molecules.keys())}')
         R=self.generator
@@ -579,21 +571,20 @@ class Molecule:
             self.bond_templates.append(BondTemplate(atom_names,in_product_resnames,intraresidue,order,bystander_resnames,bystander_atomnames,oneaway_resnames,oneaway_atomnames))
 
     def idx_mappers(self,otherTC:TopoCoord,other_bond,bystanders,oneaways,uniq_atom_idx:set):
-        """idx_mappers computes the mapping dictionary from molecule template index to instance index in the other TopoCoord
+        """Computes the mapping dictionary from molecule template index to instance index in the other TopoCoord.
 
-        :param otherTC: the other TopoCoord
-        :type otherTC: TopoCoord
-        :param other_bond: 2 atom indices of the bond in the other TopoCoord
-        :type other_bond: list-like container of length 2
-        :param bystanders: bystander lists, one for each reacting atom
-        :type bystanders: lists
-        :param oneaways: oneaways, one for each atom in the bond
-        :type oneaways: list (2)
-        :param uniq_atom_idx: set of unique atoms in template that must be mapped to instance
-        :type uniq_atom_idx: set
-        :raises Exception: if there is a buggy double-counting of one or more indexes
-        :return: two-way dictionaries of index mappers instance<->template
-        :rtype: tuple of two dictionaries
+        Args:
+            otherTC (TopoCoord): the other TopoCoord
+            other_bond: 2 atom indices of the bond in the other TopoCoord
+            bystanders: bystander lists, one for each reacting atom
+            oneaways: oneaways, one for each atom in the bond
+            uniq_atom_idx (set): set of unique atoms in template that must be mapped to instance
+
+        Raises:
+            Exception: if there is a buggy double-counting of one or more indexes
+
+        Returns:
+            tuple: two-way dictionaries of index mappers instance<->template
         """
         assert len(other_bond)==2
         assert len(bystanders)==2
@@ -659,13 +650,16 @@ class Molecule:
         return (inst2temp,temp2inst)
 
     def get_angles_dihedrals(self,bond):
-        """get_angles_dihedrals returns copies of selections from the Topology interaction-type dataframes that contain the two atoms indicated in the bond
+        """Returns copies of selections from the Topology interaction-type dataframes that contain the two atoms indicated in the bond.
 
-        :param bond: 2-element list-like container of ints
-        :type bond: list-like container
-        :raises Exception: dies if a NaN is found in any selection
-        :return: tuple of the three dataframe selection copies for angles, dihedrals, and 1-4 pairs 
-        :rtype: tuple
+        Args:
+            bond: 2-element list-like container of ints
+
+        Raises:
+            Exception: if a NaN is found in any selection
+
+        Returns:
+            tuple: copies of the dataframe selections for angles, dihedrals, and 1-4 pairs
         """
         ai,aj=bond
         d=self.TopoCoord.Topology.D['angles']
@@ -702,12 +696,13 @@ class Molecule:
         return ad,td,paird
 
     def get_resname(self,internal_resid):
-        """get_resname returns the residue name at position internal_resid in the molecule's sequence
+        """Returns the residue name at position internal_resid in the molecule's sequence.
 
-        :param internal_resid: molecule-internal residue index
-        :type internal_resid: int
-        :return: residue name
-        :rtype: str
+        Args:
+            internal_resid (int): molecule-internal residue index
+
+        Returns:
+            str: residue name
         """
         return self.sequence[internal_resid-1]
 
@@ -758,69 +753,62 @@ class Molecule:
     #     adf[attribute]=ordered_attribute_idx
 
     def merge(self,other):
-        """merge merges TopoCoord from other into self's TopoCoord
+        """Merges TopoCoord from other into self's TopoCoord.
 
-        :param other: another Molecule
-        :type other: Molecule
-        :return: a shift tuple (returned by Coordinates.merge())
-        :rtype: tuple
+        Args:
+            other (Molecule): another Molecule
+
+        Returns:
+            tuple: a shift tuple (returned by Coordinates.merge())
         """
         shifts=self.TopoCoord.merge(other.TopoCoord)
         return shifts
 
     def load_top_gro(self,topfilename,grofilename,tpxfilename='',mol2filename='',**kwargs):
-        """load_top_gro generate a new TopoCoord member object for this molecule by reading in a Gromacs topology file and a Gromacs gro file
+        """Generates a new TopoCoord member object for this molecule by reading in a Gromacs topology file and a Gromacs gro file.
 
-        :param topfilename: Gromacs topology file
-        :type topfilename: str
-        :param grofilename: Gromacs gro file
-        :type grofilename: str
-        :param tpxfilename: extended topology file, defaults to ''
-        :type tpxfilename: str, optional
-        :param mol2filename: alternative coordinate mol2 file, defaults to ''
-        :type mol2filename: str, optional
+        Args:
+            topfilename (str): Gromacs topology file
+            grofilename (str): Gromacs gro file
+            tpxfilename (str, optional): extended topology file, defaults to ''
+            mol2filename (str, optional): alternative coordinate mol2 file, defaults to ''
         """
         self.TopoCoord=TopoCoord(topfilename=topfilename,grofilename=grofilename,tpxfilename=tpxfilename,mol2filename=mol2filename,**kwargs)
 
     def set_gro_attribute(self,attribute,srs):
-        """set_gro_attribute sets attribute of atoms to srs (drillst through to Coordinates.set_atomset_attributes())
+        """Sets attribute of atoms to srs (drills through to Coordinates.set_atomset_attributes()).
 
-        :param attribute: name of attribute
-        :type attribute: str
-        :param srs: scalar or list-like attribute values in same ordering as self.A
-        :type srs: scalar or list-like
+        Args:
+            attribute (str): name of attribute
+            srs: scalar or list-like attribute values in same ordering as self.A
         """
         self.TopoCoord.set_gro_attribute(attribute,srs)
 
     def read_gro_attributes(self,grxfilename,attribute_list=[]):
-        """Read attributes from file into self.TopoCoord.Coordinates.A
+        """Reads attributes from file into self.TopoCoord.Coordinates.A.
 
-        :param grxfilename: name of input file
-        :type grxfilename: str
-        :param attribute_list: list of attributes to take, defaults to [] (take all)
-        :type attribute_list: list, optional
+        Args:
+            grxfilename (str): name of input file
+            attribute_list (list, optional): list of attributes to take, defaults to [] (take all)
         """
         self.TopoCoord.read_gro_attributes(grxfilename,attribute_list=attribute_list)
 
     def write_gro_attributes(self,attribute_list,grxfilename):
-        """Writes atomic attributes to a file
+        """Writes atomic attributes to a file.
 
-        :param attributes_list: list of attributes to write
-        :type attributes_list: list
-        :param grxfilename: name of output file
-        :type grxfilename: str
+        Args:
+            attribute_list (list): list of attributes to write
+            grxfilename (str): name of output file
         """
         self.TopoCoord.write_gro_attributes(attribute_list,grxfilename)
 
     def make_bonds(self,bdf:pd.DataFrame,moldict,stage):
-        """make_bonds adds new bonds to the molecule's topology and deletes any sacrificial hydrogens
+        """Adds new bonds to the molecule's topology and deletes any sacrificial hydrogens.
 
-        :param bdf: pandas dataframe identifying new bonds
-        :type bdf: pd.DataFrame
-        :param moldict: dictionary of available molecular templates
-        :type moldict: dict
-        :param stage: enumerated parameter indicating reaction_stage
-        :type stage: reaction_stage(Enum)
+        Args:
+            bdf (pd.DataFrame): pandas dataframe identifying new bonds
+            moldict (dict): dictionary of available molecular templates
+            stage (reaction_stage): enumerated parameter indicating reaction_stage
         """
         TC=self.TopoCoord
         explicit_sacrificial_Hs={}
@@ -839,20 +827,17 @@ class Molecule:
         self.initialize_molecule_rings()
 
     def transrot(self,at_idx,at_resid,from_idx,from_resid,connected_resids=[]):
-        """transrot given a composite molecule, translate and rotate the piece downstream of the yet-to-be created bond specified by (at_idx,at_resid) and (from_idx,from_resid) to minimize steric overlaps and identify the best two sacrificial hydrogens
+        """Given a composite molecule, translates and rotates the piece downstream of the yet-to-be-created bond to minimize steric overlaps and identify the best two sacrificial hydrogens.
 
-        :param at_idx: global index of left-hand atom in new bond
-        :type at_idx: int
-        :param at_resid: global index of left-hand residue
-        :type at_resid: int
-        :param from_idx: global index of right-hand atom in new
-        :type from_idx: int
-        :param from_resid: global index of right-hand residue
-        :type from_resid: int
-        :param connected_resids: list of all other resids attached to right-hand residue that should move with it, defaults to []
-        :type connected_resids: list, optional
-        :return: 2-tuple containing global indices 
-        :rtype: tuple
+        Args:
+            at_idx (int): global index of left-hand atom in new bond
+            at_resid (int): resid of left-hand residue
+            from_idx (int): global index of right-hand atom in new bond
+            from_resid (int): resid of right-hand residue
+            connected_resids (list, optional): list of all other resids attached to right-hand residue that should move with it, defaults to []
+
+        Returns:
+            tuple: 2-tuple containing global indices of the sacrificial hydrogens
         """
         # Rotate and translate
         if at_resid==from_resid:
@@ -937,37 +922,34 @@ class Molecule:
         return myH,otH
 
     def atoms_w_same_attribute_as(self,find_dict={},same_attribute='',return_attribute=''):
-        """atoms_w_same_attribute_as returns a list of atom attributes named in the return_attribute parameter from atoms that share an attribute named in the same_attribute parameter with the atom identified by the find_dict parameter
+        """Returns a list of atom attributes named in return_attribute from atoms that share an attribute named in same_attribute with the atom identified by find_dict.
 
-        :param find_dict: dictionary of attribute:value pairs that should uniquely identify an atom, defaults to {}
-        :type find_dict: dict, optional
-        :param same_attribute: name of attribute used to screen atoms, defaults to ''
-        :type same_attribute: str, optional
-        :param return_attribute: attribute value to return a list of from the screened atoms, defaults to ''
-        :type return_attribute: str, optional
-        :return: list of attribute values
-        :rtype: list
+        Args:
+            find_dict (dict, optional): dictionary of attribute:value pairs that should uniquely identify an atom, defaults to {}
+            same_attribute (str, optional): name of attribute used to screen atoms, defaults to ''
+            return_attribute (str, optional): attribute value to return a list of from the screened atoms, defaults to ''
+
+        Returns:
+            list: list of attribute values
         """
         att_val=self.TopoCoord.get_gro_attribute_by_attributes(same_attribute,find_dict)
         return self.TopoCoord.get_gro_attributelist_by_attributes(return_attribute,{same_attribute:att_val})
 
     def flip_stereocenters(self,idxlist):
-        """flip_stereocenters flips stereochemistry of atoms in idxlist
+        """Flips stereochemistry of atoms in idxlist.
 
-        :param idxlist: global indices of chiral atoms
-        :type idxlist: list
+        Args:
+            idxlist (list): global indices of chiral atoms
         """
         self.TopoCoord.flip_stereocenters(idxlist)
 
     def rotate_bond(self,a,b,deg):
-        """rotate_bond rotates all atoms in molecule on b-side of a-b bond by deg degrees
+        """Rotates all atoms in molecule on b-side of a-b bond by deg degrees.
 
-        :param a: index of a
-        :type a: int
-        :param b: index of b
-        :type b: int
-        :param deg: angle of rotation (degrees)
-        :type deg: float
+        Args:
+            a (int): index of a
+            b (int): index of b
+            deg (float): angle of rotation in degrees
         """
         TC=self.TopoCoord
         A=TC.Coordinates.A
@@ -1010,10 +992,10 @@ class Molecule:
     #     return list(clu)
 
     def generate_stereoisomers(self):
-        """generate_stereoisomers generates list of Molecule shells, one for each stereoisomer
+        """Generates list of Molecule shells, one for each stereoisomer.
 
-        :return: only returns if no stereoisomers need to be generated
-        :rtype: None
+        Returns:
+            None: returns early if no stereoisomers need to be generated
         """
         if self.TopoCoord.Topology.D['atoms'].shape[0]==0: return  # self has not yet acquired topology/coordinates
         if len(self.stereoisomers)==0: return
@@ -1092,14 +1074,14 @@ MoleculeDict = dict[str,Molecule]
 MoleculeList = list[Molecule]
 
 def generate_stereo_reactions(RL:ReactionList,MD:MoleculeDict):
-    """generate_stereo_reactions scans the list of reactions and generates any additional reactions in which all possible stereoisomers are reactants
+    """Scans the list of reactions and generates any additional reactions in which all possible stereoisomers are reactants.
 
-    :param RL: list of Reactions
-    :type RL: ReactionList
-    :param MD: dictionary of available Molecules
-    :type MD: MoleculeDict
-    :return: number of new reactions/molecular products created
-    :rtype: int
+    Args:
+        RL (ReactionList): list of Reactions
+        MD (MoleculeDict): dictionary of available Molecules
+
+    Returns:
+        int: number of new reactions/molecular products created
     """
     # any reaction with one or more reactant with one or more stereoisomers 
     # generates new "build" reactions using the stereoisomer as a reactant
@@ -1141,14 +1123,14 @@ def generate_stereo_reactions(RL:ReactionList,MD:MoleculeDict):
     return adds
 
 def generate_symmetry_reactions(RL:ReactionList,MD:MoleculeDict):
-    """generate_symmetry_reactions scans reaction list to generate any new reactions implied by symmetry-equivalent atoms
+    """Scans reaction list to generate any new reactions implied by symmetry-equivalent atoms.
 
-    :param RL: list of Reactions
-    :type RL: ReactionList
-    :param MD: dict of available molecules
-    :type MD: MoleculeDict
-    :return: number of new reactions/molecular products created
-    :rtype: int
+    Args:
+        RL (ReactionList): list of Reactions
+        MD (MoleculeDict): dict of available molecules
+
+    Returns:
+        int: number of new reactions/molecular products created
     """
     jdx=1
     terminal_reactions=[]

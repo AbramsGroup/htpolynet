@@ -1,1 +1,2 @@
-HTPOLYNET_VERSION='1.0.9'
+from importlib.metadata import version
+HTPOLYNET_VERSION = version('htpolynet')

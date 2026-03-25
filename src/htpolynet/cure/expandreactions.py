@@ -1,10 +1,6 @@
-"""
+"""Handles expansion of reactions based on chains.
 
-.. module:: expandreactions
-   :synopsis: handles expansion of reactions based on chains
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 from itertools import product
 import logging
@@ -14,16 +10,16 @@ from htpolynet.cure.reaction import reaction_stage, Reaction, ReactionList
 logger=logging.getLogger(__name__)
 
 def bondchain_expand_reactions(molecules:MoleculeDict):
-    """bondchain_expand_reactions handles generation of new reactions and molecular templates implied by any C-C bondchains
+    """Handles generation of new reactions and molecular templates implied by any C-C bondchains.
 
-    Note
-    ----
-    must be called after all grx attributes are set for all molecules
+    Note:
+        Must be called after all grx attributes are set for all molecules.
 
-    :param molecules: dictionary of molecular templates constructed from explicit declarations
-    :type molecules: MoleculeDict
-    :return: the list of new reactions and dictionary of new molecules
-    :rtype: tuple(ReactionList,MoleculeDict)
+    Args:
+        molecules (MoleculeDict): dictionary of molecular templates constructed from explicit declarations
+
+    Returns:
+        tuple(ReactionList, MoleculeDict): the list of new reactions and dictionary of new molecules
     """
     extra_reactions:ReactionList=[]
     extra_molecules:MoleculeDict={}

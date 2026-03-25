@@ -1,10 +1,6 @@
-"""
+"""Handles the HTPolyNet runtime workflow.
 
-.. module:: runtime
-   :synopsis: handles the HTPolyNet runtime workflow
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import logging
 import os
@@ -30,11 +26,10 @@ from htpolynet.utils.stringthings import my_logger
 logger=logging.getLogger(__name__)
 
 def logrotate(filename):
-    """logrotate renames any existing log file with name 'filename' using a pattern that
-    prevents overwriting any old logs
+    """Renames any existing log file with name 'filename' using a pattern that prevents overwriting any old logs.
 
-    :param filename: name of log file
-    :type filename: str
+    Args:
+        filename (str): name of log file
     """
     if os.path.exists(filename):
         n=1
@@ -44,13 +39,13 @@ def logrotate(filename):
 
 _directives=['ps','nsteps','ncycles']
 def _nonempty_directives(dirlist):
-    """_nonempty_directives checks the list of directives for existence of at least
-    one of the strings in the _directives list
+    """Checks the list of directives for existence of at least one of the strings in the _directives list.
 
-    :param dirlist: list of dictionaries
-    :type dirlist: lsit
-    :return: True if one of the strings in _directives is present in one of the dictionaries
-    :rtype: bool
+    Args:
+        dirlist (list): list of dictionaries
+
+    Returns:
+        bool: True if one of the strings in _directives is present in one of the dictionaries
     """
     amts=[]
     for d in dirlist:
@@ -128,13 +123,11 @@ class Runtime:
     }
 
     def __init__(self,cfgfile='',restart=False):
-        """__init__ generates a new Runtime object based on the cfg file
+        """Generates a new Runtime object based on the cfg file.
 
-        :param cfgfile: name of YAML cfg file
-        :type cfgfile: str, optional
-        :param restart: flag indicating if this is a restart
-        :type restart: bool
-
+        Args:
+            cfgfile (str): name of YAML cfg file, defaults to ''
+            restart (bool): flag indicating if this is a restart
         """
         my_logger(software.to_string(),logger.info)
         self.cfgfile=cfgfile
@@ -164,13 +157,11 @@ class Runtime:
         self.ncpu=self.cfg.parameters.get('ncpu',os.cpu_count())
 
     def generate_molecules(self,force_parameterization=False,force_checkin=False):
-        """generate_molecules manages creation and parameterization of all monomers
-        and oligomer templates
+        """Manages creation and parameterization of all monomers and oligomer templates.
 
-        :param force_parameterization: forces AmberTools to run parameterizations, defaults to False
-        :type force_parameterization: bool, optional
-        :param force_checkin: forces HTPolyNet to overwrite molecule library, defaults to False
-        :type force_checkin: bool, optional
+        Args:
+            force_parameterization (bool): forces AmberTools to run parameterizations, defaults to False
+            force_checkin (bool): forces HTPolyNet to overwrite molecule library, defaults to False
         """
         GAFF_dict=self.cfg.parameters.get('GAFF',{})
         self.molecules={}
@@ -251,14 +242,13 @@ class Runtime:
 
     @cp.enableCheckpoint
     def do_initialization(self,inpfnm='init'):
-        """do_initialization manages creation of the global system topology file
-        and the execution of 'gmx insert-molecules' to create the initial
-        simulation box
+        """Manages creation of the global system topology file and the execution of 'gmx insert-molecules' to create the initial simulation box.
 
-        :param inpfnm: basename for output files, defaults to 'init'
-        :type inpfnm: str, optional
-        :return: dictionary of Gromacs files
-        :rtype: dict
+        Args:
+            inpfnm (str): basename for output files, defaults to 'init'
+
+        Returns:
+            dict: dictionary of Gromacs files
         """
         my_logger(f'Initialization in {pfs.cwd()}',logger.info)
         top,tpx=self._initialize_topology(inpfnm)
@@ -267,16 +257,13 @@ class Runtime:
 
     @cp.enableCheckpoint
     def do_densification(self,deffnm='densified'):
-        """do_densification manages execution of gmx mdrun to perform minimization
-            and NPT MD simulation of the initial liquid system.  Final coordinates are
-            loaded into the global TopoCoord.
+        """Manages execution of gmx mdrun to perform minimization and NPT MD simulation of the initial liquid system. Final coordinates are loaded into the global TopoCoord.
 
-        :param inpfnm: input file name prefix, defaults to 'init'
-        :type inpfnm: str, optional
-        :param deffnm: deffnm prefix fed to gmx mdrun, defaults to 'npt-1'
-        :type deffnm: str, optional
-        :return: dictionary of Gromacs file names
-        :rtype: dict
+        Args:
+            deffnm (str): deffnm prefix fed to gmx mdrun, defaults to 'densified'
+
+        Returns:
+            dict: dictionary of Gromacs file names
         """
         my_logger(f'Densification in {pfs.cwd()}',logger.info)
         densification_dict=self.cfg.parameters.get('densification',{})
@@ -292,19 +279,19 @@ class Runtime:
 
     @cp.enableCheckpoint
     def do_precure(self):
-        """do_precure manages execution of mdrun to perform any pre-cure MD simulation(s).
+        """Manages execution of mdrun to perform any pre-cure MD simulation(s).
 
-        :return: dictionary of Gromacs file names
-        :rtype: dict
+        Returns:
+            dict: dictionary of Gromacs file names
         """
         self._do_pap(pfx='precure')
         return {c:os.path.basename(x) for c,x in self.TopoCoord.files.items() if c!='mol2'}
 
     def do_cure(self):
-        """do_cure manages CURE algorithm execution.
+        """Manages CURE algorithm execution.
 
-        :return: only returns None if CURE cannot execute
-        :rtype: None
+        Returns:
+            None: only returns None if CURE cannot execute
         """
         if not hasattr(self,'cc'): 
             logger.debug(f'no cure controller')
@@ -344,22 +331,23 @@ class Runtime:
 
     @cp.enableCheckpoint
     def do_postcure(self):
-        """do_postcure manages execution of mdrun to perform any post-cure MD simulation(s).
+        """Manages execution of mdrun to perform any post-cure MD simulation(s).
 
-        :return: dictionary of Gromacs file names
-        :rtype: dict
+        Returns:
+            dict: dictionary of Gromacs file names
         """
         self._do_pap(pfx='postcure')
         return {c:os.path.basename(x) for c,x in self.TopoCoord.files.items() if c!='mol2'}
 
     @cp.enableCheckpoint
     def save_data(self,result_name='final'):
-        """save_data writes 'gro', 'top', 'tpx', and 'grx' files for system
+        """Writes 'gro', 'top', 'tpx', and 'grx' files for system.
 
-        :param result_name: output file basename, defaults to 'final'
-        :type result_name: str, optional
-        :return: dictionary of Gromacs file basenames
-        :rtype: dict
+        Args:
+            result_name (str): output file basename, defaults to 'final'
+
+        Returns:
+            dict: dictionary of Gromacs file basenames
         """
         TC=self.TopoCoord
         my_logger(f'Final data to {pfs.cwd()}',logger.info)
@@ -398,11 +386,10 @@ class Runtime:
         pfs.go_proj()
 
     def _generate_molecule(self,M:Molecule,**kwargs):
-        """_generate_molecule generates and parameterizes a single molecule based on the partially 
-        complete instance in parameter M
+        """Generates and parameterizes a single molecule based on the partially complete instance in parameter M.
 
-        :param M: partially-complete molecule instance (populated by config reader)
-        :type M: Molecule
+        Args:
+            M (Molecule): partially-complete molecule instance (populated by config reader)
         """
         if M.origin!='unparameterized' and M.origin!='symmetry_product': return
         mname=M.name
@@ -441,14 +428,12 @@ class Runtime:
         M.generate_conformers()
 
     def _type_consistency_check(self,typename='dihedraltypes',funcidx=4,selection_rule='stiffest'):
-        """_type_consistency_check checks current topology for any inconsistencies and corrects them
+        """Checks current topology for any inconsistencies and corrects them.
 
-        :param typename: type of Gromacs interaction to check, defaults to 'dihedraltypes'
-        :type typename: str, optional
-        :param funcidx: function type of interaction, defaults to 4
-        :type funcidx: int, optional
-        :param selection_rule: one-word designation for correction mechanism, defaults to 'stiffest'
-        :type selection_rule: str, optional
+        Args:
+            typename (str): type of Gromacs interaction to check, defaults to 'dihedraltypes'
+            funcidx (int): function type of interaction, defaults to 4
+            selection_rule (str): one-word designation for correction mechanism, defaults to 'stiffest'
         """
         logger.debug(f'Consistency check of {typename} func {funcidx} on all {len(self.molecules)} molecules requested')
         mnames=list(self.molecules.keys())
@@ -484,14 +469,13 @@ class Runtime:
                 moltopo.reset_type(typename,t,selected_type)
 
     def _initialize_topology(self,inpfnm='init'):
-        """_initialize_topology creates a full gromacs topology that includes all directives necessary
-            for an initial liquid simulation.  This will NOT use any #include's;
-            all types will be explicitly in-lined.
+        """Creates a full gromacs topology that includes all directives necessary for an initial liquid simulation. This will NOT use any #include's; all types will be explicitly in-lined.
 
-        :param inpfnm: input file basename, defaults to 'init'
-        :type inpfnm: str, optional
-        :return: name of top file
-        :rtype: str
+        Args:
+            inpfnm (str): input file basename, defaults to 'init'
+
+        Returns:
+            str: name of top file
         """
         # if cp.passed('initialize_topology'): return
         if os.path.isfile(f'{inpfnm}.top'):
@@ -520,12 +504,13 @@ class Runtime:
         return f'{inpfnm}.top',f'{inpfnm}.tpx'
 
     def _initialize_coordinates(self,inpfnm='init'):
-        """_initialize_coordinates builds initial top and gro files for initial liquid simulation
+        """Builds initial top and gro files for initial liquid simulation.
 
-        :param inpfnm: input file basename, defaults to 'init'
-        :type inpfnm: str, optional
-        :return: 'gro' and 'grx' file names
-        :rtype: tuple
+        Args:
+            inpfnm (str): input file basename, defaults to 'init'
+
+        Returns:
+            tuple: 'gro' and 'grx' file names
         """
         densification_dict=self.cfg.parameters.get('densification',{})
         # logger.debug(f'{densification_dict}')
@@ -607,15 +592,12 @@ class Runtime:
         return f'{inpfnm}.gro',f'{inpfnm}.grx'
 
     def _do_equilibration(self,edict={},deffnm='equilibrate',plot_pfx=''):
-        """_do_equilibration manages execution of TopoCoord.equilibrate using
-        the directive passed in parameter 'edict'
+        """Manages execution of TopoCoord.equilibrate using the directive passed in parameter 'edict'.
 
-        :param edict: equilibration directives, defaults to {}
-        :type edict: dict, optional
-        :param deffnm: mdrun default file basename, defaults to 'equilibrate'
-        :type deffnm: str, optional
-        :param plot_pfx: basename for any output plots, defaults to ''
-        :type plot_pfx: str, optional
+        Args:
+            edict (dict): equilibration directives, defaults to {}
+            deffnm (str): mdrun default file basename, defaults to 'equilibrate'
+            plot_pfx (str): basename for any output plots, defaults to ''
         """
         gromacs_dict=self.cfg.parameters.get('gromacs',{})
         TC=self.TopoCoord
@@ -628,24 +610,22 @@ class Runtime:
             trace('Density',edr_list,outfile=os.path.join(pfs.proj(),f'plots/{plot_pfx}-density.png'))
 
     def _do_equilibration_series(self,eq_stgs=[],deffnm='equilibrate',plot_pfx=''):
-        """_do_equilibration_series manages a series of equilibrations
+        """Manages a series of equilibrations.
 
-        :param eq_stgs: list of stage designations, defaults to []
-        :type eq_stgs: list, optional
-        :param deffnm: mdrun default file basename, defaults to 'equilibrate'
-        :type deffnm: str, optional
-        :param plot_pfx: basename for any output plots, defaults to ''
-        :type plot_pfx: str, optional
+        Args:
+            eq_stgs (list): list of stage designations, defaults to []
+            deffnm (str): mdrun default file basename, defaults to 'equilibrate'
+            plot_pfx (str): basename for any output plots, defaults to ''
         """
         if not eq_stgs: return
         for stg in eq_stgs:
             self._do_equilibration(stg,deffnm,plot_pfx)
                 
     def _do_pap(self,pfx='precure'):
-        """_do_pap manages a preanneal-anneal-postanneal series of MD simulations
+        """Manages a preanneal-anneal-postanneal series of MD simulations.
 
-        :param pfx: either 'precure' or 'postcure', defaults to 'precure'
-        :type pfx: str, optional
+        Args:
+            pfx (str): either 'precure' or 'postcure', defaults to 'precure'
         """
         if not pfx: return
         assert pfx in ['precure','postcure']
@@ -664,13 +644,14 @@ class Runtime:
         if postequil: self._do_equilibration(postequil,deffnm='postequilibration',plot_pfx=f'{pfx}-postequilibration')
 
     def _do_anneal(self,anneal_dict={},deffnm='anneal'):
-        """_do_anneal manages execution of an annealing MD simulation
+        """Manages execution of an annealing MD simulation.
 
-        :param anneal_dict: annealing directives, defaults to {}
-        :type anneal_dict: dict, optional
-        :param deffnm: mdrun default file basename, defaults to 'anneal'
-        :type deffnm: str, optional
-        :raises Exception: If no run duration is indicated in the any of the annealing segments
+        Args:
+            anneal_dict (dict): annealing directives, defaults to {}
+            deffnm (str): mdrun default file basename, defaults to 'anneal'
+
+        Raises:
+            Exception: if no run duration is indicated in any of the annealing segments
         """
         if not anneal_dict: return
         ncycles=anneal_dict.get('ncycles',0)

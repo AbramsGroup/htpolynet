@@ -8,7 +8,10 @@
       "Bash(sort grep:*)",
       "Bash(grep -rn \"^\\\\s*\\\\\\(from\\\\|import\\\\\\)\" /home/cfa/Git/HTPolyNet/src/htpolynet/analysis/*.py)",
       "Bash(BASE=/home/cfa/Git/HTPolyNet __NEW_LINE_9d067e0cee514a78__ SED_CMD=':*)",
-      "Bash(xargs sed:*)"
+      "Bash(xargs sed:*)",
+      "Bash(wc -l /home/cfa/Git/htpolynet/src/htpolynet/cure/*.py /home/cfa/Git/htpolynet/src/htpolynet/external/*.py /home/cfa/Git/htpolynet/src/htpolynet/geometry/*.py /home/cfa/Git/htpolynet/src/htpolynet/utils/*.py /home/cfa/Git/htpolynet/src/htpolynet/driver.py /home/cfa/Git/htpolynet/src/htpolynet/resources/__init__.py)",
+      "Bash(grep -rل \"Args:\" /home/cfa/Git/htpolynet/src/htpolynet --include=\"*.py\" -l)",
+      "Bash(/home/cfa/anaconda3/envs/panacea/bin/pip index:*)"
     ],
     "additionalDirectories": [
       "/home/cfa/Git/HTPolyNet/.github/workflows"

@@ -1,10 +1,6 @@
-"""
+"""Manages bidirectional interatomic bondlists.
 
-.. module:: bondlist
-   :synopsis: Manages bidirectional interatomic bondlists
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 
 import numpy as np
@@ -28,11 +24,13 @@ class Bondlist:
         return inst
 
     def update(self,df:pd.DataFrame):
-        """update updates the bondlist using data in the parameter dataframe df
+        """Updates the bondlist using data in the parameter dataframe df.
 
-        :param df: dataframe with minimally columns named 'ai' and 'aj'
-        :type df: pd.DataFrame
-        :raises Exception: if no column 'ai' or 'aj' in df
+        Args:
+            df (pd.DataFrame): dataframe with minimally columns named 'ai' and 'aj'
+
+        Raises:
+            Exception: if no column 'ai' or 'aj' in df
         """
         if not 'ai' in df.columns and not 'aj' in df.columns:
             raise Exception('Bondlist expects a dataframe with columns "ai" and "aj".')
@@ -62,12 +60,13 @@ class Bondlist:
         return retstr
     
     def partners_of(self,idx):
-        """partners_of returns a copy of the value of self.B[idx]
+        """Returns a copy of the value of self.B[idx].
 
-        :param idx: atom index
-        :type idx: int
-        :return: list of indices of atoms to which atom 'idx' is bound
-        :rtype: list
+        Args:
+            idx (int): atom index
+
+        Returns:
+            list: list of indices of atoms to which atom 'idx' is bound
         """
         if idx in self.B:
             assert all([type(x)==int for x in self.B[idx]])
@@ -75,24 +74,24 @@ class Bondlist:
         return []
 
     def are_bonded(self,idx,jdx):
-        """are_bonded returns True if atoms with indices idx and jdx are bonded neighbors
+        """Returns True if atoms with indices idx and jdx are bonded neighbors.
 
-        :param idx: atom index
-        :type idx: int
-        :param jdx: another atom index
-        :type jdx: int
-        :return: True if idx and jdx are bonded neighbors
-        :rtype: bool
+        Args:
+            idx (int): atom index
+            jdx (int): another atom index
+
+        Returns:
+            bool: True if idx and jdx are bonded neighbors
         """
         if idx in self.B and jdx in self.B:
             return jdx in self.B[idx]
         return False
 
     def append(self,pair):
-        """append appends the bonded pair in parameter 'pair' to the bondlist
+        """Appends the bonded pair in parameter 'pair' to the bondlist.
 
-        :param pair: pair atom indices
-        :type pair: list-like container
+        Args:
+            pair (list-like container): pair atom indices
         """
         assert len(pair)==2
         ai,aj=min(pair),max(pair)
@@ -106,10 +105,10 @@ class Bondlist:
         self.B[aj].append(ai)
 
     def delete_atoms(self,idx):
-        """delete_atoms deletes all instances of atoms in the list idx from the bondlist
+        """Deletes all instances of atoms in the list idx from the bondlist.
 
-        :param idx: list of indices for atoms to delete
-        :type idx: list
+        Args:
+            idx (list): list of indices for atoms to delete
         """
         ''' delete entries '''
         for i in idx:
@@ -122,10 +121,10 @@ class Bondlist:
                     self.B[k].remove(i)
     
     def adjacency_matrix(self):
-        """adjacency_matrix generate and return an adjacency matrix built from the bondlist
+        """Generates and returns an adjacency matrix built from the bondlist.
 
-        :return: _description_
-        :rtype: _type_
+        Returns:
+            numpy.ndarray: adjacency matrix
         """
         N=len(self.B)
         A=np.zeros((N,N)).astype(int)
@@ -136,14 +135,14 @@ class Bondlist:
         return A
 
     def as_list(self,root,depth):
-        """as_list recursively build a list of all atoms that form a bonded cluster by traversing maximally depth bonds
+        """Recursively builds a list of all atoms that form a bonded cluster by traversing maximally depth bonds.
 
-        :param root: root bond
-        :type root: list-like container of two ints
-        :param depth: number of bonds to traverse to define bonded cluster
-        :type depth: int
-        :return: list of atom indices in the bonded cluster
-        :rtype: list
+        Args:
+            root (list-like container of two ints): root bond
+            depth (int): number of bonds to traverse to define bonded cluster
+
+        Returns:
+            list: list of atom indices in the bonded cluster
         """
         if depth==0:
             return [root]
@@ -166,14 +165,14 @@ class Bondlist:
         return result
 
     def half_as_list(self,root,depth):
-        """half_as_list returns bonded cluster defined by atom b in root found by traversing depth bonds excluding the bond to atom a in root
+        """Returns bonded cluster defined by atom b in root found by traversing depth bonds excluding the bond to atom a in root.
 
-        :param root: root bond
-        :type root: list-like container of two ints
-        :param depth: number of bonds to traverse
-        :type depth: int
-        :return: list of atom indices in bonded cluster "owned" by atom b not containing atom a
-        :rtype: list
+        Args:
+            root (list-like container of two ints): root bond
+            depth (int): number of bonds to traverse
+
+        Returns:
+            list: list of atom indices in bonded cluster "owned" by atom b not containing atom a
         """
         a,b=root
         self.delete_atoms([a])
@@ -192,10 +191,10 @@ class Bondlist:
         return red    
 
     def graph(self):
-        """graph generate a networkx Graph object from the bondlist
+        """Generates a networkx Graph object from the bondlist.
 
-        :return: a networkx Graph object
-        :rtype: networkx.Graph
+        Returns:
+            networkx.Graph: a networkx Graph object
         """
         g=nx.Graph()
         for i,n in self.B.items():

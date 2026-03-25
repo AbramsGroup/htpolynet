@@ -1,10 +1,6 @@
-"""
+"""Handles ring-piercing determinations.
 
-.. module:: ring
-   :synopsis: handles ring-piercing determinations
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 # Pierced rings
 # Cameron F. Abrams cfa22@drexel.edu
@@ -49,14 +45,14 @@ import logging
 logger=logging.getLogger(__name__)
 
 def lawofcos(a,b):
-    """lawofcos return the cosine of the angle defined by vectors a and b if they share a vertex (the LAW OF COSINES)
+    """Returns the cosine of the angle defined by vectors a and b if they share a vertex (the LAW OF COSINES).
 
-    :param a: a vector
-    :type a: numpy.ndarray(3,float)
-    :param b: another vector
-    :type b: numpy.ndarray(3,float)
-    :return: cosine of the angle formed by a and b
-    :rtype: float
+    Args:
+        a (numpy.ndarray(3,float)): a vector
+        b (numpy.ndarray(3,float)): another vector
+
+    Returns:
+        float: cosine of the angle formed by a and b
     """
     return np.dot(a,b)/np.sqrt(np.dot(a,a)*np.dot(b,b))
 
@@ -64,10 +60,10 @@ class Segment:
     """ a segment object owns a list of Points P with two elements representing segment endpoints, and a vector that points from the first point to the second, V
     """
     def __init__(self,P):
-        """__init__ generates a new Segment object from the points in container P
+        """Generates a new Segment object from the points in container P.
 
-        :param P: listlike container of two points, each of which is a 3-dimensional numpy array
-        :type P: list
+        Args:
+            P (list): listlike container of two points, each of which is a 3-dimensional numpy array
         """
         self.P=P.copy()
         # will need to recompute this when molecules are shifted
@@ -75,7 +71,7 @@ class Segment:
 
 class Ring:
     def __init__(self,idx):
-        """__init__ generates a Ring object from the list of atom globalIdx
+        """Generates a Ring object from the list of atom globalIdx.
 
         A ring is a sequence of integers that is treated as cyclic and bidirectional.
 
@@ -95,8 +91,8 @@ class Ring:
         parent list.  The final five elements are the reverse of the parent list
         and all treadmilled version of that reversed list.
 
-        :param P: list of ints
-        :type P: list
+        Args:
+            P (list): list of ints
         """
         self.idx=idx.copy()
         assert(all([type(x)==int for x in self.idx]))
@@ -188,14 +184,15 @@ class Ring:
         return r
 
     def pierced_by(self,P):
-        """determines if segment with endpoints P[0] and P[1] pierces ring; 
-        uses ray projection method and fact that scaled length must be between 
-        0 and 1 for a plane intersection
+        """Determines if segment with endpoints P[0] and P[1] pierces ring;
+        uses ray projection method and fact that scaled length must be between
+        0 and 1 for a plane intersection.
 
-        :param P: a 2-element numpy array of 3-space points
-        :type S: numpy.ndarray
-        :return: True if P[0]-P[1] pierces self's ring, along with the intersection point
-        :rtype: tuple (boolean, numpy.ndarray(3))
+        Args:
+            P (numpy.ndarray): a 2-element numpy array of 3-space points
+
+        Returns:
+            tuple (bool, numpy.ndarray(3)): True if P[0]-P[1] pierces self's ring, along with the intersection point
         """
         V=P[0]-P[1]
         # If these two points are on either side of the ring plane,

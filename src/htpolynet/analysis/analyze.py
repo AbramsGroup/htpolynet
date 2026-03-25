@@ -1,10 +1,6 @@
-"""
+"""Handles the analyze subcommand.
 
-.. module:: analyze
-   :synopsis: handles the analyze subcommand
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import logging
 import os
@@ -40,9 +36,7 @@ class Analyze:
         self.console_output=None
 
     def do(self,**gromacs_dict):
-        """do handles executing the analysis
-
-        """
+        """Handles executing the analysis."""
         p=self.params
         print(p)
         for rk in self.required_keys:
@@ -165,15 +159,17 @@ class AnalyzeConfiguration:
 
     @classmethod
     def read(cls,filename,parse=True,**kwargs):
-        """read generates a new PostsimConfiguration object by reading in the JSON or YAML file indicated by filename
+        """Generates a new PostsimConfiguration object by reading in the JSON or YAML file indicated by filename.
 
-        :param filename: name of file from which to read new PostsimConfiguration object
-        :type filename: str
-        :param parse: if True, parse the input configuration file, defaults to True
-        :type parse: bool, optional
-        :raises Exception: if extension of filename is not '.json' or '.yaml' or '.yml'
-        :return: a new PostsimConfiguration object
-        :rtype: PostsimConfiguration
+        Args:
+            filename (str): name of file from which to read new PostsimConfiguration object
+            parse (bool): if True, parse the input configuration file, defaults to True
+
+        Raises:
+            Exception: if extension of filename is not '.json' or '.yaml' or '.yml'
+
+        Returns:
+            PostsimConfiguration: a new PostsimConfiguration object
         """
         basename,extension=os.path.splitext(filename)
         if extension=='.json':
@@ -185,14 +181,14 @@ class AnalyzeConfiguration:
 
     @classmethod
     def _read_json(cls,filename,parse=True,**kwargs):
-        """_read_json create a new PostsimConfiguration object by reading from JSON input
+        """Creates a new PostsimConfiguration object by reading from JSON input.
 
-        :param filename: name of JSON file
-        :type filename: str
-        :param parse: if True, parse the JSON data, defaults to True
-        :type parse: bool, optional
-        :return: a new PostsimConfiguration object
-        :rtype: PostsimConfiguration
+        Args:
+            filename (str): name of JSON file
+            parse (bool): if True, parse the JSON data, defaults to True
+
+        Returns:
+            PostsimConfiguration: a new PostsimConfiguration object
         """
         inst=cls()
         inst.cfgFile=filename
@@ -204,14 +200,14 @@ class AnalyzeConfiguration:
 
     @classmethod
     def _read_yaml(cls,filename,parse=True,**kwargs):
-        """_read_yaml create a new PostsimConfiguration object by reading from YAML input
+        """Creates a new PostsimConfiguration object by reading from YAML input.
 
-        :param filename: name of YAML file
-        :type filename: str
-        :param parse: if True, parse the YAML data, defaults to True
-        :type parse: bool, optional
-        :return: a new PostsimConfiguration object
-        :rtype: PostsimConfiguration
+        Args:
+            filename (str): name of YAML file
+            parse (bool): if True, parse the YAML data, defaults to True
+
+        Returns:
+            PostsimConfiguration: a new PostsimConfiguration object
         """
         inst=cls()
         inst.cfgFile=filename
@@ -222,8 +218,7 @@ class AnalyzeConfiguration:
         return inst
 
     def parse(self,**kwargs):
-        """parse parses a PostsimConfiguration file to build the list of stages to run
-        """
+        """Parses a PostsimConfiguration file to build the list of stages to run."""
         for content in self.baselist:
             analysistype=content['command']
             if analysistype in self.predefined_classes:
@@ -232,10 +227,10 @@ class AnalyzeConfiguration:
                 self.stagelist.append(self.default_class(content))
 
 def analyze(args):
-    """postsim handles the analyze subcommand for managing gromacs-based trajectory analyses
+    """Handles the analyze subcommand for managing gromacs-based trajectory analyses.
 
-    :param args: command-line arguments
-    :type args: argparse.Namespace
+    Args:
+        args (argparse.Namespace): command-line arguments
     """
     loglevel_numeric=getattr(logging, args.loglevel.upper())
     logging.basicConfig(format='%(levelname)s> %(message)s',level=loglevel_numeric)

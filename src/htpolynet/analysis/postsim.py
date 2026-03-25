@@ -1,10 +1,6 @@
-"""
+"""Handles the postsim subcommand.
 
-.. module:: postsim
-   :synopsis: handles the postsim subcommand
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import logging
 import shutil
@@ -55,10 +51,10 @@ class PostSimMD:
                     self.params[p]=v
                     
     def do(self,mdp_pfx='npt',**gromacs_dict):
-        """do handles executing the postsim MD simulation
+        """Handles executing the postsim MD simulation.
 
-        :param mdp_pfx: filename prefix for output files, defaults to 'npt'
-        :type mdp_pfx: str, optional
+        Args:
+            mdp_pfx (str): filename prefix for output files, defaults to 'npt'
         """
         p=self.params
         logger.info(f'do {p}')
@@ -104,10 +100,10 @@ class PostSimMD:
         logger.info(f'Traces saved in {p["output_deffnm"]}.csv')
 
     def build_mdp(self,mdpname,**kwargs):
-        """build_mdp builds the GROMACS mdp file required for an NPT equilibration
+        """Builds the GROMACS mdp file required for an NPT equilibration.
 
-        :param mdpname: name of mdp file
-        :type mdpname: str
+        Args:
+            mdpname (str): name of mdp file
         """
         params=self.params
         timestep=float(mdp_get(mdpname,'dt'))
@@ -150,11 +146,11 @@ class PostSimAnneal(PostSimMD):
         'P':1
     }
     def build_mdp(self,mdpname,**kwargs):
-        """build_mdp builds the GROMACS mdp file required for an annealing MD simulation
+        """Builds the GROMACS mdp file required for an annealing MD simulation.
 
-        :param mdpname: name of mdp file
-        :type mdpname: str
-        """        
+        Args:
+            mdpname (str): name of mdp file
+        """
         params=self.params
         timestep=float(mdp_get(mdpname,'dt'))
         timeints=[0.0,params['T0_to_T1_ps'],params['T1_ps'],params['T1_to_T0_ps'],params['T0_ps']]
@@ -205,10 +201,10 @@ class PostSimLadder(PostSimMD):
     }
 
     def build_mdp(self,mdpname,**kwargs):
-        """build_mdp builds the GROMACS mdp file required for a temperature-ladder MD simulation
+        """Builds the GROMACS mdp file required for a temperature-ladder MD simulation.
 
-        :param mdpname: name of mdp file
-        :type mdpname: str
+        Args:
+            mdpname (str): name of mdp file
         """
         params=self.params
         timestep=float(mdp_get(mdpname,'dt'))
@@ -266,10 +262,10 @@ class PostSimDeform(PostSimMD):
     }
 
     def build_mdp(self,mdpname,**kwargs):
-        """build_mdp builds the GROMACS mdp file required for a temperature-ladder MD simulation
+        """Builds the GROMACS mdp file required for a uniaxial deformation MD simulation.
 
-        :param mdpname: name of mdp file
-        :type mdpname: str
+        Args:
+            mdpname (str): name of mdp file
         """
         params=self.params
         timestep=float(mdp_get(mdpname,'dt'))
@@ -351,15 +347,17 @@ class PostsimConfiguration:
 
     @classmethod
     def read(cls,filename,parse=True,**kwargs):
-        """read generates a new PostsimConfiguration object by reading in the JSON or YAML file indicated by filename
+        """Generates a new PostsimConfiguration object by reading in the JSON or YAML file indicated by filename.
 
-        :param filename: name of file from which to read new PostsimConfiguration object
-        :type filename: str
-        :param parse: if True, parse the input configuration file, defaults to True
-        :type parse: bool, optional
-        :raises Exception: if extension of filename is not '.json' or '.yaml' or '.yml'
-        :return: a new PostsimConfiguration object
-        :rtype: PostsimConfiguration
+        Args:
+            filename (str): name of file from which to read new PostsimConfiguration object
+            parse (bool): if True, parse the input configuration file, defaults to True
+
+        Raises:
+            Exception: if extension of filename is not '.json' or '.yaml' or '.yml'
+
+        Returns:
+            PostsimConfiguration: a new PostsimConfiguration object
         """
         basename,extension=os.path.splitext(filename)
         if extension=='.json':
@@ -371,14 +369,14 @@ class PostsimConfiguration:
 
     @classmethod
     def _read_json(cls,filename,parse=True,**kwargs):
-        """_read_json create a new PostsimConfiguration object by reading from JSON input
+        """Creates a new PostsimConfiguration object by reading from JSON input.
 
-        :param filename: name of JSON file
-        :type filename: str
-        :param parse: if True, parse the JSON data, defaults to True
-        :type parse: bool, optional
-        :return: a new PostsimConfiguration object
-        :rtype: PostsimConfiguration
+        Args:
+            filename (str): name of JSON file
+            parse (bool): if True, parse the JSON data, defaults to True
+
+        Returns:
+            PostsimConfiguration: a new PostsimConfiguration object
         """
         inst=cls()
         inst.cfgFile=filename
@@ -390,14 +388,14 @@ class PostsimConfiguration:
 
     @classmethod
     def _read_yaml(cls,filename,parse=True,**kwargs):
-        """_read_yaml create a new PostsimConfiguration object by reading from YAML input
+        """Creates a new PostsimConfiguration object by reading from YAML input.
 
-        :param filename: name of YAML file
-        :type filename: str
-        :param parse: if True, parse the YAML data, defaults to True
-        :type parse: bool, optional
-        :return: a new PostsimConfiguration object
-        :rtype: PostsimConfiguration
+        Args:
+            filename (str): name of YAML file
+            parse (bool): if True, parse the YAML data, defaults to True
+
+        Returns:
+            PostsimConfiguration: a new PostsimConfiguration object
         """
         inst=cls()
         inst.cfgFile=filename
@@ -408,8 +406,7 @@ class PostsimConfiguration:
         return inst
 
     def parse(self,**kwargs):
-        """parse parses a PostsimConfiguration file to build the list of stages to run
-        """
+        """Parses a PostsimConfiguration file to build the list of stages to run."""
         for p in self.baselist:
             assert len(p)==1,f'Poorly formatted {self.cfgFile}; each stanza may have only one keyword'
             simtype=list(p.keys())[0]
@@ -418,10 +415,10 @@ class PostsimConfiguration:
             self.stagelist.append(self.default_classes[simtype](p[simtype]))
 
 def postsim(args):
-    """postsim handles the postsim subcommand for managing post-cure production MD simulations
+    """Handles the postsim subcommand for managing post-cure production MD simulations.
 
-    :param args: command-line arguments
-    :type args: argparse.Namespace
+    Args:
+        args (argparse.Namespace): command-line arguments
     """
     loglevel_numeric=getattr(logging, args.loglevel.upper())
     logging.basicConfig(format='%(levelname)s> %(message)s',level=loglevel_numeric)

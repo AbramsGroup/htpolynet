@@ -1,10 +1,6 @@
-"""
+"""Manages the inputcheck subcommand.
 
-.. module:: inputcheck
-   :synopsis: manages the inputcheck subcommand
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 from htpolynet.core.topocoord import TopoCoord
 from htpolynet.utils.configuration import Configuration
@@ -13,10 +9,10 @@ from htpolynet.external.command import Command
 import os
 
 def input_check(args):
-    """input_check manages in the input-check subcommand
+    """Manages the input-check subcommand.
 
-    :param args: parsed arguments
-    :type args: argparse.Namespace
+    Args:
+        args (argparse.Namespace): parsed arguments
     """
     lib='./lib/molecules'
     C=Configuration.read(args.config,plot_reaction_network=False)

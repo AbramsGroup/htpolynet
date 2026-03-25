@@ -1,10 +1,6 @@
-"""
+"""Handles identification of available software needed by HTPolyNet.
 
-.. module:: software
-   :synopsis: handles identification of available software needed by HTPolyNet
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import subprocess
 import logging
@@ -15,8 +11,7 @@ logger=logging.getLogger(__name__)
 class Software:
     ambertools=['antechamber','tleap','parmchk2']
     def __init__(self):
-        """__init__ generates a new Software object
-        """
+        """Generates a new Software object."""
         cnf=[]
         self.passes=True
         for c in Software.ambertools:
@@ -30,10 +25,10 @@ class Software:
             print('It seems like you do not have an accessible installation of ambertools.')
 
     def set_gmx_preferences(self,parameters):
-        """set_gmx_preferences set the necessary resolution of gromacs executables based on directives in the parameters parameter
+        """Sets the necessary resolution of gromacs executables based on directives in the parameters parameter.
 
-        :param parameters: dictionary read in from cfg file
-        :type parameters: dict
+        Args:
+            parameters (dict): dictionary read in from cfg file
         """
         gromacs_dict=parameters.get('gromacs',{})
         logger.debug(f'gromacs_dict {gromacs_dict}')
@@ -60,8 +55,7 @@ class Software:
         return '\n'.join(r)
 
     def getVersions(self):
-        """getVersions attempts to determine versions of AmberTools
-        """
+        """Attempts to determine versions of AmberTools."""
         self.versions={}
         if self.passes:
             CP=subprocess.run(['antechamber','-h'],capture_output=True,text=True)
@@ -75,8 +69,7 @@ class Software:
 
 _SW_:Software=None
 def sw_setup():
-    """sw_setup sets up the global Software object
-    """
+    """Sets up the global Software object."""
     global _SW_
     _SW_=Software()
 
@@ -91,10 +84,10 @@ gmx_options='-quiet'
 mdrun=f'{gmx} mdrun'
 mdrun_single_molecule=f'{gmx} mdrun'
 def set_gmx_preferences(parmdict):
-    """set_gmx_preferences sets the global Gromacs preferences
+    """Sets the global Gromacs preferences.
 
-    :param parmdict: dictionary from cfg file
-    :type parmdict: dict
+    Args:
+        parmdict (dict): dictionary from cfg file
     """
     global _SW_, gmx, gmx_options, mdrun, mdrun_single_molecule
     _SW_.set_gmx_preferences(parmdict)

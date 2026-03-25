@@ -1,10 +1,6 @@
-"""
+"""Manages reading and parsing of YAML configuration files.
 
-.. module:: configuration
-   :synopsis: Manages reading and parsing of YAML configuration files
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import json
 import yaml
@@ -49,15 +45,17 @@ class Configuration:
 
     @classmethod
     def read(cls,filename,parse=True,**kwargs):
-        """read generates a new Configuration object by reading in the JSON or YAML file indicated by filename
+        """Generates a new Configuration object by reading in the JSON or YAML file indicated by filename.
 
-        :param filename: name of file from which to read new Configuration object
-        :type filename: str
-        :param parse: if True, parse the input configuration file, defaults to True
-        :type parse: bool, optional
-        :raises Exception: if extension of filename is not '.json' or '.yaml' or '.yml'
-        :return: a new Configuration object
-        :rtype: Configuration
+        Args:
+            filename (str): name of file from which to read new Configuration object
+            parse (bool): if True, parse the input configuration file, defaults to True
+
+        Raises:
+            Exception: if extension of filename is not '.json' or '.yaml' or '.yml'
+
+        Returns:
+            Configuration: a new Configuration object
         """
         basename,extension=os.path.splitext(filename)
         if extension=='.json':
@@ -69,14 +67,14 @@ class Configuration:
 
     @classmethod
     def _read_json(cls,filename,parse=True,**kwargs):
-        """_read_json create a new Configuration object by reading from JSON input
+        """Creates a new Configuration object by reading from JSON input.
 
-        :param filename: name of JSON file
-        :type filename: str
-        :param parse: if True, parse the JSON data, defaults to True
-        :type parse: bool, optional
-        :return: a new Configuration object
-        :rtype: Configuration
+        Args:
+            filename (str): name of JSON file
+            parse (bool): if True, parse the JSON data, defaults to True
+
+        Returns:
+            Configuration: a new Configuration object
         """
         inst=cls()
         inst.cfgFile=filename
@@ -87,14 +85,14 @@ class Configuration:
 
     @classmethod
     def _read_yaml(cls,filename,parse=True,**kwargs):
-        """_read_yaml create a new Configuration object by reading from YAML input
+        """Creates a new Configuration object by reading from YAML input.
 
-        :param filename: name of YAML file
-        :type filename: str
-        :param parse: if True, parse the YAML data, defaults to True
-        :type parse: bool, optional
-        :return: a new Configuration object
-        :rtype: Configuration
+        Args:
+            filename (str): name of YAML file
+            parse (bool): if True, parse the YAML data, defaults to True
+
+        Returns:
+            Configuration: a new Configuration object
         """
         inst=cls()
         inst.cfgFile=filename
@@ -104,14 +102,14 @@ class Configuration:
         return inst
     
     def NewMolecule(self,mol_name,molrec={}):
-        """NewMolecule generate and return a new Molecule object with name mol_name and populated via directives in molrec
+        """Generates and returns a new Molecule object with name mol_name and populated via directives in molrec.
 
-        :param mol_name: name of new molecule
-        :type mol_name: str
-        :param molrec: dictionary of new molecule directives, defaults to {}
-        :type molrec: dict, optional
-        :return: the new Molecule object
-        :rtype: Molecule
+        Args:
+            mol_name (str): name of new molecule
+            molrec (dict): dictionary of new molecule directives, defaults to {}
+
+        Returns:
+            Molecule: the new Molecule object
         """
         return Molecule.New(mol_name,molrec)
         
@@ -185,8 +183,7 @@ class Configuration:
 
 
     def calculate_maximum_conversion(self):
-        """calculate_maximum_conversion calculates the maximum number of polymerization bonds that can form based on specified system composition and reactions
-        """
+        """Calculates the maximum number of polymerization bonds that can form based on specified system composition and reactions."""
         Atom=namedtuple('Atom',['name','resid','reactantKey','reactantName','z'])
         Bond=namedtuple('Bond',['ai','aj'])
         N={}
