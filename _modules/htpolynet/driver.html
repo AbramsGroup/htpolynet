@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HTPolyNet.driver &#8212; HTPolyNet 1.0.9 documentation</title>
+    <title>htpolynet.driver &#8212; HTPolyNet 1.0.9 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d1102ebc" />
     <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
@@ -30,7 +30,7 @@
 
           <div class="body" role="main">
             
-  <h1>Source code for HTPolyNet.driver</h1><div class="highlight"><pre>
+  <h1>Source code for htpolynet.driver</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">.. module:: driver</span>
@@ -45,21 +45,21 @@
 <span class="kn">import</span> <span class="nn">textwrap</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">from</span> <span class="nn">.banner</span> <span class="kn">import</span> <span class="n">banner</span><span class="p">,</span> <span class="n">banner_message</span>
-<span class="kn">from</span> <span class="nn">.runtime</span> <span class="kn">import</span> <span class="n">Runtime</span><span class="p">,</span><span class="n">logrotate</span>
-<span class="kn">from</span> <span class="nn">.command</span> <span class="kn">import</span> <span class="n">Command</span>
-<span class="kn">import</span> <span class="nn">HTPolyNet.projectfilesystem</span> <span class="k">as</span> <span class="nn">pfs</span>
-<span class="kn">import</span> <span class="nn">HTPolyNet.software</span> <span class="k">as</span> <span class="nn">software</span>
-<span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plots</span>
-<span class="kn">from</span> <span class="nn">.stringthings</span> <span class="kn">import</span> <span class="n">my_logger</span>
-<span class="kn">from</span> <span class="nn">.inputcheck</span> <span class="kn">import</span> <span class="n">input_check</span>
-<span class="kn">from</span> <span class="nn">.postsim</span> <span class="kn">import</span> <span class="n">postsim</span>
-<span class="kn">from</span> <span class="nn">.analyze</span> <span class="kn">import</span> <span class="n">analyze</span>
+<span class="kn">from</span> <span class="nn">.utils.banner</span> <span class="kn">import</span> <span class="n">banner</span><span class="p">,</span> <span class="n">banner_message</span>
+<span class="kn">from</span> <span class="nn">.cure.runtime</span> <span class="kn">import</span> <span class="n">Runtime</span><span class="p">,</span> <span class="n">logrotate</span>
+<span class="kn">from</span> <span class="nn">.external.command</span> <span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">import</span> <span class="nn">htpolynet.utils.projectfilesystem</span> <span class="k">as</span> <span class="nn">pfs</span>
+<span class="kn">import</span> <span class="nn">htpolynet.external.software</span> <span class="k">as</span> <span class="nn">software</span>
+<span class="kn">from</span> <span class="nn">.analysis.plot</span> <span class="kn">import</span> <span class="n">plots</span>
+<span class="kn">from</span> <span class="nn">.utils.stringthings</span> <span class="kn">import</span> <span class="n">my_logger</span>
+<span class="kn">from</span> <span class="nn">.utils.inputcheck</span> <span class="kn">import</span> <span class="n">input_check</span>
+<span class="kn">from</span> <span class="nn">.analysis.postsim</span> <span class="kn">import</span> <span class="n">postsim</span>
+<span class="kn">from</span> <span class="nn">.analysis.analyze</span> <span class="kn">import</span> <span class="n">analyze</span>
 
 <span class="n">logger</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <div class="viewcode-block" id="info">
-<a class="viewcode-back" href="../../HTPolyNetPackage.html#HTPolyNet.driver.info">[docs]</a>
+<a class="viewcode-back" href="../../HTPolyNetPackage.html#htpolynet.driver.info">[docs]</a>
 <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;info handles the info subcommmand</span>
 
@@ -79,7 +79,7 @@
 
 
 <div class="viewcode-block" id="run">
-<a class="viewcode-back" href="../../HTPolyNetPackage.html#HTPolyNet.driver.run">[docs]</a>
+<a class="viewcode-back" href="../../HTPolyNetPackage.html#htpolynet.driver.run">[docs]</a>
 <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;run handles the run subcommand</span>
 
@@ -106,7 +106,7 @@
 
 
 <div class="viewcode-block" id="parameterize">
-<a class="viewcode-back" href="../../HTPolyNetPackage.html#HTPolyNet.driver.parameterize">[docs]</a>
+<a class="viewcode-back" href="../../HTPolyNetPackage.html#htpolynet.driver.parameterize">[docs]</a>
 <span class="k">def</span> <span class="nf">parameterize</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;parameterize handles the parameterize subcommand</span>
 
@@ -135,7 +135,7 @@
 
 
 <div class="viewcode-block" id="fetch_example">
-<a class="viewcode-back" href="../../HTPolyNetPackage.html#HTPolyNet.driver.fetch_example">[docs]</a>
+<a class="viewcode-back" href="../../HTPolyNetPackage.html#htpolynet.driver.fetch_example">[docs]</a>
 <span class="k">def</span> <span class="nf">fetch_example</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;fetch_example handles the fetch-example subcommand</span>
 
@@ -166,7 +166,7 @@
 
 
 <div class="viewcode-block" id="pack_example">
-<a class="viewcode-back" href="../../HTPolyNetPackage.html#HTPolyNet.driver.pack_example">[docs]</a>
+<a class="viewcode-back" href="../../HTPolyNetPackage.html#htpolynet.driver.pack_example">[docs]</a>
 <span class="k">def</span> <span class="nf">pack_example</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="n">l</span><span class="o">=</span><span class="n">pfs</span><span class="o">.</span><span class="n">system</span><span class="p">()</span>
     <span class="n">requires</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;README.md&#39;</span><span class="p">,</span><span class="s1">&#39;run.sh&#39;</span><span class="p">,</span><span class="s1">&#39;lib/molecules&#39;</span><span class="p">]</span>
@@ -210,7 +210,7 @@
 
 
 <div class="viewcode-block" id="cli">
-<a class="viewcode-back" href="../../HTPolyNetPackage.html#HTPolyNet.driver.cli">[docs]</a>
+<a class="viewcode-back" href="../../HTPolyNetPackage.html#htpolynet.driver.cli">[docs]</a>
 <span class="k">def</span> <span class="nf">cli</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;cli Command-line interface</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -330,7 +330,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user-guide/index.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../example-tutorials/index.html">Example Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../references/index.html">References</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../HTPolyNetPackage.html">HTPolyNet package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../HTPolyNetPackage.html">htpolynet package</a></li>
 </ul>
 
 <div class="relations">
