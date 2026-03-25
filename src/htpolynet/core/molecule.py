@@ -14,15 +14,15 @@ import shutil
 from itertools import product
 from copy import deepcopy
 
-import HTPolyNet.projectfilesystem as pfs
-from HTPolyNet.topocoord import TopoCoord
-from HTPolyNet.bondtemplate import BondTemplate,BondTemplateList,ReactionBond,ReactionBondList
-from HTPolyNet.coordinates import GRX_ATTRIBUTES
-from HTPolyNet.ambertools import GAFFParameterize
-from HTPolyNet.gromacs import mdp_modify,gro_from_trr
-from HTPolyNet.command import Command
-from HTPolyNet.reaction import Reaction, ReactionList, reaction_stage, generate_product_name, reactant_resid_to_presid
-from HTPolyNet.chain import ChainManager
+import htpolynet.utils.projectfilesystem as pfs
+from htpolynet.core.topocoord import TopoCoord
+from htpolynet.cure.bondtemplate import BondTemplate,BondTemplateList,ReactionBond,ReactionBondList
+from htpolynet.core.coordinates import GRX_ATTRIBUTES
+from htpolynet.external.ambertools import GAFFParameterize
+from htpolynet.external.gromacs import mdp_modify,gro_from_trr
+from htpolynet.external.command import Command
+from htpolynet.cure.reaction import Reaction, ReactionList, reaction_stage, generate_product_name, reactant_resid_to_presid
+from htpolynet.cure.chain import ChainManager
 
 logger=logging.getLogger(__name__)
 

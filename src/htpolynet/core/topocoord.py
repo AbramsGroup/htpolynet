@@ -15,13 +15,13 @@ import os
 import shutil
 from copy import deepcopy
 import networkx as nx
-from HTPolyNet.coordinates import Coordinates, GRX_ATTRIBUTES, GRX_GLOBALLY_UNIQUE, GRX_UNSET_DEFAULTS
-from HTPolyNet.topology import Topology
-from HTPolyNet.bondtemplate import BondTemplate,ReactionBond
-from HTPolyNet.matrix4 import Matrix4
-from HTPolyNet.gromacs import grompp_and_mdrun,mdp_get, mdp_modify, gmx_energy_trace
-import HTPolyNet.projectfilesystem as pfs
-from HTPolyNet.chain import ChainManager
+from htpolynet.core.coordinates import Coordinates, GRX_ATTRIBUTES, GRX_GLOBALLY_UNIQUE, GRX_UNSET_DEFAULTS
+from htpolynet.core.topology import Topology
+from htpolynet.cure.bondtemplate import BondTemplate,ReactionBond
+from htpolynet.geometry.matrix4 import Matrix4
+from htpolynet.external.gromacs import grompp_and_mdrun,mdp_get, mdp_modify, gmx_energy_trace
+import htpolynet.utils.projectfilesystem as pfs
+from htpolynet.cure.chain import ChainManager
 
 logger=logging.getLogger(__name__)
 

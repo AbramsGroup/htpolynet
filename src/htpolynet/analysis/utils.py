@@ -6,9 +6,9 @@
 .. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
 
 """
-from HTPolyNet.coordinates import Coordinates
-from HTPolyNet.topocoord import TopoCoord
-from HTPolyNet.gromacs import gmx_energy_trace
+from htpolynet.core.coordinates import Coordinates
+from htpolynet.core.topocoord import TopoCoord
+from htpolynet.external.gromacs import gmx_energy_trace
 from scipy.constants import physical_constants
 from scipy.optimize import curve_fit
 import pandas as pd

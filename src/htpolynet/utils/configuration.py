@@ -11,8 +11,8 @@ import yaml
 import os
 import logging
 from collections import namedtuple
-from HTPolyNet.molecule import Molecule, MoleculeDict, generate_stereo_reactions, generate_symmetry_reactions
-from HTPolyNet.reaction import Reaction, ReactionList, parse_reaction_list, extract_molecule_reactions, reaction_stage
+from htpolynet.core.molecule import Molecule, MoleculeDict, generate_stereo_reactions, generate_symmetry_reactions
+from htpolynet.cure.reaction import Reaction, ReactionList, parse_reaction_list, extract_molecule_reactions, reaction_stage
 
 logger=logging.getLogger(__name__)
 

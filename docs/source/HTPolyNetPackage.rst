@@ -1,188 +1,188 @@
-HTPolyNet package
+htpolynet package
 =================
 
 Submodules
 ----------
 
 
-.. automodule:: HTPolyNet.driver
+.. automodule:: htpolynet.driver
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.ambertools
+.. automodule:: htpolynet.ambertools
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.analyze
+.. automodule:: htpolynet.analyze
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: HTPolyNet.banner
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-.. automodule:: HTPolyNet.bondlist
+.. automodule:: htpolynet.banner
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.bondtemplate
+.. automodule:: htpolynet.bondlist
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.checkpoint
+.. automodule:: htpolynet.bondtemplate
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.command
+.. automodule:: htpolynet.checkpoint
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.configuration
+.. automodule:: htpolynet.command
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.coordinates
+.. automodule:: htpolynet.configuration
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.countTime
+.. automodule:: htpolynet.coordinates
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.curecontroller
+.. automodule:: htpolynet.countTime
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.dataframetools
+.. automodule:: htpolynet.curecontroller
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.expandreactions
+.. automodule:: htpolynet.dataframetools
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.gromacs
+.. automodule:: htpolynet.expandreactions
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.inputcheck
+.. automodule:: htpolynet.gromacs
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.linkcell
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: HTPolyNet.matrix4
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: HTPolyNet.molecule
+.. automodule:: htpolynet.inputcheck
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.plot
+.. automodule:: htpolynet.linkcell
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: htpolynet.matrix4
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: htpolynet.molecule
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.postsim
+.. automodule:: htpolynet.plot
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.projectfilesystem
+.. automodule:: htpolynet.postsim
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.reaction
+.. automodule:: htpolynet.projectfilesystem
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.ring
+.. automodule:: htpolynet.reaction
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.runtime
+.. automodule:: htpolynet.ring
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.software
+.. automodule:: htpolynet.runtime
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.stringthings
+.. automodule:: htpolynet.software
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.topocoord
+.. automodule:: htpolynet.stringthings
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.topology
+.. automodule:: htpolynet.topocoord
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.unused_symmetry_stuff
+.. automodule:: htpolynet.topology
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-.. automodule:: HTPolyNet.utils
+.. automodule:: htpolynet.unused_symmetry_stuff
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+.. automodule:: htpolynet.utils
    :members:
    :undoc-members:
    :show-inheritance:

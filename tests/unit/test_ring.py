@@ -9,11 +9,11 @@
 import unittest
 import logging
 logger=logging.getLogger(__name__)
-from HTPolyNet.ring import *
+from htpolynet.geometry.ring import *
 import networkx as nx
 import pandas as pd
 import numpy as np
-from HTPolyNet.matrix4 import Matrix4
+from htpolynet.geometry.matrix4 import Matrix4
 
 def regular_polygon(nsides,a):
     dangle=2*np.pi/nsides

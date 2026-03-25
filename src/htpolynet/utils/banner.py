@@ -6,8 +6,8 @@
 .. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
 
 """
-from HTPolyNet.stringthings import my_logger
-from HTPolyNet.__init__ import HTPOLYNET_VERSION
+from htpolynet.utils.stringthings import my_logger
+from htpolynet import HTPOLYNET_VERSION
 
 banner_message="""
     HTPolyNet {:s}

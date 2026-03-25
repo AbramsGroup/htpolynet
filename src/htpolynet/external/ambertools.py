@@ -10,8 +10,8 @@ import logging
 import hashlib
 import shutil
 import parmed
-from HTPolyNet.command import Command
-from HTPolyNet.coordinates import Coordinates
+from htpolynet.external.command import Command
+from htpolynet.core.coordinates import Coordinates
 logger=logging.getLogger(__name__)
 
 def GAFFParameterize(inputPrefix,outputPrefix,input_structure_format='mol2',**kwargs):

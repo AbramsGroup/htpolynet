@@ -6,9 +6,9 @@
 .. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
 
 """
-from HTPolyNet.gromacs import *
-from HTPolyNet.utils import *
-from HTPolyNet.banner import banner
+from htpolynet.external.gromacs import *
+from htpolynet.analysis.utils import *
+from htpolynet.utils.banner import banner
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import pandas as pd

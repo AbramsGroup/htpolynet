@@ -12,20 +12,20 @@ import shutil
 import numpy as np
 import random
 from copy import deepcopy
-from HTPolyNet.configuration import Configuration
-from HTPolyNet.topology import select_topology_type_option
-from HTPolyNet.topocoord import TopoCoord
-import HTPolyNet.projectfilesystem as pfs
-import HTPolyNet.software as software
-from HTPolyNet.gromacs import insert_molecules, mdp_modify, mdp_get
-import HTPolyNet.checkpoint as cp
-from HTPolyNet.plot import trace
-from HTPolyNet.molecule import Molecule, MoleculeDict
-from HTPolyNet.reaction import is_reactant
-from HTPolyNet.expandreactions import bondchain_expand_reactions
-from HTPolyNet.reaction import reaction_stage
-from HTPolyNet.curecontroller import CureController, CureState
-from HTPolyNet.stringthings import my_logger
+from htpolynet.utils.configuration import Configuration
+from htpolynet.core.topology import select_topology_type_option
+from htpolynet.core.topocoord import TopoCoord
+import htpolynet.utils.projectfilesystem as pfs
+import htpolynet.external.software as software
+from htpolynet.external.gromacs import insert_molecules, mdp_modify, mdp_get
+import htpolynet.utils.checkpoint as cp
+from htpolynet.analysis.plot import trace
+from htpolynet.core.molecule import Molecule, MoleculeDict
+from htpolynet.cure.reaction import is_reactant
+from htpolynet.cure.expandreactions import bondchain_expand_reactions
+from htpolynet.cure.reaction import reaction_stage
+from htpolynet.cure.curecontroller import CureController, CureState
+from htpolynet.utils.stringthings import my_logger
 
 logger=logging.getLogger(__name__)
 

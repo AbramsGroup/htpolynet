@@ -16,8 +16,8 @@ from copy import deepcopy
 from scipy.constants import physical_constants
 from networkx.readwrite import json_graph
 from itertools import product
-from HTPolyNet.bondlist import Bondlist
-from HTPolyNet.ring import Ring, RingList
+from htpolynet.geometry.bondlist import Bondlist
+from htpolynet.geometry.ring import Ring, RingList
 
 logger=logging.getLogger(__name__)
 
