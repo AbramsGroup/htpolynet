@@ -1,38 +1,284 @@
-<!DOCTYPE html>
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="References" href="references/index.html">
 
-<html lang="en" data-content_root="./">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>htpolynet package - HTPolyNet 1.0.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=acfd86a5" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
 
-    <title>htpolynet package &#8212; HTPolyNet 1.0.9 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
-    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
-    <script src="_static/documentation_options.js?v=0abd802e"></script>
-    <script src="_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="References" href="references/index.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
   
-
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
   
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
   
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
 
-  </head><body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">HTPolyNet 1.0.9 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
+  <span class="sidebar-brand-text">HTPolyNet 1.0.9 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation and Prerequisites</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="user-guide/index.html">User Guide</a><input aria-label="Toggle navigation of User Guide" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="user-guide/usage.html">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user-guide/molecular-structure-inputs.html">Molecular Structure Inputs</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="user-guide/configuration-files.html">Configuration Files</a><input aria-label="Toggle navigation of Configuration Files" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/configs/configs-for-run.html">Configuration Files for <code class="docutils literal notranslate"><span class="pre">htpolynet</span> <span class="pre">run</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/configs/configs-for-postsim.html">Configuration Files for <code class="docutils literal notranslate"><span class="pre">htpolynet</span> <span class="pre">postsim</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/configs/configs-for-analyze.html">Configuration Files for <code class="docutils literal notranslate"><span class="pre">htpolynet</span> <span class="pre">analyze</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user-guide/program-flow.html">Program Flow</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="example-tutorials/index.html">Example Tutorials</a><input aria-label="Toggle navigation of Example Tutorials" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="example-tutorials/shortbuilds/index.html">Examples Using <code class="docutils literal notranslate"><span class="pre">htpolynet</span> <span class="pre">run</span></code></a><input aria-label="Toggle navigation of Examples Using htpolynet run" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="example-tutorials/shortbuilds/1-polymethylstyrene/index.html">Poly(4-methyl styrene)</a><input aria-label="Toggle navigation of Poly(4-methyl styrene)" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="example-tutorials/shortbuilds/1-polymethylstyrene/introduction.html">Introduction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="example-tutorials/shortbuilds/1-polymethylstyrene/monomer.html">Monomer: 4-methylstyrene</a></li>
+<li class="toctree-l4"><a class="reference internal" href="example-tutorials/shortbuilds/1-polymethylstyrene/reactions.html">Reactions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="example-tutorials/shortbuilds/1-polymethylstyrene/configuration.html">The Configuration File</a></li>
+<li class="toctree-l4"><a class="reference internal" href="example-tutorials/shortbuilds/1-polymethylstyrene/run.html">Running the Build</a></li>
+<li class="toctree-l4"><a class="reference internal" href="example-tutorials/shortbuilds/1-polymethylstyrene/results.html">Results</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="example-tutorials/shortbuilds/2-DGEBA-PACM/index.html">DGEBA-PACM Thermoset</a><input aria-label="Toggle navigation of DGEBA-PACM Thermoset" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="example-tutorials/shortbuilds/2-DGEBA-PACM/introduction.html">Introduction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="example-tutorials/shortbuilds/2-DGEBA-PACM/monomers.html">Monomers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="example-tutorials/shortbuilds/2-DGEBA-PACM/reactions.html">Reactions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="example-tutorials/shortbuilds/2-DGEBA-PACM/configuration.html">The Configuration File</a></li>
+<li class="toctree-l4"><a class="reference internal" href="example-tutorials/shortbuilds/2-DGEBA-PACM/run.html">Running the Build</a></li>
+<li class="toctree-l4"><a class="reference internal" href="example-tutorials/shortbuilds/2-DGEBA-PACM/results.html">Results</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="example-tutorials/shortbuilds/3-VE-STY/index.html">BisGMA-Styrene Thermoset</a><input aria-label="Toggle navigation of BisGMA-Styrene Thermoset" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="example-tutorials/shortbuilds/3-VE-STY/introduction.html">Introduction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="example-tutorials/shortbuilds/3-VE-STY/reactions.html">Reactions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="example-tutorials/shortbuilds/3-VE-STY/configuration.html">The Configuration File</a></li>
+<li class="toctree-l4"><a class="reference internal" href="example-tutorials/shortbuilds/3-VE-STY/run.html">Running the Build</a></li>
+<li class="toctree-l4"><a class="reference internal" href="example-tutorials/shortbuilds/3-VE-STY/results.html">Results</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="example-tutorials/postsim_analyses/index.html">Examples Using <code class="docutils literal notranslate"><span class="pre">htpolynet</span> <span class="pre">postsim</span></code> and <code class="docutils literal notranslate"><span class="pre">analyze</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="references/index.html">References</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">htpolynet package</a></li>
+</ul>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          
+</div>
+</div>
 
-          <div class="body" role="main">
-            
-  <section id="htpolynet-package">
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/htpolynetpackage.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="htpolynet-package">
 <h1>htpolynet package<a class="headerlink" href="#htpolynet-package" title="Link to this heading">¶</a></h1>
 <section id="module-htpolynet.driver">
 <span id="htpolynet"></span><h2>htpolynet<a class="headerlink" href="#module-htpolynet.driver" title="Link to this heading">¶</a></h2>
@@ -2566,7 +2812,7 @@ use either or both of them</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="htpolynet.core.topocoord.TopoCoord.grompp_and_mdrun">
-<span class="sig-name descname"><span class="pre">grompp_and_mdrun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mdp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mylogger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;bound</span> <span class="pre">method</span> <span class="pre">Logger.debug</span> <span class="pre">of</span> <span class="pre">&lt;Logger</span> <span class="pre">htpolynet.core.topocoord</span> <span class="pre">(WARNING)&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/htpolynet/core/topocoord.html#TopoCoord.grompp_and_mdrun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#htpolynet.core.topocoord.TopoCoord.grompp_and_mdrun" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">grompp_and_mdrun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mdp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mylogger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;bound</span> <span class="pre">method</span> <span class="pre">Logger.debug</span> <span class="pre">of</span> <span class="pre">&lt;Logger</span> <span class="pre">htpolynet.core.topocoord</span> <span class="pre">(INFO)&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/htpolynet/core/topocoord.html#TopoCoord.grompp_and_mdrun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#htpolynet.core.topocoord.TopoCoord.grompp_and_mdrun" title="Link to this definition">¶</a></dt>
 <dd><p>Manages invoking a single Gromacs run using the current TopoCoord.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -5479,77 +5725,594 @@ uses ray projection method and fact that scaled length must be between
 </section>
 </section>
 
-
-          </div>
-          
-        </div>
+        </article>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="Main">
-        <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">HTPolyNet</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation and Prerequisites</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user-guide/index.html">User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example-tutorials/index.html">Example Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="references/index.html">References</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">htpolynet package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#module-htpolynet.driver">htpolynet</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-htpolynet.analysis.analyze">htpolynet.analysis</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-htpolynet.core.coordinates">htpolynet.core</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-htpolynet.cure.bondtemplate">htpolynet.cure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-htpolynet.external.ambertools">htpolynet.external</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-htpolynet.geometry.bondlist">htpolynet.geometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-htpolynet.utils.banner">htpolynet.utils</a></li>
+      <footer>
+        
+        <div class="related-pages">
+          
+          <a class="prev-page" href="references/index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">References</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, Cameron Abrams, Ming Huang
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">htpolynet package</a><ul>
+<li><a class="reference internal" href="#module-htpolynet.driver">htpolynet</a><ul>
+<li><a class="reference internal" href="#htpolynet.driver.cli"><code class="docutils literal notranslate"><span class="pre">cli()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.driver.fetch_example"><code class="docutils literal notranslate"><span class="pre">fetch_example()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.driver.info"><code class="docutils literal notranslate"><span class="pre">info()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.driver.pack_example"><code class="docutils literal notranslate"><span class="pre">pack_example()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.driver.parameterize"><code class="docutils literal notranslate"><span class="pre">parameterize()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.driver.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-htpolynet.analysis.analyze">htpolynet.analysis</a><ul>
+<li><a class="reference internal" href="#htpolynet.analysis.analyze.Analyze"><code class="docutils literal notranslate"><span class="pre">Analyze</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.analysis.analyze.Analyze.allowed_keys"><code class="docutils literal notranslate"><span class="pre">Analyze.allowed_keys</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.analyze.Analyze.default_params"><code class="docutils literal notranslate"><span class="pre">Analyze.default_params</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.analyze.Analyze.do"><code class="docutils literal notranslate"><span class="pre">Analyze.do()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.analyze.Analyze.parse_console_output"><code class="docutils literal notranslate"><span class="pre">Analyze.parse_console_output()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.analyze.Analyze.required_keys"><code class="docutils literal notranslate"><span class="pre">Analyze.required_keys</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.analysis.analyze.AnalyzeConfiguration"><code class="docutils literal notranslate"><span class="pre">AnalyzeConfiguration</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.analysis.analyze.AnalyzeConfiguration.default_class"><code class="docutils literal notranslate"><span class="pre">AnalyzeConfiguration.default_class</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.analyze.AnalyzeConfiguration.parse"><code class="docutils literal notranslate"><span class="pre">AnalyzeConfiguration.parse()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.analyze.AnalyzeConfiguration.predefined_classes"><code class="docutils literal notranslate"><span class="pre">AnalyzeConfiguration.predefined_classes</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.analyze.AnalyzeConfiguration.read"><code class="docutils literal notranslate"><span class="pre">AnalyzeConfiguration.read()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.analysis.analyze.AnalyzeDensity"><code class="docutils literal notranslate"><span class="pre">AnalyzeDensity</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.analysis.analyze.AnalyzeDensity.default_params"><code class="docutils literal notranslate"><span class="pre">AnalyzeDensity.default_params</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.analysis.analyze.AnalyzeFFV"><code class="docutils literal notranslate"><span class="pre">AnalyzeFFV</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.analysis.analyze.AnalyzeFFV.default_params"><code class="docutils literal notranslate"><span class="pre">AnalyzeFFV.default_params</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.analysis.analyze.analyze"><code class="docutils literal notranslate"><span class="pre">analyze()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.plot.build_plots"><code class="docutils literal notranslate"><span class="pre">build_plots()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.plot.diag_plots"><code class="docutils literal notranslate"><span class="pre">diag_plots()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.plot.diagnostics_graphs"><code class="docutils literal notranslate"><span class="pre">diagnostics_graphs()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.plot.do_E_plots"><code class="docutils literal notranslate"><span class="pre">do_E_plots()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.plot.do_tg_plots"><code class="docutils literal notranslate"><span class="pre">do_tg_plots()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.plot.global_trace"><code class="docutils literal notranslate"><span class="pre">global_trace()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.plot.init_molecule_graph"><code class="docutils literal notranslate"><span class="pre">init_molecule_graph()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.plot.multi_trace"><code class="docutils literal notranslate"><span class="pre">multi_trace()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.plot.network_graph"><code class="docutils literal notranslate"><span class="pre">network_graph()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.plot.plots"><code class="docutils literal notranslate"><span class="pre">plots()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.plot.post_plots"><code class="docutils literal notranslate"><span class="pre">post_plots()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.plot.scatter"><code class="docutils literal notranslate"><span class="pre">scatter()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.plot.trace"><code class="docutils literal notranslate"><span class="pre">trace()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.postsim.PostSimAnneal"><code class="docutils literal notranslate"><span class="pre">PostSimAnneal</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.analysis.postsim.PostSimAnneal.build_mdp"><code class="docutils literal notranslate"><span class="pre">PostSimAnneal.build_mdp()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.postsim.PostSimAnneal.default_params"><code class="docutils literal notranslate"><span class="pre">PostSimAnneal.default_params</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.analysis.postsim.PostSimDeform"><code class="docutils literal notranslate"><span class="pre">PostSimDeform</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.analysis.postsim.PostSimDeform.build_mdp"><code class="docutils literal notranslate"><span class="pre">PostSimDeform.build_mdp()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.postsim.PostSimDeform.default_params"><code class="docutils literal notranslate"><span class="pre">PostSimDeform.default_params</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.analysis.postsim.PostSimLadder"><code class="docutils literal notranslate"><span class="pre">PostSimLadder</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.analysis.postsim.PostSimLadder.build_mdp"><code class="docutils literal notranslate"><span class="pre">PostSimLadder.build_mdp()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.postsim.PostSimLadder.default_params"><code class="docutils literal notranslate"><span class="pre">PostSimLadder.default_params</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.analysis.postsim.PostSimMD"><code class="docutils literal notranslate"><span class="pre">PostSimMD</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.analysis.postsim.PostSimMD.build_mdp"><code class="docutils literal notranslate"><span class="pre">PostSimMD.build_mdp()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.postsim.PostSimMD.default_params"><code class="docutils literal notranslate"><span class="pre">PostSimMD.default_params</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.postsim.PostSimMD.do"><code class="docutils literal notranslate"><span class="pre">PostSimMD.do()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.analysis.postsim.PostsimConfiguration"><code class="docutils literal notranslate"><span class="pre">PostsimConfiguration</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.analysis.postsim.PostsimConfiguration.default_classes"><code class="docutils literal notranslate"><span class="pre">PostsimConfiguration.default_classes</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.postsim.PostsimConfiguration.parse"><code class="docutils literal notranslate"><span class="pre">PostsimConfiguration.parse()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.postsim.PostsimConfiguration.read"><code class="docutils literal notranslate"><span class="pre">PostsimConfiguration.read()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.analysis.postsim.postsim"><code class="docutils literal notranslate"><span class="pre">postsim()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.utils.clusters"><code class="docutils literal notranslate"><span class="pre">clusters()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.utils.compute_E"><code class="docutils literal notranslate"><span class="pre">compute_E()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.utils.compute_tg"><code class="docutils literal notranslate"><span class="pre">compute_tg()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.utils.density_evolution"><code class="docutils literal notranslate"><span class="pre">density_evolution()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.utils.density_from_gro"><code class="docutils literal notranslate"><span class="pre">density_from_gro()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.utils.graph_from_bondsfile"><code class="docutils literal notranslate"><span class="pre">graph_from_bondsfile()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.utils.mwbxl"><code class="docutils literal notranslate"><span class="pre">mwbxl()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.analysis.utils.postsim_density_evolution"><code class="docutils literal notranslate"><span class="pre">postsim_density_evolution()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-htpolynet.core.coordinates">htpolynet.core</a><ul>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates"><code class="docutils literal notranslate"><span class="pre">Coordinates</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.add_length_attribute"><code class="docutils literal notranslate"><span class="pre">Coordinates.add_length_attribute()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.atomcount"><code class="docutils literal notranslate"><span class="pre">Coordinates.atomcount()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.checkbox"><code class="docutils literal notranslate"><span class="pre">Coordinates.checkbox()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.claim_parent"><code class="docutils literal notranslate"><span class="pre">Coordinates.claim_parent()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.copy_coords"><code class="docutils literal notranslate"><span class="pre">Coordinates.copy_coords()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.decrement_z"><code class="docutils literal notranslate"><span class="pre">Coordinates.decrement_z()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.delete_atoms"><code class="docutils literal notranslate"><span class="pre">Coordinates.delete_atoms()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.fcc"><code class="docutils literal notranslate"><span class="pre">Coordinates.fcc()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.find_sacrificial_H"><code class="docutils literal notranslate"><span class="pre">Coordinates.find_sacrificial_H()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.geometric_center"><code class="docutils literal notranslate"><span class="pre">Coordinates.geometric_center()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.get_R"><code class="docutils literal notranslate"><span class="pre">Coordinates.get_R()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.get_atom_attribute"><code class="docutils literal notranslate"><span class="pre">Coordinates.get_atom_attribute()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.get_atoms_w_attribute"><code class="docutils literal notranslate"><span class="pre">Coordinates.get_atoms_w_attribute()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.get_idx"><code class="docutils literal notranslate"><span class="pre">Coordinates.get_idx()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.gro_attributes"><code class="docutils literal notranslate"><span class="pre">Coordinates.gro_attributes</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.has_atom_attributes"><code class="docutils literal notranslate"><span class="pre">Coordinates.has_atom_attributes()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.homog_trans"><code class="docutils literal notranslate"><span class="pre">Coordinates.homog_trans()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.linkcell_initialize"><code class="docutils literal notranslate"><span class="pre">Coordinates.linkcell_initialize()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.linkcelltest"><code class="docutils literal notranslate"><span class="pre">Coordinates.linkcelltest()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.maxspan"><code class="docutils literal notranslate"><span class="pre">Coordinates.maxspan()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.merge"><code class="docutils literal notranslate"><span class="pre">Coordinates.merge()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.mic"><code class="docutils literal notranslate"><span class="pre">Coordinates.mic()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.minimum_distance"><code class="docutils literal notranslate"><span class="pre">Coordinates.minimum_distance()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.minmax"><code class="docutils literal notranslate"><span class="pre">Coordinates.minmax()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.mol2_atom_attributes"><code class="docutils literal notranslate"><span class="pre">Coordinates.mol2_atom_attributes</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.mol2_bond_attributes"><code class="docutils literal notranslate"><span class="pre">Coordinates.mol2_bond_attributes</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.mol2_bond_types"><code class="docutils literal notranslate"><span class="pre">Coordinates.mol2_bond_types</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.pierces"><code class="docutils literal notranslate"><span class="pre">Coordinates.pierces()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.read_atomset_attributes"><code class="docutils literal notranslate"><span class="pre">Coordinates.read_atomset_attributes()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.read_gro"><code class="docutils literal notranslate"><span class="pre">Coordinates.read_gro()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.read_mol2"><code class="docutils literal notranslate"><span class="pre">Coordinates.read_mol2()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.reconcile_subcoords"><code class="docutils literal notranslate"><span class="pre">Coordinates.reconcile_subcoords()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.return_bond_lengths"><code class="docutils literal notranslate"><span class="pre">Coordinates.return_bond_lengths()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.rij"><code class="docutils literal notranslate"><span class="pre">Coordinates.rij()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.rotate"><code class="docutils literal notranslate"><span class="pre">Coordinates.rotate()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.sacH"><code class="docutils literal notranslate"><span class="pre">Coordinates.sacH()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.set_atom_attribute"><code class="docutils literal notranslate"><span class="pre">Coordinates.set_atom_attribute()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.set_atomset_attribute"><code class="docutils literal notranslate"><span class="pre">Coordinates.set_atomset_attribute()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.set_box"><code class="docutils literal notranslate"><span class="pre">Coordinates.set_box()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.show_z_report"><code class="docutils literal notranslate"><span class="pre">Coordinates.show_z_report()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.spew_atom"><code class="docutils literal notranslate"><span class="pre">Coordinates.spew_atom()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.subcoords"><code class="docutils literal notranslate"><span class="pre">Coordinates.subcoords()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.total_volume"><code class="docutils literal notranslate"><span class="pre">Coordinates.total_volume()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.translate"><code class="docutils literal notranslate"><span class="pre">Coordinates.translate()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.unwrap"><code class="docutils literal notranslate"><span class="pre">Coordinates.unwrap()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.wrap_coords"><code class="docutils literal notranslate"><span class="pre">Coordinates.wrap_coords()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.wrap_point"><code class="docutils literal notranslate"><span class="pre">Coordinates.wrap_point()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.write_atomset_attributes"><code class="docutils literal notranslate"><span class="pre">Coordinates.write_atomset_attributes()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.write_gro"><code class="docutils literal notranslate"><span class="pre">Coordinates.write_gro()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.Coordinates.write_mol2"><code class="docutils literal notranslate"><span class="pre">Coordinates.write_mol2()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.GRX_ATTRIBUTES"><code class="docutils literal notranslate"><span class="pre">GRX_ATTRIBUTES</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.coordinates.dfrotate"><code class="docutils literal notranslate"><span class="pre">dfrotate()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule"><code class="docutils literal notranslate"><span class="pre">Molecule</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.New"><code class="docutils literal notranslate"><span class="pre">Molecule.New()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.atoms_w_same_attribute_as"><code class="docutils literal notranslate"><span class="pre">Molecule.atoms_w_same_attribute_as()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.center_coords"><code class="docutils literal notranslate"><span class="pre">Molecule.center_coords()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.create_new_stereoisomers"><code class="docutils literal notranslate"><span class="pre">Molecule.create_new_stereoisomers()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.determine_sequence"><code class="docutils literal notranslate"><span class="pre">Molecule.determine_sequence()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.flip_stereocenters"><code class="docutils literal notranslate"><span class="pre">Molecule.flip_stereocenters()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.generate"><code class="docutils literal notranslate"><span class="pre">Molecule.generate()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.generate_conformers"><code class="docutils literal notranslate"><span class="pre">Molecule.generate_conformers()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.generate_stereoisomers"><code class="docutils literal notranslate"><span class="pre">Molecule.generate_stereoisomers()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.get_angles_dihedrals"><code class="docutils literal notranslate"><span class="pre">Molecule.get_angles_dihedrals()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.get_molecular_weight"><code class="docutils literal notranslate"><span class="pre">Molecule.get_molecular_weight()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.get_origin"><code class="docutils literal notranslate"><span class="pre">Molecule.get_origin()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.get_resname"><code class="docutils literal notranslate"><span class="pre">Molecule.get_resname()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.idx_mappers"><code class="docutils literal notranslate"><span class="pre">Molecule.idx_mappers()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.initialize_molecule_rings"><code class="docutils literal notranslate"><span class="pre">Molecule.initialize_molecule_rings()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.initialize_monomer_grx_attributes"><code class="docutils literal notranslate"><span class="pre">Molecule.initialize_monomer_grx_attributes()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.load_top_gro"><code class="docutils literal notranslate"><span class="pre">Molecule.load_top_gro()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.make_bonds"><code class="docutils literal notranslate"><span class="pre">Molecule.make_bonds()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.merge"><code class="docutils literal notranslate"><span class="pre">Molecule.merge()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.minimize"><code class="docutils literal notranslate"><span class="pre">Molecule.minimize()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.parameterize"><code class="docutils literal notranslate"><span class="pre">Molecule.parameterize()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.prepare_new_bonds"><code class="docutils literal notranslate"><span class="pre">Molecule.prepare_new_bonds()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.previously_parameterized"><code class="docutils literal notranslate"><span class="pre">Molecule.previously_parameterized()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.read_gro_attributes"><code class="docutils literal notranslate"><span class="pre">Molecule.read_gro_attributes()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.relax"><code class="docutils literal notranslate"><span class="pre">Molecule.relax()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.rotate_bond"><code class="docutils literal notranslate"><span class="pre">Molecule.rotate_bond()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.set_gro_attribute"><code class="docutils literal notranslate"><span class="pre">Molecule.set_gro_attribute()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.set_origin"><code class="docutils literal notranslate"><span class="pre">Molecule.set_origin()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.set_sequence_from_coordinates"><code class="docutils literal notranslate"><span class="pre">Molecule.set_sequence_from_coordinates()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.set_sequence_from_moldict"><code class="docutils literal notranslate"><span class="pre">Molecule.set_sequence_from_moldict()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.transrot"><code class="docutils literal notranslate"><span class="pre">Molecule.transrot()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.update_zrecs"><code class="docutils literal notranslate"><span class="pre">Molecule.update_zrecs()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.Molecule.write_gro_attributes"><code class="docutils literal notranslate"><span class="pre">Molecule.write_gro_attributes()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.generate_stereo_reactions"><code class="docutils literal notranslate"><span class="pre">generate_stereo_reactions()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.generate_symmetry_reactions"><code class="docutils literal notranslate"><span class="pre">generate_symmetry_reactions()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.yield_bonds"><code class="docutils literal notranslate"><span class="pre">yield_bonds()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.molecule.yield_bonds_as_df"><code class="docutils literal notranslate"><span class="pre">yield_bonds_as_df()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.BTRC"><code class="docutils literal notranslate"><span class="pre">BTRC</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.BTRC.failed_pierced_ring"><code class="docutils literal notranslate"><span class="pre">BTRC.failed_pierced_ring</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.BTRC.failed_shortcircuit"><code class="docutils literal notranslate"><span class="pre">BTRC.failed_shortcircuit</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.BTRC.passed"><code class="docutils literal notranslate"><span class="pre">BTRC.passed</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.BTRC.unset"><code class="docutils literal notranslate"><span class="pre">BTRC.unset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord"><code class="docutils literal notranslate"><span class="pre">TopoCoord</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.add_length_attribute"><code class="docutils literal notranslate"><span class="pre">TopoCoord.add_length_attribute()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.add_restraints"><code class="docutils literal notranslate"><span class="pre">TopoCoord.add_restraints()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.adjust_charges"><code class="docutils literal notranslate"><span class="pre">TopoCoord.adjust_charges()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.are_bonded"><code class="docutils literal notranslate"><span class="pre">TopoCoord.are_bonded()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.atom_count"><code class="docutils literal notranslate"><span class="pre">TopoCoord.atom_count()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.attenuate_bond_parameters"><code class="docutils literal notranslate"><span class="pre">TopoCoord.attenuate_bond_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.attenuate_pair_parameters"><code class="docutils literal notranslate"><span class="pre">TopoCoord.attenuate_pair_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.bondcycle_collective"><code class="docutils literal notranslate"><span class="pre">TopoCoord.bondcycle_collective()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.bondtest"><code class="docutils literal notranslate"><span class="pre">TopoCoord.bondtest()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.bondtest_df"><code class="docutils literal notranslate"><span class="pre">TopoCoord.bondtest_df()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.center_coords"><code class="docutils literal notranslate"><span class="pre">TopoCoord.center_coords()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.check_your_topology"><code class="docutils literal notranslate"><span class="pre">TopoCoord.check_your_topology()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.checkbox"><code class="docutils literal notranslate"><span class="pre">TopoCoord.checkbox()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.copy_bond_parameters"><code class="docutils literal notranslate"><span class="pre">TopoCoord.copy_bond_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.copy_coords"><code class="docutils literal notranslate"><span class="pre">TopoCoord.copy_coords()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.count_H"><code class="docutils literal notranslate"><span class="pre">TopoCoord.count_H()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.decrement_gro_attribute_by_attributes"><code class="docutils literal notranslate"><span class="pre">TopoCoord.decrement_gro_attribute_by_attributes()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.delete_atoms"><code class="docutils literal notranslate"><span class="pre">TopoCoord.delete_atoms()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.density"><code class="docutils literal notranslate"><span class="pre">TopoCoord.density()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.enumerate_1_4_pairs"><code class="docutils literal notranslate"><span class="pre">TopoCoord.enumerate_1_4_pairs()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.equilibrate"><code class="docutils literal notranslate"><span class="pre">TopoCoord.equilibrate()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.flip_stereocenters"><code class="docutils literal notranslate"><span class="pre">TopoCoord.flip_stereocenters()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.from_top_gro"><code class="docutils literal notranslate"><span class="pre">TopoCoord.from_top_gro()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.get_R"><code class="docutils literal notranslate"><span class="pre">TopoCoord.get_R()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.get_bystanders"><code class="docutils literal notranslate"><span class="pre">TopoCoord.get_bystanders()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.get_gro_attribute_by_attributes"><code class="docutils literal notranslate"><span class="pre">TopoCoord.get_gro_attribute_by_attributes()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.get_gro_attributelist_by_attributes"><code class="docutils literal notranslate"><span class="pre">TopoCoord.get_gro_attributelist_by_attributes()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.get_oneaways"><code class="docutils literal notranslate"><span class="pre">TopoCoord.get_oneaways()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.get_resid_sets"><code class="docutils literal notranslate"><span class="pre">TopoCoord.get_resid_sets()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.grab_files"><code class="docutils literal notranslate"><span class="pre">TopoCoord.grab_files()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.gro_DataFrame"><code class="docutils literal notranslate"><span class="pre">TopoCoord.gro_DataFrame()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.grompp_and_mdrun"><code class="docutils literal notranslate"><span class="pre">TopoCoord.grompp_and_mdrun()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.increment_gro_attribute_by_attributes"><code class="docutils literal notranslate"><span class="pre">TopoCoord.increment_gro_attribute_by_attributes()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.inherit_grx_attributes_from_molecules"><code class="docutils literal notranslate"><span class="pre">TopoCoord.inherit_grx_attributes_from_molecules()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.interresidue_partners_of"><code class="docutils literal notranslate"><span class="pre">TopoCoord.interresidue_partners_of()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.linkcell_cleanup"><code class="docutils literal notranslate"><span class="pre">TopoCoord.linkcell_cleanup()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.linkcell_initialize"><code class="docutils literal notranslate"><span class="pre">TopoCoord.linkcell_initialize()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.load_files"><code class="docutils literal notranslate"><span class="pre">TopoCoord.load_files()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.make_bonds"><code class="docutils literal notranslate"><span class="pre">TopoCoord.make_bonds()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.make_resid_graph"><code class="docutils literal notranslate"><span class="pre">TopoCoord.make_resid_graph()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.makes_shortcircuit"><code class="docutils literal notranslate"><span class="pre">TopoCoord.makes_shortcircuit()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.map_from_templates"><code class="docutils literal notranslate"><span class="pre">TopoCoord.map_from_templates()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.maxspan"><code class="docutils literal notranslate"><span class="pre">TopoCoord.maxspan()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.merge"><code class="docutils literal notranslate"><span class="pre">TopoCoord.merge()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.minimum_distance"><code class="docutils literal notranslate"><span class="pre">TopoCoord.minimum_distance()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.minmax"><code class="docutils literal notranslate"><span class="pre">TopoCoord.minmax()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.overwrite_coords"><code class="docutils literal notranslate"><span class="pre">TopoCoord.overwrite_coords()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.partners_of"><code class="docutils literal notranslate"><span class="pre">TopoCoord.partners_of()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.pierces_ring"><code class="docutils literal notranslate"><span class="pre">TopoCoord.pierces_ring()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.read_gro"><code class="docutils literal notranslate"><span class="pre">TopoCoord.read_gro()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.read_gro_attributes"><code class="docutils literal notranslate"><span class="pre">TopoCoord.read_gro_attributes()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.read_mol2"><code class="docutils literal notranslate"><span class="pre">TopoCoord.read_mol2()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.read_top"><code class="docutils literal notranslate"><span class="pre">TopoCoord.read_top()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.read_top_gro"><code class="docutils literal notranslate"><span class="pre">TopoCoord.read_top_gro()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.read_tpx"><code class="docutils literal notranslate"><span class="pre">TopoCoord.read_tpx()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.remove_restraints"><code class="docutils literal notranslate"><span class="pre">TopoCoord.remove_restraints()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.reset_grx_attributes_from_idx_list"><code class="docutils literal notranslate"><span class="pre">TopoCoord.reset_grx_attributes_from_idx_list()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.reset_idx_list_from_grx_attributes"><code class="docutils literal notranslate"><span class="pre">TopoCoord.reset_idx_list_from_grx_attributes()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.resid_partners_of"><code class="docutils literal notranslate"><span class="pre">TopoCoord.resid_partners_of()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.restore_bond_parameters"><code class="docutils literal notranslate"><span class="pre">TopoCoord.restore_bond_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.return_bond_lengths"><code class="docutils literal notranslate"><span class="pre">TopoCoord.return_bond_lengths()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.rotate"><code class="docutils literal notranslate"><span class="pre">TopoCoord.rotate()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.set_gro_attribute"><code class="docutils literal notranslate"><span class="pre">TopoCoord.set_gro_attribute()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.set_gro_attribute_by_attributes"><code class="docutils literal notranslate"><span class="pre">TopoCoord.set_gro_attribute_by_attributes()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.set_grx_attributes"><code class="docutils literal notranslate"><span class="pre">TopoCoord.set_grx_attributes()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.swap_atom_names"><code class="docutils literal notranslate"><span class="pre">TopoCoord.swap_atom_names()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.total_mass"><code class="docutils literal notranslate"><span class="pre">TopoCoord.total_mass()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.total_volume"><code class="docutils literal notranslate"><span class="pre">TopoCoord.total_volume()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.translate"><code class="docutils literal notranslate"><span class="pre">TopoCoord.translate()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.update_topology_and_coordinates"><code class="docutils literal notranslate"><span class="pre">TopoCoord.update_topology_and_coordinates()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.vacuum_minimize"><code class="docutils literal notranslate"><span class="pre">TopoCoord.vacuum_minimize()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.vacuum_simulate"><code class="docutils literal notranslate"><span class="pre">TopoCoord.vacuum_simulate()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.wrap_coords"><code class="docutils literal notranslate"><span class="pre">TopoCoord.wrap_coords()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.write_gro"><code class="docutils literal notranslate"><span class="pre">TopoCoord.write_gro()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.write_gro_attributes"><code class="docutils literal notranslate"><span class="pre">TopoCoord.write_gro_attributes()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.write_grx_attributes"><code class="docutils literal notranslate"><span class="pre">TopoCoord.write_grx_attributes()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.write_mol2"><code class="docutils literal notranslate"><span class="pre">TopoCoord.write_mol2()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.write_top"><code class="docutils literal notranslate"><span class="pre">TopoCoord.write_top()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.TopoCoord.write_tpx"><code class="docutils literal notranslate"><span class="pre">TopoCoord.write_tpx()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.core.topocoord.find_template"><code class="docutils literal notranslate"><span class="pre">find_template()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology"><code class="docutils literal notranslate"><span class="pre">Topology</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.add_bonds"><code class="docutils literal notranslate"><span class="pre">Topology.add_bonds()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.add_restraints"><code class="docutils literal notranslate"><span class="pre">Topology.add_restraints()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.adjust_charges"><code class="docutils literal notranslate"><span class="pre">Topology.adjust_charges()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.atomcount"><code class="docutils literal notranslate"><span class="pre">Topology.atomcount()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.attenuate_bond_parameters"><code class="docutils literal notranslate"><span class="pre">Topology.attenuate_bond_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.attenuate_pair_parameters"><code class="docutils literal notranslate"><span class="pre">Topology.attenuate_pair_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.bond_source_check"><code class="docutils literal notranslate"><span class="pre">Topology.bond_source_check()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.build_interresidue_graph"><code class="docutils literal notranslate"><span class="pre">Topology.build_interresidue_graph()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.copy_bond_parameters"><code class="docutils literal notranslate"><span class="pre">Topology.copy_bond_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.delete_atoms"><code class="docutils literal notranslate"><span class="pre">Topology.delete_atoms()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.detect_rings"><code class="docutils literal notranslate"><span class="pre">Topology.detect_rings()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.dup_check"><code class="docutils literal notranslate"><span class="pre">Topology.dup_check()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.from_ex"><code class="docutils literal notranslate"><span class="pre">Topology.from_ex()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.get_atom_attribute"><code class="docutils literal notranslate"><span class="pre">Topology.get_atom_attribute()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.get_atomtype"><code class="docutils literal notranslate"><span class="pre">Topology.get_atomtype()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.get_bond_parameters"><code class="docutils literal notranslate"><span class="pre">Topology.get_bond_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.local_resid_cluster"><code class="docutils literal notranslate"><span class="pre">Topology.local_resid_cluster()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.make_resid_graph"><code class="docutils literal notranslate"><span class="pre">Topology.make_resid_graph()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.merge"><code class="docutils literal notranslate"><span class="pre">Topology.merge()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.merge_ex"><code class="docutils literal notranslate"><span class="pre">Topology.merge_ex()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.merge_types"><code class="docutils literal notranslate"><span class="pre">Topology.merge_types()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.null_check"><code class="docutils literal notranslate"><span class="pre">Topology.null_check()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.read_top"><code class="docutils literal notranslate"><span class="pre">Topology.read_top()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.read_tpx"><code class="docutils literal notranslate"><span class="pre">Topology.read_tpx()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.remove_restraints"><code class="docutils literal notranslate"><span class="pre">Topology.remove_restraints()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.rep_ex"><code class="docutils literal notranslate"><span class="pre">Topology.rep_ex()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.report_duplicate_types"><code class="docutils literal notranslate"><span class="pre">Topology.report_duplicate_types()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.report_type"><code class="docutils literal notranslate"><span class="pre">Topology.report_type()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.reset_override_from_type"><code class="docutils literal notranslate"><span class="pre">Topology.reset_override_from_type()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.reset_type"><code class="docutils literal notranslate"><span class="pre">Topology.reset_type()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.restore_bond_parameters"><code class="docutils literal notranslate"><span class="pre">Topology.restore_bond_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.shiftatomsidx"><code class="docutils literal notranslate"><span class="pre">Topology.shiftatomsidx()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.total_charge"><code class="docutils literal notranslate"><span class="pre">Topology.total_charge()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.total_mass"><code class="docutils literal notranslate"><span class="pre">Topology.total_mass()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.write_top"><code class="docutils literal notranslate"><span class="pre">Topology.write_top()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.Topology.write_tpx"><code class="docutils literal notranslate"><span class="pre">Topology.write_tpx()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.core.topology.df_typeorder"><code class="docutils literal notranslate"><span class="pre">df_typeorder()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.idxorder"><code class="docutils literal notranslate"><span class="pre">idxorder()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.repeat_check"><code class="docutils literal notranslate"><span class="pre">repeat_check()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.select_topology_type_option"><code class="docutils literal notranslate"><span class="pre">select_topology_type_option()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.typedata"><code class="docutils literal notranslate"><span class="pre">typedata()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.core.topology.typeorder"><code class="docutils literal notranslate"><span class="pre">typeorder()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-htpolynet.cure.bondtemplate">htpolynet.cure</a><ul>
+<li><a class="reference internal" href="#htpolynet.cure.bondtemplate.BondTemplate"><code class="docutils literal notranslate"><span class="pre">BondTemplate</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.cure.bondtemplate.BondTemplate.is_reverse_of"><code class="docutils literal notranslate"><span class="pre">BondTemplate.is_reverse_of()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.bondtemplate.BondTemplate.reverse"><code class="docutils literal notranslate"><span class="pre">BondTemplate.reverse()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.cure.bondtemplate.ReactionBond"><code class="docutils literal notranslate"><span class="pre">ReactionBond</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.cure.bondtemplate.ReactionBond.reverse"><code class="docutils literal notranslate"><span class="pre">ReactionBond.reverse()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.cure.chain.Chain"><code class="docutils literal notranslate"><span class="pre">Chain</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.cure.chain.Chain.is_head"><code class="docutils literal notranslate"><span class="pre">Chain.is_head()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.chain.Chain.is_tail"><code class="docutils literal notranslate"><span class="pre">Chain.is_tail()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.chain.Chain.merge"><code class="docutils literal notranslate"><span class="pre">Chain.merge()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.chain.Chain.remap_idx"><code class="docutils literal notranslate"><span class="pre">Chain.remap_idx()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.chain.Chain.shift"><code class="docutils literal notranslate"><span class="pre">Chain.shift()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.cure.chain.ChainManager"><code class="docutils literal notranslate"><span class="pre">ChainManager</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.cure.chain.ChainManager.chain_of"><code class="docutils literal notranslate"><span class="pre">ChainManager.chain_of()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.chain.ChainManager.from_dataframe"><code class="docutils literal notranslate"><span class="pre">ChainManager.from_dataframe()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.chain.ChainManager.injest_bond"><code class="docutils literal notranslate"><span class="pre">ChainManager.injest_bond()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.chain.ChainManager.injest_bonds"><code class="docutils literal notranslate"><span class="pre">ChainManager.injest_bonds()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.chain.ChainManager.injest_other"><code class="docutils literal notranslate"><span class="pre">ChainManager.injest_other()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.chain.ChainManager.mergechains"><code class="docutils literal notranslate"><span class="pre">ChainManager.mergechains()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.chain.ChainManager.new_chain"><code class="docutils literal notranslate"><span class="pre">ChainManager.new_chain()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.chain.ChainManager.reindex"><code class="docutils literal notranslate"><span class="pre">ChainManager.reindex()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.chain.ChainManager.remap"><code class="docutils literal notranslate"><span class="pre">ChainManager.remap()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.chain.ChainManager.shift"><code class="docutils literal notranslate"><span class="pre">ChainManager.shift()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.chain.ChainManager.to_dataframe"><code class="docutils literal notranslate"><span class="pre">ChainManager.to_dataframe()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.CureController"><code class="docutils literal notranslate"><span class="pre">CureController</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.CureController.curedict_defaults"><code class="docutils literal notranslate"><span class="pre">CureController.curedict_defaults</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.CureController.default_equilibration_sequence"><code class="docutils literal notranslate"><span class="pre">CureController.default_equilibration_sequence</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.CureController.do_capping"><code class="docutils literal notranslate"><span class="pre">CureController.do_capping()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.CureController.do_iter"><code class="docutils literal notranslate"><span class="pre">CureController.do_iter()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.CureController.is_cured"><code class="docutils literal notranslate"><span class="pre">CureController.is_cured()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.CureController.next_iter"><code class="docutils literal notranslate"><span class="pre">CureController.next_iter()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.CureController.reset"><code class="docutils literal notranslate"><span class="pre">CureController.reset()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.CureController.setup"><code class="docutils literal notranslate"><span class="pre">CureController.setup()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.CureState"><code class="docutils literal notranslate"><span class="pre">CureState</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.CureState.from_yaml"><code class="docutils literal notranslate"><span class="pre">CureState.from_yaml()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.CureState.reset"><code class="docutils literal notranslate"><span class="pre">CureState.reset()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.cure_step"><code class="docutils literal notranslate"><span class="pre">cure_step</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.cure_step.basename"><code class="docutils literal notranslate"><span class="pre">cure_step.basename()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.cure_step.cap_bondsearch"><code class="docutils literal notranslate"><span class="pre">cure_step.cap_bondsearch</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.cure_step.cap_equilibrate"><code class="docutils literal notranslate"><span class="pre">cure_step.cap_equilibrate</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.cure_step.cap_relax"><code class="docutils literal notranslate"><span class="pre">cure_step.cap_relax</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.cure_step.cap_update"><code class="docutils literal notranslate"><span class="pre">cure_step.cap_update</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.cure_step.cure_bondsearch"><code class="docutils literal notranslate"><span class="pre">cure_step.cure_bondsearch</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.cure_step.cure_drag"><code class="docutils literal notranslate"><span class="pre">cure_step.cure_drag</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.cure_step.cure_equilibrate"><code class="docutils literal notranslate"><span class="pre">cure_step.cure_equilibrate</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.cure_step.cure_relax"><code class="docutils literal notranslate"><span class="pre">cure_step.cure_relax</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.cure_step.cure_update"><code class="docutils literal notranslate"><span class="pre">cure_step.cure_update</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.cure_step.finished"><code class="docutils literal notranslate"><span class="pre">cure_step.finished</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.curecontroller.cure_step.unknown"><code class="docutils literal notranslate"><span class="pre">cure_step.unknown</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.cure.expandreactions.bondchain_expand_reactions"><code class="docutils literal notranslate"><span class="pre">bondchain_expand_reactions()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.reaction.Reaction"><code class="docutils literal notranslate"><span class="pre">Reaction</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.cure.reaction.Reaction.default_directives"><code class="docutils literal notranslate"><span class="pre">Reaction.default_directives</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.cure.reaction.extract_molecule_reactions"><code class="docutils literal notranslate"><span class="pre">extract_molecule_reactions()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.reaction.generate_product_name"><code class="docutils literal notranslate"><span class="pre">generate_product_name()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.reaction.get_r"><code class="docutils literal notranslate"><span class="pre">get_r()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.reaction.is_reactant"><code class="docutils literal notranslate"><span class="pre">is_reactant()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.reaction.molname_sequence_resnames"><code class="docutils literal notranslate"><span class="pre">molname_sequence_resnames()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.reaction.parse_reaction_list"><code class="docutils literal notranslate"><span class="pre">parse_reaction_list()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.reaction.product_sequence_resnames"><code class="docutils literal notranslate"><span class="pre">product_sequence_resnames()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.reaction.reactant_resid_to_presid"><code class="docutils literal notranslate"><span class="pre">reactant_resid_to_presid()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.reaction.reaction_stage"><code class="docutils literal notranslate"><span class="pre">reaction_stage</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.cure.reaction.reaction_stage.build"><code class="docutils literal notranslate"><span class="pre">reaction_stage.build</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.reaction.reaction_stage.cap"><code class="docutils literal notranslate"><span class="pre">reaction_stage.cap</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.reaction.reaction_stage.cure"><code class="docutils literal notranslate"><span class="pre">reaction_stage.cure</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.reaction.reaction_stage.param"><code class="docutils literal notranslate"><span class="pre">reaction_stage.param</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.reaction.reaction_stage.unset"><code class="docutils literal notranslate"><span class="pre">reaction_stage.unset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.cure.runtime.Runtime"><code class="docutils literal notranslate"><span class="pre">Runtime</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.cure.runtime.Runtime.cfg"><code class="docutils literal notranslate"><span class="pre">Runtime.cfg</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.runtime.Runtime.default_edict"><code class="docutils literal notranslate"><span class="pre">Runtime.default_edict</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.runtime.Runtime.do_cure"><code class="docutils literal notranslate"><span class="pre">Runtime.do_cure()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.runtime.Runtime.do_densification"><code class="docutils literal notranslate"><span class="pre">Runtime.do_densification()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.runtime.Runtime.do_initialization"><code class="docutils literal notranslate"><span class="pre">Runtime.do_initialization()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.runtime.Runtime.do_postcure"><code class="docutils literal notranslate"><span class="pre">Runtime.do_postcure()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.runtime.Runtime.do_precure"><code class="docutils literal notranslate"><span class="pre">Runtime.do_precure()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.runtime.Runtime.do_workflow"><code class="docutils literal notranslate"><span class="pre">Runtime.do_workflow()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.runtime.Runtime.generate_molecules"><code class="docutils literal notranslate"><span class="pre">Runtime.generate_molecules()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.runtime.Runtime.runtime_defaults"><code class="docutils literal notranslate"><span class="pre">Runtime.runtime_defaults</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.cure.runtime.Runtime.save_data"><code class="docutils literal notranslate"><span class="pre">Runtime.save_data()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.cure.runtime.logrotate"><code class="docutils literal notranslate"><span class="pre">logrotate()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-htpolynet.external.ambertools">htpolynet.external</a><ul>
+<li><a class="reference internal" href="#htpolynet.external.ambertools.GAFFParameterize"><code class="docutils literal notranslate"><span class="pre">GAFFParameterize()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.external.command.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.external.command.Command.linelen"><code class="docutils literal notranslate"><span class="pre">Command.linelen</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.external.command.Command.run"><code class="docutils literal notranslate"><span class="pre">Command.run()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.external.gromacs.get_energy_menu"><code class="docutils literal notranslate"><span class="pre">get_energy_menu()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.external.gromacs.gmx_command"><code class="docutils literal notranslate"><span class="pre">gmx_command()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.external.gromacs.gmx_energy_trace"><code class="docutils literal notranslate"><span class="pre">gmx_energy_trace()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.external.gromacs.gmx_traj_info"><code class="docutils literal notranslate"><span class="pre">gmx_traj_info()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.external.gromacs.gro_from_trr"><code class="docutils literal notranslate"><span class="pre">gro_from_trr()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.external.gromacs.gromacs_distance"><code class="docutils literal notranslate"><span class="pre">gromacs_distance()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.external.gromacs.grompp_and_mdrun"><code class="docutils literal notranslate"><span class="pre">grompp_and_mdrun()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.external.gromacs.insert_molecules"><code class="docutils literal notranslate"><span class="pre">insert_molecules()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.external.gromacs.mdp_get"><code class="docutils literal notranslate"><span class="pre">mdp_get()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.external.gromacs.mdp_modify"><code class="docutils literal notranslate"><span class="pre">mdp_modify()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.external.gromacs.mdp_to_dict"><code class="docutils literal notranslate"><span class="pre">mdp_to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.external.software.info"><code class="docutils literal notranslate"><span class="pre">info()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.external.software.set_gmx_preferences"><code class="docutils literal notranslate"><span class="pre">set_gmx_preferences()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.external.software.sw_setup"><code class="docutils literal notranslate"><span class="pre">sw_setup()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.external.software.to_string"><code class="docutils literal notranslate"><span class="pre">to_string()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-htpolynet.geometry.bondlist">htpolynet.geometry</a><ul>
+<li><a class="reference internal" href="#htpolynet.geometry.bondlist.Bondlist"><code class="docutils literal notranslate"><span class="pre">Bondlist</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.geometry.bondlist.Bondlist.adjacency_matrix"><code class="docutils literal notranslate"><span class="pre">Bondlist.adjacency_matrix()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.bondlist.Bondlist.append"><code class="docutils literal notranslate"><span class="pre">Bondlist.append()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.bondlist.Bondlist.are_bonded"><code class="docutils literal notranslate"><span class="pre">Bondlist.are_bonded()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.bondlist.Bondlist.as_list"><code class="docutils literal notranslate"><span class="pre">Bondlist.as_list()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.bondlist.Bondlist.delete_atoms"><code class="docutils literal notranslate"><span class="pre">Bondlist.delete_atoms()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.bondlist.Bondlist.fromDataFrame"><code class="docutils literal notranslate"><span class="pre">Bondlist.fromDataFrame()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.bondlist.Bondlist.graph"><code class="docutils literal notranslate"><span class="pre">Bondlist.graph()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.bondlist.Bondlist.half_as_list"><code class="docutils literal notranslate"><span class="pre">Bondlist.half_as_list()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.bondlist.Bondlist.partners_of"><code class="docutils literal notranslate"><span class="pre">Bondlist.partners_of()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.bondlist.Bondlist.update"><code class="docutils literal notranslate"><span class="pre">Bondlist.update()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.geometry.linkcell.Linkcell"><code class="docutils literal notranslate"><span class="pre">Linkcell</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.geometry.linkcell.Linkcell.are_cellndx_neighbors"><code class="docutils literal notranslate"><span class="pre">Linkcell.are_cellndx_neighbors()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.linkcell.Linkcell.are_ldx_neighbors"><code class="docutils literal notranslate"><span class="pre">Linkcell.are_ldx_neighbors()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.linkcell.Linkcell.cellndx_in_structure"><code class="docutils literal notranslate"><span class="pre">Linkcell.cellndx_in_structure()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.linkcell.Linkcell.cellndx_of_ldx"><code class="docutils literal notranslate"><span class="pre">Linkcell.cellndx_of_ldx()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.linkcell.Linkcell.cellndx_of_point"><code class="docutils literal notranslate"><span class="pre">Linkcell.cellndx_of_point()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.linkcell.Linkcell.corners_of_cellndx"><code class="docutils literal notranslate"><span class="pre">Linkcell.corners_of_cellndx()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.linkcell.Linkcell.create"><code class="docutils literal notranslate"><span class="pre">Linkcell.create()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.linkcell.Linkcell.ldx_of_cellndx"><code class="docutils literal notranslate"><span class="pre">Linkcell.ldx_of_cellndx()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.linkcell.Linkcell.make_memberlists"><code class="docutils literal notranslate"><span class="pre">Linkcell.make_memberlists()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.linkcell.Linkcell.make_neighborlists"><code class="docutils literal notranslate"><span class="pre">Linkcell.make_neighborlists()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.linkcell.Linkcell.neighbors_of_cellndx"><code class="docutils literal notranslate"><span class="pre">Linkcell.neighbors_of_cellndx()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.linkcell.Linkcell.point_in_cellndx"><code class="docutils literal notranslate"><span class="pre">Linkcell.point_in_cellndx()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.linkcell.Linkcell.populate"><code class="docutils literal notranslate"><span class="pre">Linkcell.populate()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.linkcell.Linkcell.populate_par"><code class="docutils literal notranslate"><span class="pre">Linkcell.populate_par()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.linkcell.Linkcell.searchlist_of_ldx"><code class="docutils literal notranslate"><span class="pre">Linkcell.searchlist_of_ldx()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.geometry.matrix4.Matrix4"><code class="docutils literal notranslate"><span class="pre">Matrix4</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.geometry.matrix4.Matrix4.rot"><code class="docutils literal notranslate"><span class="pre">Matrix4.rot()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.matrix4.Matrix4.rotate_axis"><code class="docutils literal notranslate"><span class="pre">Matrix4.rotate_axis()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.matrix4.Matrix4.transform"><code class="docutils literal notranslate"><span class="pre">Matrix4.transform()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.matrix4.Matrix4.transinvec"><code class="docutils literal notranslate"><span class="pre">Matrix4.transinvec()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.matrix4.Matrix4.translate"><code class="docutils literal notranslate"><span class="pre">Matrix4.translate()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.matrix4.Matrix4.transvec"><code class="docutils literal notranslate"><span class="pre">Matrix4.transvec()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.geometry.ring.Ring"><code class="docutils literal notranslate"><span class="pre">Ring</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.geometry.ring.Ring.copy"><code class="docutils literal notranslate"><span class="pre">Ring.copy()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.ring.Ring.injest_coordinates"><code class="docutils literal notranslate"><span class="pre">Ring.injest_coordinates()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.ring.Ring.pierced_by"><code class="docutils literal notranslate"><span class="pre">Ring.pierced_by()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.ring.Ring.remap"><code class="docutils literal notranslate"><span class="pre">Ring.remap()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.ring.Ring.shift"><code class="docutils literal notranslate"><span class="pre">Ring.shift()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.ring.Ring.treadmill"><code class="docutils literal notranslate"><span class="pre">Ring.treadmill()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.ring.Ring.unwrap"><code class="docutils literal notranslate"><span class="pre">Ring.unwrap()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.geometry.ring.RingList"><code class="docutils literal notranslate"><span class="pre">RingList</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.geometry.ring.RingList.all_atoms"><code class="docutils literal notranslate"><span class="pre">RingList.all_atoms()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.ring.RingList.filter"><code class="docutils literal notranslate"><span class="pre">RingList.filter()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.ring.RingList.injest_coordinates"><code class="docutils literal notranslate"><span class="pre">RingList.injest_coordinates()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.ring.RingList.remap"><code class="docutils literal notranslate"><span class="pre">RingList.remap()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.ring.RingList.shift"><code class="docutils literal notranslate"><span class="pre">RingList.shift()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.geometry.ring.Segment"><code class="docutils literal notranslate"><span class="pre">Segment</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.geometry.ring.lawofcos"><code class="docutils literal notranslate"><span class="pre">lawofcos()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-htpolynet.utils.banner">htpolynet.utils</a><ul>
+<li><a class="reference internal" href="#htpolynet.utils.banner.banner"><code class="docutils literal notranslate"><span class="pre">banner()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.utils.checkpoint.Checkpoint"><code class="docutils literal notranslate"><span class="pre">Checkpoint</span></code></a><ul>
+<li><a class="reference internal" href="#htpolynet.utils.checkpoint.Checkpoint.default_filename"><code class="docutils literal notranslate"><span class="pre">Checkpoint.default_filename</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.utils.checkpoint.Checkpoint.from_yaml"><code class="docutils literal notranslate"><span class="pre">Checkpoint.from_yaml()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.utils.checkpoint.Checkpoint.to_yaml"><code class="docutils literal notranslate"><span class="pre">Checkpoint.to_yaml()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#htpolynet.utils.checkpoint.enableCheckpoint"><code class="docutils literal notranslate"><span class="pre">enableCheckpoint()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.utils.checkpoint.read_checkpoint"><code class="docutils literal notranslate"><span class="pre">read_checkpoint()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.utils.dataframetools.get_row"><code class="docutils literal notranslate"><span class="pre">get_row()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.utils.dataframetools.get_row_as_string"><code class="docutils literal notranslate"><span class="pre">get_row_as_string()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.utils.dataframetools.get_row_attribute"><code class="docutils literal notranslate"><span class="pre">get_row_attribute()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.utils.dataframetools.get_rows_w_attribute"><code class="docutils literal notranslate"><span class="pre">get_rows_w_attribute()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.utils.dataframetools.set_row_attribute"><code class="docutils literal notranslate"><span class="pre">set_row_attribute()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.utils.dataframetools.set_rows_attributes_from_dict"><code class="docutils literal notranslate"><span class="pre">set_rows_attributes_from_dict()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.utils.inputcheck.input_check"><code class="docutils literal notranslate"><span class="pre">input_check()</span></code></a></li>
+<li><a class="reference internal" href="#htpolynet.utils.stringthings.my_logger"><code class="docutils literal notranslate"><span class="pre">my_logger()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="references/index.html" title="previous chapter">References</a></li>
-  </ul></li>
-</ul>
-</div>
-<search id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</search>
-<script>document.getElementById('searchbox').style.display = "block"</script>
+          </div>
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="footer">
-      &#169;2024, Cameron Abrams, Ming Huang.
       
-      |
-      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
-      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
-      |
-      <a href="_sources/htpolynetpackage.rst.txt"
-          rel="nofollow">Page source</a>
-    </div>
-
-    
-
-    
-  </body>
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=0abd802e"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
 </html>
