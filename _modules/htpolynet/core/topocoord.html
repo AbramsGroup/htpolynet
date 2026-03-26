@@ -55,7 +55,7 @@
 <span class="n">logger</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <div class="viewcode-block" id="BTRC">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.BTRC">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.BTRC">[docs]</a>
 <span class="k">class</span> <span class="nc">BTRC</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Bond test return codes: bond tests are applied to those bond-candidates that are within search radius of each other.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -66,7 +66,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord">[docs]</a>
 <span class="k">class</span> <span class="nc">TopoCoord</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Container for Topology and Coordinates, along with methods that</span>
 <span class="sd">        use either or both of them</span>
@@ -110,7 +110,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">Coordinates</span><span class="o">.</span><span class="n">claim_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TopoCoord.from_top_gro">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.from_top_gro">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.from_top_gro">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_top_gro</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span><span class="n">top</span><span class="p">,</span><span class="n">gro</span><span class="p">):</span>
         <span class="n">X</span><span class="o">=</span><span class="bp">cls</span><span class="p">(</span><span class="n">topfilename</span><span class="o">=</span><span class="n">top</span><span class="p">,</span><span class="n">grofilename</span><span class="o">=</span><span class="n">gro</span><span class="p">)</span>
@@ -118,7 +118,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.make_bonds">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.make_bonds">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.make_bonds">[docs]</a>
     <span class="k">def</span> <span class="nf">make_bonds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">pairs</span><span class="p">,</span><span class="n">explicit_sacH</span><span class="o">=</span><span class="p">{}):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds new bonds to the global topology.</span>
 
@@ -145,7 +145,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.add_restraints">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.add_restraints">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.add_restraints">[docs]</a>
     <span class="k">def</span> <span class="nf">add_restraints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">pairdf</span><span class="p">,</span><span class="n">typ</span><span class="o">=</span><span class="mi">6</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds bonds of type typ to the topology from the dataframe pairdf.</span>
 
@@ -157,7 +157,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.delete_atoms">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.delete_atoms">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.delete_atoms">[docs]</a>
     <span class="k">def</span> <span class="nf">delete_atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atomlist</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Deletes atoms from both the Topology and Coordinates instances.</span>
 
@@ -181,7 +181,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.count_H">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.count_H">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.count_H">[docs]</a>
     <span class="k">def</span> <span class="nf">count_H</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">idx</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Counts the number of hydrogens bound to atom with index idx; any atom whose name begins with the character &#39;H&#39; or &#39;h&#39; is assumed to be a hydrogen.</span>
 
@@ -198,7 +198,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.map_from_templates">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.map_from_templates">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.map_from_templates">[docs]</a>
     <span class="k">def</span> <span class="nf">map_from_templates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">bdf</span><span class="p">,</span><span class="n">moldict</span><span class="p">,</span><span class="n">overcharge_threshhold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates angles, pairs, dihedrals, atom types, and charges, based on product templates associated with each bond in &#39;bdf&#39;.</span>
 
@@ -430,7 +430,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.enumerate_1_4_pairs">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.enumerate_1_4_pairs">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.enumerate_1_4_pairs">[docs]</a>
     <span class="k">def</span> <span class="nf">enumerate_1_4_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">at_idx</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Enumerates all 1-4 pair interactions resulting from new bonds in at_idx.</span>
 
@@ -497,7 +497,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.update_topology_and_coordinates">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.update_topology_and_coordinates">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.update_topology_and_coordinates">[docs]</a>
     <span class="k">def</span> <span class="nf">update_topology_and_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">bdf</span><span class="p">,</span><span class="n">template_dict</span><span class="o">=</span><span class="p">{},</span><span class="n">write_mapper_to</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates global topology and necessary atom attributes in the configuration to reflect formation of all bonds listed in bdf.</span>
 
@@ -551,7 +551,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.read_top">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.read_top">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.read_top">[docs]</a>
     <span class="k">def</span> <span class="nf">read_top</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">topfilename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a new Topology member by reading from a Gromacs-style top file. Just a wrapper for the read_top method of the Topology class.</span>
 
@@ -563,7 +563,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.read_tpx">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.read_tpx">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.read_tpx">[docs]</a>
     <span class="k">def</span> <span class="nf">read_tpx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">tpxfilename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reads in extended topology information.</span>
 
@@ -575,7 +575,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.read_gro">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.read_gro">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.read_gro">[docs]</a>
     <span class="k">def</span> <span class="nf">read_gro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">grofilename</span><span class="p">,</span><span class="n">preserve_box</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">wrap_coords</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a new Coordinates member by reading from a Gromacs-style coordinates file. Just a wrapper for the read_gro method of Coordinates.</span>
 
@@ -595,7 +595,7 @@
         <span class="c1"># logger.debug(f&#39;box: {self.Coordinates.box}&#39;)</span>
 
 <div class="viewcode-block" id="TopoCoord.read_mol2">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.read_mol2">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.read_mol2">[docs]</a>
     <span class="k">def</span> <span class="nf">read_mol2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">mol2filename</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a new Coordinates member by reading from a SYBYL-style MOL2 file. A wrapper for read_mol2 from Coordinates, but also sets the &#39;mol2_bonds&#39; dataframe in the Topology if the parameter ignore_bonds is False. If the mol2_bonds dataframe is created, and the Topology already has a &#39;bonds&#39; dataframe, a consistency check is performed.</span>
 
@@ -618,7 +618,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.swap_atom_names">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.swap_atom_names">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.swap_atom_names">[docs]</a>
     <span class="k">def</span> <span class="nf">swap_atom_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ai</span><span class="p">,</span><span class="n">aj</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Swaps the names of the two atoms with global indices ai and aj. This is used when automatically selecting which of several possible sacrificial H&#39;s will actually be selected. Surviving H&#39;s are renamed so it always appears that the H with the &quot;least important&quot; name (lowest order if sorted) is the sacrificial H, giving perfect control of the names of the atoms that survive a bond.</span>
 
@@ -641,7 +641,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.read_top_gro">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.read_top_gro">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.read_top_gro">[docs]</a>
     <span class="k">def</span> <span class="nf">read_top_gro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">topfilename</span><span class="p">,</span><span class="n">grofilename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Wrapper for read_top and read_gro; generates new Topology and Coordinates members.</span>
 
@@ -654,7 +654,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.write_top">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.write_top">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.write_top">[docs]</a>
     <span class="k">def</span> <span class="nf">write_top</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">topfilename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Writes a Gromacs-format topology file; this will only write an in-line version, no itp; wrapper for Topology.write_top().</span>
 
@@ -666,14 +666,14 @@
 
 
 <div class="viewcode-block" id="TopoCoord.write_tpx">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.write_tpx">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.write_tpx">[docs]</a>
     <span class="k">def</span> <span class="nf">write_tpx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">tpxfilename</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Topology</span><span class="o">.</span><span class="n">write_tpx</span><span class="p">(</span><span class="n">tpxfilename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="s1">&#39;tpx&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">tpxfilename</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TopoCoord.write_gro">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.write_gro">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.write_gro">[docs]</a>
     <span class="k">def</span> <span class="nf">write_gro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">grofilename</span><span class="p">,</span><span class="n">grotitle</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Writes a Gromacs-format coordinate file; wrapper for Coordinates.write_gro().</span>
 
@@ -697,7 +697,7 @@
     <span class="c1">#     self.write_gro(grofilename)</span>
 
 <div class="viewcode-block" id="TopoCoord.return_bond_lengths">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.return_bond_lengths">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.return_bond_lengths">[docs]</a>
     <span class="k">def</span> <span class="nf">return_bond_lengths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">bdf</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the length of all bonds in bdf.</span>
 
@@ -711,7 +711,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.add_length_attribute">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.add_length_attribute">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.add_length_attribute">[docs]</a>
     <span class="k">def</span> <span class="nf">add_length_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">bdf</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span><span class="n">attr_name</span><span class="o">=</span><span class="s1">&#39;length&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes bond lengths based on bonds indicated by the parallel &#39;ai&#39; and &#39;aj&#39; columns of the parameter dataframe bdf and stores result in a new column called attr_name.</span>
 
@@ -723,7 +723,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.copy_bond_parameters">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.copy_bond_parameters">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.copy_bond_parameters">[docs]</a>
     <span class="k">def</span> <span class="nf">copy_bond_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">bonds</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates and returns a copy of a bonds dataframe that contains all bonds listed in bonds.</span>
 
@@ -737,7 +737,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.remove_restraints">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.remove_restraints">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.remove_restraints">[docs]</a>
     <span class="k">def</span> <span class="nf">remove_restraints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">pairsdf</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Removes all bonds represented in pairsdf. These are interpreted as non-topological restraints, so deleting these &#39;bonds&#39; does not influence angles or dihedrals.</span>
 
@@ -748,7 +748,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.attenuate_bond_parameters">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.attenuate_bond_parameters">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.attenuate_bond_parameters">[docs]</a>
     <span class="k">def</span> <span class="nf">attenuate_bond_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">bonds</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">minimum_distance</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span><span class="n">init_colname</span><span class="o">=</span><span class="s1">&#39;initial_distance&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Alters the kb and b0 parameters for new crosslink bonds according to the values prior to relaxation (stored in lengths), their equilibrium values, and the ratio stage/max_stages. Let stage/max_stages be x, and 1/max_stages &lt;= x &lt;= 1. The spring constant for each bond is multiplied by x and the distance is 1 xth of the way from its maximum value to its equilibrium value.</span>
 
@@ -763,7 +763,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.attenuate_pair_parameters">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.attenuate_pair_parameters">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.attenuate_pair_parameters">[docs]</a>
     <span class="k">def</span> <span class="nf">attenuate_pair_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">pairdf</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">draglimit_nm</span><span class="o">=</span><span class="mf">0.3</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Alters the kb and b0 parameters for new pre-crosslink pairs according to the values prior to dragging (stored in pairdf[&#39;initial_distances&#39;]), the desired lower limit of interatomic distance &#39;draglimit_nm&#39;, and the ratio stage/max_stages.</span>
 
@@ -777,7 +777,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.copy_coords">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.copy_coords">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.copy_coords">[docs]</a>
     <span class="k">def</span> <span class="nf">copy_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Copies coordinates and box size from other to self.</span>
 
@@ -790,7 +790,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.restore_bond_parameters">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.restore_bond_parameters">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.restore_bond_parameters">[docs]</a>
     <span class="k">def</span> <span class="nf">restore_bond_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">saved</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Restores saved bond parameters in df saved by overwriting.</span>
 
@@ -801,7 +801,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.set_grx_attributes">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.set_grx_attributes">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.set_grx_attributes">[docs]</a>
     <span class="k">def</span> <span class="nf">set_grx_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">attributes</span><span class="o">=</span><span class="p">[]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Overrides the global GRX_ATTRIBUTES.</span>
 
@@ -816,7 +816,7 @@
 
     
 <div class="viewcode-block" id="TopoCoord.write_gro_attributes">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.write_gro_attributes">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.write_gro_attributes">[docs]</a>
     <span class="k">def</span> <span class="nf">write_gro_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">attributes_list</span><span class="p">,</span><span class="n">grxfilename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Writes atomic attributes to a file.</span>
 
@@ -829,7 +829,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.write_grx_attributes">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.write_grx_attributes">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.write_grx_attributes">[docs]</a>
     <span class="k">def</span> <span class="nf">write_grx_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">grxfilename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Writes GRX attributes to a file.</span>
 
@@ -840,7 +840,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.read_gro_attributes">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.read_gro_attributes">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.read_gro_attributes">[docs]</a>
     <span class="k">def</span> <span class="nf">read_gro_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">grxfilename</span><span class="p">,</span><span class="n">attribute_list</span><span class="o">=</span><span class="p">[]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reads attributes from file into self.Coordinates.A.</span>
 
@@ -857,7 +857,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.set_gro_attribute">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.set_gro_attribute">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.set_gro_attribute">[docs]</a>
     <span class="k">def</span> <span class="nf">set_gro_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">attribute</span><span class="p">,</span><span class="n">srs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets attribute of atoms to srs (drills through to Coordinates.set_atomset_attributes()).</span>
 
@@ -869,7 +869,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.set_gro_attribute_by_attributes">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.set_gro_attribute_by_attributes">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.set_gro_attribute_by_attributes">[docs]</a>
     <span class="k">def</span> <span class="nf">set_gro_attribute_by_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">att_name</span><span class="p">,</span><span class="n">att_value</span><span class="p">,</span><span class="n">attribute_dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the attribute named att_name to att_value for the set of atoms specified by attribute_dict.</span>
 
@@ -882,7 +882,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.get_gro_attribute_by_attributes">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.get_gro_attribute_by_attributes">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.get_gro_attribute_by_attributes">[docs]</a>
     <span class="k">def</span> <span class="nf">get_gro_attribute_by_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">att_name</span><span class="p">,</span><span class="n">attribute_dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns values of attributes listed in att_name from atoms specified by attribute:value pairs in attribute_dict.</span>
 
@@ -897,7 +897,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.increment_gro_attribute_by_attributes">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.increment_gro_attribute_by_attributes">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.increment_gro_attribute_by_attributes">[docs]</a>
     <span class="k">def</span> <span class="nf">increment_gro_attribute_by_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">att_name</span><span class="p">,</span><span class="n">attribute_dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds one to attribute att_name of all atoms identified by attribute:value pairs in attribute_dict.</span>
 
@@ -911,7 +911,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.decrement_gro_attribute_by_attributes">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.decrement_gro_attribute_by_attributes">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.decrement_gro_attribute_by_attributes">[docs]</a>
     <span class="k">def</span> <span class="nf">decrement_gro_attribute_by_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">att_name</span><span class="p">,</span><span class="n">attribute_dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Subtracts one from attribute att_name of all atoms identified by attribute:value pairs in attribute_dict.</span>
 
@@ -925,7 +925,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.get_gro_attributelist_by_attributes">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.get_gro_attributelist_by_attributes">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.get_gro_attributelist_by_attributes">[docs]</a>
     <span class="k">def</span> <span class="nf">get_gro_attributelist_by_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">attribute_list</span><span class="p">,</span><span class="n">attribute_dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns all rows of atoms dataframe and columns named in attribute_list for atoms identified by the attribute_dict.</span>
 
@@ -940,7 +940,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.get_R">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.get_R">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.get_R">[docs]</a>
     <span class="k">def</span> <span class="nf">get_R</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">idx</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the cartesian position of atom with global index idx.</span>
 
@@ -954,7 +954,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.rotate">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.rotate">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.rotate">[docs]</a>
     <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">R</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Applies rotation matrix R to all atom positions.</span>
 
@@ -965,7 +965,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.translate">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.translate">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.translate">[docs]</a>
     <span class="k">def</span> <span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">L</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Applies translation vector L to all atom positions.</span>
 
@@ -976,7 +976,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.partners_of">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.partners_of">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.partners_of">[docs]</a>
     <span class="k">def</span> <span class="nf">partners_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of atom indices of bonded partners of atom i.</span>
 
@@ -990,7 +990,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.resid_partners_of">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.resid_partners_of">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.resid_partners_of">[docs]</a>
     <span class="k">def</span> <span class="nf">resid_partners_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ri</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of resid partners of resid ri.</span>
 
@@ -1013,7 +1013,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.interresidue_partners_of">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.interresidue_partners_of">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.interresidue_partners_of">[docs]</a>
     <span class="k">def</span> <span class="nf">interresidue_partners_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of atom indices that are bonded partners of atom i and are not in the residue of atom i.</span>
 
@@ -1035,7 +1035,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.minimum_distance">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.minimum_distance">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.minimum_distance">[docs]</a>
     <span class="k">def</span> <span class="nf">minimum_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">,</span><span class="n">self_excludes</span><span class="o">=</span><span class="p">[],</span><span class="n">other_excludes</span><span class="o">=</span><span class="p">[]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes the distance of closest approach between self&#39;s Coordinates and other&#39;s Coordinates.</span>
 
@@ -1054,7 +1054,7 @@
     <span class="c1">#     return self.Coordinates.has_atom_attributes(attribute_list)</span>
 
 <div class="viewcode-block" id="TopoCoord.are_bonded">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.are_bonded">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.are_bonded">[docs]</a>
     <span class="k">def</span> <span class="nf">are_bonded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks to see if atoms with indices i and j are bonded to each other.</span>
 
@@ -1072,7 +1072,7 @@
     <span class="c1">#     self.Coordinates.decrement_z(pairs)</span>
 
 <div class="viewcode-block" id="TopoCoord.adjust_charges">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.adjust_charges">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.adjust_charges">[docs]</a>
     <span class="k">def</span> <span class="nf">adjust_charges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atoms</span><span class="o">=</span><span class="p">[],</span><span class="n">overcharge_threshhold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span><span class="n">netcharge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span><span class="n">msg</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Adjusts the partial charges on atoms in list &#39;atoms&#39; if the absolute net charge exceeds &#39;netcharge&#39; by the &#39;overcharge_threshhold&#39;.</span>
 
@@ -1086,7 +1086,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.gro_DataFrame">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.gro_DataFrame">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.gro_DataFrame">[docs]</a>
     <span class="k">def</span> <span class="nf">gro_DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the appropriate Coordinates dataframe based on the directive in &#39;name&#39;.</span>
 
@@ -1105,7 +1105,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.overwrite_coords">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.overwrite_coords">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.overwrite_coords">[docs]</a>
     <span class="k">def</span> <span class="nf">overwrite_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Overwrites coordinates in self by those in other.</span>
 
@@ -1126,7 +1126,7 @@
         <span class="c1"># logger.debug(f&#39;after update:\n{self.Coordinates.A.to_string()}&#39;)</span>
 
 <div class="viewcode-block" id="TopoCoord.linkcell_initialize">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.linkcell_initialize">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.linkcell_initialize">[docs]</a>
     <span class="k">def</span> <span class="nf">linkcell_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cutoff</span><span class="p">,</span><span class="n">ncpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">force_repopulate</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the linkcell structure; a wrapper for Coordinates.</span>
 
@@ -1139,7 +1139,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.linkcell_cleanup">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.linkcell_cleanup">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.linkcell_cleanup">[docs]</a>
     <span class="k">def</span> <span class="nf">linkcell_cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Removes linkcell_idx attribute from Coordinate.A.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1147,7 +1147,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.atom_count">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.atom_count">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.atom_count">[docs]</a>
     <span class="k">def</span> <span class="nf">atom_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks to be sure the Coordinate and Topology members contain the same number of atoms.</span>
 
@@ -1159,7 +1159,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.total_mass">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.total_mass">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.total_mass">[docs]</a>
     <span class="k">def</span> <span class="nf">total_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;SI&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the total mass of the system. Just a wrapper.</span>
 
@@ -1173,7 +1173,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.total_volume">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.total_volume">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.total_volume">[docs]</a>
     <span class="k">def</span> <span class="nf">total_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;SI&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns total volume represented by the system&#39;s Coordinates.</span>
 
@@ -1187,7 +1187,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.density">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.density">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.density">[docs]</a>
     <span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;SI&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns system density.</span>
 
@@ -1201,7 +1201,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.wrap_coords">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.wrap_coords">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.wrap_coords">[docs]</a>
     <span class="k">def</span> <span class="nf">wrap_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Wraps all coordinates into center periodic box.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1209,7 +1209,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.inherit_grx_attributes_from_molecules">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.inherit_grx_attributes_from_molecules">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.inherit_grx_attributes_from_molecules">[docs]</a>
     <span class="k">def</span> <span class="nf">inherit_grx_attributes_from_molecules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">molecule_dict</span><span class="p">,</span><span class="n">initial_composition</span><span class="p">,</span><span class="n">globally_unique</span><span class="o">=</span><span class="n">GRX_GLOBALLY_UNIQUE</span><span class="p">,</span><span class="n">unset_defaults</span><span class="o">=</span><span class="n">GRX_UNSET_DEFAULTS</span><span class="p">,</span><span class="n">overall_default</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Copies non-Gromacs-standard atom attributes from molecule templates in molecule_dict according to molecule counts in dict initial_composition.</span>
 
@@ -1281,7 +1281,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.make_resid_graph">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.make_resid_graph">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.make_resid_graph">[docs]</a>
     <span class="k">def</span> <span class="nf">make_resid_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">json_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Makes a residue connectivity graph.</span>
 
@@ -1292,7 +1292,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.maxspan">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.maxspan">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.maxspan">[docs]</a>
     <span class="k">def</span> <span class="nf">maxspan</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the maxspan of the Coordinates (dimensions of orthorhombic convex hull enclosing Coordinates). Just a wrapper.</span>
 
@@ -1303,7 +1303,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.minmax">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.minmax">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.minmax">[docs]</a>
     <span class="k">def</span> <span class="nf">minmax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the coordinates of the atoms at the lower-leftmost and upper-rightmost positions in the constellation of points in the atoms dataframe.</span>
 
@@ -1314,7 +1314,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.checkbox">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.checkbox">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.checkbox">[docs]</a>
     <span class="k">def</span> <span class="nf">checkbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks that the entire constellation of points in the atoms dataframe fits within the designated box for this Configuration object.</span>
 
@@ -1325,7 +1325,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.write_mol2">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.write_mol2">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.write_mol2">[docs]</a>
     <span class="k">def</span> <span class="nf">write_mol2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">filename</span><span class="p">,</span><span class="n">molname</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="n">element_names_as_types</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Writes a SYBYL MOL2-format file using Coordinates, with certain atom attributes borrowed from the Topology.</span>
 
@@ -1352,7 +1352,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.merge">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.merge">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.merge">[docs]</a>
     <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Merges the TopoCoord instance &quot;other&quot; to self.</span>
 
@@ -1376,7 +1376,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.bondtest_df">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.bondtest_df">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.bondtest_df">[docs]</a>
     <span class="k">def</span> <span class="nf">bondtest_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span><span class="n">pbc</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">show_piercings</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Applies bond filters to all bonds in the dataframe.</span>
 
@@ -1402,7 +1402,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.bondtest">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.bondtest">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.bondtest">[docs]</a>
     <span class="k">def</span> <span class="nf">bondtest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">pbc</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">show_piercings</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Determines if bond b is to be allowed to form based on geometric and topological criteria.</span>
 
@@ -1428,7 +1428,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.pierces_ring">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.pierces_ring">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.pierces_ring">[docs]</a>
     <span class="k">def</span> <span class="nf">pierces_ring</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">pbc</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">show_piercings</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks to see if bond i-j would pierce any covalent ring structure.</span>
 
@@ -1482,7 +1482,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.makes_shortcircuit">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.makes_shortcircuit">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.makes_shortcircuit">[docs]</a>
     <span class="k">def</span> <span class="nf">makes_shortcircuit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Determines whether atoms i and j, if bonded, would produce a short circuit, defined as an instance in which i and j belong to residues that are already bonded to each other.</span>
 
@@ -1529,7 +1529,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.reset_grx_attributes_from_idx_list">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.reset_grx_attributes_from_idx_list">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.reset_grx_attributes_from_idx_list">[docs]</a>
     <span class="k">def</span> <span class="nf">reset_grx_attributes_from_idx_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">list_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Uses information in the &quot;index lists&quot; to repopulate appropriate GRX attributes. Currently, there is only one index list, for bondchains. Each index list is a list of lists; each element corresponds to a unique structure (bondchain) and is a list of global atom indices for atoms that make up that structural instance.</span>
 
@@ -1545,7 +1545,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.reset_idx_list_from_grx_attributes">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.reset_idx_list_from_grx_attributes">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.reset_idx_list_from_grx_attributes">[docs]</a>
     <span class="k">def</span> <span class="nf">reset_idx_list_from_grx_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">list_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Is the inverse of reset_grx_attributes_from_idx_list: it uses the GRX attributes to rebuild index lists.</span>
 
@@ -1673,7 +1673,7 @@
     <span class="c1">#     return False</span>
 
 <div class="viewcode-block" id="TopoCoord.bondcycle_collective">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.bondcycle_collective">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.bondcycle_collective">[docs]</a>
     <span class="k">def</span> <span class="nf">bondcycle_collective</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">bdf</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks to see if, when considered as a collective, this set of bond records leads to one or more cyclic bondchains; if so, longest bonds that break bondcycles are removed from the bond records list and the resulting list is returned.</span>
 
@@ -1811,7 +1811,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.get_bystanders">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.get_bystanders">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.get_bystanders">[docs]</a>
     <span class="k">def</span> <span class="nf">get_bystanders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atom_idx</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Identifies and returns bystanders at a particular proposed bond specified by atom_idx.</span>
 
@@ -1836,7 +1836,7 @@
 
     
 <div class="viewcode-block" id="TopoCoord.get_oneaways">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.get_oneaways">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.get_oneaways">[docs]</a>
     <span class="k">def</span> <span class="nf">get_oneaways</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atom_idx</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Identifies and returns one-aways for a particular proposed bond specified by atom_idx.</span>
 
@@ -1906,7 +1906,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.grab_files">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.grab_files">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.grab_files">[docs]</a>
     <span class="k">def</span> <span class="nf">grab_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Using absolute pathname information, grabs the most up-to-date gromacs files for this system and deposits them into the cwd.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1920,7 +1920,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.grompp_and_mdrun">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.grompp_and_mdrun">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.grompp_and_mdrun">[docs]</a>
     <span class="k">def</span> <span class="nf">grompp_and_mdrun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">out</span><span class="p">,</span><span class="n">mdp</span><span class="p">,</span><span class="n">mylogger</span><span class="o">=</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Manages invoking a single Gromacs run using the current TopoCoord.</span>
 
@@ -1948,7 +1948,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.load_files">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.load_files">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.load_files">[docs]</a>
     <span class="k">def</span> <span class="nf">load_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">filenames</span><span class="p">:</span><span class="nb">dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads all gromacs files into TopoCoord.</span>
 
@@ -1969,7 +1969,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.center_coords">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.center_coords">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.center_coords">[docs]</a>
     <span class="k">def</span> <span class="nf">center_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">new_boxsize</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Centers all coordinates in box.</span>
 
@@ -1989,7 +1989,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.vacuum_minimize">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.vacuum_minimize">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.vacuum_minimize">[docs]</a>
     <span class="k">def</span> <span class="nf">vacuum_minimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">outname</span><span class="o">=</span><span class="s1">&#39;minimized&#39;</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The minimize analog to grompp_and_mdrun; performs an energy minimization using mdrun.</span>
 
@@ -2008,7 +2008,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.vacuum_simulate">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.vacuum_simulate">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.vacuum_simulate">[docs]</a>
     <span class="k">def</span> <span class="nf">vacuum_simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">outname</span><span class="o">=</span><span class="s1">&#39;simulated&#39;</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Performs a vacuum MD simulation using mdrun.</span>
 
@@ -2047,7 +2047,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.equilibrate">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.equilibrate">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.equilibrate">[docs]</a>
     <span class="k">def</span> <span class="nf">equilibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">deffnm</span><span class="o">=</span><span class="s1">&#39;equilibrate&#39;</span><span class="p">,</span><span class="n">edict</span><span class="o">=</span><span class="p">{},</span><span class="n">gromacs_dict</span><span class="o">=</span><span class="p">{}):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Performs an MD simulation using mdrun.</span>
 
@@ -2108,7 +2108,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.get_resid_sets">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.get_resid_sets">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.get_resid_sets">[docs]</a>
     <span class="k">def</span> <span class="nf">get_resid_sets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atom_pair</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Identifies individual sets of separate resids owned by unbonded atoms i and j.</span>
 
@@ -2131,7 +2131,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.check_your_topology">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.check_your_topology">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.check_your_topology">[docs]</a>
     <span class="k">def</span> <span class="nf">check_your_topology</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks topology for duplicate 1-4 pair interactions and deletes them.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2168,7 +2168,7 @@
 
 
 <div class="viewcode-block" id="TopoCoord.flip_stereocenters">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.TopoCoord.flip_stereocenters">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.TopoCoord.flip_stereocenters">[docs]</a>
     <span class="k">def</span> <span class="nf">flip_stereocenters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">idxlist</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Flips stereochemistry of atoms in idxlist.</span>
 
@@ -2297,7 +2297,7 @@
 
 
 <div class="viewcode-block" id="find_template">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topocoord.find_template">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topocoord.find_template">[docs]</a>
 <span class="k">def</span> <span class="nf">find_template</span><span class="p">(</span><span class="n">BT</span><span class="p">:</span><span class="n">BondTemplate</span><span class="p">,</span><span class="n">moldict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Searches the dictionary of available molecules to identify a bond template that matches the passed-in template, returning the corresponding template molecule and reaction-bond.</span>
 
@@ -2365,7 +2365,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user-guide/index.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../example-tutorials/index.html">Example Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../references/index.html">References</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../HTPolyNetPackage.html">htpolynet package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../htpolynetpackage.html">htpolynet package</a></li>
 </ul>
 
 <div class="relations">

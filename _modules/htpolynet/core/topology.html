@@ -53,7 +53,7 @@
 <span class="n">_PAD_</span><span class="o">=-</span><span class="mf">99.99</span>
 
 <div class="viewcode-block" id="typeorder">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.typeorder">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.typeorder">[docs]</a>
 <span class="k">def</span> <span class="nf">typeorder</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Correctly orders the tuple of atom types for particular interaction types.</span>
 
@@ -76,7 +76,7 @@
 <span class="n">idxorder</span><span class="o">=</span><span class="n">typeorder</span>  <span class="c1"># same syntax to order global atom indices in an interaction index</span>
 
 <div class="viewcode-block" id="repeat_check">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.repeat_check">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.repeat_check">[docs]</a>
 <span class="k">def</span> <span class="nf">repeat_check</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">msg</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Checks for repeated index tuples.</span>
 
@@ -90,7 +90,7 @@
 
 
 <div class="viewcode-block" id="df_typeorder">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.df_typeorder">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.df_typeorder">[docs]</a>
 <span class="k">def</span> <span class="nf">df_typeorder</span><span class="p">(</span><span class="n">df</span><span class="p">,</span><span class="n">typs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Type-orders the atom type attributes in each row of dataframe df.</span>
 
@@ -106,7 +106,7 @@
 <span class="n">_GromacsFloats_</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;charge&#39;</span><span class="p">,</span><span class="s1">&#39;mass&#39;</span><span class="p">,</span><span class="s1">&#39;chargeB&#39;</span><span class="p">,</span><span class="s1">&#39;massB&#39;</span><span class="p">,</span><span class="o">*</span><span class="nb">tuple</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;c</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)]),</span>
                  <span class="s1">&#39;b0&#39;</span><span class="p">,</span><span class="s1">&#39;kb&#39;</span><span class="p">,</span><span class="s1">&#39;th0&#39;</span><span class="p">,</span><span class="s1">&#39;cth&#39;</span><span class="p">,</span><span class="s1">&#39;rub&#39;</span><span class="p">,</span><span class="s1">&#39;kub&#39;</span><span class="p">,</span><span class="s1">&#39;phase&#39;</span><span class="p">,</span><span class="s1">&#39;kd&#39;</span><span class="p">,</span><span class="s1">&#39;pn&#39;</span><span class="p">,</span><span class="s1">&#39;fudgeLJ&#39;</span><span class="p">,</span><span class="s1">&#39;fudgeQQ&#39;</span><span class="p">)</span>
 <div class="viewcode-block" id="typedata">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.typedata">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.typedata">[docs]</a>
 <span class="k">def</span> <span class="nf">typedata</span><span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="n">s</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">_GromacsIntegers_</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
@@ -154,7 +154,7 @@
 <span class="p">}</span>
 
 <div class="viewcode-block" id="select_topology_type_option">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.select_topology_type_option">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.select_topology_type_option">[docs]</a>
 <span class="k">def</span> <span class="nf">select_topology_type_option</span><span class="p">(</span><span class="n">options</span><span class="p">,</span><span class="n">typename</span><span class="o">=</span><span class="s1">&#39;dihedraltypes&#39;</span><span class="p">,</span><span class="n">rule</span><span class="o">=</span><span class="s1">&#39;stiffest&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Selects from a list of topological interaction options of type typename using the provided rule.</span>
 
@@ -186,7 +186,7 @@
 
 
 <div class="viewcode-block" id="Topology">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology">[docs]</a>
 <span class="k">class</span> <span class="nc">Topology</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Class for handling gromacs top data</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -211,7 +211,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">empty</span><span class="o">=</span><span class="kc">True</span>
 
 <div class="viewcode-block" id="Topology.read_top">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.read_top">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.read_top">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">read_top</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span><span class="n">filename</span><span class="p">,</span><span class="n">pad</span><span class="o">=</span><span class="n">_PAD_</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reads a GROMACS-style topology file and returns a Topology instance.</span>
@@ -315,7 +315,7 @@
 
 
 <div class="viewcode-block" id="Topology.bond_source_check">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.bond_source_check">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.bond_source_check">[docs]</a>
     <span class="k">def</span> <span class="nf">bond_source_check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks that the &#39;bonds&#39; and &#39;mol2_bonds&#39; dataframes contain the same bonds.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s1">&#39;bonds&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="ow">and</span> <span class="s1">&#39;mol2_bonds&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">:</span>
@@ -337,7 +337,7 @@
 
 
 <div class="viewcode-block" id="Topology.shiftatomsidx">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.shiftatomsidx">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.shiftatomsidx">[docs]</a>
     <span class="k">def</span> <span class="nf">shiftatomsidx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">idxshift</span><span class="p">,</span><span class="n">directive</span><span class="p">,</span><span class="n">rows</span><span class="o">=</span><span class="p">[],</span><span class="n">idxlabels</span><span class="o">=</span><span class="p">[]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Shifts all atom indexes in a topology directive dataframe.</span>
 
@@ -353,7 +353,7 @@
 
 
 <div class="viewcode-block" id="Topology.detect_rings">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.detect_rings">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.detect_rings">[docs]</a>
     <span class="k">def</span> <span class="nf">detect_rings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Detects unique rings in the topology.&quot;&quot;&quot;</span>
         <span class="n">g</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bondlist</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
@@ -363,7 +363,7 @@
 
 
 <div class="viewcode-block" id="Topology.read_tpx">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.read_tpx">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.read_tpx">[docs]</a>
     <span class="k">def</span> <span class="nf">read_tpx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">filename</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;Error: </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> not found.&#39;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -382,7 +382,7 @@
 
     
 <div class="viewcode-block" id="Topology.write_tpx">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.write_tpx">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.write_tpx">[docs]</a>
     <span class="k">def</span> <span class="nf">write_tpx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">filename</span><span class="p">):</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;[ rings ]</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -391,7 +391,7 @@
 
 
 <div class="viewcode-block" id="Topology.rep_ex">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.rep_ex">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.rep_ex">[docs]</a>
     <span class="k">def</span> <span class="nf">rep_ex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">count</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Replicates extensive topology components (atoms, pairs, bonds, angles, dihedrals).</span>
 
@@ -436,7 +436,7 @@
 
 
 <div class="viewcode-block" id="Topology.from_ex">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.from_ex">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.from_ex">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_ex</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Makes a new Topology instance by copying only the extensive dataframes from an existing topology.</span>
@@ -459,7 +459,7 @@
 
 
 <div class="viewcode-block" id="Topology.write_top">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.write_top">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.write_top">[docs]</a>
     <span class="k">def</span> <span class="nf">write_top</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">filename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Writes topology to a GROMACS-format top file.</span>
 
@@ -492,7 +492,7 @@
 
 
 <div class="viewcode-block" id="Topology.null_check">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.null_check">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.null_check">[docs]</a>
     <span class="k">def</span> <span class="nf">null_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">msg</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks for NaNs in dataframe locations that should never have NaNs.</span>
 
@@ -514,7 +514,7 @@
 
 
 <div class="viewcode-block" id="Topology.total_charge">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.total_charge">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.total_charge">[docs]</a>
     <span class="k">def</span> <span class="nf">total_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes and returns total system charge.</span>
 
@@ -527,7 +527,7 @@
 
 
 <div class="viewcode-block" id="Topology.adjust_charges">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.adjust_charges">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.adjust_charges">[docs]</a>
     <span class="k">def</span> <span class="nf">adjust_charges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atoms</span><span class="o">=</span><span class="p">[],</span><span class="n">desired_charge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span><span class="n">overcharge_threshhold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span><span class="n">msg</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Adjusts atom partial charges so that total system charge equals the desired value.</span>
 
@@ -554,7 +554,7 @@
 
         
 <div class="viewcode-block" id="Topology.total_mass">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.total_mass">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.total_mass">[docs]</a>
     <span class="k">def</span> <span class="nf">total_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;gromacs&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns total mass of all atoms in the Topology.</span>
 
@@ -575,7 +575,7 @@
 
 
 <div class="viewcode-block" id="Topology.atomcount">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.atomcount">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.atomcount">[docs]</a>
     <span class="k">def</span> <span class="nf">atomcount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the total number of atoms.</span>
 
@@ -588,7 +588,7 @@
 
     
 <div class="viewcode-block" id="Topology.add_restraints">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.add_restraints">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.add_restraints">[docs]</a>
     <span class="k">def</span> <span class="nf">add_restraints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">pairdf</span><span class="p">,</span><span class="n">typ</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="n">kb</span><span class="o">=</span><span class="mf">300000.</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds type-6 (non-topological) bonds to help drag atoms toward each other.</span>
 
@@ -610,7 +610,7 @@
 
 
 <div class="viewcode-block" id="Topology.remove_restraints">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.remove_restraints">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.remove_restraints">[docs]</a>
     <span class="k">def</span> <span class="nf">remove_restraints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">pairdf</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Removes all non-topological restraint bonds represented in pairdf.</span>
 
@@ -628,7 +628,7 @@
 
 
 <div class="viewcode-block" id="Topology.add_bonds">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.add_bonds">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.add_bonds">[docs]</a>
     <span class="k">def</span> <span class="nf">add_bonds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">pairs</span><span class="o">=</span><span class="p">[]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds bonds indicated in list pairs to the topology.</span>
 
@@ -715,7 +715,7 @@
 
 
 <div class="viewcode-block" id="Topology.delete_atoms">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.delete_atoms">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.delete_atoms">[docs]</a>
     <span class="k">def</span> <span class="nf">delete_atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">idx</span><span class="o">=</span><span class="p">[],</span><span class="n">reindex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">return_idx_of</span><span class="o">=</span><span class="p">[],</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Deletes atoms from topology.</span>
 
@@ -890,7 +890,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">directive</span><span class="p">]</span><span class="o">=</span><span class="n">other</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">directive</span><span class="p">]</span>
 
 <div class="viewcode-block" id="Topology.merge">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.merge">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.merge">[docs]</a>
     <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Merges another topology into self.</span>
 
@@ -943,7 +943,7 @@
 <span class="c1">#           # logger.debug(f&#39;{typidx}&#39;)</span>
 <span class="c1"># #        pass</span>
 <div class="viewcode-block" id="Topology.report_type">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.report_type">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.report_type">[docs]</a>
     <span class="k">def</span> <span class="nf">report_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">typidx_q</span><span class="p">,</span><span class="n">typename</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="n">funcidx</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">typename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">:</span>
             <span class="k">return</span>
@@ -969,7 +969,7 @@
 <span class="sd">    &#39;dihedraltypes&#39;:[ &#39;i&#39;,  &#39;j&#39;,  &#39;k&#39;,  &#39;l&#39;, &#39;func&#39;,  &#39;phase&#39;, &#39;kd&#39;, &#39;pn&#39;],</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 <div class="viewcode-block" id="Topology.reset_override_from_type">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.reset_override_from_type">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.reset_override_from_type">[docs]</a>
     <span class="k">def</span> <span class="nf">reset_override_from_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">interactionname</span><span class="p">,</span><span class="n">typename</span><span class="p">,</span><span class="n">inst_idx</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">typename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">:</span>
             <span class="k">return</span>
@@ -1009,7 +1009,7 @@
         
 
 <div class="viewcode-block" id="Topology.reset_type">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.reset_type">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.reset_type">[docs]</a>
     <span class="k">def</span> <span class="nf">reset_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">typename</span><span class="p">,</span><span class="n">typidx_t</span><span class="p">,</span><span class="n">values</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">typename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">:</span>
             <span class="k">return</span>
@@ -1033,7 +1033,7 @@
 
 
 <div class="viewcode-block" id="Topology.report_duplicate_types">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.report_duplicate_types">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.report_duplicate_types">[docs]</a>
     <span class="k">def</span> <span class="nf">report_duplicate_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">,</span><span class="n">typename</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="n">funcidx</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">typename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">typename</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">D</span><span class="p">:</span>
             <span class="k">return</span>
@@ -1068,7 +1068,7 @@
 
 
 <div class="viewcode-block" id="Topology.dup_check">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.dup_check">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.dup_check">[docs]</a>
     <span class="k">def</span> <span class="nf">dup_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">die</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks for duplicate type-like topology records.</span>
 
@@ -1092,7 +1092,7 @@
 
 
 <div class="viewcode-block" id="Topology.merge_types">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.merge_types">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.merge_types">[docs]</a>
     <span class="k">def</span> <span class="nf">merge_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Merges type-like topology dataframes from other to self.</span>
 
@@ -1106,7 +1106,7 @@
 
 
 <div class="viewcode-block" id="Topology.merge_ex">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.merge_ex">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.merge_ex">[docs]</a>
     <span class="k">def</span> <span class="nf">merge_ex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;   extensive merging...&#39;</span><span class="p">)</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; merge EXTENSIVE quantities &#39;&#39;&#39;</span>
@@ -1130,7 +1130,7 @@
 
 
 <div class="viewcode-block" id="Topology.get_atom_attribute">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.get_atom_attribute">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.get_atom_attribute">[docs]</a>
     <span class="k">def</span> <span class="nf">get_atom_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">idx</span><span class="p">,</span><span class="n">attribute</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns value of attribute of atom idx.</span>
 
@@ -1145,7 +1145,7 @@
 
 
 <div class="viewcode-block" id="Topology.get_atomtype">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.get_atomtype">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.get_atomtype">[docs]</a>
     <span class="k">def</span> <span class="nf">get_atomtype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">idx</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets atom type of atom with global index idx.</span>
 
@@ -1160,7 +1160,7 @@
 
 
 <div class="viewcode-block" id="Topology.build_interresidue_graph">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.build_interresidue_graph">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.build_interresidue_graph">[docs]</a>
     <span class="k">def</span> <span class="nf">build_interresidue_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">G</span><span class="p">,</span><span class="n">ri</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">ri</span> <span class="ow">in</span> <span class="n">G</span><span class="p">:</span>
             <span class="k">return</span>
@@ -1186,7 +1186,7 @@
 
 
 <div class="viewcode-block" id="Topology.local_resid_cluster">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.local_resid_cluster">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.local_resid_cluster">[docs]</a>
     <span class="k">def</span> <span class="nf">local_resid_cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ri</span><span class="p">):</span>
         <span class="n">G</span><span class="o">=</span><span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
         <span class="c1"># logger.debug(str(self.bondlist))</span>
@@ -1195,7 +1195,7 @@
 
 
 <div class="viewcode-block" id="Topology.make_resid_graph">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.make_resid_graph">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.make_resid_graph">[docs]</a>
     <span class="k">def</span> <span class="nf">make_resid_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">json_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">adf</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="s1">&#39;atoms&#39;</span><span class="p">]</span>
         <span class="n">N</span><span class="o">=</span><span class="n">adf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -1247,7 +1247,7 @@
 
 
 <div class="viewcode-block" id="Topology.copy_bond_parameters">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.copy_bond_parameters">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.copy_bond_parameters">[docs]</a>
     <span class="k">def</span> <span class="nf">copy_bond_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">bonds</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates and returns a copy of a bonds dataframe that contains all bonds listed in bonds.</span>
 
@@ -1276,7 +1276,7 @@
 
 
 <div class="viewcode-block" id="Topology.attenuate_bond_parameters">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.attenuate_bond_parameters">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.attenuate_bond_parameters">[docs]</a>
     <span class="k">def</span> <span class="nf">attenuate_bond_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">bondsdf</span><span class="p">,</span><span class="n">stage</span><span class="p">,</span><span class="n">max_stages</span><span class="p">,</span><span class="n">minimum_distance</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span><span class="n">init_colname</span><span class="o">=</span><span class="s1">&#39;initial_distance&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Alters the kb and b0 parameters for new crosslink bonds according to the values prior to relaxation, their equilibrium values, and the ratio stage/max_stages.</span>
 
@@ -1308,7 +1308,7 @@
 
 
 <div class="viewcode-block" id="Topology.get_bond_parameters">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.get_bond_parameters">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.get_bond_parameters">[docs]</a>
     <span class="k">def</span> <span class="nf">get_bond_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ai</span><span class="p">,</span><span class="n">aj</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets b0 and kb for bond between atoms with global indexes ai and aj.</span>
 
@@ -1336,7 +1336,7 @@
 
 
 <div class="viewcode-block" id="Topology.restore_bond_parameters">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.restore_bond_parameters">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.restore_bond_parameters">[docs]</a>
     <span class="k">def</span> <span class="nf">restore_bond_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">df</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Copies data from all bonds in dataframe df to global dataframe.</span>
 
@@ -1352,7 +1352,7 @@
 
 
 <div class="viewcode-block" id="Topology.attenuate_pair_parameters">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.core.topology.Topology.attenuate_pair_parameters">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.core.topology.Topology.attenuate_pair_parameters">[docs]</a>
     <span class="k">def</span> <span class="nf">attenuate_pair_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">pairsdf</span><span class="p">,</span><span class="n">stage</span><span class="p">,</span><span class="n">max_stages</span><span class="p">,</span><span class="n">draglimit_nm</span><span class="o">=</span><span class="mf">0.3</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Alters the kb and b0 parameters for new pre-crosslink pairs according to the values prior to dragging, the desired lower limit of interatomic distance, and the ratio stage/max_stages.</span>
 
@@ -1398,7 +1398,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user-guide/index.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../example-tutorials/index.html">Example Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../references/index.html">References</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../HTPolyNetPackage.html">htpolynet package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../htpolynetpackage.html">htpolynet package</a></li>
 </ul>
 
 <div class="relations">

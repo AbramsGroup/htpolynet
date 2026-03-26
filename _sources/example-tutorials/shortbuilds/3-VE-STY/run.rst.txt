@@ -14,8 +14,8 @@ As the two ``htpolynet run`` commands indicate, standard output is being redirec
 .. code-block:: console
 
     INFO>                                                                    
-    INFO>     HTPolyNet 1.0.8                                                
-    INFO>     https://abramsgroup.github.io/HTPolyNet/                       
+    INFO>     htpolynet 1.0.8                                                
+    INFO>     https://abramsgroup.github.io/htpolynet/                       
     INFO>                                                                    
     INFO>     Ming Huang                                                     
     INFO>     mh3429@dragons.drexel.edu                                      
@@ -26,14 +26,14 @@ As the two ``htpolynet run`` commands indicate, standard output is being redirec
     INFO>     Supported in part by Grants W911NF-17-2-0227                   
     INFO>     and W911NF-12-R-0011 from the US Army Research Lab             
     INFO>                                                                    
-    INFO>     Please cite the HTPolyNet paper:                               
+    INFO>     Please cite the htpolynet paper:                               
     INFO>                                                                    
-    INFO>     Ming Huang and Cameron F. Abrams, HTPolyNet: A general         
+    INFO>     Ming Huang and Cameron F. Abrams, htpolynet: A general         
     INFO>     system generator for all-atom molecular simulations of         
     INFO>     amorphous crosslinked polymers, SoftwareX, vol. 21,            
     INFO>     pp. 101303, 2023 (doi:10.1016/j.softx.2022.101303) 
     INFO>                                                                    
-    INFO> ******************** HTPolyNet runtime begins *********************
+    INFO> ******************** htpolynet runtime begins *********************
     INFO> User library is /home/cfa/htpolynet-tutorials/1.0.8/3-bisgma-styrene-thermoset/lib
     INFO> New project in /home/cfa/htpolynet-tutorials/1.0.8/3-bisgma-styrene-thermoset/proj-0
     INFO> *************************** Ambertools: ***************************
@@ -367,8 +367,8 @@ And finally, postcure equilibration and annealing:
     INFO> Running-average-Density      1083.04
     INFO> Rolling-10-average-Density   1082.58
     INFO> *********** Final data to proj-0/systems/final-results ************
-    INFO> ********************* HTPolyNet runtime ends **********************
+    INFO> ********************* htpolynet runtime ends **********************
 
-So we see our 95% cured system reached about 1.08 g/cc.  I am not claiming any of these equilibration runs are long enough or the system is big enough, but this example just serves to illustrate how ``HTPolyNet`` works.
+So we see our 95% cured system reached about 1.08 g/cc.  I am not claiming any of these equilibration runs are long enough or the system is big enough, but this example just serves to illustrate how ``htpolynet`` works.
 
 Let's now take a look at some selected :ref:`results <ve_results>`.

@@ -17,7 +17,7 @@ We just presented the reactions in the configuration file.  The rest of the file
         - C1
         - C3
 
-Importantly, we can specify GMA here, even though we are not providing an input ``GMA.mol2`` file because GMA is a product that ``HTPolyNet`` recognizes that it will generate by itself.  Secondly, we know that there are two chiral carbons in HIE, which will result in a grand total of 16 distinct diastereomers of GMA being to build the initial racemic system.
+Importantly, we can specify GMA here, even though we are not providing an input ``GMA.mol2`` file because GMA is a product that ``htpolynet`` recognizes that it will generate by itself.  Secondly, we know that there are two chiral carbons in HIE, which will result in a grand total of 16 distinct diastereomers of GMA being to build the initial racemic system.
 
 .. code-block:: yaml
 

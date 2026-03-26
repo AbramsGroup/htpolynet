@@ -42,7 +42,7 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CC</span><span class="p">(</span><span class="n">C</span><span class="p">)(</span><span class="n">C1</span><span class="o">=</span><span class="n">CC</span><span class="o">=</span><span class="n">C</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="n">C1</span><span class="p">)</span><span class="n">OCC2CO2</span><span class="p">)</span><span class="n">C3</span><span class="o">=</span><span class="n">CC</span><span class="o">=</span><span class="n">C</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="n">C3</span><span class="p">)</span><span class="n">OCC4CO4</span>
 </pre></div>
 </div>
-<p>However, as described in the user guide, HTPolyNet uses the concept of “sacrificial hydrogens”: any two atoms designated as forming a bond must each sacrifice one H atom to make the bond.  Epoxy groups react with amines via hydrogen atom transfer from the amine to the oxirane oxygen, generating a C-N bond and a pendant OH group one carbon atom removed from the C-N bond.  So the N sacrificed but the C did not; it “sacrificed” its bond to the O atom of the oxirane.  To use DGEBA as a reactive monomer, we therefore must convert it to a form in which the two oxiranes are hydrogenated, yielding a terminal methyl group and a pendant OH one atom removed from the methyl.  This is easily done by altering the <code class="docutils literal notranslate"><span class="pre">C2CO2</span></code> and <code class="docutils literal notranslate"><span class="pre">C4CO4</span></code> epoxirane cycles in the original SMILES string to <code class="docutils literal notranslate"><span class="pre">C(O)C</span></code> methyl hydroxymethyl groups, yielding:</p>
+<p>However, as described in the user guide, htpolynet uses the concept of “sacrificial hydrogens”: any two atoms designated as forming a bond must each sacrifice one H atom to make the bond.  Epoxy groups react with amines via hydrogen atom transfer from the amine to the oxirane oxygen, generating a C-N bond and a pendant OH group one carbon atom removed from the C-N bond.  So the N sacrificed but the C did not; it “sacrificed” its bond to the O atom of the oxirane.  To use DGEBA as a reactive monomer, we therefore must convert it to a form in which the two oxiranes are hydrogenated, yielding a terminal methyl group and a pendant OH one atom removed from the methyl.  This is easily done by altering the <code class="docutils literal notranslate"><span class="pre">C2CO2</span></code> and <code class="docutils literal notranslate"><span class="pre">C4CO4</span></code> epoxirane cycles in the original SMILES string to <code class="docutils literal notranslate"><span class="pre">C(O)C</span></code> methyl hydroxymethyl groups, yielding:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CC</span><span class="p">(</span><span class="n">C</span><span class="p">)(</span><span class="n">C1</span><span class="o">=</span><span class="n">CC</span><span class="o">=</span><span class="n">C</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="n">C1</span><span class="p">)</span><span class="n">OCC</span><span class="p">(</span><span class="n">O</span><span class="p">)</span><span class="n">C</span><span class="p">)</span><span class="n">C3</span><span class="o">=</span><span class="n">CC</span><span class="o">=</span><span class="n">C</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="n">C3</span><span class="p">)</span><span class="n">OCC</span><span class="p">(</span><span class="n">O</span><span class="p">)</span><span class="n">C</span>
 </pre></div>
 </div>
@@ -52,7 +52,7 @@
 <span class="w">       </span>sed<span class="w"> </span>s/<span class="s2">&quot;UNL1   &quot;</span>/<span class="s2">&quot;DGE    &quot;</span>/<span class="w"> </span>&gt;<span class="w"> </span>DGE-raw.mol2<span class="s2">&quot;</span>
 </pre></div>
 </div>
-<p>Note that we have used <code class="docutils literal notranslate"><span class="pre">sed</span></code> to change the generic residue name <code class="docutils literal notranslate"><span class="pre">UNL1</span></code> provided by <code class="docutils literal notranslate"><span class="pre">obabel</span></code> to our desired name <code class="docutils literal notranslate"><span class="pre">DGE</span></code>.  At this point, although this is a valid <code class="docutils literal notranslate"><span class="pre">*.mol2</span></code> file, it is not yet ready for use by HTPolyNet.  It needs two fixes:</p>
+<p>Note that we have used <code class="docutils literal notranslate"><span class="pre">sed</span></code> to change the generic residue name <code class="docutils literal notranslate"><span class="pre">UNL1</span></code> provided by <code class="docutils literal notranslate"><span class="pre">obabel</span></code> to our desired name <code class="docutils literal notranslate"><span class="pre">DGE</span></code>.  At this point, although this is a valid <code class="docutils literal notranslate"><span class="pre">*.mol2</span></code> file, it is not yet ready for use by htpolynet.  It needs two fixes:</p>
 <ol class="arabic simple">
 <li><p>Reactive atoms must be uniquely named; and</p></li>
 <li><p>Any chiral carbons must also be uniquely named.</p></li>
@@ -188,7 +188,7 @@
      <span class="mi">54</span>    <span class="mi">25</span>    <span class="mi">53</span>    <span class="mi">1</span>
 </pre></div>
 </div>
-<p>You can see that only C1-C4 are uniquely named.  Those unique names will persist forever in HTPolyNet in any system derived from this DGE input file.  Other atoms will acquire unique names through processing with AmberTools, but that won’t concern us here.</p>
+<p>You can see that only C1-C4 are uniquely named.  Those unique names will persist forever in htpolynet in any system derived from this DGE input file.  Other atoms will acquire unique names through processing with AmberTools, but that won’t concern us here.</p>
 </section>
 <section id="pacm">
 <h2>PACM<a class="headerlink" href="#pacm" title="Link to this heading">¶</a></h2>
@@ -337,7 +337,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../references/index.html">References</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../HTPolyNetPackage.html">htpolynet package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../htpolynetpackage.html">htpolynet package</a></li>
 </ul>
 
 <div class="relations">

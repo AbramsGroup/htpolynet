@@ -7,7 +7,7 @@ Configuration Files for ``htpolynet postsim``
 
 A ``postsim`` configuration file is written in YAML and structured as a list of dictionaries, each entry of which is a *stage* which together constitute a *sequence* of stages.  Each stage involves an MD simulation for which you can specify the input coordinates and ``mdp`` parameters.  Because ``postsim`` executes a sequence of stages, the output of one stage can be the input for a later stage.
 
-``HTPolyNet`` recoginizes the following types of post-build MD simulations
+``htpolynet`` recoginizes the following types of post-build MD simulations
 
 ==============================  ===============  =================
 Simulation Type                 keyword          Description

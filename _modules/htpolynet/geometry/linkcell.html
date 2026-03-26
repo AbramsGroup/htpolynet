@@ -45,7 +45,7 @@
 <span class="n">logger</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Linkcell">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.geometry.linkcell.Linkcell">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.geometry.linkcell.Linkcell">[docs]</a>
 <span class="k">class</span> <span class="nc">Linkcell</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Handles the link-cell algorithm for searching for bonding partners within a</span>
 <span class="sd">        cutoff distance from each other</span>
@@ -63,7 +63,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pbc_wrapper</span><span class="o">=</span><span class="n">pbc_wrapper</span>
 
 <div class="viewcode-block" id="Linkcell.create">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.geometry.linkcell.Linkcell.create">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.geometry.linkcell.Linkcell.create">[docs]</a>
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cutoff</span><span class="p">,</span><span class="n">box</span><span class="p">,</span><span class="n">origin</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">])):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates the link-cell structure in a previously initialized instance.</span>
 
@@ -96,7 +96,7 @@
 
 
 <div class="viewcode-block" id="Linkcell.cellndx_of_point">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.geometry.linkcell.Linkcell.cellndx_of_point">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.geometry.linkcell.Linkcell.cellndx_of_point">[docs]</a>
     <span class="k">def</span> <span class="nf">cellndx_of_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">R</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the (i,j,k) cell index of point R.</span>
 
@@ -119,7 +119,7 @@
 
 
 <div class="viewcode-block" id="Linkcell.point_in_cellndx">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.geometry.linkcell.Linkcell.point_in_cellndx">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.geometry.linkcell.Linkcell.point_in_cellndx">[docs]</a>
     <span class="k">def</span> <span class="nf">point_in_cellndx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">R</span><span class="p">,</span><span class="n">C</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if point R is located in cell with (i,j,k) index C.</span>
 
@@ -136,7 +136,7 @@
 
 
 <div class="viewcode-block" id="Linkcell.corners_of_cellndx">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.geometry.linkcell.Linkcell.corners_of_cellndx">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.geometry.linkcell.Linkcell.corners_of_cellndx">[docs]</a>
     <span class="k">def</span> <span class="nf">corners_of_cellndx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">C</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the lower-left and upper-right corners of cell with (i,j,k) index C, as an array of 3-space points.</span>
 
@@ -152,7 +152,7 @@
 
 
 <div class="viewcode-block" id="Linkcell.cellndx_in_structure">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.geometry.linkcell.Linkcell.cellndx_in_structure">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.geometry.linkcell.Linkcell.cellndx_in_structure">[docs]</a>
     <span class="k">def</span> <span class="nf">cellndx_in_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">C</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests to see if (i,j,k) index given is within the established linkcell structure.</span>
 
@@ -166,7 +166,7 @@
 
 
 <div class="viewcode-block" id="Linkcell.ldx_of_cellndx">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.geometry.linkcell.Linkcell.ldx_of_cellndx">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.geometry.linkcell.Linkcell.ldx_of_cellndx">[docs]</a>
     <span class="k">def</span> <span class="nf">ldx_of_cellndx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">C</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns scalar index of cell with (i,j,k)-index C.</span>
 
@@ -182,7 +182,7 @@
 
 
 <div class="viewcode-block" id="Linkcell.cellndx_of_ldx">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.geometry.linkcell.Linkcell.cellndx_of_ldx">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.geometry.linkcell.Linkcell.cellndx_of_ldx">[docs]</a>
     <span class="k">def</span> <span class="nf">cellndx_of_ldx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns (i,j,k)-index of cell with scalar index i.</span>
 
@@ -196,7 +196,7 @@
 
 
 <div class="viewcode-block" id="Linkcell.populate_par">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.geometry.linkcell.Linkcell.populate_par">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.geometry.linkcell.Linkcell.populate_par">[docs]</a>
     <span class="k">def</span> <span class="nf">populate_par</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">adf</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Populates the linkcell structure by setting the &quot;linkcell_idx&quot; attribute of each atom in the coordinates dataframe adf.</span>
 
@@ -229,7 +229,7 @@
         <span class="k">return</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">mlists</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idx_list</span><span class="p">]</span>
 
 <div class="viewcode-block" id="Linkcell.populate">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.geometry.linkcell.Linkcell.populate">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.geometry.linkcell.Linkcell.populate">[docs]</a>
     <span class="k">def</span> <span class="nf">populate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Coordinates</span><span class="p">,</span><span class="n">ncpu</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Populates linkcell structure.</span>
 
@@ -279,7 +279,7 @@
         <span class="c1"># logger.debug(f&#39;Linkcell.populate() ends.&#39;)</span>
 
 <div class="viewcode-block" id="Linkcell.make_neighborlists">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.geometry.linkcell.Linkcell.make_neighborlists">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.geometry.linkcell.Linkcell.make_neighborlists">[docs]</a>
     <span class="k">def</span> <span class="nf">make_neighborlists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Populates the neighborlist member, one element per cell; each element is the list of neighbors of that cell.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">neighborlists</span><span class="o">=</span><span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cellndx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
@@ -291,7 +291,7 @@
 
 
 <div class="viewcode-block" id="Linkcell.make_memberlists">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.geometry.linkcell.Linkcell.make_memberlists">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.geometry.linkcell.Linkcell.make_memberlists">[docs]</a>
     <span class="k">def</span> <span class="nf">make_memberlists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cdf</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Populates the memberlists member, one element per cell; each element is the list of atom indices in that cell.</span>
 
@@ -312,7 +312,7 @@
 
 
 <div class="viewcode-block" id="Linkcell.neighbors_of_cellndx">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.geometry.linkcell.Linkcell.neighbors_of_cellndx">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.geometry.linkcell.Linkcell.neighbors_of_cellndx">[docs]</a>
     <span class="k">def</span> <span class="nf">neighbors_of_cellndx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Ci</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the list of neighbors of cell Ci by their (i,j,k) indices.</span>
 
@@ -340,7 +340,7 @@
 
 
 <div class="viewcode-block" id="Linkcell.searchlist_of_ldx">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.geometry.linkcell.Linkcell.searchlist_of_ldx">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.geometry.linkcell.Linkcell.searchlist_of_ldx">[docs]</a>
     <span class="k">def</span> <span class="nf">searchlist_of_ldx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the list of scalar cell indices of cells that are neighbors of cell with scalar index i.</span>
 
@@ -360,7 +360,7 @@
 
 
 <div class="viewcode-block" id="Linkcell.are_cellndx_neighbors">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.geometry.linkcell.Linkcell.are_cellndx_neighbors">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.geometry.linkcell.Linkcell.are_cellndx_neighbors">[docs]</a>
     <span class="k">def</span> <span class="nf">are_cellndx_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Ci</span><span class="p">,</span><span class="n">Cj</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if cells with (i,j,k) indices Ci and Cj are neighbors.</span>
 
@@ -381,7 +381,7 @@
 
 
 <div class="viewcode-block" id="Linkcell.are_ldx_neighbors">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.geometry.linkcell.Linkcell.are_ldx_neighbors">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.geometry.linkcell.Linkcell.are_ldx_neighbors">[docs]</a>
     <span class="k">def</span> <span class="nf">are_ldx_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ildx</span><span class="p">,</span><span class="n">jldx</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if cells with scalar indices ildx and jldx are neighbors.</span>
 
@@ -422,7 +422,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user-guide/index.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../example-tutorials/index.html">Example Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../references/index.html">References</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../HTPolyNetPackage.html">htpolynet package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../htpolynetpackage.html">htpolynet package</a></li>
 </ul>
 
 <div class="relations">

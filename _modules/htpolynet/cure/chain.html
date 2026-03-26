@@ -43,7 +43,7 @@
 <span class="n">logger</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Chain">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.chain.Chain">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.chain.Chain">[docs]</a>
 <span class="k">class</span> <span class="nc">Chain</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">head</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="n">tail</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="n">idx</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_list</span><span class="o">=</span><span class="p">[]</span>
@@ -54,43 +54,43 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">is_cyclic</span><span class="o">=</span><span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="o">=</span><span class="n">idx</span>
 <div class="viewcode-block" id="Chain.is_head">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.chain.Chain.is_head">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.chain.Chain.is_head">[docs]</a>
     <span class="k">def</span> <span class="nf">is_head</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">a</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cyclic</span> <span class="ow">and</span> <span class="n">a</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="Chain.is_tail">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.chain.Chain.is_tail">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.chain.Chain.is_tail">[docs]</a>
     <span class="k">def</span> <span class="nf">is_tail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">a</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cyclic</span> <span class="ow">and</span> <span class="n">a</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="Chain.merge">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.chain.Chain.merge">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.chain.Chain.merge">[docs]</a>
     <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
         <span class="c1"># tail of self bonds to head of other</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">idx_list</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Chain.remap_idx">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.chain.Chain.remap_idx">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.chain.Chain.remap_idx">[docs]</a>
     <span class="k">def</span> <span class="nf">remap_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">idx_mapper</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_list</span><span class="o">=</span><span class="p">[</span><span class="n">idx_mapper</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_list</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="Chain.shift">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.chain.Chain.shift">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.chain.Chain.shift">[docs]</a>
     <span class="k">def</span> <span class="nf">shift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">shift</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_list</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="o">+</span><span class="n">shift</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_list</span><span class="p">]</span></div>
 </div>
 
 
 <div class="viewcode-block" id="ChainManager">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.chain.ChainManager">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.chain.ChainManager">[docs]</a>
 <span class="k">class</span> <span class="nc">ChainManager</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chains</span><span class="o">=</span><span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_if_missing</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;create_if_missing&#39;</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ChainManager.chain_of">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.chain.ChainManager.chain_of">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.chain.ChainManager.chain_of">[docs]</a>
     <span class="k">def</span> <span class="nf">chain_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">a</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">chains</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">idx_list</span><span class="p">:</span>
@@ -99,13 +99,13 @@
 
     
 <div class="viewcode-block" id="ChainManager.new_chain">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.chain.ChainManager.new_chain">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.chain.ChainManager.new_chain">[docs]</a>
     <span class="k">def</span> <span class="nf">new_chain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">head</span><span class="p">,</span><span class="n">tail</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chains</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Chain</span><span class="p">(</span><span class="n">head</span><span class="o">=</span><span class="n">head</span><span class="p">,</span><span class="n">tail</span><span class="o">=</span><span class="n">tail</span><span class="p">,</span><span class="n">idx</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chains</span><span class="p">)))</span></div>
 
 
 <div class="viewcode-block" id="ChainManager.mergechains">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.chain.ChainManager.mergechains">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.chain.ChainManager.mergechains">[docs]</a>
     <span class="k">def</span> <span class="nf">mergechains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dst</span><span class="p">,</span><span class="n">src</span><span class="p">):</span>
         <span class="n">dst</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chains</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
@@ -113,35 +113,35 @@
 
 
 <div class="viewcode-block" id="ChainManager.injest_other">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.chain.ChainManager.injest_other">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.chain.ChainManager.injest_other">[docs]</a>
     <span class="k">def</span> <span class="nf">injest_other</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chains</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">chains</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reindex</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="ChainManager.reindex">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.chain.ChainManager.reindex">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.chain.ChainManager.reindex">[docs]</a>
     <span class="k">def</span> <span class="nf">reindex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chains</span><span class="p">):</span>
             <span class="n">c</span><span class="o">.</span><span class="n">idx</span><span class="o">=</span><span class="n">i</span></div>
 
 
 <div class="viewcode-block" id="ChainManager.shift">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.chain.ChainManager.shift">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.chain.ChainManager.shift">[docs]</a>
     <span class="k">def</span> <span class="nf">shift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">shift</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">chains</span><span class="p">:</span>
             <span class="n">c</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">shift</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ChainManager.remap">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.chain.ChainManager.remap">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.chain.ChainManager.remap">[docs]</a>
     <span class="k">def</span> <span class="nf">remap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">idx_mapper</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">chains</span><span class="p">:</span>
             <span class="n">c</span><span class="o">.</span><span class="n">remap_idx</span><span class="p">(</span><span class="n">idx_mapper</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ChainManager.injest_bond">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.chain.ChainManager.injest_bond">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.chain.ChainManager.injest_bond">[docs]</a>
     <span class="k">def</span> <span class="nf">injest_bond</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ai</span><span class="p">,</span><span class="n">aj</span><span class="p">):</span>
         <span class="n">ic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain_of</span><span class="p">(</span><span class="n">ai</span><span class="p">)</span>
         <span class="n">jc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chain_of</span><span class="p">(</span><span class="n">aj</span><span class="p">)</span>
@@ -172,14 +172,14 @@
 
 
 <div class="viewcode-block" id="ChainManager.injest_bonds">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.chain.ChainManager.injest_bonds">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.chain.ChainManager.injest_bonds">[docs]</a>
     <span class="k">def</span> <span class="nf">injest_bonds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">bondlist</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">bondlist</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">injest_bond</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="ChainManager.to_dataframe">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.chain.ChainManager.to_dataframe">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.chain.ChainManager.to_dataframe">[docs]</a>
     <span class="k">def</span> <span class="nf">to_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">lidx_col</span><span class="o">=</span><span class="s1">&#39;bondchain_idx&#39;</span><span class="p">,</span><span class="n">gidx_col</span><span class="o">=</span><span class="s1">&#39;bondchain&#39;</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">lidx_col</span> <span class="ow">in</span> <span class="n">D</span> <span class="ow">and</span> <span class="n">gidx_col</span> <span class="ow">in</span> <span class="n">D</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;Dataframe missing column </span><span class="si">{</span><span class="n">lidx_col</span><span class="si">}</span><span class="s1"> or </span><span class="si">{</span><span class="n">gidx_col</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="c1"># wipe out df</span>
@@ -193,7 +193,7 @@
 
 
 <div class="viewcode-block" id="ChainManager.from_dataframe">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.chain.ChainManager.from_dataframe">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.chain.ChainManager.from_dataframe">[docs]</a>
     <span class="k">def</span> <span class="nf">from_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">lidx_col</span><span class="o">=</span><span class="s1">&#39;bondchain_idx&#39;</span><span class="p">,</span><span class="n">gidx_col</span><span class="o">=</span><span class="s1">&#39;bondchain&#39;</span><span class="p">):</span>
         <span class="c1"># overwrites whole thing</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chains</span><span class="o">=</span><span class="p">[]</span>
@@ -244,7 +244,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user-guide/index.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../example-tutorials/index.html">Example Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../references/index.html">References</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../HTPolyNetPackage.html">htpolynet package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../htpolynetpackage.html">htpolynet package</a></li>
 </ul>
 
 <div class="relations">

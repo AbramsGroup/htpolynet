@@ -15,7 +15,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="User Guide" href="user-guide/index.html" />
-    <link rel="prev" title="HTPolyNet" href="index.html" />
+    <link rel="prev" title="htpolynet" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -41,32 +41,35 @@
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">antechamber</span></code>, <code class="docutils literal notranslate"><span class="pre">parmchk2</span></code>, and <code class="docutils literal notranslate"><span class="pre">tleap</span></code> (<a class="reference external" href="https://ambermd.org/GetAmber.php#ambertools">AmberTools</a>, version 22 or higher); preferred installation via <code class="docutils literal notranslate"><span class="pre">conda</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">gmx</span></code> or <code class="docutils literal notranslate"><span class="pre">gmx_mpi</span></code> (<a class="reference external" href="https://manual.gromacs.org/documentation/current/index.html">Gromacs</a>, version 2022.1 or higher); preferred installation via compiling from source.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">obabel</span></code> (<a class="reference external" href="https://github.com/openbabel/openbabel">OpenBabel</a>); preferred installation via Linux distribution package.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">obabel</span></code> (<a class="reference external" href="https://github.com/openbabel/openbabel">OpenBabel</a>); preferred installation via Linux distribution package.  Note that <code class="docutils literal notranslate"><span class="pre">htpolynet</span></code> itself does not require OpenBabel, but we show in the examples how to build input monomer structures from SMILES strings using OpenBabel, so it is recommended that you have it installed.</p></li>
 </ol>
 </section>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h2>
-<p>If you use conda/anaconda, we recommended that you create a separate Python environment running <code class="docutils literal notranslate"><span class="pre">HTPolyNet</span></code>:</p>
+<p>If you use conda/anaconda, we recommended that you create a separate Python environment running <code class="docutils literal notranslate"><span class="pre">htpolynet</span></code>:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>mol-env<span class="w"> </span>python
 <span class="gp">$ </span>conda<span class="w"> </span>activate<span class="w"> </span>mol-env
 </pre></div>
 </div>
-<p>Once this environment is created and activated, you can install both <code class="docutils literal notranslate"><span class="pre">ambertools</span></code> and <code class="docutils literal notranslate"><span class="pre">HTPolyNet</span></code> from <code class="docutils literal notranslate"><span class="pre">conda-forge</span></code>:</p>
+<p>Once this environment is created and activated, you can install <code class="docutils literal notranslate"><span class="pre">ambertools</span></code>, <code class="docutils literal notranslate"><span class="pre">gromacs</span></code>, and <code class="docutils literal notranslate"><span class="pre">htpolynet</span></code> from <code class="docutils literal notranslate"><span class="pre">conda-forge</span></code>:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>ambertools
+<span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>gromacs
 <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>htpolynet
 </pre></div>
 </div>
-<p>If you are not a conda user, you can install <code class="docutils literal notranslate"><span class="pre">HTPolyNet</span></code> from PyPI.</p>
+<p>If you are not a conda user, you can install <code class="docutils literal notranslate"><span class="pre">htpolynet</span></code> from PyPI.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>htpolynet
 </pre></div>
 </div>
-<p>Note that you will have to install <code class="docutils literal notranslate"><span class="pre">ambertools</span></code> some other way.</p>
-<p>To install a development version of <code class="docutils literal notranslate"><span class="pre">HTPolyNet</span></code> you can instal from a freshly cloned Github repository:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:AbramsGroup/HTPolyNet.git
-<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>HTPolyNet
+<p>Note that you will have to install <code class="docutils literal notranslate"><span class="pre">ambertools</span></code> and <code class="docutils literal notranslate"><span class="pre">gromacs</span></code> some other way.</p>
+<p>Again, to use the examples as provided, you will need to have OpenBabel installed.  We recommend installing OpenBabel from your Linux distribution’s package management system.</p>
+<p>To install a development version of <code class="docutils literal notranslate"><span class="pre">htpolynet</span></code> you can instal from a freshly cloned Github repository:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:AbramsGroup/htpolynet.git
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>htpolynet
 <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
 </pre></div>
 </div>
+<p>Note here that you will need to have all other prequisites installed as mentioned above, <em>plus</em> a conda-based installation of <code class="docutils literal notranslate"><span class="pre">parmed</span></code>.</p>
 </section>
 <section id="notes">
 <h2>Notes<a class="headerlink" href="#notes" title="Link to this heading">¶</a></h2>
@@ -99,7 +102,7 @@
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">source /usr/local/gromacs/bin/GMXRC</span>
 </pre></div>
 </div>
-<p>This should provide access to the <code class="docutils literal notranslate"><span class="pre">gmx</span></code> command.  If you additionally compiled an MPI version (using <code class="docutils literal notranslate"><span class="pre">-DGMX_MPI=on</span></code> in the <code class="docutils literal notranslate"><span class="pre">cmake</span></code> command), you will also have access to <code class="docutils literal notranslate"><span class="pre">gmx_mpi</span></code>; either of these commands can be used by HTPolyNet.  Note that Gromacs 2016 and below have a version of <code class="docutils literal notranslate"><span class="pre">gmx</span> <span class="pre">distance</span></code> that limits the number of distances that can be calculated, so we (always) recommend using the latest Gromacs.</p>
+<p>This should provide access to the <code class="docutils literal notranslate"><span class="pre">gmx</span></code> command.  If you additionally compiled an MPI version (using <code class="docutils literal notranslate"><span class="pre">-DGMX_MPI=on</span></code> in the <code class="docutils literal notranslate"><span class="pre">cmake</span></code> command), you will also have access to <code class="docutils literal notranslate"><span class="pre">gmx_mpi</span></code>; either of these commands can be used by htpolynet.  Note that Gromacs 2016 and below have a version of <code class="docutils literal notranslate"><span class="pre">gmx</span> <span class="pre">distance</span></code> that limits the number of distances that can be calculated, so we (always) recommend using the latest Gromacs.</p>
 </section>
 <section id="compilation-of-obabel">
 <h3>Compilation of <code class="docutils literal notranslate"><span class="pre">obabel</span></code><a class="headerlink" href="#compilation-of-obabel" title="Link to this heading">¶</a></h3>
@@ -121,7 +124,7 @@
 </section>
 <section id="other-prequisites">
 <h2>Other Prequisites<a class="headerlink" href="#other-prequisites" title="Link to this heading">¶</a></h2>
-<p>In order to use <code class="docutils literal notranslate"><span class="pre">HTPolyNet</span></code> effectively, it is recommended that you have good working knowledge of the following:</p>
+<p>In order to use <code class="docutils literal notranslate"><span class="pre">htpolynet</span></code> effectively, it is recommended that you have good working knowledge of the following:</p>
 <ol class="arabic simple">
 <li><p>MD simulation in general and Gromacs specifically;</p></li>
 <li><p>the General Amber Force Field (GAFF), including in particular</p>
@@ -164,14 +167,14 @@
 <li class="toctree-l1"><a class="reference internal" href="user-guide/index.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example-tutorials/index.html">Example Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references/index.html">References</a></li>
-<li class="toctree-l1"><a class="reference internal" href="HTPolyNetPackage.html">htpolynet package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="htpolynetpackage.html">htpolynet package</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="index.html" title="previous chapter">HTPolyNet</a></li>
+      <li>Previous: <a href="index.html" title="previous chapter">htpolynet</a></li>
       <li>Next: <a href="user-guide/index.html" title="next chapter">User Guide</a></li>
   </ul></li>
 </ul>

@@ -49,7 +49,7 @@
 <span class="n">logger</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <div class="viewcode-block" id="density_from_gro">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.utils.density_from_gro">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.utils.density_from_gro">[docs]</a>
 <span class="k">def</span> <span class="nf">density_from_gro</span><span class="p">(</span><span class="n">gro</span><span class="p">,</span><span class="n">mollib</span><span class="o">=</span><span class="s1">&#39;./lib/molecules/parameterized&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;SI&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes density from a Gromacs gro file.</span>
 
@@ -128,7 +128,7 @@
     <span class="k">return</span> <span class="n">df</span><span class="p">,</span><span class="n">xshift</span>
 
 <div class="viewcode-block" id="postsim_density_evolution">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.utils.postsim_density_evolution">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.utils.postsim_density_evolution">[docs]</a>
 <span class="k">def</span> <span class="nf">postsim_density_evolution</span><span class="p">(</span><span class="n">proj_dir</span><span class="p">,</span><span class="n">append_dirname</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a single dataframe that is a concatenation of the csv files in the &#39;postsim&#39; subdirectories.</span>
 
@@ -155,7 +155,7 @@
 
 
 <div class="viewcode-block" id="density_evolution">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.utils.density_evolution">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.utils.density_evolution">[docs]</a>
 <span class="k">def</span> <span class="nf">density_evolution</span><span class="p">(</span><span class="n">proj_dir</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a single dataframe containing density, temperature, number of bonds vs time by reading all edrs in the correct order from a complete project directory.</span>
 
@@ -272,7 +272,7 @@
 
 
 <div class="viewcode-block" id="graph_from_bondsfile">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.utils.graph_from_bondsfile">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.utils.graph_from_bondsfile">[docs]</a>
 <span class="k">def</span> <span class="nf">graph_from_bondsfile</span><span class="p">(</span><span class="n">bondsfile</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates a networkx Graph in which each node is a molecule (from &#39;mi&#39; and &#39;mj&#39; records in the bondsfile) and edges indicate two molecules are joined by a covalent bond.</span>
 
@@ -290,7 +290,7 @@
 
 
 <div class="viewcode-block" id="mwbxl">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.utils.mwbxl">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.utils.mwbxl">[docs]</a>
 <span class="k">def</span> <span class="nf">mwbxl</span><span class="p">(</span><span class="n">G</span><span class="p">:</span><span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">,</span><span class="n">crosslinker</span><span class="o">=</span><span class="s1">&#39;GMA&#39;</span><span class="p">,</span><span class="n">monomer</span><span class="o">=</span><span class="s1">&#39;STY&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the histogram of monomer counts &#39;n&#39; between crosslinking sites using a molecular connectivity graph; used mainly for vinyl-based polymerizations.</span>
 
@@ -363,7 +363,7 @@
 
 
 <div class="viewcode-block" id="clusters">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.utils.clusters">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.utils.clusters">[docs]</a>
 <span class="k">def</span> <span class="nf">clusters</span><span class="p">(</span><span class="n">G</span><span class="p">:</span><span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Performs a clustering analysis and returns a histogram of cluster sizes (in numbers of molecules) as a pandas DataFrame.</span>
 
@@ -390,7 +390,7 @@
 
 
 <div class="viewcode-block" id="compute_tg">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.utils.compute_tg">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.utils.compute_tg">[docs]</a>
 <span class="k">def</span> <span class="nf">compute_tg</span><span class="p">(</span><span class="n">T</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">n_points</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Performs a Tg determination from (volume or density) vs temperature data by fitting lines to the low-T region and another to the high-T region, taking Tg as the temperature at which they intersect.</span>
 
@@ -427,7 +427,7 @@
 
 
 <div class="viewcode-block" id="compute_E">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.utils.compute_E">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.utils.compute_E">[docs]</a>
 <span class="k">def</span> <span class="nf">compute_E</span><span class="p">(</span><span class="n">strain</span><span class="p">,</span><span class="n">stress</span><span class="p">,</span><span class="n">fit_domain</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">100</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the Young&#39;s modulus by performing a linear fit to an elastic regime in stress-vs-strain data.</span>
 
@@ -475,7 +475,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user-guide/index.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../example-tutorials/index.html">Example Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../references/index.html">References</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../HTPolyNetPackage.html">htpolynet package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../htpolynetpackage.html">htpolynet package</a></li>
 </ul>
 
 <div class="relations">

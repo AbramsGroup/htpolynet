@@ -3,7 +3,7 @@
 Poly(4-methyl styrene)
 ======================
 
-This tutorial illustrates how to build an all-atom model of a poly(methyl styrene) system using HTPolyNet.
+This tutorial illustrates how to build an all-atom model of a poly(methyl styrene) system using htpolynet.
 
 
 

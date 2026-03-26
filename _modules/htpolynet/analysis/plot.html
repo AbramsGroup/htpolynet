@@ -52,7 +52,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">switch_backend</span><span class="p">(</span><span class="s1">&#39;agg&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="scatter">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.plot.scatter">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.plot.scatter">[docs]</a>
 <span class="k">def</span> <span class="nf">scatter</span><span class="p">(</span><span class="n">df</span><span class="p">,</span><span class="n">xcolumn</span><span class="p">,</span><span class="n">columns</span><span class="o">=</span><span class="p">[],</span><span class="n">outfile</span><span class="o">=</span><span class="s1">&#39;plot.png&#39;</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generic scatter plot generator.</span>
 
@@ -79,7 +79,7 @@
 
 
 <div class="viewcode-block" id="trace">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.plot.trace">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.plot.trace">[docs]</a>
 <span class="k">def</span> <span class="nf">trace</span><span class="p">(</span><span class="n">qty</span><span class="p">,</span><span class="n">edrs</span><span class="p">,</span><span class="n">outfile</span><span class="o">=</span><span class="s1">&#39;plot.png&#39;</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates a plot of the energy-like quantity named by &#39;qty&#39; vs time by reading data from the list of edr files named in &#39;edrs&#39;.</span>
 
@@ -142,7 +142,7 @@
 
 
 <div class="viewcode-block" id="multi_trace">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.plot.multi_trace">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.plot.multi_trace">[docs]</a>
 <span class="k">def</span> <span class="nf">multi_trace</span><span class="p">(</span><span class="n">dfL</span><span class="p">,</span><span class="n">xnames</span><span class="p">,</span><span class="n">ynames</span><span class="p">,</span><span class="n">labels</span><span class="o">=</span><span class="p">[],</span><span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;time [ps]&#39;</span><span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="n">outfile</span><span class="o">=</span><span class="s1">&#39;plot.png&#39;</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates a plot of each y vs x in df.</span>
 
@@ -180,7 +180,7 @@
 
 
 <div class="viewcode-block" id="global_trace">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.plot.global_trace">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.plot.global_trace">[docs]</a>
 <span class="k">def</span> <span class="nf">global_trace</span><span class="p">(</span><span class="n">df</span><span class="p">,</span><span class="n">names</span><span class="p">,</span><span class="n">outfile</span><span class="o">=</span><span class="s1">&#39;plot.png&#39;</span><span class="p">,</span><span class="n">transition_times</span><span class="o">=</span><span class="p">[],</span><span class="n">markers</span><span class="o">=</span><span class="p">[],</span><span class="n">interval_labels</span><span class="o">=</span><span class="p">[],</span><span class="n">y2names</span><span class="o">=</span><span class="p">[],</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates custom-formatted multiplots of energy-like quantities named in &#39;names&#39; in the input dataframe df.</span>
 
@@ -290,7 +290,7 @@
 
 
 <div class="viewcode-block" id="network_graph">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.plot.network_graph">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.plot.network_graph">[docs]</a>
 <span class="k">def</span> <span class="nf">network_graph</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">filename</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Draws a custom formatted network plot from graph G.</span>
 
@@ -353,7 +353,7 @@
         <span class="n">dat</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">conv</span><span class="p">(</span><span class="n">tok</span><span class="p">[</span><span class="n">s</span><span class="p">]))</span>
 
 <div class="viewcode-block" id="diagnostics_graphs">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.plot.diagnostics_graphs">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.plot.diagnostics_graphs">[docs]</a>
 <span class="k">def</span> <span class="nf">diagnostics_graphs</span><span class="p">(</span><span class="n">logfiles</span><span class="p">,</span><span class="n">filename</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts selected data from the diagnostic output and generates plots.</span>
 
@@ -412,7 +412,7 @@
 
 
 <div class="viewcode-block" id="init_molecule_graph">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.plot.init_molecule_graph">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.plot.init_molecule_graph">[docs]</a>
 <span class="k">def</span> <span class="nf">init_molecule_graph</span><span class="p">(</span><span class="n">proj_dir</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates and initializes an inter-molecular graph to show network connectivity.</span>
 
@@ -435,7 +435,7 @@
 
 
 <div class="viewcode-block" id="plots">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.plot.plots">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.plot.plots">[docs]</a>
 <span class="k">def</span> <span class="nf">plots</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Handles the plots subcommand.</span>
 
@@ -457,7 +457,7 @@
 
 
 <div class="viewcode-block" id="diag_plots">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.plot.diag_plots">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.plot.diag_plots">[docs]</a>
 <span class="k">def</span> <span class="nf">diag_plots</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="n">diags</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">diags</span>
     <span class="n">plotfile</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">plotfile</span>
@@ -468,7 +468,7 @@
 
 
 <div class="viewcode-block" id="build_plots">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.plot.build_plots">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.plot.build_plots">[docs]</a>
 <span class="k">def</span> <span class="nf">build_plots</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="n">GmxNames</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;t&#39;</span><span class="p">:</span><span class="s1">&#39;Temperature&#39;</span><span class="p">,</span><span class="s1">&#39;d&#39;</span><span class="p">:</span><span class="s1">&#39;Density&#39;</span><span class="p">,</span><span class="s1">&#39;p&#39;</span><span class="p">:</span><span class="s1">&#39;Potential&#39;</span><span class="p">}</span>
     <span class="n">plot_types</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">buildplot</span>
@@ -505,7 +505,7 @@
             <span class="c1"># dist_bw_xlinks_plot(am,os.path.join(p,&quot;dist_bw_xlinks.png&quot;))</span>
 
 <div class="viewcode-block" id="do_tg_plots">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.plot.do_tg_plots">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.plot.do_tg_plots">[docs]</a>
 <span class="k">def</span> <span class="nf">do_tg_plots</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span><span class="n">projdirs</span><span class="p">,</span><span class="n">outfile</span><span class="o">=</span><span class="s1">&#39;tg.png&#39;</span><span class="p">,</span><span class="n">save_data</span><span class="o">=</span><span class="s1">&#39;data.csv&#39;</span><span class="p">,</span><span class="n">n_points</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">]):</span>
     <span class="n">res</span><span class="o">=</span><span class="p">{}</span>
     <span class="n">means</span><span class="o">=</span><span class="p">{}</span>
@@ -584,7 +584,7 @@
 
 
 <div class="viewcode-block" id="do_E_plots">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.plot.do_E_plots">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.plot.do_E_plots">[docs]</a>
 <span class="k">def</span> <span class="nf">do_E_plots</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span><span class="n">projdirs</span><span class="p">,</span><span class="n">outfile</span><span class="o">=</span><span class="s1">&#39;e.png&#39;</span><span class="p">,</span><span class="n">fit_domain</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">200</span><span class="p">],</span><span class="n">save_data</span><span class="o">=</span><span class="s1">&#39;E.csv&#39;</span><span class="p">):</span>
     <span class="n">MPa_per_bar</span><span class="o">=</span><span class="mf">1.e-1</span>
     <span class="c1"># average over replicas and directions (here, phases)</span>
@@ -622,7 +622,7 @@
 
 
 <div class="viewcode-block" id="post_plots">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.analysis.plot.post_plots">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.analysis.plot.post_plots">[docs]</a>
 <span class="k">def</span> <span class="nf">post_plots</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="n">n_points</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">n_points</span>
     <span class="n">phases</span><span class="o">=</span><span class="p">[]</span>
@@ -680,7 +680,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user-guide/index.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../example-tutorials/index.html">Example Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../references/index.html">References</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../HTPolyNetPackage.html">htpolynet package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../htpolynetpackage.html">htpolynet package</a></li>
 </ul>
 
 <div class="relations">

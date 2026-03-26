@@ -43,7 +43,7 @@
 <span class="n">logger</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <div class="viewcode-block" id="reaction_stage">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.reaction.reaction_stage">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.reaction.reaction_stage">[docs]</a>
 <span class="k">class</span> <span class="nc">reaction_stage</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumerated reaction stage</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -57,7 +57,7 @@
 
 
 <div class="viewcode-block" id="Reaction">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.reaction.Reaction">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.reaction.Reaction">[docs]</a>
 <span class="k">class</span> <span class="nc">Reaction</span><span class="p">:</span>
     <span class="n">default_directives</span><span class="o">=</span><span class="p">{</span>
         <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
@@ -104,7 +104,7 @@
 <span class="n">ReactionList</span> <span class="o">=</span> <span class="nb">list</span><span class="p">[</span><span class="n">Reaction</span><span class="p">]</span>
 
 <div class="viewcode-block" id="parse_reaction_list">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.reaction.parse_reaction_list">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.reaction.parse_reaction_list">[docs]</a>
 <span class="k">def</span> <span class="nf">parse_reaction_list</span><span class="p">(</span><span class="n">baselist</span><span class="p">:</span><span class="n">ReactionList</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates any new reactions inferred by procession (i.e., linear polymerization).</span>
 
@@ -145,7 +145,7 @@
 
 
 <div class="viewcode-block" id="extract_molecule_reactions">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.reaction.extract_molecule_reactions">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.reaction.extract_molecule_reactions">[docs]</a>
 <span class="k">def</span> <span class="nf">extract_molecule_reactions</span><span class="p">(</span><span class="n">rlist</span><span class="p">:</span><span class="n">ReactionList</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Establishes the correct order of reactions so that molecular templates are created in a sensible order (reactants before products for all reactions).</span>
 
@@ -195,7 +195,7 @@
 
 
 <div class="viewcode-block" id="get_r">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.reaction.get_r">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.reaction.get_r">[docs]</a>
 <span class="k">def</span> <span class="nf">get_r</span><span class="p">(</span><span class="n">mname</span><span class="p">,</span><span class="n">RL</span><span class="p">:</span><span class="n">ReactionList</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the Reaction that generates molecule mname as a product, if it exists, otherwise None.</span>
 
@@ -216,7 +216,7 @@
 
 
 <div class="viewcode-block" id="is_reactant">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.reaction.is_reactant">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.reaction.is_reactant">[docs]</a>
 <span class="k">def</span> <span class="nf">is_reactant</span><span class="p">(</span><span class="n">name</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span><span class="n">reaction_list</span><span class="p">:</span><span class="n">ReactionList</span><span class="p">,</span><span class="n">stage</span><span class="o">=</span><span class="n">reaction_stage</span><span class="o">.</span><span class="n">cure</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests to see if molecule &#39;name&#39; appears as a reactant in any reaction in reaction_list.</span>
 
@@ -238,7 +238,7 @@
 
     
 <div class="viewcode-block" id="product_sequence_resnames">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.reaction.product_sequence_resnames">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.reaction.product_sequence_resnames">[docs]</a>
 <span class="k">def</span> <span class="nf">product_sequence_resnames</span><span class="p">(</span><span class="n">R</span><span class="p">:</span><span class="n">Reaction</span><span class="p">,</span><span class="n">reactions</span><span class="p">:</span><span class="n">ReactionList</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Recursively generates sequence of product of R by traversing network of reactions; sequence is by definition an ordered list of monomer names.</span>
 
@@ -260,7 +260,7 @@
 
 
 <div class="viewcode-block" id="molname_sequence_resnames">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.reaction.molname_sequence_resnames">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.reaction.molname_sequence_resnames">[docs]</a>
 <span class="k">def</span> <span class="nf">molname_sequence_resnames</span><span class="p">(</span><span class="n">molname</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span><span class="n">reactions</span><span class="p">:</span><span class="n">ReactionList</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Determines monomer sequence of the molecule with name molname based on a traversal of the reaction network.</span>
 
@@ -280,7 +280,7 @@
 
 
 <div class="viewcode-block" id="reactant_resid_to_presid">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.reaction.reactant_resid_to_presid">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.reaction.reactant_resid_to_presid">[docs]</a>
 <span class="k">def</span> <span class="nf">reactant_resid_to_presid</span><span class="p">(</span><span class="n">R</span><span class="p">:</span><span class="n">Reaction</span><span class="p">,</span><span class="n">reactantName</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span><span class="n">resid</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span><span class="n">reactions</span><span class="p">:</span><span class="n">ReactionList</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Maps the resid of a reactant monomer to its inferred resid in the associated product in reaction R, by traversing the reaction network.</span>
 
@@ -308,7 +308,7 @@
 
 
 <div class="viewcode-block" id="generate_product_name">
-<a class="viewcode-back" href="../../../HTPolyNetPackage.html#htpolynet.cure.reaction.generate_product_name">[docs]</a>
+<a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.cure.reaction.generate_product_name">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_product_name</span><span class="p">(</span><span class="n">R</span><span class="p">:</span><span class="n">Reaction</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Automatically generates the name of the product based on the names of the reactants and the bonds in R.</span>
 
@@ -362,7 +362,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user-guide/index.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../example-tutorials/index.html">Example Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../references/index.html">References</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../HTPolyNetPackage.html">htpolynet package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../htpolynetpackage.html">htpolynet package</a></li>
 </ul>
 
 <div class="relations">

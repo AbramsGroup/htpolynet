@@ -266,7 +266,7 @@
 </pre></div>
 </div>
 <p>As we will detail in the next section, there are no symmetry-equivalent atoms necessary in this system, even though bisGMA is a symmetric molecule.  This is because we need only address HIE monomers in the cure reactions; BPA’s are “silent” with respect to cure.  There are no symmetry-equivalent atoms <em>within</em> a <em>single</em> HIE monomer.</p>
-<p>However, because this is a system of double-bonds that open to react in each monomer, we do have to allow <code class="docutils literal notranslate"><span class="pre">HTPolyNet</span></code> to enumerate all possible combinations of -(C1-C2)- chains of length 3 and 4 to fully cover all template needs.  This is referred to as <code class="docutils literal notranslate"><span class="pre">chain</span> <span class="pre">expansion</span></code> of reactions.  For all length-3 chains, there are 8 possible sequences of STY and HIE, and for each, the actual bond we focus on can be in one of two positions in that chain (between the first and second, or between the second and third), so there are 16 distinct trimers in the chain-expanded reaction set.  Likewise, there are 16 possible chains of length 4, but we need only condsider those for which the bond that forms is between the second and third, since trimer parameterizations cover the other two positions.  This gives a total of 32 cure reactions in the chain-expanded set of reactions.</p>
+<p>However, because this is a system of double-bonds that open to react in each monomer, we do have to allow <code class="docutils literal notranslate"><span class="pre">htpolynet</span></code> to enumerate all possible combinations of -(C1-C2)- chains of length 3 and 4 to fully cover all template needs.  This is referred to as <code class="docutils literal notranslate"><span class="pre">chain</span> <span class="pre">expansion</span></code> of reactions.  For all length-3 chains, there are 8 possible sequences of STY and HIE, and for each, the actual bond we focus on can be in one of two positions in that chain (between the first and second, or between the second and third), so there are 16 distinct trimers in the chain-expanded reaction set.  Likewise, there are 16 possible chains of length 4, but we need only condsider those for which the bond that forms is between the second and third, since trimer parameterizations cover the other two positions.  This gives a total of 32 cure reactions in the chain-expanded set of reactions.</p>
 <p>The 16 trimers are:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">STY</span><span class="o">~</span><span class="n">C1</span><span class="o">=</span><span class="n">C2</span><span class="o">~</span><span class="n">STY</span><span class="o">~</span><span class="n">C1</span><span class="o">-</span><span class="n">C2</span><span class="o">~</span><span class="n">STY</span>
 <span class="n">HIE</span><span class="o">~</span><span class="n">C1</span><span class="o">=</span><span class="n">C2</span><span class="o">~</span><span class="n">STY</span><span class="o">~</span><span class="n">C1</span><span class="o">-</span><span class="n">C2</span><span class="o">~</span><span class="n">STY</span>
@@ -307,7 +307,7 @@
 <span class="n">HIE</span><span class="o">~</span><span class="n">C1</span><span class="o">-</span><span class="n">C2</span><span class="o">~</span><span class="n">STY</span><span class="o">~</span><span class="n">C1</span><span class="o">=</span><span class="n">C2</span><span class="o">~</span><span class="n">HIE</span><span class="o">~</span><span class="n">C1</span><span class="o">-</span><span class="n">C2</span><span class="o">~</span><span class="n">STY</span>
 </pre></div>
 </div>
-<p>So, to review:  we needed only to specify the four possible polymerization reactions involving STY and HIE monomers, and <code class="docutils literal notranslate"><span class="pre">HTPolyNet</span></code> automatically takes care of generating all relevant product templates that could be needed during any curing system.</p>
+<p>So, to review:  we needed only to specify the four possible polymerization reactions involving STY and HIE monomers, and <code class="docutils literal notranslate"><span class="pre">htpolynet</span></code> automatically takes care of generating all relevant product templates that could be needed during any curing system.</p>
 <p>The next thing we consider is the <a class="reference internal" href="configuration.html#ve-configuration-file"><span class="std std-ref">configuration file</span></a> necessary to describe the crosslinking chemistry and determine the system build.</p>
 </section>
 </section>
@@ -339,7 +339,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../references/index.html">References</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../HTPolyNetPackage.html">htpolynet package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../htpolynetpackage.html">htpolynet package</a></li>
 </ul>
 
 <div class="relations">

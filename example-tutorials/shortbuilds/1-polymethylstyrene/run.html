@@ -42,10 +42,10 @@
 <p>As the <code class="docutils literal notranslate"><span class="pre">htpolynet</span> <span class="pre">run</span></code> command inside <code class="docutils literal notranslate"><span class="pre">run.sh</span></code> indicates, standard output is being redirected from the console to the file <code class="docutils literal notranslate"><span class="pre">console.log</span></code>.</p>
 <section id="console-output">
 <h2>Console output<a class="headerlink" href="#console-output" title="Link to this heading">¶</a></h2>
-<p>In this section, let’s go section by section through the console log <code class="docutils literal notranslate"><span class="pre">console.log</span></code> to understand what <code class="docutils literal notranslate"><span class="pre">HTPolyNet</span></code> is doing.  The first section just shows a banner and indicates where the library is and where the project directory is, then reports on the available Ambertools software, finally ending by stating the name of the configuration file.</p>
+<p>In this section, let’s go section by section through the console log <code class="docutils literal notranslate"><span class="pre">console.log</span></code> to understand what <code class="docutils literal notranslate"><span class="pre">htpolynet</span></code> is doing.  The first section just shows a banner and indicates where the library is and where the project directory is, then reports on the available Ambertools software, finally ending by stating the name of the configuration file.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">INFO&gt;</span>
-<span class="go">INFO&gt;     HTPolyNet 1.0.8</span>
-<span class="go">INFO&gt;     https://abramsgroup.github.io/HTPolyNet/</span>
+<span class="go">INFO&gt;     htpolynet 1.0.8</span>
+<span class="go">INFO&gt;     https://abramsgroup.github.io/htpolynet/</span>
 <span class="go">INFO&gt;</span>
 <span class="go">INFO&gt;     Ming Huang</span>
 <span class="go">INFO&gt;     mh3429@dragons.drexel.edu</span>
@@ -56,14 +56,14 @@
 <span class="go">INFO&gt;     Supported in part by Grants W911NF-17-2-0227</span>
 <span class="go">INFO&gt;     and W911NF-12-R-0011 from the US Army Research Lab</span>
 <span class="go">INFO&gt;</span>
-<span class="go">INFO&gt;     Please cite the HTPolyNet paper:</span>
+<span class="go">INFO&gt;     Please cite the htpolynet paper:</span>
 <span class="go">INFO&gt;</span>
-<span class="go">INFO&gt;     Ming Huang and Cameron F. Abrams, HTPolyNet: A general</span>
+<span class="go">INFO&gt;     Ming Huang and Cameron F. Abrams, htpolynet: A general</span>
 <span class="go">INFO&gt;     system generator for all-atom molecular simulations of</span>
 <span class="go">INFO&gt;     amorphous crosslinked polymers, SoftwareX, vol. 21,</span>
 <span class="go">INFO&gt;     pp. 101303, 2023 (doi:10.1016/j.softx.2022.101303)</span>
 <span class="go">INFO&gt;</span>
-<span class="go">INFO&gt; ******************** HTPolyNet runtime begins *********************</span>
+<span class="go">INFO&gt; ******************** htpolynet runtime begins *********************</span>
 <span class="go">INFO&gt; New project in /home/cfa/htpolynet-tutorials/1.0.8/2-polymethylstyrene/proj-0</span>
 <span class="go">INFO&gt; *************************** Ambertools: ***************************</span>
 <span class="go">INFO&gt; ********************  antechamber (ver. 22.0) *********************</span>
@@ -72,7 +72,7 @@
 <span class="go">INFO&gt; Configuration: pMSTY.yaml</span>
 </pre></div>
 </div>
-<p>Next comes the monomer and oligomer template parameterizations.  <code class="docutils literal notranslate"><span class="pre">HTPolyNet</span></code> first handles the molecules that are explicitly named in the configuration.  Only <code class="docutils literal notranslate"><span class="pre">EMB.mol2</span></code> exists; the other two are generated automatically using their respective <code class="docutils literal notranslate"><span class="pre">reaction</span></code> directives.  The three molecules implied by the concept of “chaining” are also generated and parameterized.</p>
+<p>Next comes the monomer and oligomer template parameterizations.  <code class="docutils literal notranslate"><span class="pre">htpolynet</span></code> first handles the molecules that are explicitly named in the configuration.  Only <code class="docutils literal notranslate"><span class="pre">EMB.mol2</span></code> exists; the other two are generated automatically using their respective <code class="docutils literal notranslate"><span class="pre">reaction</span></code> directives.  The three molecules implied by the concept of “chaining” are also generated and parameterized.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">INFO&gt; *********** Templates in proj-0/molecules/parameterized ***********</span>
 <span class="go">INFO&gt; 3 molecules detected in pMSTY.yaml</span>
 <span class="go">INFO&gt;                       explicit: 3</span>
@@ -96,8 +96,8 @@
 <span class="go">INFO&gt; 100% conversion is 127 bonds</span>
 </pre></div>
 </div>
-<p>If we look in <code class="docutils literal notranslate"><span class="pre">proj-0/molecules/parameterized</span></code> we’ll see the <code class="docutils literal notranslate"><span class="pre">gro</span></code>, <code class="docutils literal notranslate"><span class="pre">itp</span></code>, <code class="docutils literal notranslate"><span class="pre">top</span></code>, <code class="docutils literal notranslate"><span class="pre">grx</span></code>, and <code class="docutils literal notranslate"><span class="pre">tpx</span></code> files for each molecule. The first three are Gromacs-specific.  The <code class="docutils literal notranslate"><span class="pre">grx</span></code> file contains “extended attributes” of each atom that <code class="docutils literal notranslate"><span class="pre">HTPolyNet</span></code> uses internally and are <strong>not</strong> needed for Gromacs.  The <code class="docutils literal notranslate"><span class="pre">tpx</span></code> file indentifies topological features of interest for <code class="docutils literal notranslate"><span class="pre">HTPolyNet</span></code> but not necessary for Gromacs; for now, this is limited to identification of ring systems via atom indices.</p>
-<p>Next comes initialization of the system topology and coordinates.  Here, using the <code class="docutils literal notranslate"><span class="pre">constituents</span></code> directive, <code class="docutils literal notranslate"><span class="pre">HTPolyNet</span></code> generates a full system topology and simulation box. The box is filled according to the <code class="docutils literal notranslate"><span class="pre">initial_density</span></code> subdirective of the <code class="docutils literal notranslate"><span class="pre">densification</span></code> directive.</p>
+<p>If we look in <code class="docutils literal notranslate"><span class="pre">proj-0/molecules/parameterized</span></code> we’ll see the <code class="docutils literal notranslate"><span class="pre">gro</span></code>, <code class="docutils literal notranslate"><span class="pre">itp</span></code>, <code class="docutils literal notranslate"><span class="pre">top</span></code>, <code class="docutils literal notranslate"><span class="pre">grx</span></code>, and <code class="docutils literal notranslate"><span class="pre">tpx</span></code> files for each molecule. The first three are Gromacs-specific.  The <code class="docutils literal notranslate"><span class="pre">grx</span></code> file contains “extended attributes” of each atom that <code class="docutils literal notranslate"><span class="pre">htpolynet</span></code> uses internally and are <strong>not</strong> needed for Gromacs.  The <code class="docutils literal notranslate"><span class="pre">tpx</span></code> file indentifies topological features of interest for <code class="docutils literal notranslate"><span class="pre">htpolynet</span></code> but not necessary for Gromacs; for now, this is limited to identification of ring systems via atom indices.</p>
+<p>Next comes initialization of the system topology and coordinates.  Here, using the <code class="docutils literal notranslate"><span class="pre">constituents</span></code> directive, <code class="docutils literal notranslate"><span class="pre">htpolynet</span></code> generates a full system topology and simulation box. The box is filled according to the <code class="docutils literal notranslate"><span class="pre">initial_density</span></code> subdirective of the <code class="docutils literal notranslate"><span class="pre">densification</span></code> directive.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">INFO&gt; ************** Initialization in proj-0/systems/init **************</span>
 <span class="go">INFO&gt; Topology &quot;init.top&quot; in proj-0/systems/init</span>
 <span class="go">INFO&gt; Initial density: 300.0 kg/m^3</span>
@@ -157,7 +157,7 @@
 <span class="go">INFO&gt; Iteration 1 current conversion 0.307 or 39 bonds</span>
 </pre></div>
 </div>
-<p>This first iteration shows that, with a search radius of 0.5 nm, <code class="docutils literal notranslate"><span class="pre">HTPolyNet</span></code> identified 39 allowable bonds.  It then forms them and progresses through the relaxation stages until they are at their correct lengths.  Finally it runs the post-iteration NPT MD equilibration, reporting the resulting box dimensions and density.</p>
+<p>This first iteration shows that, with a search radius of 0.5 nm, <code class="docutils literal notranslate"><span class="pre">htpolynet</span></code> identified 39 allowable bonds.  It then forms them and progresses through the relaxation stages until they are at their correct lengths.  Finally it runs the post-iteration NPT MD equilibration, reporting the resulting box dimensions and density.</p>
 <p>Next we proceed through CURE iterations 2 through 13:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">INFO&gt; ~~~~~~~~~~~~~~~~~~~~~~~ Iteration 2 begins ~~~~~~~~~~~~~~~~~~~~~~~~</span>
 <span class="go">INFO&gt; Bond search using radius 0.5 nm initiated</span>
@@ -362,7 +362,7 @@
 <span class="go">INFO&gt; Iteration 13 current conversion 0.945 or 120 bonds</span>
 </pre></div>
 </div>
-<p>This meets our desired cure of 95%, so now <code class="docutils literal notranslate"><span class="pre">HTPolyNet</span></code> proceeds to capping,
+<p>This meets our desired cure of 95%, so now <code class="docutils literal notranslate"><span class="pre">htpolynet</span></code> proceeds to capping,
 and not finding any cappable bonds, proceeds to the postcure:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">INFO&gt; ************************* Capping begins **************************</span>
 <span class="go">INFO&gt; Capping will generate 0 new bonds</span>
@@ -376,7 +376,7 @@ and not finding any cappable bonds, proceeds to the postcure:</p>
 <span class="go">INFO&gt; Running-average-Density      948.42</span>
 <span class="go">INFO&gt; Rolling-10-average-Density   953.16</span>
 <span class="go">INFO&gt; *********** Final data to proj-0/systems/final-results ************</span>
-<span class="go">INFO&gt; ********************* HTPolyNet runtime ends **********************</span>
+<span class="go">INFO&gt; ********************* htpolynet runtime ends **********************</span>
 </pre></div>
 </div>
 <p>This just tells us the final density and where the final results are found.
@@ -420,7 +420,7 @@ Let’s now take a look at the <a class="reference internal" href="results.html#
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../references/index.html">References</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../HTPolyNetPackage.html">htpolynet package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../htpolynetpackage.html">htpolynet package</a></li>
 </ul>
 
 <div class="relations">
