@@ -13,10 +13,13 @@
 FROM continuumio/miniconda3:latest
 
 # Install Gromacs and AmberTools (latest available on conda-forge)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        openbabel \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 RUN conda install -y -c conda-forge \
         ambertools \
         gromacs \
-        openbabel \
         parmed \
     && conda clean -afy
 
