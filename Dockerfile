@@ -1,5 +1,5 @@
 # HTPolyNet container image
-# Includes Gromacs and AmberTools (antechamber, tleap, parmchk2) via conda-forge.
+# Includes Gromacs, AmberTools (antechamber, tleap, parmchk2), and OpenBabel via conda-forge.
 #
 # Usage:
 #   docker run --rm -v $(pwd):/work ghcr.io/abramsgroup/htpolynet htpolynet run config.yaml
@@ -16,6 +16,8 @@ FROM continuumio/miniconda3:latest
 RUN conda install -y -c conda-forge \
         ambertools \
         gromacs \
+        openbabel \
+        parmed \
     && conda clean -afy
 
 # Install HTPolyNet
