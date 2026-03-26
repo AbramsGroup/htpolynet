@@ -3,7 +3,7 @@
 Results
 =======
 
-The :ref:`results section of the PMS tutorial <pms_results>` does a good job walking you through the project directory structure for any ``HTPolyNet`` run, so we'll skip that here.  
+The :ref:`results section of the PMS tutorial <pms_results>` does a good job walking you through the project directory structure for any ``htpolynet`` run, so we'll skip that here.  
 
 First, if we look in ``proj-0/plots``, we can see the density vs. time of the densification stage:
 

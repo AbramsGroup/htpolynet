@@ -4,10 +4,10 @@
    contain the root `toctree` directive.
 
 #########
-HTPolyNet
+htpolynet
 #########
 
-HTPolyNet is a command-line tool for building atomic configurations of amorphous network polymers suitable for molecular dynamics (MD) simulations.
+htpolynet is a command-line tool for building atomic configurations of amorphous network polymers suitable for molecular dynamics (MD) simulations.
 It uses the General Amber Force Field and produces output that can be simulated 
 using Gromacs.
 
@@ -20,12 +20,12 @@ using Gromacs.
    user-guide/index
    example-tutorials/index
    references/index
-   HTPolyNetPackage
+   htpolynetpackage
 
 Citation
 ========
 
-When using HTPolyNet in published work, please cite :cite:t:`Huang2023`, along with the main GAFF paper :cite:t:`Wang2004DevelopmentField` and the two main Gromacs papers :cite:t:`Berendsen1995` and :cite:t:`Abraham2015`.
+When using htpolynet in published work, please cite :cite:t:`Huang2023`, along with the main GAFF paper :cite:t:`Wang2004DevelopmentField` and the two main Gromacs papers :cite:t:`Berendsen1995` and :cite:t:`Abraham2015`.
 
 
 Indices and tables

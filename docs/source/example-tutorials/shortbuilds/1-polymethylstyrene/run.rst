@@ -14,13 +14,13 @@ As the ``htpolynet run`` command inside ``run.sh`` indicates, standard output is
 Console output
 ^^^^^^^^^^^^^^
 
-In this section, let's go section by section through the console log ``console.log`` to understand what ``HTPolyNet`` is doing.  The first section just shows a banner and indicates where the library is and where the project directory is, then reports on the available Ambertools software, finally ending by stating the name of the configuration file.
+In this section, let's go section by section through the console log ``console.log`` to understand what ``htpolynet`` is doing.  The first section just shows a banner and indicates where the library is and where the project directory is, then reports on the available Ambertools software, finally ending by stating the name of the configuration file.
 
 .. code-block:: console
 
     INFO>                                                                    
-    INFO>     HTPolyNet 1.0.8                                                
-    INFO>     https://abramsgroup.github.io/HTPolyNet/                       
+    INFO>     htpolynet 1.0.8                                                
+    INFO>     https://abramsgroup.github.io/htpolynet/                       
     INFO>                                                                    
     INFO>     Ming Huang                                                     
     INFO>     mh3429@dragons.drexel.edu                                      
@@ -31,14 +31,14 @@ In this section, let's go section by section through the console log ``console.l
     INFO>     Supported in part by Grants W911NF-17-2-0227                   
     INFO>     and W911NF-12-R-0011 from the US Army Research Lab             
     INFO>                                                                    
-    INFO>     Please cite the HTPolyNet paper:                               
+    INFO>     Please cite the htpolynet paper:                               
     INFO>                                                                    
-    INFO>     Ming Huang and Cameron F. Abrams, HTPolyNet: A general         
+    INFO>     Ming Huang and Cameron F. Abrams, htpolynet: A general         
     INFO>     system generator for all-atom molecular simulations of         
     INFO>     amorphous crosslinked polymers, SoftwareX, vol. 21,            
     INFO>     pp. 101303, 2023 (doi:10.1016/j.softx.2022.101303) 
     INFO>                                                                    
-    INFO> ******************** HTPolyNet runtime begins *********************
+    INFO> ******************** htpolynet runtime begins *********************
     INFO> New project in /home/cfa/htpolynet-tutorials/1.0.8/2-polymethylstyrene/proj-0
     INFO> *************************** Ambertools: ***************************
     INFO> ********************  antechamber (ver. 22.0) *********************
@@ -46,7 +46,7 @@ In this section, let's go section by section through the console log ``console.l
     INFO> ********************     parmchk2 (ver. 22.0) *********************
     INFO> Configuration: pMSTY.yaml
 
-Next comes the monomer and oligomer template parameterizations.  ``HTPolyNet`` first handles the molecules that are explicitly named in the configuration.  Only ``EMB.mol2`` exists; the other two are generated automatically using their respective ``reaction`` directives.  The three molecules implied by the concept of "chaining" are also generated and parameterized.
+Next comes the monomer and oligomer template parameterizations.  ``htpolynet`` first handles the molecules that are explicitly named in the configuration.  Only ``EMB.mol2`` exists; the other two are generated automatically using their respective ``reaction`` directives.  The three molecules implied by the concept of "chaining" are also generated and parameterized.
 
 .. code-block:: console
 
@@ -72,9 +72,9 @@ Next comes the monomer and oligomer template parameterizations.  ``HTPolyNet`` f
     INFO> Initial composition is EMB 127
     INFO> 100% conversion is 127 bonds
 
-If we look in ``proj-0/molecules/parameterized`` we'll see the ``gro``, ``itp``, ``top``, ``grx``, and ``tpx`` files for each molecule. The first three are Gromacs-specific.  The ``grx`` file contains "extended attributes" of each atom that ``HTPolyNet`` uses internally and are **not** needed for Gromacs.  The ``tpx`` file indentifies topological features of interest for ``HTPolyNet`` but not necessary for Gromacs; for now, this is limited to identification of ring systems via atom indices.
+If we look in ``proj-0/molecules/parameterized`` we'll see the ``gro``, ``itp``, ``top``, ``grx``, and ``tpx`` files for each molecule. The first three are Gromacs-specific.  The ``grx`` file contains "extended attributes" of each atom that ``htpolynet`` uses internally and are **not** needed for Gromacs.  The ``tpx`` file indentifies topological features of interest for ``htpolynet`` but not necessary for Gromacs; for now, this is limited to identification of ring systems via atom indices.
 
-Next comes initialization of the system topology and coordinates.  Here, using the ``constituents`` directive, ``HTPolyNet`` generates a full system topology and simulation box. The box is filled according to the ``initial_density`` subdirective of the ``densification`` directive.
+Next comes initialization of the system topology and coordinates.  Here, using the ``constituents`` directive, ``htpolynet`` generates a full system topology and simulation box. The box is filled according to the ``initial_density`` subdirective of the ``densification`` directive.
 
 .. code-block:: console
 
@@ -142,7 +142,7 @@ Next we begin the CURE iterations:
     INFO> Rolling-10-average-Density   892.91
     INFO> Iteration 1 current conversion 0.307 or 39 bonds
 
-This first iteration shows that, with a search radius of 0.5 nm, ``HTPolyNet`` identified 39 allowable bonds.  It then forms them and progresses through the relaxation stages until they are at their correct lengths.  Finally it runs the post-iteration NPT MD equilibration, reporting the resulting box dimensions and density.
+This first iteration shows that, with a search radius of 0.5 nm, ``htpolynet`` identified 39 allowable bonds.  It then forms them and progresses through the relaxation stages until they are at their correct lengths.  Finally it runs the post-iteration NPT MD equilibration, reporting the resulting box dimensions and density.
 
 Next we proceed through CURE iterations 2 through 13:
 
@@ -350,7 +350,7 @@ Next we proceed through CURE iterations 2 through 13:
     INFO> Rolling-10-average-Density   937.37
     INFO> Iteration 13 current conversion 0.945 or 120 bonds
 
-This meets our desired cure of 95\%, so now ``HTPolyNet`` proceeds to capping, 
+This meets our desired cure of 95\%, so now ``htpolynet`` proceeds to capping, 
 and not finding any cappable bonds, proceeds to the postcure:
 
 .. code-block:: console
@@ -367,7 +367,7 @@ and not finding any cappable bonds, proceeds to the postcure:
     INFO> Running-average-Density      948.42
     INFO> Rolling-10-average-Density   953.16
     INFO> *********** Final data to proj-0/systems/final-results ************
-    INFO> ********************* HTPolyNet runtime ends **********************
+    INFO> ********************* htpolynet runtime ends **********************
 
 This just tells us the final density and where the final results are found. 
 Let's now take a look at the :ref:`final results <pms_results>`.
