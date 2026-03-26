@@ -11,7 +11,7 @@ jobs:
     - name: Install package
       run: python3 -m pip install --prefer-binary -e .
     - name: Install docs dependencies
-      run: python3 -m pip install --prefer-binary setuptools sphinx matplotlib pytrr sphinxcontrib-bibtex
+      run: python3 -m pip install --prefer-binary setuptools sphinx matplotlib pytrr sphinxcontrib-bibtex -r docs/requirements.txt
     - name: Build HTML docs
       run: cd docs && make html
     # - name: Build HTML
