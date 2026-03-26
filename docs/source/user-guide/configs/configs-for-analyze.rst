@@ -7,7 +7,7 @@ Configuration Files for ``htpolynet analyze``
 
 An ``analyze`` configuration file is structured as a list of dictionaries, each entry of which is a *stage* of the analysis.  Each stage consists of execution of a ``gmx`` analysis and parsing/reporting of its output.  
 
-``htpolynet analyze`` is a *generic* way to interface with the ``gmx`` subcommands, and its main advantage is that it is aware of the HTPolyNet project directory structure.
+``htpolynet analyze`` is a *generic* way to interface with the ``gmx`` subcommands, and its main advantage is that it is aware of the htpolynet project directory structure.
 
 A stage dictionary must have values for the ``command`` and ``subdir`` keywords; all others are optional.
 
@@ -35,7 +35,7 @@ Simple examples
 
     $ gmx check -f proj-0/systems/densification/densified-npt.trr
 
-  This is of course very simple.  If you want HTPolyNet to do the same thing, and put the output in a particular place, you could create the YAML input file ``my-analysis.yaml``:abbr:
+  This is of course very simple.  If you want htpolynet to do the same thing, and put the output in a particular place, you could create the YAML input file ``my-analysis.yaml``:abbr:
 
   .. code-block:: yaml
 
@@ -70,7 +70,7 @@ Simple examples
 
     $ gmx report-methods -s proj-0/systems/densification/densified-npt.tpr
 
-  Again, very simple.  However, using HTPolyNet, you could make a YAML input file ``another-analysis.yaml``
+  Again, very simple.  However, using htpolynet, you could make a YAML input file ``another-analysis.yaml``
 
   .. code-block:: yaml
 
@@ -122,7 +122,7 @@ These examples should illustrate how powerful ``htpolynet analyze`` is for worki
 Shortcut analyses
 !!!!!!!!!!!!!!!!!
 
-HTPolyNet provides a small number of shortcut analysis dictionaries prepopulated with default values.
+htpolynet provides a small number of shortcut analysis dictionaries prepopulated with default values.
 
 1. ``gmx density``
 
@@ -132,7 +132,7 @@ HTPolyNet provides a small number of shortcut analysis dictionaries prepopulated
 
     - command: density
 
-  then HTPolyNet assumes the user wants to measure a density profile of all atoms (interative menu option ``0``) along the *z* direction (``-d Z``) in 50 slices (``-sl 50``) by analyzing the trajectory ``equilibrate.trr`` in the subdirectory ``poststim/equilibrate``, generating the free-format output file ``density.xvg`` in the ``analyze/density`` subdirectory.  
+  then htpolynet assumes the user wants to measure a density profile of all atoms (interative menu option ``0``) along the *z* direction (``-d Z``) in 50 slices (``-sl 50``) by analyzing the trajectory ``equilibrate.trr`` in the subdirectory ``poststim/equilibrate``, generating the free-format output file ``density.xvg`` in the ``analyze/density`` subdirectory.  
 
 
 2. ``gmx freevolume``
@@ -143,5 +143,5 @@ HTPolyNet provides a small number of shortcut analysis dictionaries prepopulated
 
     - command: freevolume
 
-  then HTPolyNet assumes the user wants to measure the fractional free volume by analyzing the trajectory ``equilibrate.trr`` and input file ``equilibrate.tpr`` in the subdirectory ``poststim/equilibrate``, generating the free-format output file ``ffv.xvg`` in the ``analyze/freevolume`` subdirectory, and reporting console output matching the following: "Free volume", "Total volume", "Number of molecules", "Density", "Molecular volume Vm assuming homogeneity", "Molecular van der Waals volume assuming homogeneity", and "Fractional free volume".
+  then htpolynet assumes the user wants to measure the fractional free volume by analyzing the trajectory ``equilibrate.trr`` and input file ``equilibrate.tpr`` in the subdirectory ``poststim/equilibrate``, generating the free-format output file ``ffv.xvg`` in the ``analyze/freevolume`` subdirectory, and reporting console output matching the following: "Free volume", "Total volume", "Number of molecules", "Density", "Molecular volume Vm assuming homogeneity", "Molecular van der Waals volume assuming homogeneity", and "Fractional free volume".
 

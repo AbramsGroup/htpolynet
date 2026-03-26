@@ -28,7 +28,7 @@ The bash script ``run.sh`` is a *suggested* way to run a build, and it contains 
 .. code-block:: bash
 
    #!/bin/bash -l
-   # A simple driver to demonstrate usage of HTPolyNet
+   # A simple driver to demonstrate usage of htpolynet
    #
    # Cameron F. Abrams cfa22@drexel.edu
 

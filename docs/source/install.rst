@@ -9,41 +9,45 @@ The following commands should be in your path:
 
 1. ``antechamber``, ``parmchk2``, and ``tleap`` (`AmberTools <https://ambermd.org/GetAmber.php#ambertools>`_, version 22 or higher); preferred installation via ``conda``.
 2. ``gmx`` or ``gmx_mpi`` (`Gromacs <https://manual.gromacs.org/documentation/current/index.html>`_, version 2022.1 or higher); preferred installation via compiling from source.
-3. ``obabel`` (`OpenBabel <https://github.com/openbabel/openbabel>`_); preferred installation via Linux distribution package.
+3. ``obabel`` (`OpenBabel <https://github.com/openbabel/openbabel>`_); preferred installation via Linux distribution package.  Note that ``htpolynet`` itself does not require OpenBabel, but we show in the examples how to build input monomer structures from SMILES strings using OpenBabel, so it is recommended that you have it installed.
 
 Installation
 ------------
 
-If you use conda/anaconda, we recommended that you create a separate Python environment running ``HTPolyNet``:
+If you use conda/anaconda, we recommended that you create a separate Python environment running ``htpolynet``:
 
 .. code-block:: console
 
     $ conda create --name mol-env python
     $ conda activate mol-env
 
-Once this environment is created and activated, you can install both ``ambertools`` and ``HTPolyNet`` from ``conda-forge``:
+Once this environment is created and activated, you can install ``ambertools``, ``gromacs``, and ``htpolynet`` from ``conda-forge``:
 
 .. code-block:: console
 
     $ conda install -c conda-forge ambertools
+    $ conda install -c conda-forge gromacs
     $ conda install -c conda-forge htpolynet
 
-If you are not a conda user, you can install ``HTPolyNet`` from PyPI.
+If you are not a conda user, you can install ``htpolynet`` from PyPI.
 
 .. code-block:: console
 
     $ pip install htpolynet
 
-Note that you will have to install ``ambertools`` some other way.
+Note that you will have to install ``ambertools`` and ``gromacs`` some other way.
 
-To install a development version of ``HTPolyNet`` you can instal from a freshly cloned Github repository:
+Again, to use the examples as provided, you will need to have OpenBabel installed.  We recommend installing OpenBabel from your Linux distribution's package management system.
+
+To install a development version of ``htpolynet`` you can instal from a freshly cloned Github repository:
 
 .. code-block:: console
 
-    $ git clone git@github.com:AbramsGroup/HTPolyNet.git
-    $ cd HTPolyNet
+    $ git clone git@github.com:AbramsGroup/htpolynet.git
+    $ cd htpolynet
     $ pip install -e .
 
+Note here that you will need to have all other prequisites installed as mentioned above, *plus* a conda-based installation of ``parmed``.
 
 Notes
 -----
@@ -85,7 +89,7 @@ And add to your ``~/.bashrc``:
 
     source /usr/local/gromacs/bin/GMXRC
 
-This should provide access to the ``gmx`` command.  If you additionally compiled an MPI version (using ``-DGMX_MPI=on`` in the ``cmake`` command), you will also have access to ``gmx_mpi``; either of these commands can be used by HTPolyNet.  Note that Gromacs 2016 and below have a version of ``gmx distance`` that limits the number of distances that can be calculated, so we (always) recommend using the latest Gromacs.
+This should provide access to the ``gmx`` command.  If you additionally compiled an MPI version (using ``-DGMX_MPI=on`` in the ``cmake`` command), you will also have access to ``gmx_mpi``; either of these commands can be used by htpolynet.  Note that Gromacs 2016 and below have a version of ``gmx distance`` that limits the number of distances that can be calculated, so we (always) recommend using the latest Gromacs.
 
 Compilation of ``obabel``
 #########################
@@ -110,7 +114,7 @@ You will need to ensure that ``${HOME}/opt/babel/bin`` is in your ``PATH``, ``${
 Other Prequisites
 -----------------
 
-In order to use ``HTPolyNet`` effectively, it is recommended that you have good working knowledge of the following:
+In order to use ``htpolynet`` effectively, it is recommended that you have good working knowledge of the following:
 
 1. MD simulation in general and Gromacs specifically;
 2. the General Amber Force Field (GAFF), including in particular

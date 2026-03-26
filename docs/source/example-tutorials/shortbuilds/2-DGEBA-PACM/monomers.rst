@@ -12,7 +12,7 @@ DGEBA
     
     CC(C)(C1=CC=C(C=C1)OCC2CO2)C3=CC=C(C=C3)OCC4CO4
 
-However, as described in the user guide, HTPolyNet uses the concept of "sacrificial hydrogens": any two atoms designated as forming a bond must each sacrifice one H atom to make the bond.  Epoxy groups react with amines via hydrogen atom transfer from the amine to the oxirane oxygen, generating a C-N bond and a pendant OH group one carbon atom removed from the C-N bond.  So the N sacrificed but the C did not; it "sacrificed" its bond to the O atom of the oxirane.  To use DGEBA as a reactive monomer, we therefore must convert it to a form in which the two oxiranes are hydrogenated, yielding a terminal methyl group and a pendant OH one atom removed from the methyl.  This is easily done by altering the ``C2CO2`` and ``C4CO4`` epoxirane cycles in the original SMILES string to ``C(O)C`` methyl hydroxymethyl groups, yielding::
+However, as described in the user guide, htpolynet uses the concept of "sacrificial hydrogens": any two atoms designated as forming a bond must each sacrifice one H atom to make the bond.  Epoxy groups react with amines via hydrogen atom transfer from the amine to the oxirane oxygen, generating a C-N bond and a pendant OH group one carbon atom removed from the C-N bond.  So the N sacrificed but the C did not; it "sacrificed" its bond to the O atom of the oxirane.  To use DGEBA as a reactive monomer, we therefore must convert it to a form in which the two oxiranes are hydrogenated, yielding a terminal methyl group and a pendant OH one atom removed from the methyl.  This is easily done by altering the ``C2CO2`` and ``C4CO4`` epoxirane cycles in the original SMILES string to ``C(O)C`` methyl hydroxymethyl groups, yielding::
 
     CC(C)(C1=CC=C(C=C1)OCC(O)C)C3=CC=C(C=C3)OCC(O)C
     
@@ -24,7 +24,7 @@ Using `OpenBabel <https://openbabel.org/wiki/Main_Page>`_ (or any of a variety o
            obabel -ismi -h --gen3d -omol2 --title "DGE" | \
            sed s/"UNL1   "/"DGE    "/ > DGE-raw.mol2"
 
-Note that we have used ``sed`` to change the generic residue name ``UNL1`` provided by ``obabel`` to our desired name ``DGE``.  At this point, although this is a valid ``*.mol2`` file, it is not yet ready for use by HTPolyNet.  It needs two fixes:
+Note that we have used ``sed`` to change the generic residue name ``UNL1`` provided by ``obabel`` to our desired name ``DGE``.  At this point, although this is a valid ``*.mol2`` file, it is not yet ready for use by htpolynet.  It needs two fixes:
 
 1. Reactive atoms must be uniquely named; and
 2. Any chiral carbons must also be uniquely named.
@@ -166,7 +166,7 @@ Now, let's take a look at :download:`DGE.mol2 <files/DGE.mol2>`::
          53    25    52    1
          54    25    53    1
 
-You can see that only C1-C4 are uniquely named.  Those unique names will persist forever in HTPolyNet in any system derived from this DGE input file.  Other atoms will acquire unique names through processing with AmberTools, but that won't concern us here.
+You can see that only C1-C4 are uniquely named.  Those unique names will persist forever in htpolynet in any system derived from this DGE input file.  Other atoms will acquire unique names through processing with AmberTools, but that won't concern us here.
 
 PACM
 ^^^^

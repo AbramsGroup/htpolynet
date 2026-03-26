@@ -3,7 +3,7 @@
 Configuration Files for ``htpolynet run``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``htpolynet run`` configuration file tells ``HTPolyNet`` what it needs in order to generate a polymerized system, beginning with structures of the individual monomers and a description of the polymerization chemistry.   ``htpolynet run`` expects at most ten distinct sections in a configuration file:
+The ``htpolynet run`` configuration file tells ``htpolynet`` what it needs in order to generate a polymerized system, beginning with structures of the individual monomers and a description of the polymerization chemistry.   ``htpolynet run`` expects at most ten distinct sections in a configuration file:
 
 =================   =====================  
 Section name        Role 
@@ -20,7 +20,7 @@ Section name        Role
 ``reactions``       List of all reactions needed to build and cure the system
 =================   =====================  
 
-Sections can appear in any order (since the whole YAML file is like a nested python dictionary).  The ``gromacs`` and ``ambertools`` sections are mainly for specifying system-specific commands for running Gromacs and AmberTools executables; they have defaults that work for simple Linux workstations. ``densification``, ``precure``, and ``postcure`` all specify series of MD simulations on the system.  ``constituents`` specifies the initial make-up of the system, and ``reactions`` describe both how to build those constituents from input monomers (if necessary) as well as the types of bonds that you want to occur during polymerization.  Both ``constituents`` and ``reactions`` sections are where ``HTPolyNet`` extracts the names of molecular species in the system and how they are chemically interrelated.  ``CURE`` is the most complicated section, and it desribes how the CURE algorithm is to be run.  We consider each of these eight sections (minus ``Title``) below.
+Sections can appear in any order (since the whole YAML file is like a nested python dictionary).  The ``gromacs`` and ``ambertools`` sections are mainly for specifying system-specific commands for running Gromacs and AmberTools executables; they have defaults that work for simple Linux workstations. ``densification``, ``precure``, and ``postcure`` all specify series of MD simulations on the system.  ``constituents`` specifies the initial make-up of the system, and ``reactions`` describe both how to build those constituents from input monomers (if necessary) as well as the types of bonds that you want to occur during polymerization.  Both ``constituents`` and ``reactions`` sections are where ``htpolynet`` extracts the names of molecular species in the system and how they are chemically interrelated.  ``CURE`` is the most complicated section, and it desribes how the CURE algorithm is to be run.  We consider each of these eight sections (minus ``Title``) below.
 
 .. _configuration_details:
 
@@ -31,7 +31,7 @@ In this section we show all subdirectives for each of the five main directives i
 
 .. _gromacs_yaml_directive:
 
-* ``gromacs``:  This directive specifies parameters ``HTPolyNet`` uses when invoking the Gromacs executable.
+* ``gromacs``:  This directive specifies parameters ``htpolynet`` uses when invoking the Gromacs executable.
   
     =====================================    ==============  =====================
     ``gromacs`` subdirective                 Type            Description (default)
@@ -47,7 +47,7 @@ In this section we show all subdirectives for each of the five main directives i
 
     The ``gromacs`` directive is optional; if none is specified the default values are used.
 
-* ``ambertools``:  This directive specifies parameters ``HTPolyNet`` uses when working with the AmberTools suite.
+* ``ambertools``:  This directive specifies parameters ``htpolynet`` uses when working with the AmberTools suite.
 
     =====================================    ==============  =====================
     ``ambertools`` subdirective              Type            Description (default)
@@ -59,7 +59,7 @@ In this section we show all subdirectives for each of the five main directives i
 
 * ``GAFF``
 
-    In very rare instances, AmberTools will generate GAFF atom types and parameters that are internally inconsistent, or at least are not understandable by the ``parmed`` package that translates them into Gromacs topology files.  Directives in this section instruct ``HTPolyNet`` how to resolve these inconsistencies.  
+    In very rare instances, AmberTools will generate GAFF atom types and parameters that are internally inconsistent, or at least are not understandable by the ``parmed`` package that translates them into Gromacs topology files.  Directives in this section instruct ``htpolynet`` how to resolve these inconsistencies.  
 
     =====================================    ==================  =====================
     ``GAFF`` subdirective                    Type                Description (default)
@@ -91,11 +91,11 @@ In this section we show all subdirectives for each of the five main directives i
     ``conformers``                           conformers record  (optional) parameters specifying if and how initial conformers are generated
     =====================================    =================  =====================
 
-    In the example below, we are requesting a system of 100 styrene molecules.  The key ``STY`` signals to ``HTPolyNet`` that it should look for either ``STY.mol2`` or ``STY.pdb`` in ``./lib/molecules/inputs`` **or** it should look for ``STY.gro``, ``STY.itp``, ``STY.top``, and ``STY.grx`` in ``./lib/molecules/parameterized``.  The latter is the case if either ``htpolynet run`` or ``htpolynet parameterized`` has already been run with ``STY.mol2`` or ``STY.pdb``.  Multiple records in ``constituents`` should all have the "key":"record" syntax and be separated by commas.
+    In the example below, we are requesting a system of 100 styrene molecules.  The key ``STY`` signals to ``htpolynet`` that it should look for either ``STY.mol2`` or ``STY.pdb`` in ``./lib/molecules/inputs`` **or** it should look for ``STY.gro``, ``STY.itp``, ``STY.top``, and ``STY.grx`` in ``./lib/molecules/parameterized``.  The latter is the case if either ``htpolynet run`` or ``htpolynet parameterized`` has already been run with ``STY.mol2`` or ``STY.pdb``.  Multiple records in ``constituents`` should all have the "key":"record" syntax and be separated by commas.
 
     Any entry in ``constituents`` for which the ``count`` is 0 or missing is treated as an intermediate for which stereocenters or symmetry-equivalent atoms are specified.
 
-    ``HTPolyNet`` allows you the option to use multiple conformers of flexible molecules to build the initial liquid system.  It can use either ``obabel``'s ``confomers`` capability or an MD simulation via ``gromacs`` to generate these.  The ``conformers`` record has two subdirectives:
+    ``htpolynet`` allows you the option to use multiple conformers of flexible molecules to build the initial liquid system.  It can use either ``obabel``'s ``confomers`` capability or an MD simulation via ``gromacs`` to generate these.  The ``conformers`` record has two subdirectives:
 
     =====================================    ==========================  =====================
     ``conformers`` record keyword            Type                        Description (default)
@@ -128,7 +128,7 @@ In this section we show all subdirectives for each of the five main directives i
 
 * ``densification``
 
-    This directive instructs ``HTPolyNet`` how to run the initial densification of the fresh simulation system.  It has two subdirectives:
+    This directive instructs ``htpolynet`` how to run the initial densification of the fresh simulation system.  It has two subdirectives:
 
     =====================================    ==============  =====================
     ``densification`` subdirective           Type            Description (default)
@@ -154,7 +154,7 @@ In this section we show all subdirectives for each of the five main directives i
 
 * ``precure``
     
-    The ``precure`` directive instructs ``HTPolyNet`` on running a series of MD simulations after densification but before the cure.  There are three allowable subdirectives for ``precure``: 
+    The ``precure`` directive instructs ``htpolynet`` on running a series of MD simulations after densification but before the cure.  There are three allowable subdirectives for ``precure``: 
 
     =====================================    =================    =====================
     ``precure`` subdirective                 Type                 Description (default)
@@ -212,7 +212,7 @@ In this section we show all subdirectives for each of the five main directives i
         ``min_allowable_bondcycle_length``    int                 minimum number of C atoms allowed in a cycle of C-C bonds that form via polymerization (default 0)
         ==================================    =================   ======================
 
-      The ``min_allowable_bondcycle_length`` refers to the fact that in systems that polymerize via activation of carbon-carbon double bonds, it is possible in the HTPolyNet implementation that the "head" of a chain of C-C bonds can attack the "tail" and form a cycle, because those represent atom types that can react.  It is unclear whether such cycles actually form; if a monomer remains bound to a radical initiator it is hard to see how the head of the growing chain could attack it, but maybe it could.  Setting ``min_allowable_bondcycle_length`` to zero (the default) disallows any bonds that would form cycles involving only atoms that were once part of C=C double bonds.  (Think about the backbone of polystyrene, for example.)  In a given CURE iteration, HTPolyNet tests the full set of suggested bonds to see if together they result in any cycles, and for each nascent cycle longer than ``min_allowable_bondcycle_length``, HTPolyNet will disallow the nascent bond that has the longest initial length.
+      The ``min_allowable_bondcycle_length`` refers to the fact that in systems that polymerize via activation of carbon-carbon double bonds, it is possible in the htpolynet implementation that the "head" of a chain of C-C bonds can attack the "tail" and form a cycle, because those represent atom types that can react.  It is unclear whether such cycles actually form; if a monomer remains bound to a radical initiator it is hard to see how the head of the growing chain could attack it, but maybe it could.  Setting ``min_allowable_bondcycle_length`` to zero (the default) disallows any bonds that would form cycles involving only atoms that were once part of C=C double bonds.  (Think about the backbone of polystyrene, for example.)  In a given CURE iteration, htpolynet tests the full set of suggested bonds to see if together they result in any cycles, and for each nascent cycle longer than ``min_allowable_bondcycle_length``, htpolynet will disallow the nascent bond that has the longest initial length.
 
 .. _cure.drag:
 
@@ -237,7 +237,7 @@ In this section we show all subdirectives for each of the five main directives i
         ``equilibration``                    MD record           describes the MD simulations used to equilibrate at each stage 
         =================================    =================   ======================
 
-    * ``gromacs`` parameters:  These parameters govern modification to ``mdp`` files used in the dragging and relaxation MD simulations.  ``HTPolyNet`` adjusts the cutoff distances to conform to the longest unrelaxed bond in the system, and the ``rdefault`` parameter provides the floor below which it will not go any lower.
+    * ``gromacs`` parameters:  These parameters govern modification to ``mdp`` files used in the dragging and relaxation MD simulations.  ``htpolynet`` adjusts the cutoff distances to conform to the longest unrelaxed bond in the system, and the ``rdefault`` parameter provides the floor below which it will not go any lower.
 
         =================================    =================   ======================
         ``CURE.gromacs`` parameter           Type                Description (default)
@@ -248,13 +248,13 @@ In this section we show all subdirectives for each of the five main directives i
 
 * ``postcure`` 
 
-    The ``postcure`` directive instructs ``HTPolyNet`` on running a series of MD simulations after cure.  Its form is identical to that of ``precure``, namely with optional ``preequilibration``, ``anneal``, and ``postequilibration`` subdirectives.
+    The ``postcure`` directive instructs ``htpolynet`` on running a series of MD simulations after cure.  Its form is identical to that of ``precure``, namely with optional ``preequilibration``, ``anneal``, and ``postequilibration`` subdirectives.
 
 .. _reactions:
 
 * ``reactions``
 
-    The ``reactions`` directive contains a list of **reaction records** that specify the chemisty of any bonds that form to either build molecular constituents or polymers/crosslinks. A reaction is defined by the precise pairs of atom types that become new covalent bonds.  To precisely define each such pair, the reaction must also identify one or more reactant molecules.  Each reaction also names a single product molecule.  HTPolyNet will build oligomer templates using these reactions and then GAFF-parameterize them.  The parameterizations are used during CURE to re-type atoms and reset charges after each new bond is formed.
+    The ``reactions`` directive contains a list of **reaction records** that specify the chemisty of any bonds that form to either build molecular constituents or polymers/crosslinks. A reaction is defined by the precise pairs of atom types that become new covalent bonds.  To precisely define each such pair, the reaction must also identify one or more reactant molecules.  Each reaction also names a single product molecule.  htpolynet will build oligomer templates using these reactions and then GAFF-parameterize them.  The parameterizations are used during CURE to re-type atoms and reset charges after each new bond is formed.
 
     ==============================  ==========  =================
     ``reaction`` record directives  Type        Description
@@ -268,7 +268,7 @@ In this section we show all subdirectives for each of the five main directives i
     ``bonds``                       list        list of **bond records**, one item per bond formed in reaction
     ==============================  ==========  =================
 
-    The ``stage`` value signifies how ``HTPolyNet`` uses the reaction.  It will generate GAFF parameters and topologies for any product of a reaction with stage ``cure``, ``cap``, or ``param``.  ``cure`` reactions are those assigned to take place during CURE.  ``cap`` reactions are optional and take place once the CURE has finished; these can be used to revert the active form of any unreacted monomers back to their proper forms.  ``param`` reactions are only performed in the beginning when molecular constituents are being built.  If you want to build the molecular constituents out of simpler monomers, you will likely want to use ``param`` reactions.  
+    The ``stage`` value signifies how ``htpolynet`` uses the reaction.  It will generate GAFF parameters and topologies for any product of a reaction with stage ``cure``, ``cap``, or ``param``.  ``cure`` reactions are those assigned to take place during CURE.  ``cap`` reactions are optional and take place once the CURE has finished; these can be used to revert the active form of any unreacted monomers back to their proper forms.  ``param`` reactions are only performed in the beginning when molecular constituents are being built.  If you want to build the molecular constituents out of simpler monomers, you will likely want to use ``param`` reactions.  
     
     .. 
         Finally, if you have constituents that are themselves made of repeating monomeric components, you need parameterize on one such reaction, and others can be specified to be state ``build``, for which no parameters are generated, only a bond is formed.
@@ -450,7 +450,7 @@ A simple YAML ``htpolynet run`` configuration file that encodes this description
         - atoms: [A, B]
           order: 2
 
-A note on YAML format: notice here that the left-most indents are all words; each of these is a key that refers to a specification for the run.  Here is what this configuration specifies.  First, we are starting with 100 styrene molecules.  So, ``HTPolyNet`` expects to find an **input** file name ``STY.mol2`` **or** ``STY.pdb`` in the system or user ``molecules/inputs`` library.  A liquid system of these 100 styrenes is densified starting from an initial density of 300 kg/m\ :sup:`3`\ 
+A note on YAML format: notice here that the left-most indents are all words; each of these is a key that refers to a specification for the run.  Here is what this configuration specifies.  First, we are starting with 100 styrene molecules.  So, ``htpolynet`` expects to find an **input** file name ``STY.mol2`` **or** ``STY.pdb`` in the system or user ``molecules/inputs`` library.  A liquid system of these 100 styrenes is densified starting from an initial density of 300 kg/m\ :sup:`3`\ 
 using first an energy minimzation, then an NVT MD simulation at 300 K for 10 picoseconds, then an NPT MD simulation at 300 K and 10 bar for 200 ps.  (The 10 bar helps to ensure rapid densification, but don't feel pressured to use it.)  To prepare for cure, the system is brought to 1 bar in the precure stage, where it is also annealed by raising the temprature from 300 to 600 K and bringing it back down, for two cycles.  The CURE is run such that 
 
 1. The search radius begins at 0.5 nm and goes up in increments of 0.25 nm;
@@ -459,4 +459,4 @@ using first an energy minimzation, then an NVT MD simulation at 300 K for 10 pic
 
 Prebond dragging is permitted if any newly identified bond is more than 0.6 nm in length, and the dragging happens in increments of 0.08 nm and each increment involves an energy minimization, an NVT MD simulation, and an NPT MD simulation, all at 600 K. (I find curing at elevated temperature keeps the system from jamming up, but don't feel forced to use this temperature.)  Bond relaxation takes place using a similar series of MD stages.  Remember that dragging is performed on the system **before** bonds are formed and atoms deleted, while bond relaxation occurs **after** the bonds are formed and the sacrificial, valence-conserving H atoms are deleted.  Finally, when all new bonds are relaxed, a single NPT MD simulation is performed to end an iteration.  Postcure involves an annealing simulation much like the precure stage, followed by an NPT MD simulation.
 
-Finally, we stipulate the reactions.  In this system, there is really only one reaction: the one in which the C1 of one styrene bonds to the C2 of another.  The reaction named ``sty1_1`` specifies this reaction, and causes ``HTPolyNet`` to parameterize the dimeric product named ``STY~C1-C2~STY``.  This molecule provides a template for atom types, charges, and new bonded interactions that must be merged into a system if such a bond forms.  The other reaction, ``styCC``, specifies a ``cap`` reaction that reverts any unreacted styrene back to its proper form (with the C-C double bond). Capping reactions are 100\% optional; don't feel forced to use them.
+Finally, we stipulate the reactions.  In this system, there is really only one reaction: the one in which the C1 of one styrene bonds to the C2 of another.  The reaction named ``sty1_1`` specifies this reaction, and causes ``htpolynet`` to parameterize the dimeric product named ``STY~C1-C2~STY``.  This molecule provides a template for atom types, charges, and new bonded interactions that must be merged into a system if such a bond forms.  The other reaction, ``styCC``, specifies a ``cap`` reaction that reverts any unreacted styrene back to its proper form (with the C-C double bond). Capping reactions are 100\% optional; don't feel forced to use them.

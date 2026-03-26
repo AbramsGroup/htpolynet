@@ -16,7 +16,7 @@ In the case of PACM and DGEBA, these can be represented as
 
 The first reaction generates a product we call "PAC~N1-C1~DGE", and the second reaction uses PACDGE as a reactant, along with DGE, to make "PAC~N1-C1~DGE-C1~DGE". Note that both result in deletion of two "sacrificial hydrogens". PAC~N1-C1~DGE serves as a parameterization template for new primary amines, and PAC~N1-C1~DGE-C1~DGE serves as a parameterization template for new secondary amines.  That is, upon formation of a new secondary amine, the system acquires new bonded interactions, atoms types, and partial charges, based on those in the template that are contiguous with the new bond and new bonded interactions.
 
-To allow for specification of general reactions, HTPolyNet parses a standard YAML syntax called a "reaction directive".  Here is the reaction directive for the first reaction:
+To allow for specification of general reactions, htpolynet parses a standard YAML syntax called a "reaction directive".  Here is the reaction directive for the first reaction:
 
 .. code-block:: yaml
 

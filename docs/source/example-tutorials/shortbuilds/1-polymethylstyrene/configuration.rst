@@ -70,4 +70,4 @@ We need only define the polymerization reaction that links two monomers and the 
             - B
           order: 2
 
-With the configuration file specified, let's watch what happens when we :ref:`run <pms_run>` ``HTPolyNet`` to make the build.
+With the configuration file specified, let's watch what happens when we :ref:`run <pms_run>` ``htpolynet`` to make the build.

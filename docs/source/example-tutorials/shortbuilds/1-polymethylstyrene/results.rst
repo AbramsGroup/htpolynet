@@ -205,7 +205,7 @@ Then comes ``postcure`` equilibration and relaxation.
 
 The files beginning with digits are copied either from the last ``iter`` directory or the ``capping`` directory (here, since no capping was necessary, they came from ``iter-13``).  As stipulated in the configuration file, we first run annealing, and then a post-annealing NPT equilibration.  
 
-Finally, HTPolyNet copies the results of the postcure, with new file names, into ``final-results``.
+Finally, htpolynet copies the results of the postcure, with new file names, into ``final-results``.
 
 .. code-block:: console
 
@@ -217,7 +217,7 @@ Here we see the ``top``, ``gro``, ``tpx``, and ``grx`` files of the final system
 ``proj-0/plots``
 ~~~~~~~~~~~~~~~~
 
-``HTPolyNet`` generates several plots on the fly during a system build.  
+``htpolynet`` generates several plots on the fly during a system build.  
 
 .. code-block:: console
 

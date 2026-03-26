@@ -24,7 +24,7 @@ pip install -e .
 
 Once installed, the user has access to the main ``htpolynet`` command.
 
-IMPORTANT NOTE: The programs ``antechamber``, ``parmchk2`` and ``tleap`` from AmberTools must be in your path.  These can be installed using the ``ambertools`` package from ``conda-forge`` or compiled from source.  You also need Gromacs installed.
+IMPORTANT NOTES: The programs ``antechamber``, ``parmchk2`` and ``tleap`` from AmberTools must be in your path.  These can be installed using the ``ambertools`` package from ``conda-forge`` or compiled from source.  You also need Gromacs installed so ``gmx`` is in your path.  The examples show how to build input monomer structures using OpenBabel, so to use them you need ``obabel`` in your path as well.
 
 ## Documentation
 

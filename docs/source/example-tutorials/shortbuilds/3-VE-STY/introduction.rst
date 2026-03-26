@@ -63,6 +63,6 @@ The bash script ``run.sh`` is a *suggested* way to run a build, and it contains 
 
    htpolynet run -diag diagnostics.log GMASTY.yaml &> console.log
 
-Note that we are actually generating three different monomeric species: styrene, bisphenol A (BPA), and 2-hydroxypropyl isopropyl ester (HIE).  This is because we are going to tell ``HTPolyNet`` to build the bisGMA molecule by reacting the esters onto the phenolic hydroxyls on BPA.
+Note that we are actually generating three different monomeric species: styrene, bisphenol A (BPA), and 2-hydroxypropyl isopropyl ester (HIE).  This is because we are going to tell ``htpolynet`` to build the bisGMA molecule by reacting the esters onto the phenolic hydroxyls on BPA.
 
 As in the other two tutorials, if you have a ``mol-env`` conda enviroment, just issue ``./run.sh`` to start the build.
