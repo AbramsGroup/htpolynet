@@ -3,7 +3,7 @@
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 from htpolynet.core.topocoord import TopoCoord
-from htpolynet.utils.configuration import Configuration
+from htpolynet.core.configuration import Configuration
 from htpolynet.core.coordinates import Coordinates
 from htpolynet.external.command import Command
 import os

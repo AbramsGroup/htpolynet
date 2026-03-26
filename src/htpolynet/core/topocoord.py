@@ -16,7 +16,7 @@ from htpolynet.core.topology import Topology
 from htpolynet.cure.bondtemplate import BondTemplate,ReactionBond
 from htpolynet.geometry.matrix4 import Matrix4
 from htpolynet.external.gromacs import grompp_and_mdrun,mdp_get, mdp_modify, gmx_energy_trace
-import htpolynet.utils.projectfilesystem as pfs
+import htpolynet.core.projectfilesystem as pfs
 from htpolynet.cure.chain import ChainManager
 
 logger=logging.getLogger(__name__)

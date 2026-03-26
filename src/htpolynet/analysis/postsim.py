@@ -8,11 +8,11 @@ import numpy as np
 import os
 import json
 import yaml
-import htpolynet.utils.projectfilesystem as pfs
+import htpolynet.core.projectfilesystem as pfs
 from htpolynet.core.topocoord import TopoCoord
 from htpolynet.external.gromacs import mdp_get, mdp_modify, gmx_energy_trace
 import htpolynet.external.software as software
-from htpolynet.utils.configuration import Configuration
+from htpolynet.core.configuration import Configuration
 from htpolynet.analysis.plot import scatter
 
 logger=logging.getLogger(__name__)

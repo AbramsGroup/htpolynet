@@ -11,7 +11,7 @@ import glob
 from .utils.banner import banner, banner_message
 from .cure.runtime import Runtime, logrotate
 from .external.command import Command
-import htpolynet.utils.projectfilesystem as pfs
+import htpolynet.core.projectfilesystem as pfs
 import htpolynet.external.software as software
 from .analysis.plot import plots
 from .utils.stringthings import my_logger
@@ -19,7 +19,7 @@ from .utils.inputcheck import input_check
 from .analysis.postsim import postsim
 from .analysis.analyze import analyze
 
-logger=logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 def info(args):
     """Handles the info subcommand.
@@ -32,6 +32,14 @@ def info(args):
     software.sw_setup()
     print(l.info())
     print(software.to_string())
+    system_mols, cached_mols = pfs.get_molecule_info()
+    print('Available molecules in system library:')
+    for m in system_mols:
+        print(f'   {m}')
+    if cached_mols:
+        print('Cached parameterized molecules:')
+        for m in cached_mols:
+            print(f'   {m}')
     possibles=l.get_example_names()
     print('Available examples using htpolynet fetch-example')
     for p in possibles:
@@ -225,7 +233,7 @@ def cli():
     command_parsers['plots'].add_argument('--no-banner',default=False,action='store_true',help='turn off the banner')
     command_parsers['plots'].add_argument('--loglevel',type=str,default='info',help='Log level for messages written to diagnostic log (debug|info)')
     ######## fetch-example ########
-    command_parsers['fetch-example'].add_argument('-n',type=str,choices=example_ids+['all'],help='number of example tarball to unpack from '+', '.join(example_names))
+    command_parsers['fetch-example'].add_argument('n',type=str,choices=example_ids+['all'],help='number of example tarball to unpack from '+', '.join(example_names))
     command_parsers['fetch-example'].add_argument('-k',default=False,action='store_true',help='keep tarballs')
     ######## pack-example
     command_parsers['pack-example'].add_argument('-n',type=int,default=-1,help='desired index (integer) for this example')

@@ -10,19 +10,19 @@ import os
 from itertools import product
 from htpolynet.core.topocoord import TopoCoord, BTRC
 from htpolynet.external.gromacs import gromacs_distance, mdp_modify
-from htpolynet.utils.configuration import ReactionList
+from htpolynet.core.configuration import ReactionList
 from htpolynet.core.molecule import MoleculeDict
 from htpolynet.cure.reaction import reaction_stage
 from multiprocessing import Pool
 from functools import partial
-import htpolynet.utils.projectfilesystem as pfs
+import htpolynet.core.projectfilesystem as pfs
 from htpolynet.utils.stringthings import my_logger
 import htpolynet.utils.checkpoint as cp
 from htpolynet.analysis.plot import trace
 
 import logging
 
-logger=logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 class cure_step(Enum):
     """Enumerated CURE step

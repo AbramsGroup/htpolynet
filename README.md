@@ -28,7 +28,7 @@ IMPORTANT NOTE: The programs ``antechamber``, ``parmchk2`` and ``tleap`` from Am
 
 ## Documentation
 
-Please consult documentation at [abramsgroup.github.io/HTPolyNet](https://abramsgroup.github.io/HTPolyNet/).
+Please consult documentation at [abramsgroup.github.io/htpolynet](https://abramsgroup.github.io/htpolynet/).
 
 ## Release History
 * 1.0.9

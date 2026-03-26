@@ -10,9 +10,9 @@ import shutil
 from itertools import product
 from copy import deepcopy
 
-import htpolynet.utils.projectfilesystem as pfs
+import htpolynet.core.projectfilesystem as pfs
 from htpolynet.core.topocoord import TopoCoord
-from htpolynet.cure.bondtemplate import BondTemplate,BondTemplateList,ReactionBond,ReactionBondList
+from htpolynet.cure.bondtemplate import BondTemplate, BondTemplateList, ReactionBond, ReactionBondList
 from htpolynet.core.coordinates import GRX_ATTRIBUTES
 from htpolynet.external.ambertools import GAFFParameterize
 from htpolynet.external.gromacs import mdp_modify,gro_from_trr
