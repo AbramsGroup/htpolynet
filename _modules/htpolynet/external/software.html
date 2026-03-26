@@ -49,17 +49,51 @@
 <span class="n">passes</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="n">versions</span> <span class="o">=</span> <span class="p">{}</span>
 
-<span class="c1"># Gromacs state — updated by set_gmx_preferences()</span>
+<span class="c1"># GPU state — populated by _detect_gpus() during sw_setup()</span>
+<span class="n">gpu_ids</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># Gromacs state — updated by sw_setup() and set_gmx_preferences()</span>
 <span class="n">gmx</span> <span class="o">=</span> <span class="s1">&#39;gmx&#39;</span>
 <span class="n">gmx_options</span> <span class="o">=</span> <span class="s1">&#39;-quiet&#39;</span>
 <span class="n">mdrun</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">gmx</span><span class="si">}</span><span class="s1"> mdrun&#39;</span>
 <span class="n">mdrun_single_molecule</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">gmx</span><span class="si">}</span><span class="s1"> mdrun&#39;</span>
 
+<span class="k">def</span> <span class="nf">_detect_gpus</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Populates gpu_ids with the IDs of available NVIDIA GPUs via GPUtil/nvidia-smi.</span>
+<span class="sd">    Sets gpu_ids to [] if no GPUs are found or nvidia-smi is unavailable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">gpu_ids</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">GPUtil</span>
+        <span class="n">gpu_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">GPUtil</span><span class="o">.</span><span class="n">getGPUs</span><span class="p">()]</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">gpu_ids</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">gpu_ids</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Detected GPUs: </span><span class="si">{</span><span class="n">gpu_ids</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;No GPUs detected; mdrun will use CPU only&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_mdrun_cmd</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Appends appropriate GPU/CPU flags to a base mdrun command string.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        base (str): base mdrun command (e.g. &#39;gmx -quiet mdrun&#39;)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: command with GPU flags appended if needed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">gpu_ids</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">base</span>  <span class="c1"># GROMACS auto-selects available GPUs</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s1"> -nb cpu&#39;</span>  <span class="c1"># force CPU for non-bonded when no GPU present</span>
+
+
 <div class="viewcode-block" id="sw_setup">
 <a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.external.software.sw_setup">[docs]</a>
 <span class="k">def</span> <span class="nf">sw_setup</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Checks that all required AmberTools executables are accessible and queries their version.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">passes</span><span class="p">,</span> <span class="n">versions</span>
+    <span class="k">global</span> <span class="n">passes</span><span class="p">,</span> <span class="n">versions</span><span class="p">,</span> <span class="n">mdrun</span><span class="p">,</span> <span class="n">mdrun_single_molecule</span>
     <span class="n">cnf</span><span class="o">=</span><span class="p">[]</span>
     <span class="n">passes</span><span class="o">=</span><span class="kc">True</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">_ambertools</span><span class="p">:</span>
@@ -70,7 +104,10 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">passes</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;It seems like you do not have an accessible installation of ambertools.&#39;</span><span class="p">)</span>
     <span class="n">_get_versions</span><span class="p">()</span>
-    <span class="n">_get_gmx_version</span><span class="p">()</span></div>
+    <span class="n">_get_gmx_version</span><span class="p">()</span>
+    <span class="n">_detect_gpus</span><span class="p">()</span>
+    <span class="n">mdrun</span> <span class="o">=</span> <span class="n">_mdrun_cmd</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">gmx</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">gmx_options</span><span class="si">}</span><span class="s1"> mdrun&#39;</span><span class="p">)</span>
+    <span class="n">mdrun_single_molecule</span> <span class="o">=</span> <span class="n">_mdrun_cmd</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">gmx</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">gmx_options</span><span class="si">}</span><span class="s1"> mdrun&#39;</span><span class="p">)</span></div>
 
 
 
@@ -108,14 +145,14 @@
     <span class="k">if</span> <span class="n">gromacs_dict</span><span class="p">:</span>
         <span class="n">gmx</span><span class="o">=</span><span class="n">gromacs_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;gmx&#39;</span><span class="p">,</span><span class="s1">&#39;gmx&#39;</span><span class="p">)</span>
         <span class="n">gmx_options</span><span class="o">=</span><span class="n">gromacs_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;gmx_options&#39;</span><span class="p">,</span><span class="s1">&#39;-quiet&#39;</span><span class="p">)</span>
-        <span class="n">mdrun</span><span class="o">=</span><span class="n">gromacs_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mdrun&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">gmx</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">gmx_options</span><span class="si">}</span><span class="s1"> mdrun&#39;</span><span class="p">)</span>
-        <span class="n">mdrun_single_molecule</span><span class="o">=</span><span class="n">gromacs_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mdrun_single_molecule&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">gmx</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">gmx_options</span><span class="si">}</span><span class="s1"> mdrun&#39;</span><span class="p">)</span>
+        <span class="n">mdrun</span><span class="o">=</span><span class="n">gromacs_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mdrun&#39;</span><span class="p">,</span><span class="n">_mdrun_cmd</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">gmx</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">gmx_options</span><span class="si">}</span><span class="s1"> mdrun&#39;</span><span class="p">))</span>
+        <span class="n">mdrun_single_molecule</span><span class="o">=</span><span class="n">gromacs_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mdrun_single_molecule&#39;</span><span class="p">,</span><span class="n">_mdrun_cmd</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">gmx</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">gmx_options</span><span class="si">}</span><span class="s1"> mdrun&#39;</span><span class="p">))</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">gmx</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">gmx_options</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">mdrun</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">gmx_options</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;gmx_options&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="n">gmx</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;gmx&#39;</span><span class="p">,</span><span class="s1">&#39;gmx&#39;</span><span class="p">)</span>
-        <span class="n">mdrun</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mdrun&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">gmx</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">gmx_options</span><span class="si">}</span><span class="s1"> mdrun&#39;</span><span class="p">)</span>
-        <span class="n">mdrun_single_molecule</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mdrun_single_molecule&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">gmx</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">gmx_options</span><span class="si">}</span><span class="s1"> mdrun&#39;</span><span class="p">)</span>
+        <span class="n">mdrun</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mdrun&#39;</span><span class="p">,</span><span class="n">_mdrun_cmd</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">gmx</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">gmx_options</span><span class="si">}</span><span class="s1"> mdrun&#39;</span><span class="p">))</span>
+        <span class="n">mdrun_single_molecule</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mdrun_single_molecule&#39;</span><span class="p">,</span><span class="n">_mdrun_cmd</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">gmx</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">gmx_options</span><span class="si">}</span><span class="s1"> mdrun&#39;</span><span class="p">))</span>
     <span class="n">CP</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s1">&#39;which&#39;</span><span class="p">,</span><span class="n">gmx</span><span class="p">],</span><span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">CP</span><span class="o">.</span><span class="n">returncode</span><span class="o">==</span><span class="mi">0</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">gmx</span><span class="si">}</span><span class="s1"> not found&#39;</span>
     <span class="n">_get_gmx_version</span><span class="p">()</span></div>
@@ -140,12 +177,14 @@
 <div class="viewcode-block" id="to_string">
 <a class="viewcode-back" href="../../../htpolynetpackage.html#htpolynet.external.software.to_string">[docs]</a>
 <span class="k">def</span> <span class="nf">to_string</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a formatted string listing AmberTools and GROMACS versions.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a formatted string listing AmberTools, GROMACS, and GPU info.&quot;&quot;&quot;</span>
     <span class="n">r</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Ambertools:&#39;</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">_ambertools</span><span class="p">:</span>
         <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">c</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">&gt;12s</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">versions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ambertools&quot;</span><span class="p">,</span><span class="s2">&quot;unknown&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
     <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Gromacs:&#39;</span><span class="p">)</span>
     <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="s2">&quot;gmx&quot;</span><span class="si">:</span><span class="s1">&gt;12s</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">versions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gromacs&quot;</span><span class="p">,</span><span class="s2">&quot;unknown&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+    <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;GPUs:&#39;</span><span class="p">)</span>
+    <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">gpu_ids</span><span class="p">)</span><span class="si">}</span><span class="s1"> detected (</span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">gpu_ids</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">gpu_ids</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;none — mdrun will use CPU&quot;</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">r</span><span class="p">)</span></div>
 
 
