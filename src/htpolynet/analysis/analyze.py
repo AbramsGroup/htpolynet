@@ -6,10 +6,10 @@ import logging
 import os
 import json
 import yaml
-import htpolynet.utils.projectfilesystem as pfs
+import htpolynet.core.projectfilesystem as pfs
 from htpolynet.external.gromacs import gmx_command
 import htpolynet.external.software as software
-from htpolynet.utils.configuration import Configuration
+from htpolynet.core.configuration import Configuration
 from pathlib import Path
 
 logger=logging.getLogger(__name__)

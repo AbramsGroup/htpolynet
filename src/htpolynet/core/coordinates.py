@@ -12,7 +12,7 @@ from itertools import product
 
 from htpolynet.geometry.bondlist import Bondlist
 from htpolynet.geometry.linkcell import Linkcell
-from htpolynet.geometry.ring import Ring,Segment
+from htpolynet.geometry.ring import Ring, Segment
 from htpolynet.utils.dataframetools import *
 from htpolynet.geometry.matrix4 import Matrix4
 

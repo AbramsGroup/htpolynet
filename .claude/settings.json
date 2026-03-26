@@ -11,7 +11,10 @@
       "Bash(xargs sed:*)",
       "Bash(wc -l /home/cfa/Git/htpolynet/src/htpolynet/cure/*.py /home/cfa/Git/htpolynet/src/htpolynet/external/*.py /home/cfa/Git/htpolynet/src/htpolynet/geometry/*.py /home/cfa/Git/htpolynet/src/htpolynet/utils/*.py /home/cfa/Git/htpolynet/src/htpolynet/driver.py /home/cfa/Git/htpolynet/src/htpolynet/resources/__init__.py)",
       "Bash(grep -rل \"Args:\" /home/cfa/Git/htpolynet/src/htpolynet --include=\"*.py\" -l)",
-      "Bash(/home/cfa/anaconda3/envs/panacea/bin/pip index:*)"
+      "Bash(/home/cfa/anaconda3/envs/panacea/bin/pip index:*)",
+      "Read(//home/cfa/Git/**)",
+      "Bash(gh run:*)",
+      "Bash(git ls-tree:*)"
     ],
     "additionalDirectories": [
       "/home/cfa/Git/HTPolyNet/.github/workflows"

@@ -9,12 +9,11 @@ jobs:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
     - name: Install package
-      run: |
-          python3 -m pip install -e .
-          python3 -m pip install setuptools sphinx matplotlib pytrr sphinxcontrib-bibtex
-          cd docs
-          make html
-          cd ..
+      run: python3 -m pip install --prefer-binary -e .
+    - name: Install docs dependencies
+      run: python3 -m pip install --prefer-binary setuptools sphinx matplotlib pytrr sphinxcontrib-bibtex
+    - name: Build HTML docs
+      run: cd docs && make html
     # - name: Build HTML
     #   uses: ammaraskar/sphinx-action@master
     - name: Upload artifacts

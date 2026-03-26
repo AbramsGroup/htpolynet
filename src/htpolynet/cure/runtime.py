@@ -8,10 +8,10 @@ import shutil
 import numpy as np
 import random
 from copy import deepcopy
-from htpolynet.utils.configuration import Configuration
+from htpolynet.core.configuration import Configuration
 from htpolynet.core.topology import select_topology_type_option
 from htpolynet.core.topocoord import TopoCoord
-import htpolynet.utils.projectfilesystem as pfs
+import htpolynet.core.projectfilesystem as pfs
 import htpolynet.external.software as software
 from htpolynet.external.gromacs import insert_molecules, mdp_modify, mdp_get
 import htpolynet.utils.checkpoint as cp

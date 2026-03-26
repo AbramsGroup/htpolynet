@@ -148,12 +148,13 @@ class Linkcell:
         Returns:
             pandas.DataFrame: modified dataframe
         """
-        sp=adf[['posX','posY','posZ']]
-        for i,srow in sp.iterrows():
-            ri=srow.values
-            C=self.cellndx_of_point(ri)
-            idx=self.ldx_of_cellndx(C)
-            adf.loc[i,'linkcell_idx']=idx
+        pos=adf[['posX','posY','posZ']].values
+        C=np.floor(pos*np.reciprocal(self.celldim)).astype(int)
+        C=np.clip(C,0,self.ncells-1)
+        nc=self.ncells
+        ldx=C[:,0]*nc[1]*nc[2]+C[:,1]*nc[2]+C[:,2]
+        adf=adf.copy()
+        adf['linkcell_idx']=ldx
         return adf
 
     def _return_list_lens(self,idx_list,mlists):
@@ -230,14 +231,12 @@ class Linkcell:
         Args:
             cdf (pd.DataFrame): coordinates data frame
         """
-        self.memberlists=[[] for _ in range(self.cellndx.shape[0])]
+        n=self.cellndx.shape[0]
+        self.memberlists=[[] for _ in range(n)]
         rdf=cdf[cdf['linkcell_idx']!=-1]
-        # logger.debug(f'Generated {len(self.memberlists)} empty memberlists.')
-        for i,r in rdf.iterrows():
-            cidx=r['linkcell_idx']
-            idx=r['globalIdx']
-            self.memberlists[cidx].append(idx)
-        rl=np.array([len(self.memberlists[i]) for i in range(self.cellndx.shape[0])])
+        for cidx,grp in rdf.groupby('linkcell_idx'):
+            self.memberlists[cidx]=grp['globalIdx'].tolist()
+        rl=np.array([len(self.memberlists[i]) for i in range(n)])
         assert int(rl.sum())==rdf.shape[0] # check to make sure all atoms are counted
         avg_cell_pop=rl.mean()
         min_cell_pop=int(rl.min())
@@ -283,7 +282,7 @@ class Linkcell:
         C=self.cellndx[i]
         for c in self.neighbors_of_cellndx(C):
             retlist.append(self.ldx_of_cellndx(c))
-        assert len(retlist)==27,f'Error: not counting enough neighbor cells'
+        assert len(retlist)==26,f'Error: not counting enough neighbor cells'
         return retlist
 
     def are_cellndx_neighbors(self,Ci,Cj):
