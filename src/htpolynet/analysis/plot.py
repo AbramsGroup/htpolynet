@@ -4,7 +4,7 @@ Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 from htpolynet.external.gromacs import *
 from htpolynet.analysis.utils import *
-from htpolynet.utils.banner import banner
+from htpolynet.utils.logsetup import setup_logging
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import pandas as pd
@@ -386,9 +386,7 @@ def plots(args):
     Args:
         args (argparse.Namespace): command-line arguments
     """
-    loglevel_numeric=getattr(logging, args.loglevel.upper())
-    logging.basicConfig(format='%(levelname)s> %(message)s',level=loglevel_numeric)
-    if not args.no_banner: banner(logger.info)
+    setup_logging(args.loglevel, no_banner=args.no_banner)
 
     if args.source=='build':
         build_plots(args)

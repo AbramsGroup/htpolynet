@@ -7,6 +7,7 @@ User Guide
    :caption: Contents:
 
    usage
+   container-usage
    molecular-structure-inputs
    configuration-files
    program-flow

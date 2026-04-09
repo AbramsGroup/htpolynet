@@ -35,12 +35,27 @@ htpolynet.analysis
 htpolynet.core
 --------------
 
+.. automodule:: htpolynet.core.configuration
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 .. automodule:: htpolynet.core.coordinates
    :members:
    :undoc-members:
    :show-inheritance:
 
 .. automodule:: htpolynet.core.molecule
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: htpolynet.core.projectfilesystem
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: htpolynet.core.runtime
    :members:
    :undoc-members:
    :show-inheritance:
@@ -79,11 +94,6 @@ htpolynet.cure
    :show-inheritance:
 
 .. automodule:: htpolynet.cure.reaction
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: htpolynet.cure.runtime
    :members:
    :undoc-members:
    :show-inheritance:
@@ -147,11 +157,6 @@ htpolynet.utils
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: htpolynet.utils.configuration
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 .. automodule:: htpolynet.utils.dataframetools
    :members:
    :undoc-members:
@@ -162,7 +167,7 @@ htpolynet.utils
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: htpolynet.utils.projectfilesystem
+.. automodule:: htpolynet.utils.logsetup
    :members:
    :undoc-members:
    :show-inheritance:

@@ -8,6 +8,7 @@ import json
 import yaml
 import htpolynet.core.projectfilesystem as pfs
 from htpolynet.external.gromacs import gmx_command
+from htpolynet.utils.logsetup import setup_logging
 import htpolynet.external.software as software
 from htpolynet.core.configuration import Configuration
 from pathlib import Path
@@ -232,8 +233,7 @@ def analyze(args):
     Args:
         args (argparse.Namespace): command-line arguments
     """
-    loglevel_numeric=getattr(logging, args.loglevel.upper())
-    logging.basicConfig(format='%(levelname)s> %(message)s',level=loglevel_numeric)
+    setup_logging(args.loglevel, no_banner=args.no_banner)
     ess='y' if len(args.proj)==0 else 'ies'
     ogromacs={}
     if args.ocfg:

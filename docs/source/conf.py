@@ -34,7 +34,7 @@ version = THIS_HTPOLYNET_VERSION
 # ones.
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage', 'sphinx.ext.napoleon', 'sphinx.ext.githubpages',
-    'sphinxcontrib.bibtex',]
+    'sphinxcontrib.bibtex', 'sphinx_copybutton',]
 # extensions.append('sphinx.ext.todo')
 # extensions.append('sphinx.ext.intersphinx')
 # extensions.append('sphinx.ext.mathjax')

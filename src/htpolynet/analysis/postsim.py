@@ -13,6 +13,7 @@ from htpolynet.core.topocoord import TopoCoord
 from htpolynet.external.gromacs import mdp_get, mdp_modify, gmx_energy_trace
 import htpolynet.external.software as software
 from htpolynet.core.configuration import Configuration
+from htpolynet.utils.logsetup import setup_logging
 from htpolynet.analysis.plot import scatter
 
 logger=logging.getLogger(__name__)
@@ -420,8 +421,7 @@ def postsim(args):
     Args:
         args (argparse.Namespace): command-line arguments
     """
-    loglevel_numeric=getattr(logging, args.loglevel.upper())
-    logging.basicConfig(format='%(levelname)s> %(message)s',level=loglevel_numeric)
+    setup_logging(args.loglevel, no_banner=args.no_banner)
     ess='y' if len(args.proj)==0 else 'ies'
     ogromacs={}
     if args.ocfg:
