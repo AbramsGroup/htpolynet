@@ -1,4 +1,4 @@
-"""Handles project filesystems.
+"""Handles project filesystems and local caching of molecule data.
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
@@ -231,6 +231,48 @@ class UserLibrary:
             str: description
         """
         return f'User library is {self.root}'
+
+
+class Dirs:
+    """Canonical directory names used throughout the project filesystem.
+
+    Use these instead of bare strings so that renaming a directory requires
+    only a change here.
+    """
+    # top-level project subdirectories
+    molecules = 'molecules'
+    systems   = 'systems'
+    plots     = 'plots'
+    postsim   = 'postsim'
+    analyze   = 'analyze'
+    mdp       = 'mdp'
+
+    # molecule subdirectories
+    molecules_inputs        = 'molecules/inputs'
+    molecules_parameterized = 'molecules/parameterized'
+
+    # system stage subdirectories
+    systems_init          = 'systems/init'
+    systems_densification = 'systems/densification'
+    systems_precure       = 'systems/precure'
+    systems_postcure      = 'systems/postcure'
+    systems_capping       = 'systems/capping'
+    systems_final         = 'systems/final-results'
+
+    # standard topdirs lists for pfs_setup
+    run_topdirs     = ['molecules', 'systems', 'plots']
+    postsim_topdirs = ['molecules', 'systems', 'plots', 'postsim']
+    analyze_topdirs = ['molecules', 'systems', 'plots', 'postsim', 'analyze']
+
+    @staticmethod
+    def systems_iter(n):
+        """Returns the path for CURE iteration directory n."""
+        return f'systems/iter-{n}'
+
+    @staticmethod
+    def mdp_file(name):
+        """Returns the library path for an mdp file by base name."""
+        return f'mdp/{name}.mdp'
 
 
 _SYSTEM_LIBRARY_: SystemLibrary = None
@@ -482,10 +524,9 @@ def go_to(pathstr):
     if dirname == '':
         dirname = pathstr
     assert dirname in _PFS_.projSubPaths, f'Error: cannot navigate using pathstring {pathstr}'
-    reentry = True
+    reentry = os.path.exists(pathstr)
     if not os.path.exists(dirname):
         os.mkdir(dirname)
-        reentry = False
     os.chdir(dirname)
     basename = os.path.basename(pathstr)
     if basename != pathstr:

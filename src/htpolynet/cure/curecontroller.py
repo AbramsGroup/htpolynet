@@ -10,7 +10,7 @@ import os
 from itertools import product
 from htpolynet.core.topocoord import TopoCoord, BTRC
 from htpolynet.external.gromacs import gromacs_distance, mdp_modify
-from htpolynet.core.configuration import ReactionList
+from htpolynet.cure.reaction import ReactionList
 from htpolynet.core.molecule import MoleculeDict
 from htpolynet.cure.reaction import reaction_stage
 from multiprocessing import Pool
@@ -167,6 +167,7 @@ class CureController:
                     if not kk in self.dicts[k]:
                         self.dicts[k][kk]=vv
 
+        self.chain_manager=None
         self.dragging_enabled=False
         d=self.dicts['drag']
         if (d['nstages']>0 or d['increment']>0.0) and d['limit']>0.0:
@@ -383,7 +384,7 @@ class CureController:
         if self.state.step!=cure_step.cure_update and self.state.step!=cure_step.cap_update: return
         opfx=self._pfx()
         logger.debug(f'Topology update')
-        bonds_df,pairs_df=TC.update_topology_and_coordinates(self.bonds_df,template_dict=MD,write_mapper_to=f'{opfx}-idx-mapper.csv')
+        bonds_df,pairs_df=TC.update_topology_and_coordinates(self.bonds_df,template_dict=MD,write_mapper_to=f'{opfx}-idx-mapper.csv',chain_manager=self.chain_manager)
         TC.add_length_attribute(bonds_df,attr_name='initial_distance')
         TC.add_length_attribute(pairs_df,attr_name='initial_distance')
         self._register_bonds(bonds_df,pairs_df,f'{opfx}-bonds.csv',bonds_are='unrelaxed')
@@ -435,7 +436,7 @@ class CureController:
         ess='' if nbonds==1 else 's'
         logger.info(f'Capping will generate {nbdf.shape[0]} new bond{ess}')
         if nbonds>0:
-            cwd=pfs.go_to(f'systems/capping')
+            cwd=pfs.go_to(pfs.Dirs.systems_capping)
             pairs=pd.DataFrame() # empty placeholder
             TC.add_length_attribute(nbdf,attr_name='initial_distance')
             self._register_bonds(nbdf,pairs,f'{opfx}-bonds.csv',bonds_are='identified')
@@ -520,7 +521,7 @@ class CureController:
         for stg_dict in d['equilibration']:
             ensemble=stg_dict['ensemble']
             impfx=f'{statename}-{ensemble}' # e.g., drag-min, drag-nvt, drag-npt
-            pfs.checkout(f'mdp/{impfx}.mdp')
+            pfs.checkout(pfs.Dirs.mdp_file(impfx))
             mdp_mods_dict={'rvdw':rcommon,'rcoulomb':rcommon,'rlist':rcommon}
             if ensemble!='min':
                 mdp_mods_dict.update({'gen-temp':stg_dict['temperature'],'ref_t':stg_dict['temperature'],'gen-vel':'yes','nsteps':stg_dict['nsteps']})
@@ -706,7 +707,7 @@ class CureController:
             # for ln in bdf.to_string().split('\n'):
             #     logger.debug(ln)
 
-            bdf=TC.bondcycle_collective(bdf)
+            bdf=TC.bondcycle_collective(bdf,chain_manager=self.chain_manager)
             logger.debug(f'{bdf[bdf["remove-to-uncyclize"]==True].shape[0]} out of {bdf.shape[0]} bonds removed to break nascent cycles')
             bdf=bdf[bdf['remove-to-uncyclize']==False].copy().reset_index(drop=True)
             # logger.debug('Non-cyclizing bonds:')

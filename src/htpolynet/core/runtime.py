@@ -16,12 +16,13 @@ import htpolynet.external.software as software
 from htpolynet.external.gromacs import insert_molecules, mdp_modify, mdp_get
 import htpolynet.utils.checkpoint as cp
 from htpolynet.analysis.plot import trace
-from htpolynet.core.molecule import Molecule, MoleculeDict
-from htpolynet.cure.reaction import is_reactant
+from htpolynet.core.molecule import Molecule, MoleculeDict, generate_stereo_reactions, generate_symmetry_reactions
+from htpolynet.cure.reaction import Reaction, ReactionList, parse_reaction_list, extract_molecule_reactions, is_reactant, reaction_stage
 from htpolynet.cure.expandreactions import bondchain_expand_reactions
-from htpolynet.cure.reaction import reaction_stage
 from htpolynet.cure.curecontroller import CureController, CureState
+from htpolynet.cure.chain import ChainManager
 from htpolynet.utils.stringthings import my_logger
+from collections import namedtuple
 
 logger=logging.getLogger(__name__)
 
@@ -136,25 +137,123 @@ class Runtime:
             raise RuntimeError('HTPolyNet requires a configuration file')
         logger.info(f'Configuration: {cfgfile}')
         self.cfg=Configuration.read(os.path.join(pfs.root(),cfgfile))
-        """ Fill in any default values """
-        for k,default_values in self.runtime_defaults.items():
-            if not k in self.cfg.parameters:
-                self.cfg.parameters[k]=default_values
-            if type(default_values)==dict:
-                for kk,vv in default_values.items():
-                    if not kk in self.cfg.parameters[k]:
-                        self.cfg.parameters[k][kk]=vv
-        software.set_gmx_preferences(self.cfg.parameters)
+        self._apply_runtime_defaults()
+        software.set_gmx_preferences(self.cfg.gromacs)
         self.TopoCoord=TopoCoord(system_name='htpolynet')
-        self.cfg.parameters['restart']=restart
-        if self.cfg.parameters['restart']:
+        self.restart=restart
+        if restart:
             logger.info(f'Restarting in {pfs.proj()}')
         self.molecules:MoleculeDict={}
-        cure_dict=self.cfg.parameters.get('CURE',{})
-        if cure_dict:
+        self.reactions:ReactionList=[]
+        self.molecule_report={}
+        self.maxconv=0.0
+        self.ncpu=self.cfg.ncpu
+        if self.cfg.cure:
             logger.debug('Setting up cure controller')
-            self.cc=CureController(cure_dict)
-        self.ncpu=self.cfg.parameters.get('ncpu',os.cpu_count())
+            self.cc=CureController(self.cfg.cure)
+        self._build_molecules_and_reactions()
+
+    def _apply_runtime_defaults(self):
+        """Merges runtime_defaults into the cfg sub-objects for any missing keys."""
+        mapping=[
+            ('gromacs',     'gromacs'),
+            ('ambertools',  'ambertools'),
+            ('densification','densification'),
+            ('precure',     'precure'),
+            ('CURE',        'cure'),
+            ('postcure',    'postcure'),
+        ]
+        for cfg_key, attr in mapping:
+            defaults=self.runtime_defaults.get(cfg_key,{})
+            current=getattr(self.cfg,attr)
+            if not current:
+                setattr(self.cfg,attr,defaults.copy() if isinstance(defaults,dict) else defaults)
+            elif isinstance(defaults,dict):
+                for k,v in defaults.items():
+                    if k not in current:
+                        current[k]=v
+
+    def _build_molecules_and_reactions(self):
+        """Builds Molecule and Reaction objects from the parsed configuration.
+
+        Populates self.molecules, self.reactions, and self.molecule_report.
+        """
+        base_reactions=[Reaction(r) for r in self.cfg.reaction_specs]
+        self.reactions=parse_reaction_list(base_reactions)
+
+        mol_reac_detected=extract_molecule_reactions(self.reactions)
+        self.molecule_report['explicit']=len(mol_reac_detected)
+        self.molecule_report['implied by stereochemistry']=0
+        self.molecule_report['implied by symmetry']=0
+
+        for mname,gen in mol_reac_detected:
+            self.molecules[mname]=Molecule.New(mname,gen,self.cfg.constituents.get(mname,{}))
+            for si,S in self.molecules[mname].stereoisomers.items():
+                self.molecules[si]=S
+                self.molecule_report['implied by stereochemistry']+=1
+
+        for mname,M in self.molecules.items():
+            M.set_sequence_from_moldict(self.molecules)
+
+        self.molecule_report['implied by stereochemistry']+=generate_stereo_reactions(self.reactions,self.molecules)
+        self.molecule_report['implied by symmetry']+=generate_symmetry_reactions(self.reactions,self.molecules)
+
+        for R in self.reactions:
+            for rnum,rname in R.reactants.items():
+                zrecs=[]
+                for atnum,atrec in R.atoms.items():
+                    if atrec['reactant']==rnum:
+                        cprec=atrec.copy()
+                        del cprec['reactant']
+                        zrecs.append(cprec)
+                self.molecules[rname].update_zrecs(zrecs,self.molecules)
+
+        for molec in self.cfg.initial_composition:
+            mname=molec['molecule']
+            if mname not in self.molecules:
+                self.molecules[mname]=Molecule.New(mname,None,self.cfg.constituents.get(mname,{}))
+                self.molecules[mname].set_sequence_from_moldict(self.molecules)
+
+    def _calculate_maximum_conversion(self):
+        """Calculates and stores the maximum number of polymerization bonds that can form."""
+        Atom=namedtuple('Atom',['name','resid','reactantKey','reactantName','z'])
+        Bond=namedtuple('Bond',['ai','aj'])
+        N={}
+        for item in self.cfg.initial_composition:
+            molecule_name=item['molecule']
+            molecule_count=item.get('count',0)
+            if molecule_count:
+                for res in self.molecules[molecule_name].sequence:
+                    if res not in N:
+                        N[res]=0
+                    N[res]+=molecule_count
+        Bonds=[]
+        Atoms=[]
+        for R in [x for x in self.reactions if x.stage==reaction_stage.cure]:
+            for b in R.bonds:
+                A,B=b['atoms']
+                a,b=R.atoms[A],R.atoms[B]
+                aan,ban=a['atom'],b['atom']
+                ari,bri=a['resid'],b['resid']
+                arnum,brnum=a['reactant'],b['reactant']
+                arn,brn=R.reactants[arnum],R.reactants[brnum]
+                if arnum==brnum: continue
+                az,bz=a['z'],b['z']
+                ia=Atom(aan,ari,arnum,arn,az)
+                ib=Atom(ban,bri,brnum,brn,bz)
+                b=Bond(ia,ib)
+                if ia not in Atoms and arn in N: Atoms.append(ia)
+                if ib not in Atoms and brn in N: Atoms.append(ib)
+                if b not in Bonds and arn in N and brn in N: Bonds.append(b)
+        Z=[a.z*N[a.reactantName] for a in Atoms]
+        MaxB=[]
+        for B in Bonds:
+            az=Z[Atoms.index(B.ai)]
+            bz=Z[Atoms.index(B.aj)]
+            MaxB.append(min(az,bz))
+            Z[Atoms.index(B.ai)]-=MaxB[-1]
+            Z[Atoms.index(B.aj)]-=MaxB[-1]
+        self.maxconv=sum(MaxB)
 
     def generate_molecules(self,force_parameterization=False,force_checkin=False):
         """Manages creation and parameterization of all monomers and oligomer templates.
@@ -163,51 +262,34 @@ class Runtime:
             force_parameterization (bool): forces AmberTools to run parameterizations, defaults to False
             force_checkin (bool): forces HTPolyNet to overwrite molecule library, defaults to False
         """
-        GAFF_dict=self.cfg.parameters.get('GAFF',{})
-        self.molecules={}
-        ''' configuration.parse() generated a list of Molecules implied by configuration; assume
-            they are all unparameterized '''
-        for mname,M in self.cfg.molecules.items():
+        for mname,M in self.molecules.items():
             M.set_origin('unparameterized')
-        pfs.go_to('molecules/parameterized')
+        pfs.go_to(pfs.Dirs.molecules_parameterized)
         my_logger(f'Templates in {pfs.cwd()}',logger.info)
-        ''' Each molecule implied by the cfg is 'generated' here, either by
-            reading from the library or direct parameterization.  In some cases,
-            the molecule is to be generated by a reaction; if so, it's
-            `generator` attribute will be a Reaction instance '''
-        ess='' if len(self.cfg.molecules)==1 else 's'
-        logger.info(f'{len(self.cfg.molecules)} molecule{ess} detected in {self.cfgfile}')
-        replns=[f'{msg:>30s}: {count:<5d}' for msg,count in self.cfg.molecule_report.items()]
+        ess='' if len(self.molecules)==1 else 's'
+        logger.info(f'{len(self.molecules)} molecule{ess} detected in {self.cfgfile}')
+        replns=[f'{msg:>30s}: {count:<5d}' for msg,count in self.molecule_report.items()]
         for ln in replns:
             logger.info(ln)
-        ml=list(self.cfg.molecules.keys())
-        logger.debug(f'Generating: {ml}')
-        for mname,M in self.cfg.molecules.items():
+        logger.debug(f'Generating: {list(self.molecules.keys())}')
+        for mname,M in self.molecules.items():
             self._generate_molecule(M,force_parameterization=force_parameterization,force_checkin=force_checkin)
-            self.molecules[mname]=M
-        ''' Generate any required template products that result from reactions in which the bond generated creates
-            dihedrals that span more than just the two monomers that are connected '''
         new_reactions,new_molecules=bondchain_expand_reactions(self.molecules)
         if len(new_molecules)>0:
             ess='' if len(new_molecules)==1 else 's'
             logger.info(f'{len(new_molecules)} molecule{ess} implied by C-C bondchains')
-            ml=list(new_molecules.keys())
-            # logger.info(ml)
-            self.cfg.reactions.extend(new_reactions)
+            self.reactions.extend(new_reactions)
             make_molecules={k:v for k,v in new_molecules.items() if k not in self.molecules}
             for mname,M in make_molecules.items():
-                # logger.debug(f'Generating {mname}:')
                 self._generate_molecule(M,force_parameterization=force_parameterization,force_checkin=force_checkin)
                 assert M.get_origin()!='unparameterized'
                 self.molecules[mname]=M
                 logger.debug(f'Generated {mname}')
 
         for M in self.molecules:
-            self.molecules[M].is_reactant=is_reactant(M,self.cfg.reactions,stage=reaction_stage.cure)
+            self.molecules[M].is_reactant=is_reactant(M,self.reactions,stage=reaction_stage.cure)
 
-        resolve_type_discrepancies=GAFF_dict.get('resolve_type_discrepancies',[])
-        if not resolve_type_discrepancies:
-            resolve_type_discrepancies=self.cfg.parameters.get('resolve_type_discrepancies',[])
+        resolve_type_discrepancies=self.cfg.gaff.get('resolve_type_discrepancies',[]) or self.cfg.resolve_type_discrepancies
         if resolve_type_discrepancies:
             for resolve_directive in resolve_type_discrepancies:
                 logger.info(f'Resolving type discrepancies for directive {resolve_directive}')
@@ -215,11 +297,11 @@ class Runtime:
 
         ess='' if len(self.molecules)==1 else 's'
         logger.info(f'Generated {len(self.molecules)} molecule template{ess}')
-        if self.cfg.initial_composition: 
+        if self.cfg.initial_composition:
             cmp_msg=", ".join([(x["molecule"]+" "+str(x["count"])) for x in self.cfg.initial_composition if x["count"]>0])
             logger.info(f'Initial composition is {cmp_msg}')
-            self.cfg.calculate_maximum_conversion()
-            logger.info(f'100% conversion is {self.cfg.maxconv} bonds')
+            self._calculate_maximum_conversion()
+            logger.info(f'100% conversion is {self.maxconv} bonds')
 
         logger.debug(f'Reaction bond(s) in each molecular template:')
         for M in self.molecules.values():
@@ -235,7 +317,7 @@ class Runtime:
                 for b in M.bond_templates:
                     logger.debug(f'   {str(b)}')
 
-        for k,v in self.cfg.parameters.get('constituents',{}).items():
+        for k,v in self.cfg.constituents.items():
             relaxdict=v.get('relax',{})
             if relaxdict:
                 self.molecules[k].relax(relaxdict)
@@ -266,7 +348,7 @@ class Runtime:
             dict: dictionary of Gromacs file names
         """
         my_logger(f'Densification in {pfs.cwd()}',logger.info)
-        densification_dict=self.cfg.parameters.get('densification',{})
+        densification_dict=self.cfg.densification
         assert len(densification_dict)>0,'"densification" directives missing'
         equilibration=densification_dict.get('equilibration',[])
         assert len(equilibration)>0,'equilibration directives missing'
@@ -298,17 +380,18 @@ class Runtime:
             return  # no cure controller
         cc=self.cc
         TC=self.TopoCoord
-        RL=self.cfg.reactions
+        RL=self.reactions
         MD=self.molecules
-        gromacs_dict=self.cfg.parameters.get('gromacs',{})
+        gromacs_dict=self.cfg.gromacs
         pfs.go_proj()
         ''' read cure state or initialize new cure '''
-        if os.path.exists('systems/cure_state.yaml'):
-            cc.state=CureState.from_yaml('systems/cure_state.yaml')
+        cc.chain_manager=self.chain_manager
+        if os.path.exists(f'{pfs.Dirs.systems}/cure_state.yaml'):
+            cc.state=CureState.from_yaml(f'{pfs.Dirs.systems}/cure_state.yaml')
             my_logger(f'Connect-Update-Relax-Equilibrate (CURE) resumes',logger.info)
             my_logger(f'at iteration {cc.state.iter} and {cc.state.cum_nxlinkbonds} bonds',logger.info)
         else:
-            cc.setup(max_nxlinkbonds=self.cfg.maxconv,desired_nxlinkbonds=int(self.cfg.maxconv*cc.dicts['controls']['desired_conversion']),max_search_radius=float(min(TC.Coordinates.box.diagonal()/2)))
+            cc.setup(max_nxlinkbonds=self.maxconv,desired_nxlinkbonds=int(self.maxconv*cc.dicts['controls']['desired_conversion']),max_search_radius=float(min(TC.Coordinates.box.diagonal()/2)))
             cc.state.iter=1
             my_logger('Connect-Update-Relax-Equilibrate (CURE) begins',logger.info)
         cure_finished=cc.is_cured()
@@ -318,14 +401,14 @@ class Runtime:
         ''' perform CURE iterations '''
         logger.info(f'Attempting to form {cc.state.desired_nxlinkbonds} bonds')
         while not cure_finished:
-            pfs.go_to(f'systems/iter-{cc.state.iter}')
+            pfs.go_to(pfs.Dirs.systems_iter(cc.state.iter))
             cc.do_iter(TC,RL,MD,gromacs_dict=gromacs_dict)
             cure_finished=cc.is_cured()
             if not cure_finished:
                 cure_finished=cc.next_iter()
         ''' perform capping if necessary '''
         my_logger(f'Capping begins',logger.info)
-        pfs.go_to(f'systems/capping')
+        pfs.go_to(pfs.Dirs.systems_capping)
         cc.do_capping(TC,RL,MD,gromacs_dict=gromacs_dict)
         my_logger('Connect-Update-Relax-Equilibrate (CURE) ends',logger.info)
 
@@ -372,16 +455,16 @@ class Runtime:
         last_data=cp.read_checkpoint()
         logger.debug(f'Checkpoint last_data {last_data}')
         TC.load_files(last_data)
-        pfs.go_to(f'systems/init')
+        pfs.go_to(pfs.Dirs.systems_init)
         self.do_initialization()
-        pfs.go_to(f'systems/densification')
+        pfs.go_to(pfs.Dirs.systems_densification)
         self.do_densification()
-        pfs.go_to(f'systems/precure')
+        pfs.go_to(pfs.Dirs.systems_precure)
         self.do_precure()
         self.do_cure()
-        pfs.go_to(f'systems/postcure')
+        pfs.go_to(pfs.Dirs.systems_postcure)
         self.do_postcure()
-        pfs.go_to(f'systems/final-results')
+        pfs.go_to(pfs.Dirs.systems_final)
         self.save_data()
         pfs.go_proj()
 
@@ -402,9 +485,9 @@ class Runtime:
             generatable=(not M.generator) or (all([m in self.molecules for m in M.generator.reactants.values()]))
             if generatable:
                 logger.debug(f'Generating {mname}')
-                M.generate(available_molecules=self.molecules,**self.cfg.parameters)
+                M.generate(available_molecules=self.molecules,gaff=self.cfg.gaff,ambertools=self.cfg.ambertools)
                 for ex in ['mol2','top','tpx','itp','gro','grx']:
-                    checkin(f'molecules/parameterized/{mname}.{ex}',overwrite=force_checkin)
+                    checkin(f'{pfs.Dirs.molecules_parameterized}/{mname}.{ex}',overwrite=force_checkin)
                 M.set_origin('newly parameterized')
             else:
                 logger.debug(f'Error: could not generate {mname}')
@@ -486,6 +569,7 @@ class Runtime:
         already_merged=[]
         for item in self.cfg.initial_composition:
             M=self.molecules[item['molecule']]
+
             N=item['count']
             if not N: continue
             t=deepcopy(M.TopoCoord.Topology)
@@ -512,15 +596,8 @@ class Runtime:
         Returns:
             tuple: 'gro' and 'grx' file names
         """
-        densification_dict=self.cfg.parameters.get('densification',{})
-        # logger.debug(f'{densification_dict}')
+        densification_dict=self.cfg.densification
         TC=self.TopoCoord
-        if not densification_dict:
-            densification_dict['aspect_ratio']=self.cfg.parameters.get('aspect_ratio',np.array([1.,1.,1.]))
-            if 'initial_density' in self.cfg.parameters:
-                densification_dict['initial_density']=self.cfg.parameters['initial_density']
-            if 'initial_boxsize' in self.cfg.parameters:
-                densification_dict['initial_boxsize']=self.cfg.parameters['initial_boxsize']
         dspec=['initial_density' in densification_dict,'initial_boxsize' in densification_dict]
         # logger.debug(f'{dspec} {any(dspec)} {not all(dspec)}')
         assert any(dspec),'Neither "initial_boxsize" nor "initial_density" are specfied'
@@ -544,7 +621,7 @@ class Runtime:
         clist=[cc for cc in self.cfg.initial_composition if 'count' in cc]
         c_togromacs={}
         for cc in clist:
-            M=self.cfg.molecules[cc['molecule']]
+            M=self.molecules[cc['molecule']]
             tc=cc['count']
             if not tc: continue
             if len(M.conformers)>0:
@@ -561,7 +638,7 @@ class Runtime:
                         k+=1
                         r-=1
                 for gro in M.conformers:
-                    pfs.checkout(f'molecules/parameterized/{gro}.gro',altpath=[pfs.subpath('molecules')])        
+                    pfs.checkout(f'{pfs.Dirs.molecules_parameterized}/{gro}.gro',altpath=[pfs.subpath(pfs.Dirs.molecules)])        
             else:
                 ''' assuming racemic mixture of any stereoisomers '''
                 total_isomers=len(M.stereoisomers)+1
@@ -571,20 +648,21 @@ class Runtime:
                 if leftovers>0:
                     c_togromacs[M.name]+=1
                     leftovers-=1
-                pfs.checkout(f'molecules/parameterized/{M.name}.gro',altpath=[pfs.subpath('molecules')])
+                pfs.checkout(f'{pfs.Dirs.molecules_parameterized}/{M.name}.gro',altpath=[pfs.subpath(pfs.Dirs.molecules)])
                 for isomer in M.stereoisomers:
                     c_togromacs[isomer]=count_per_isomer
                     if leftovers>0:
                         c_togromacs[isomer]+=1
                         leftovers-=1
-                    pfs.checkout(f'molecules/parameterized/{isomer}.gro',altpath=[pfs.subpath('molecules')])
+                    pfs.checkout(f'{pfs.Dirs.molecules_parameterized}/{isomer}.gro',altpath=[pfs.subpath(pfs.Dirs.molecules)])
         logger.debug(f'Sending to insert_molecules: {c_togromacs}')
-        msg=insert_molecules(c_togromacs,boxsize,inpfnm,inputs_dir='../../molecules/parameterized',**self.cfg.parameters)
+        msg=insert_molecules(c_togromacs,boxsize,inpfnm,inputs_dir='../../molecules/parameterized',scale=self.cfg.densification.get('scale',0.4))
         TC.read_gro(f'{inpfnm}.gro')
         TC.atom_count()
         TC.set_grx_attributes()
-        TC.inherit_grx_attributes_from_molecules(self.cfg.molecules,self.cfg.initial_composition)
-        TC.ChainManager.from_dataframe(TC.Coordinates.A)
+        TC.inherit_grx_attributes_from_molecules(self.molecules,self.cfg.initial_composition)
+        self.chain_manager=ChainManager()
+        self.chain_manager.from_dataframe(TC.Coordinates.A)
         TC.make_resid_graph()
         TC.write_grx_attributes(f'{inpfnm}.grx')
         logger.info(f'Coordinates "{inpfnm}.gro" in {pfs.cwd()}')
@@ -599,7 +677,7 @@ class Runtime:
             deffnm (str): mdrun default file basename, defaults to 'equilibrate'
             plot_pfx (str): basename for any output plots, defaults to ''
         """
-        gromacs_dict=self.cfg.parameters.get('gromacs',{})
+        gromacs_dict=self.cfg.gromacs
         TC=self.TopoCoord
         for k in edict.keys():
             if not k in self.default_edict:
@@ -629,7 +707,7 @@ class Runtime:
         """
         if not pfx: return
         assert pfx in ['precure','postcure']
-        pap_dict=self.cfg.parameters.get(pfx,{})
+        pap_dict=getattr(self.cfg,pfx,{})
         if not pap_dict: return
         preequil=pap_dict.get('preequilibration',{})
         anneal=pap_dict.get('anneal',{})
@@ -658,8 +736,8 @@ class Runtime:
         if not ncycles: return
         mdp_pfx='nvt' # assume all annealing run at NVT
         TC=self.TopoCoord
-        gromacs_dict=self.cfg.parameters.get('gromacs',{})
-        pfs.checkout(f'mdp/{mdp_pfx}.mdp')
+        gromacs_dict=self.cfg.gromacs
+        pfs.checkout(pfs.Dirs.mdp_file(mdp_pfx))
         timestep=float(mdp_get(f'{mdp_pfx}.mdp','dt'))
         cycle_segments=anneal_dict.get('cycle_segments',[])
         temps=[str(r['T']) for r in cycle_segments]

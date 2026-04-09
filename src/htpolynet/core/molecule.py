@@ -12,7 +12,7 @@ from copy import deepcopy
 
 import htpolynet.core.projectfilesystem as pfs
 from htpolynet.core.topocoord import TopoCoord
-from htpolynet.cure.bondtemplate import BondTemplate, BondTemplateList, ReactionBond, ReactionBondList
+from htpolynet.core.bondtemplate import BondTemplate, BondTemplateList, ReactionBond, ReactionBondList
 from htpolynet.core.coordinates import GRX_ATTRIBUTES
 from htpolynet.external.ambertools import GAFFParameterize
 from htpolynet.external.gromacs import mdp_modify,gro_from_trr
@@ -22,7 +22,7 @@ from htpolynet.cure.chain import ChainManager
 
 logger=logging.getLogger(__name__)
 
-def _rotmat(axis,radians):
+def _rotmat(axis, radians):
     """Generates a rotation matrix that rotates coordinates around axis by radians.
 
     Args:
@@ -30,26 +30,26 @@ def _rotmat(axis,radians):
         radians (float): angle measure
 
     Returns:
-        np.ndarray(3,float): rotation matrix
+        np.ndarray(3, float): rotation matrix
     """
-    R=np.identity(3)
-    sr=np.sin(radians)
-    cr=np.cos(radians)
-    if axis==2:
-        R[0][0]=cr
-        R[0][1]=-sr
-        R[1][0]=sr
-        R[1][1]=cr
-    elif axis==1:
-        R[0][0]=cr
-        R[0][2]=sr
-        R[2][0]=-sr
-        R[2][2]=cr
-    elif axis==0:
-        R[1][1]=cr
-        R[1][2]=-sr
-        R[2][1]=sr
-        R[2][2]=cr
+    R = np.identity(3)
+    sr = np.sin(radians)
+    cr = np.cos(radians)
+    if axis == 2:
+        R[0][0] = cr
+        R[0][1] = -sr
+        R[1][0] = sr
+        R[1][1] = cr
+    elif axis == 1:
+        R[0][0] = cr
+        R[0][2] = sr
+        R[2][0] = -sr
+        R[2][2] = cr
+    elif axis == 0:
+        R[1][1] = cr
+        R[1][2] = -sr
+        R[2][1] = sr
+        R[2][2] = cr
     return R
 
 def yield_bonds(R:Reaction,TC:TopoCoord,resid_mapper):
@@ -128,6 +128,7 @@ class Molecule:
         self.conformers=[] # just a list of gro file basenames
         self.zrecs=[]
         self.is_reactant=False
+        self.chain_manager=ChainManager()
 
     @classmethod
     def New(cls,mol_name,generator:Reaction,molrec={}):
@@ -322,7 +323,7 @@ class Molecule:
                         TC.set_gro_attribute_by_attributes('z',z,{'atomName':bn,'resNum':rnum})
 
         # TC.idx_lists['bondchain']=[]
-        TC.ChainManager=ChainManager(create_if_missing=True)
+        self.chain_manager=ChainManager(create_if_missing=True)
         pairs=product(idx,idx)
         for i,j in pairs:
             if i<j:
@@ -347,10 +348,10 @@ class Molecule:
                         logger.warning(f'In molecule {self.name}, cannot identify bonded reactive head and tail atoms\nAssuming {j} is head and {i} is tail')
                         entry=[j,i]
                     # logger.debug(f'Adding {entry} to chainlist of {self.name}')
-                    TC.ChainManager.injest_bond(entry[0],entry[1])
+                    self.chain_manager.injest_bond(entry[0],entry[1])
                     # TC.idx_lists['bondchain'].append(entry)
         # TC.reset_grx_attributes_from_idx_list('bondchain')
-        TC.ChainManager.to_dataframe(TC.Coordinates.A)
+        self.chain_manager.to_dataframe(TC.Coordinates.A)
         self.initialize_molecule_rings()
 
     def previously_parameterized(self):
@@ -361,25 +362,26 @@ class Molecule:
         """
         rval=True
         for ext in ['gro']:
-            rval=rval and pfs.exists(os.path.join('molecules/parameterized',f'{self.name}.{ext}'))
+            rval=rval and pfs.exists(os.path.join(pfs.Dirs.molecules_parameterized,f'{self.name}.{ext}'))
         return rval
 
-    def parameterize(self,outname='',input_structure_format='mol2',**kwargs):
+    def parameterize(self,outname='',input_structure_format='mol2',ambertools={}):
         """Manages GAFF parameterization of this molecule.
 
         Args:
             outname (str, optional): output file basename, defaults to ''
             input_structure_format (str, optional): input structure format, defaults to 'mol2' ('pdb' is other possibility)
+            ambertools (dict): ambertools configuration directives, defaults to {}
         """
         assert os.path.exists(f'{self.name}.{input_structure_format}'),f'Cannot parameterize molecule {self.name} without {self.name}.{input_structure_format} as input'
         if outname=='':
             outname=f'{self.name}'
-        GAFFParameterize(self.name,outname,input_structure_format=input_structure_format,**kwargs)
+        GAFFParameterize(self.name,outname,input_structure_format=input_structure_format,ambertools=ambertools)
         self.load_top_gro(f'{outname}.top',f'{outname}.gro',mol2filename=f'{outname}.mol2',wrap_coords=False)
         self.initialize_molecule_rings()
         self.TopoCoord.write_tpx(f'{outname}.tpx')
 
-    def minimize(self,outname='',**kwargs):
+    def minimize(self,outname=''):
         """Manages invocation of vacuum minimization.
 
         Args:
@@ -387,7 +389,7 @@ class Molecule:
         """
         if outname=='':
             outname=f'{self.name}'
-        self.TopoCoord.vacuum_minimize(outname,**kwargs)
+        self.TopoCoord.vacuum_minimize(outname)
 
     def relax(self,relax_dict):
         """Manages invocation of MD relaxations.
@@ -402,7 +404,7 @@ class Molecule:
         boxsize=np.array(self.TopoCoord.maxspan())+2*np.ones(3)
         self.center_coords(new_boxsize=boxsize)
         mdp_prefix='single-molecule-nvt'
-        pfs.checkout(f'mdp/{mdp_prefix}.mdp')
+        pfs.checkout(pfs.Dirs.mdp_file(mdp_prefix))
         mdp_modify(f'{mdp_prefix}.mdp',{'nsteps':nsteps,'gen-vel':'yes','ref_t':temperature,'gen-temp':temperature})
         logger.info(f'In vacuo equilibration of {self.name}.gro for {nsteps} steps at {temperature} K')
         self.TopoCoord.grompp_and_mdrun(out=deffnm,mdp=mdp_prefix,boxSize=boxsize)
@@ -415,18 +417,18 @@ class Molecule:
         """
         self.TopoCoord.center_coords(new_boxsize)
 
-    def generate(self,outname='',available_molecules={},**kwargs):
+    def generate(self,outname='',available_molecules={},gaff={},ambertools={}):
         """Manages generating topology and coordinates for self.
 
         Args:
             outname (str, optional): output file basename, defaults to ''
             available_molecules (dict, optional): dictionary of available molecules, defaults to {}
+            gaff (dict): GAFF configuration directives, defaults to {}
+            ambertools (dict): ambertools configuration directives, defaults to {}
         """
         logger.debug(f'{self.name}.generate() begins')
         if outname=='': outname=f'{self.name}'
-        do_minimization=True
-        GAFF_dict=kwargs.get('GAFF',{})
-        if GAFF_dict: do_minimization=GAFF_dict.get('minimize_molecules',True)
+        do_minimization=gaff.get('minimize_molecules',True)
         do_parameterization=False
         if self.generator:
             R=self.generator
@@ -440,7 +442,7 @@ class Molecule:
                 new_reactant=deepcopy(available_molecules[ri])
                 new_reactant.TopoCoord.write_mol2(filename=f'{self.name}-reactant{ri}-prebonding.mol2',molname=self.name)
                 rnr=len(new_reactant.sequence)
-                shifts=self.TopoCoord.merge(new_reactant.TopoCoord)
+                shifts=self.TopoCoord.merge(new_reactant.TopoCoord,self_cm=self.chain_manager,other_cm=new_reactant.chain_manager)
                 # for ln in self.TopoCoord.Coordinates.A.head().to_string().split('\n'): logger.debug(ln)
                 resid_mapper.append({k:v for k,v in zip(range(1,rnr+1),range(1+shifts[2],1+rnr+shifts[2]))})
             # logger.debug(f'{self.name}: resid_mapper {resid_mapper}')
@@ -476,16 +478,16 @@ class Molecule:
             input_structure_formats=['mol2','pdb']
             isf=None
             for isf in input_structure_formats:
-                if pfs.exists(f'molecules/inputs/{self.name}.{isf}'):
-                    logger.debug(f'Using input molecules/inputs/{self.name}.{isf} as a generator')
-                    pfs.checkout(f'molecules/inputs/{self.name}.{isf}')
+                if pfs.exists(f'{pfs.Dirs.molecules_inputs}/{self.name}.{isf}'):
+                    logger.debug(f'Using input {pfs.Dirs.molecules_inputs}/{self.name}.{isf} as a generator')
+                    pfs.checkout(f'{pfs.Dirs.molecules_inputs}/{self.name}.{isf}')
                     break
             assert isf,'Error: no valid input structure file found'
             do_parameterization=True
 
         reactantName=self.name
         if do_parameterization:
-            self.parameterize(outname,input_structure_format=isf,**kwargs)
+            self.parameterize(outname,input_structure_format=isf,ambertools=ambertools)
         else:
             if self.name!=self.parentname:
                 logger.info(f'Built {self.name} using topology of {self.parentname}; copying {self.parentname}.top to {self.name}.top')
@@ -495,7 +497,7 @@ class Molecule:
                 shutil.copy(f'{self.parentname}.tpx',f'{self.name}.tpx')
 
         if do_minimization:
-            self.minimize(outname,**kwargs)
+            self.minimize(outname)
         self.set_sequence_from_coordinates()
         if not self.generator:
             self.TopoCoord.set_gro_attribute('reactantName',reactantName)
@@ -563,7 +565,7 @@ class Molecule:
             atom_idx=[TC.get_gro_attribute_by_attributes('globalIdx',{'resNum':in_product_resids[x],'atomName':atom_names[x]}) for x in [0,1]]
             # logger.debug(f'{R.name} names {atom_names} in_product_resids {in_product_resids} idx {atom_idx}')
             bystander_resids,bystander_resnames,bystander_atomidx,bystander_atomnames=TC.get_bystanders(atom_idx)
-            oneaway_resids,oneaway_resnames,oneaway_atomidx,oneaway_atomnames=TC.get_oneaways(atom_idx)
+            oneaway_resids,oneaway_resnames,oneaway_atomidx,oneaway_atomnames=TC.get_oneaways(atom_idx,chain_manager=self.chain_manager)
             # logger.debug(f'{self.name} bystanders {bystander_resids} {bystander_resnames} {bystander_atomidx} {bystander_atomnames}')
             # logger.debug(f'{self.name} oneaways {oneaway_resids} {oneaway_resnames} {oneaway_atomidx} {oneaway_atomnames}')
             self.reaction_bonds.append(ReactionBond(atom_idx,in_product_resids,order,bystander_resids,bystander_atomidx,oneaway_resids,oneaway_atomidx))
@@ -761,7 +763,7 @@ class Molecule:
         Returns:
             tuple: a shift tuple (returned by Coordinates.merge())
         """
-        shifts=self.TopoCoord.merge(other.TopoCoord)
+        shifts=self.TopoCoord.merge(other.TopoCoord,self_cm=self.chain_manager,other_cm=other.chain_manager)
         return shifts
 
     def load_top_gro(self,topfilename,grofilename,tpxfilename='',mol2filename='',**kwargs):
@@ -791,7 +793,7 @@ class Molecule:
             grxfilename (str): name of input file
             attribute_list (list, optional): list of attributes to take, defaults to [] (take all)
         """
-        self.TopoCoord.read_gro_attributes(grxfilename,attribute_list=attribute_list)
+        self.TopoCoord.read_gro_attributes(grxfilename,attribute_list=attribute_list,chain_manager=self.chain_manager)
 
     def write_gro_attributes(self,attribute_list,grxfilename):
         """Writes atomic attributes to a file.
@@ -823,7 +825,7 @@ class Molecule:
             template_source='ambertools'
         else:
             template_source='internal'  # signals that a template molecule should be identified to parameterize this bond
-        TC.update_topology_and_coordinates(bdf,moldict,explicit_sacH=explicit_sacrificial_Hs,template_source=template_source)
+        TC.update_topology_and_coordinates(bdf,moldict,explicit_sacH=explicit_sacrificial_Hs,template_source=template_source,chain_manager=self.chain_manager)
         self.initialize_molecule_rings()
 
     def transrot(self,at_idx,at_resid,from_idx,from_resid,connected_resids=[]):

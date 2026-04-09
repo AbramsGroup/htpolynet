@@ -100,7 +100,7 @@ class AnalyzeDensity(Analyze):
     """
     default_params={
         'subdir': 'analyze/density',
-        'links': ['postsim/equilibrate/equilibrate.tpr','postsim/equilibrate/equilibrate.trr'],
+        'links': [f'{pfs.Dirs.postsim}/equilibrate/equilibrate.tpr',f'{pfs.Dirs.postsim}/equilibrate/equilibrate.trr'],
         'gromacs' : {
             'gmx': 'gmx'
         },
@@ -120,7 +120,7 @@ class AnalyzeDensity(Analyze):
 class AnalyzeFFV(Analyze):
     default_params={
         'subdir': 'analyze/freevolume',
-        'links': ['postsim/equilibrate/equilibrate.tpr','postsim/equilibrate/equilibrate.trr'],
+        'links': [f'{pfs.Dirs.postsim}/equilibrate/equilibrate.tpr',f'{pfs.Dirs.postsim}/equilibrate/equilibrate.trr'],
         'gromacs' : {
             'gmx': 'gmx'
         },
@@ -237,16 +237,16 @@ def analyze(args):
     ess='y' if len(args.proj)==0 else 'ies'
     ogromacs={}
     if args.ocfg:
-        ocfg=Configuration.read(args.ocfg,parse=False)
-        ogromacs=ocfg.basedict.get('gromacs',{})
+        ocfg=Configuration.read(args.ocfg)
+        ogromacs=ocfg.gromacs
     cfg=AnalyzeConfiguration.read(args.cfg)
     logger.debug(f'{cfg.baselist}')
     logger.info(f'Project director{ess}: {args.proj}')
     software.sw_setup()
     logger.debug(f'ogromacs {ogromacs}')
     for d in args.proj:
-        pfs.pfs_setup(root=os.getcwd(),topdirs=['molecules','systems','plots','postsim','analyze'],verbose=True,projdir=d,reProject=False,userlibrary=args.lib)
-        pfs.go_to('analyze')
+        pfs.pfs_setup(root=os.getcwd(),topdirs=pfs.Dirs.analyze_topdirs,verbose=True,projdir=d,reProject=False,userlibrary=args.lib)
+        pfs.go_to(pfs.Dirs.analyze)
         for stage in cfg.stagelist:
             stage.do(**ogromacs)
             stage.parse_console_output()

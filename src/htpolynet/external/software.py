@@ -95,14 +95,13 @@ def _get_versions():
         versions['ambertools']='Not installed.'
 
 
-def set_gmx_preferences(parameters):
+def set_gmx_preferences(gromacs_dict={}):
     """Sets the global Gromacs preferences.
 
     Args:
-        parameters (dict): dictionary from cfg file
+        gromacs_dict (dict): gromacs section from the configuration, defaults to {}
     """
     global gmx, gmx_options, mdrun, mdrun_single_molecule
-    gromacs_dict=parameters.get('gromacs',{})
     logger.debug(f'gromacs_dict {gromacs_dict}')
     if gromacs_dict:
         gmx=gromacs_dict.get('gmx','gmx')
@@ -110,11 +109,6 @@ def set_gmx_preferences(parameters):
         mdrun=gromacs_dict.get('mdrun',_mdrun_cmd(f'{gmx} {gmx_options} mdrun'))
         mdrun_single_molecule=gromacs_dict.get('mdrun_single_molecule',_mdrun_cmd(f'{gmx} {gmx_options} mdrun'))
         logger.debug(f'{gmx}, {gmx_options}, {mdrun}')
-    else:
-        gmx_options=parameters.get('gmx_options','')
-        gmx=parameters.get('gmx','gmx')
-        mdrun=parameters.get('mdrun',_mdrun_cmd(f'{gmx} {gmx_options} mdrun'))
-        mdrun_single_molecule=parameters.get('mdrun_single_molecule',_mdrun_cmd(f'{gmx} {gmx_options} mdrun'))
     CP=subprocess.run(['which',gmx],capture_output=True,text=True)
     assert CP.returncode==0,f'{gmx} not found'
     _get_gmx_version()

@@ -2,6 +2,12 @@
 Installation and Prerequisites
 ##############################
 
+A pre-built container image is available that bundles all required software
+(Gromacs, AmberTools, OpenBabel, and ``htpolynet``).  If you have Docker or
+Singularity/Apptainer available, this is the easiest way to get started — see
+:ref:`container_usage` for instructions.  The remainder of this page describes
+how to install ``htpolynet`` and its prerequisites directly on your system.
+
 Software Prequisites
 --------------------
 

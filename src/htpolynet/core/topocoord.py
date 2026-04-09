@@ -13,11 +13,10 @@ from copy import deepcopy
 import networkx as nx
 from htpolynet.core.coordinates import Coordinates, GRX_ATTRIBUTES, GRX_GLOBALLY_UNIQUE, GRX_UNSET_DEFAULTS
 from htpolynet.core.topology import Topology
-from htpolynet.cure.bondtemplate import BondTemplate,ReactionBond
+from htpolynet.core.bondtemplate import BondTemplate, ReactionBond
 from htpolynet.geometry.matrix4 import Matrix4
 from htpolynet.external.gromacs import grompp_and_mdrun,mdp_get, mdp_modify, gmx_energy_trace
 import htpolynet.core.projectfilesystem as pfs
-from htpolynet.cure.chain import ChainManager
 
 logger=logging.getLogger(__name__)
 
@@ -51,7 +50,7 @@ class TopoCoord:
         self.files['grx']=os.path.abspath(grxfilename)
         self.files['mol2']=os.path.abspath(mol2filename)
         self.grxattr=[]
-        self.ChainManager=ChainManager()
+
         # self.idx_lists={}
         # self.idx_lists['bondchain']=[]
         if grofilename!='':
@@ -68,7 +67,6 @@ class TopoCoord:
             self.read_mol2(mol2filename,**kwargs)
         if grxfilename!='':
             self.read_gro_attributes(grxfilename)
-            # done in read_gro_attributes self.ChainManager.from_dataframe(self.Coordinates.A)
         self.Coordinates.claim_parent(self)
 
     @classmethod
@@ -76,12 +74,13 @@ class TopoCoord:
         X=cls(topfilename=top,grofilename=gro)
         return X
 
-    def make_bonds(self,pairs,explicit_sacH={}):
+    def make_bonds(self,pairs,explicit_sacH={},chain_manager=None):
         """Adds new bonds to the global topology.
 
         Args:
             pairs (list): list of pairs of atom global indices indicating each new bond
             explicit_sacH (dict): explicit mapping of sacrificial H atoms, defaults to {}
+            chain_manager: optional ChainManager owned by the caller; updated in place if provided
 
         Returns:
             list: list of indexes of atoms that must now be deleted (sacrificial H's)
@@ -89,10 +88,11 @@ class TopoCoord:
         idx_to_ignore=self.Coordinates.find_sacrificial_H(pairs,self.Topology,explicit_sacH=explicit_sacH)
         logger.debug(f'idx_to_ignore {idx_to_ignore}')
         self.Topology.add_bonds(pairs)
-        logger.debug(f'Prior to injesting bonds, chainmanager reports {len(self.ChainManager.chains)} chains')
-        self.ChainManager.injest_bonds(pairs)
-        logger.debug(f'After injesting bonds, chainmanager reports {len(self.ChainManager.chains)} chains')
-        self.ChainManager.to_dataframe(self.Coordinates.A)
+        if chain_manager is not None:
+            logger.debug(f'Prior to injesting bonds, chainmanager reports {len(chain_manager.chains)} chains')
+            chain_manager.injest_bonds(pairs)
+            logger.debug(f'After injesting bonds, chainmanager reports {len(chain_manager.chains)} chains')
+            chain_manager.to_dataframe(self.Coordinates.A)
         # self.bondchainlist_update(pairs,msg='TopoCoord.make_bonds')
         self.Topology.null_check(msg='add_bonds')
         rename=False if len(explicit_sacH)>0 else False
@@ -144,13 +144,14 @@ class TopoCoord:
         anH=sum([int(x.upper().startswith('H')) for x in aneighnames])
         return anH
 
-    def map_from_templates(self,bdf,moldict,overcharge_threshhold=0.1):
+    def map_from_templates(self,bdf,moldict,overcharge_threshhold=0.1,chain_manager=None):
         """Updates angles, pairs, dihedrals, atom types, and charges, based on product templates associated with each bond in 'bdf'.
 
         Args:
             bdf (pandas.DataFrame): dataframe with columns 'ai', 'aj', 'reactantName'
             moldict (dict): dictionary of template Molecules keyed by name
             overcharge_threshhold (float): threshold for charge adjustment, defaults to 0.1
+            chain_manager: optional ChainManager owned by the caller; passed to get_oneaways
 
         Raises:
             Exception: if nan found in any attribute of any new system angle
@@ -194,7 +195,7 @@ class TopoCoord:
                 else:
                     logger.debug(f'{P.name} is not a reactant; no update of \"reactantName\" attributes')
             bystander_resids,bystander_resnames,bystander_atomidx,bystander_atomnames=self.get_bystanders(bb)
-            oneaway_resids,oneaway_resnames,oneaway_atomidx,oneaway_atomnames=self.get_oneaways(bb)
+            oneaway_resids,oneaway_resnames,oneaway_atomidx,oneaway_atomnames=self.get_oneaways(bb,chain_manager=chain_manager)
             intraresidue=resids[0]==resids[1]
             BT=BondTemplate(names,resnames,intraresidue,order,bystander_resnames,bystander_atomnames,oneaway_resnames,oneaway_atomnames)
             RB=ReactionBond(bb,resids,order,bystander_resids,bystander_atomidx,oneaway_resids,oneaway_atomidx)
@@ -437,13 +438,14 @@ class TopoCoord:
         pi_df.drop_duplicates(inplace=True,ignore_index=True)
         return pi_df
 
-    def update_topology_and_coordinates(self,bdf,template_dict={},write_mapper_to=None,**kwargs):
+    def update_topology_and_coordinates(self,bdf,template_dict={},write_mapper_to=None,chain_manager=None,**kwargs):
         """Updates global topology and necessary atom attributes in the configuration to reflect formation of all bonds listed in bdf.
 
         Args:
             bdf (pandas.DataFrame): bonds dataframe with columns 'ai', 'aj', 'reactantName'
             template_dict (dict): dictionary of molecule templates keyed on molecule name, defaults to {}
             write_mapper_to (str): filename to write index mapper to, defaults to None
+            chain_manager: optional ChainManager owned by the caller; updated in place if provided
 
         Returns:
             tuple: bonds dataframe and pairs dataframe with atom indices updated to reflect any atom deletions
@@ -458,11 +460,11 @@ class TopoCoord:
             # pull out just the atom index pairs (first element of each tuple)
             at_idx=[(int(x.ai),int(x.aj),x.order) for x in bdf.itertuples()]
             logger.debug(f'Making {len(at_idx)} bonds.')
-            idx_to_delete=self.make_bonds(at_idx,explicit_sacH=explicit_sacH)
+            idx_to_delete=self.make_bonds(at_idx,explicit_sacH=explicit_sacH,chain_manager=chain_manager)
             logger.debug(f'Deleting {len(idx_to_delete)} atoms.')
             idx_mapper=self.delete_atoms(idx_to_delete) # will result in full reindexing
-            # logger.debug(f'null check')
-            self.ChainManager.remap(idx_mapper)
+            if chain_manager is not None:
+                chain_manager.remap(idx_mapper)
             self.Topology.null_check(msg='delete_atoms')
             # reindex all atoms in the list of bonds sent in, and write it out
             logger.debug(f'z-decrement, nreactions increment')
@@ -476,7 +478,7 @@ class TopoCoord:
                     self.increment_gro_attribute_by_attributes('nreactions',{'globalIdx':idx})
             if template_source=='internal':
                 logger.debug(f'calling map_from_templates')
-                self.map_from_templates(ri_bdf,template_dict,overcharge_threshhold=overcharge_threshhold)
+                self.map_from_templates(ri_bdf,template_dict,overcharge_threshhold=overcharge_threshhold,chain_manager=chain_manager)
             logger.debug(f'1-4 pair update')
             pi_df=self.enumerate_1_4_pairs(at_idx)
             self.Topology.null_check(msg='update_topology_and_coordinates')
@@ -717,17 +719,19 @@ class TopoCoord:
         """
         self.write_gro_attributes(self.grxattr,grxfilename)
 
-    def read_gro_attributes(self,grxfilename,attribute_list=[]):
+    def read_gro_attributes(self,grxfilename,attribute_list=[],chain_manager=None):
         """Reads attributes from file into self.Coordinates.A.
 
         Args:
             grxfilename (str): name of input file
             attribute_list (list): list of attributes to take, defaults to [] (take all)
+            chain_manager: optional ChainManager owned by the caller; reconstructed from the data if provided
         """
         self.files['grx']=os.path.abspath(grxfilename)
         logger.debug(f'Reading {grxfilename}')
         attributes_read=self.Coordinates.read_atomset_attributes(grxfilename,attributes=attribute_list)
-        self.ChainManager.from_dataframe(self.Coordinates.A)
+        if chain_manager is not None:
+            chain_manager.from_dataframe(self.Coordinates.A)
         if attributes_read!=self.grxattr:
             self.grxattr=attributes_read
 
@@ -1136,20 +1140,23 @@ class TopoCoord:
         else:
             self.Coordinates.write_mol2(filename,molname=molname,other_attributes=other_attributes)
 
-    def merge(self,other):
+    def merge(self,other,self_cm=None,other_cm=None):
         """Merges the TopoCoord instance "other" to self.
 
         Args:
             other (TopoCoord): another TopoCoord instance
+            self_cm: optional ChainManager for self, updated in place if provided
+            other_cm: optional ChainManager for other, shifted in place if provided
 
         Returns:
             tuple: a shift tuple (returned by Coordinates.merge())
         """
         self.Topology.merge(other.Topology)
         shifts=self.Coordinates.merge(other.Coordinates)
-        other.ChainManager.shift(shifts[0]) # updates atom idx only
-        self.ChainManager.injest_other(other.ChainManager)
-        self.ChainManager.to_dataframe(self.Coordinates.A)
+        if self_cm is not None and other_cm is not None:
+            other_cm.shift(shifts[0]) # updates atom idx only
+            self_cm.injest_other(other_cm)
+            self_cm.to_dataframe(self.Coordinates.A)
         # for name,idx_lists in other.idx_lists.items():
         #     # logger.debug(f'TopoCoord merge: list_name {name} lists {idx_lists}')
         #     for a_list in idx_lists:
@@ -1436,11 +1443,12 @@ class TopoCoord:
     #                 return True
     #     return False
 
-    def bondcycle_collective(self,bdf:pd.DataFrame):
+    def bondcycle_collective(self,bdf:pd.DataFrame,chain_manager=None):
         """Checks to see if, when considered as a collective, this set of bond records leads to one or more cyclic bondchains; if so, longest bonds that break bondcycles are removed from the bond records list and the resulting list is returned.
 
         Args:
             bdf (pandas.DataFrame): bonds data frame, sorted in ascending order by bondlength
+            chain_manager: optional ChainManager owned by the caller; used read-only (deep-copied for simulation)
 
         Returns:
             pandas.DataFrame: bond records that results in no new bondcycles
@@ -1504,11 +1512,11 @@ class TopoCoord:
         logger.debug(f'Checking set of {bdf.shape[0]} bonds for cyclic C-C bondchains')
         new_bdf=bdf.copy()
         new_bdf['remove-to-uncyclize']=[False for _ in range(new_bdf.shape[0])]
-        if len(self.ChainManager.chains)==0:
+        if chain_manager is None or len(chain_manager.chains)==0:
             logger.debug(f'System has no bondchains; cyclic C-C bondchain checking is skipped')
             return new_bdf
         # make a temporary working copy of the bondchains structure from its snapshot
-        tmp_local_cm=deepcopy(self.ChainManager)
+        tmp_local_cm=deepcopy(chain_manager)
         existing_cyclic_chains=[x for x in tmp_local_cm.chains if x.is_cyclic]
         logger.debug(f'Existing cyclic C-C chains: {[c.idx for c in existing_cyclic_chains]}')
         # bondchains=[working_bondlist(i,self.idx_lists['bondchain'][i][:]) for i in range(len(self.idx_lists['bondchain']))]
@@ -1593,28 +1601,30 @@ class TopoCoord:
             bystander_resnames[x]=[self.get_gro_attribute_by_attributes('resName',{'globalIdx':y}) for y in bystander_atomidx[x]]
         return bystander_resids,bystander_resnames,bystander_atomidx,bystander_atomnames
     
-    def get_oneaways(self,atom_idx):
+    def get_oneaways(self,atom_idx,chain_manager=None):
         """Identifies and returns one-aways for a particular proposed bond specified by atom_idx.
 
         Args:
             atom_idx (list): two-element container of atom indices specifying proposed bond
+            chain_manager: optional ChainManager owned by the caller; returns empty lists if None
 
         Returns:
             tuple: tuple of oneaways-lists
         """
-        resids=[self.get_gro_attribute_by_attributes('resNum',{'globalIdx':x}) for x in atom_idx]
-        chains=[self.get_gro_attribute_by_attributes('bondchain',{'globalIdx':x}) for x in atom_idx]
-        chain_idx=[self.get_gro_attribute_by_attributes('bondchain_idx',{'globalIdx':x}) for x in atom_idx]
-        logger.debug(f'atoms {atom_idx} chains {chains} chain_idx {chain_idx}')
-        cm=self.ChainManager
-        logger.debug(f'chain manager has {len(cm.chains)} chains')
         oneaway_resids=[None,None]
         oneaway_resnames=[None,None]
         oneaway_atomidx=[None,None]
         oneaway_atomnames=[None,None]
+        if chain_manager is None:
+            return oneaway_resids,oneaway_resnames,oneaway_atomidx,oneaway_atomnames
+        resids=[self.get_gro_attribute_by_attributes('resNum',{'globalIdx':x}) for x in atom_idx]
+        chains=[self.get_gro_attribute_by_attributes('bondchain',{'globalIdx':x}) for x in atom_idx]
+        chain_idx=[self.get_gro_attribute_by_attributes('bondchain_idx',{'globalIdx':x}) for x in atom_idx]
+        logger.debug(f'atoms {atom_idx} chains {chains} chain_idx {chain_idx}')
+        logger.debug(f'chain manager has {len(chain_manager.chains)} chains')
         # assert chain_idx[0]==0 or chain_idx[1]==0 # one must be a head
         if chains!=[-1,-1]:
-            chainlists_idx=[self.ChainManager.chains[chains[x]].idx_list for x in [0,1]]
+            chainlists_idx=[chain_manager.chains[chains[x]].idx_list for x in [0,1]]
             logger.debug(f'chainlists_idx {chainlists_idx}')
             # chainlists_idx=[self.idx_lists['bondchain'][chains[x]] for x in [0,1]]
             chainlists_atomnames=[]
@@ -1742,7 +1752,7 @@ class TopoCoord:
         logger.debug(f'{self.maxspan()} -> {boxsize}')
         self.center_coords(new_boxsize=boxsize)
         mdp_prefix='single-molecule-min'
-        pfs.checkout(f'mdp/{mdp_prefix}.mdp')
+        pfs.checkout(pfs.Dirs.mdp_file(mdp_prefix))
         # gromacs_dict={'nt':1,'nb':'cpu','pme':'cpu','pmefft':'cpu','bonded':'cpu','update':'cpu'}
         self.grompp_and_mdrun(out=f'{outname}',
             mdp=mdp_prefix,boxSize=boxsize,single_molecule=True,wrap_coords=False) #,**gromacs_dict)
@@ -1758,7 +1768,7 @@ class TopoCoord:
         logger.debug(f'{self.maxspan()} -> {boxsize}')
         self.center_coords(new_boxsize=boxsize)
         mdp_prefix='single-molecule-nvt'
-        pfs.checkout(f'mdp/{mdp_prefix}.mdp')
+        pfs.checkout(pfs.Dirs.mdp_file(mdp_prefix))
         nsamples=kwargs.get('nsamples',10)
         params=kwargs.get('params',{})
         T=params.get('temperature',300.0)
@@ -1799,7 +1809,7 @@ class TopoCoord:
         ens=edict['ensemble']
         repeat=edict.get('repeat',0)
         assert ens in ['min','npt','nvt'],f'Bad ensemble: {ens}'
-        pfs.checkout(f'mdp/{ens}.mdp') # plain jane?
+        pfs.checkout(pfs.Dirs.mdp_file(ens)) # plain jane?
         if ens=='min':
             msg='minimization'
         else:

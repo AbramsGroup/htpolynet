@@ -70,7 +70,7 @@ def run(args: ap.Namespace):
     my_logger('htpolynet runtime begins', logger.info)
     userlib = args.lib if os.path.exists(args.lib) else None
     software.sw_setup()
-    pfs.pfs_setup(root=os.getcwd(), topdirs=['molecules', 'systems', 'plots'],verbose=True, projdir=args.proj, reProject=args.restart, userlibrary=userlib)
+    pfs.pfs_setup(root=os.getcwd(), topdirs=pfs.Dirs.run_topdirs, verbose=True, projdir=args.proj, reProject=args.restart, userlibrary=userlib)
     a = Runtime(cfgfile=args.config, restart=args.restart)
     if args.param_only:
         a.generate_molecules(force_checkin=args.force_checkin, force_parameterization=args.force_parameterization)

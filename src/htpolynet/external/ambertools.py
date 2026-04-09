@@ -10,22 +10,19 @@ from htpolynet.external.command import Command
 from htpolynet.core.coordinates import Coordinates
 logger=logging.getLogger(__name__)
 
-def GAFFParameterize(inputPrefix,outputPrefix,input_structure_format='mol2',**kwargs):
+def GAFFParameterize(inputPrefix,outputPrefix,input_structure_format='mol2',ambertools={}):
     """Manages execution of antechamber, tleap, and parmchk2 to generate GAFF parameters.
 
     Args:
         inputPrefix (str): basename of input structure file
         outputPrefix (str): basename of output files
         input_structure_format (str): format of input structure file, defaults to 'mol2'; 'pdb' is other option
+        ambertools (dict): ambertools configuration directives, defaults to {}
 
     Raises:
         parmed.exceptions.GromacsError: if parmed fails
     """
-    ambertools_dict=kwargs.get('ambertools',{})
-    if ambertools_dict:
-        chargemethod=ambertools_dict.get('charge_method','bcc')
-    else:
-        chargemethod=kwargs.get('charge_method','bcc')
+    chargemethod=ambertools.get('charge_method','bcc')
     logger.info(f'AmberTools> generating GAFF parameters from {inputPrefix}.{input_structure_format}')
     structin=f'{inputPrefix}.{input_structure_format}'
     mol2out=f'{outputPrefix}.mol2'

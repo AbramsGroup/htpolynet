@@ -23,10 +23,10 @@ class PostSimMD:
     Classes that inherit from this class should define their own default_params and build_npt
     """
     default_params={
-        'subdir': 'postsim/equilibrate',
-        'input_top': 'systems/final-results/final.top',
-        'input_gro': 'systems/final-results/final.gro',
-        'input_grx': 'systems/final-results/final.grx',
+        'subdir': f'{pfs.Dirs.postsim}/equilibrate',
+        'input_top': f'{pfs.Dirs.systems_final}/final.top',
+        'input_gro': f'{pfs.Dirs.systems_final}/final.gro',
+        'input_grx': f'{pfs.Dirs.systems_final}/final.grx',
         'gromacs' : {
             'gmx': 'gmx',
             'mdrun': 'gmx mdrun',
@@ -75,7 +75,7 @@ class PostSimMD:
         TC=TopoCoord(topfilename=local_top,grofilename=local_gro,grxfilename=local_grx)
         logger.info(f'{TC.Coordinates.A.shape[0]} atoms {TC.total_mass(units="gromacs"):.2f} amu')
         box=TC.Coordinates.box
-        pfs.checkout('mdp/npt.mdp')
+        pfs.checkout(pfs.Dirs.mdp_file('npt'))
         os.rename('npt.mdp',f'{mdp_pfx}.mdp')
         self.build_mdp(f'{mdp_pfx}.mdp',box=box)
         msg=TC.grompp_and_mdrun(out=p['output_deffnm'],mdp=mdp_pfx,quiet=False,mylogger=logger.info,**gromacs_dict)
@@ -124,10 +124,10 @@ class PostSimAnneal(PostSimMD):
     """ a class to handle temperature annealing MD simulation 
     """
     default_params={
-        'subdir':'postsim/anneal',
-        'input_top': 'systems/final-results/final.top',
-        'input_gro': 'systems/final-results/final.gro',
-        'input_grx': 'systems/final-results/final.grx',
+        'subdir': f'{pfs.Dirs.postsim}/anneal',
+        'input_top': f'{pfs.Dirs.systems_final}/final.top',
+        'input_gro': f'{pfs.Dirs.systems_final}/final.gro',
+        'input_grx': f'{pfs.Dirs.systems_final}/final.grx',
         'gromacs' : {
             'gmx': 'gmx',
             'mdrun': 'gmx mdrun',
@@ -179,10 +179,10 @@ class PostSimLadder(PostSimMD):
     """ a class to handle a temperature-ladder MD simulation
     """
     default_params={
-        'subdir':'postsim/ladder',
-        'input_top': 'systems/final-results/final.top',
-        'input_gro': 'systems/final-results/final.gro',
-        'input_grx': 'systems/final-results/final.grx',
+        'subdir': f'{pfs.Dirs.postsim}/ladder',
+        'input_top': f'{pfs.Dirs.systems_final}/final.top',
+        'input_gro': f'{pfs.Dirs.systems_final}/final.gro',
+        'input_grx': f'{pfs.Dirs.systems_final}/final.grx',
         'gromacs' : {
             'gmx': 'gmx',
             'mdrun': 'gmx mdrun',
@@ -242,10 +242,10 @@ class PostSimDeform(PostSimMD):
     """ a class to handle a uniaxial deformation MD simulation
     """
     default_params={
-        'subdir':'postsim/deform-x',
-        'input_top': 'systems/final-results/final.top',
-        'input_gro': 'postsim/equilibrate/equilibrate.gro',
-        'input_grx': 'systems/final-results/final.grx',
+        'subdir': f'{pfs.Dirs.postsim}/deform-x',
+        'input_top': f'{pfs.Dirs.systems_final}/final.top',
+        'input_gro': f'{pfs.Dirs.postsim}/equilibrate/equilibrate.gro',
+        'input_grx': f'{pfs.Dirs.systems_final}/final.grx',
         'gromacs' : {
             'gmx': 'gmx',
             'mdrun': 'gmx mdrun',
@@ -425,16 +425,16 @@ def postsim(args):
     ess='y' if len(args.proj)==0 else 'ies'
     ogromacs={}
     if args.ocfg:
-        ocfg=Configuration.read(args.ocfg,parse=False)
-        ogromacs=ocfg.basedict.get('gromacs',{})
+        ocfg=Configuration.read(args.ocfg)
+        ogromacs=ocfg.gromacs
     cfg=PostsimConfiguration.read(args.cfg)
     logger.debug(f'{cfg.baselist}')
     logger.info(f'Project director{ess}: {args.proj}')
     software.sw_setup()
     logger.debug(f'ogromacs {ogromacs}')
     for d in args.proj:
-        pfs.pfs_setup(root=os.getcwd(),topdirs=['molecules','systems','plots','postsim'],verbose=True,projdir=d,reProject=False,userlibrary=args.lib)
-        pfs.go_to('postsim')
+        pfs.pfs_setup(root=os.getcwd(),topdirs=pfs.Dirs.postsim_topdirs,verbose=True,projdir=d,reProject=False,userlibrary=args.lib)
+        pfs.go_to(pfs.Dirs.postsim)
         for stage in cfg.stagelist:
             stage.do(mdp_pfx='local',**ogromacs)
         pfs.go_root()
