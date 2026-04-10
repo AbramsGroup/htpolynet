@@ -14,7 +14,8 @@ from htpolynet.geometry.linkcell import Linkcell
 from htpolynet.geometry.ring import Ring, Segment
 from htpolynet.utils.dataframetools import get_rows_w_attribute, set_row_attribute, set_rows_attributes_from_dict
 from htpolynet.geometry.matrix4 import Matrix4
-import htpolynet.io.gro as _gro_io, GRX_ATTRIBUTES, GRX_GLOBALLY_UNIQUE, GRX_UNSET_DEFAULTS
+import htpolynet.io.gro as _gro_io
+from htpolynet.io.gro import GRX_ATTRIBUTES, GRX_GLOBALLY_UNIQUE, GRX_UNSET_DEFAULTS
 import htpolynet.io.mol2 as _mol2_io
 
 logger = logging.getLogger(__name__)
@@ -315,7 +316,7 @@ class Coordinates:
         self.A[['posX','posY','posZ']] = pos % b
         self.A[['boxLx','boxLy','boxLz']] = box_lengths
 
-    def merge(self,other):
+    def merge(self, other):
         """Merges two Coordinates objects.
 
         Args:
@@ -324,8 +325,8 @@ class Coordinates:
         Returns:
             tuple: integer shifts in atom index, bond index, and residue index
         """
-        idxshift = 0 if self.A.empty else int(self.A['globalIdx'].max()) + 1
-        bdxshift = 0 if self.mol2_bonds.empty else int(self.mol2_bonds['bondIdx'].max()) + 1
+        idxshift = self.A.shape[0]
+        bdxshift = self.mol2_bonds.shape[0]
         rdxshift = 0 if self.A.empty else int(self.A['resNum'].max())
         nOtherBonds = 0
         if not other.A.empty:
@@ -345,7 +346,7 @@ class Coordinates:
         self.metadat['nBonds'] = self.metadat.get('nBonds', 0) + nOtherBonds
         return (idxshift, bdxshift, rdxshift)
             
-    def write_atomset_attributes(self,attributes,filename,formatters=[]):
+    def write_atomset_attributes(self, attributes, filename, formatters=[]):
         """Writes atom attributes to a GRX-format file.
 
         Args:
@@ -356,9 +357,9 @@ class Coordinates:
         Raises:
             Exception: if any item in attributes does not exist in the coordinates dataframe
         """
-        _gro_io.write_grx(filename,self.A,attributes,formatters=formatters)
+        _gro_io.write_grx(filename, self.A, attributes, formatters=formatters)
 
-    def read_atomset_attributes(self,filename,attributes=[]):
+    def read_atomset_attributes(self, filename, attributes=[]):
         """Reads atomic attributes from a GRX-format file into self.A.
 
         Args:
@@ -368,18 +369,18 @@ class Coordinates:
         Returns:
             list: names of attributes that were read
         """
-        df,attributes_read=_gro_io.read_grx(filename,attributes)
-        self.A=self.A.merge(df,how='outer',on='globalIdx')
+        df, attributes_read = _gro_io.read_grx(filename, attributes)
+        self.A = self.A.merge(df, how='outer', on='globalIdx')
         return attributes_read
 
-    def set_atomset_attribute(self,attribute,srs):
+    def set_atomset_attribute(self, attribute, srs):
         """Sets attribute of atoms to srs.
 
         Args:
             attribute (str): name of attribute
             srs (scalar or list-like): attribute values in same ordering as self.A
         """
-        self.A[attribute]=srs
+        self.A[attribute] = srs
 
     def atomcount(self):
         """Returns the number of atoms in the Coordinates object.
@@ -390,23 +391,23 @@ class Coordinates:
         return self.N
 
     def show_z_report(self):
-        """Generates a text-based histogram of atom z-values (0–3), keyed by resname:atomname."""
-        zhists={}
+        """Generates a text-based histogram of atom z-values (0-3), keyed by resname:atomname."""
+        zhists = {}
         for r in self.A.itertuples():
-            n=r.atomName
-            nn=r.resName
-            k=f'{nn}:{n}'
-            z=r.z
+            n = r.atomName
+            nn = r.resName
+            k = f'{nn}:{n}'
+            z = r.z
             if not k in zhists:
-                zhists[k]=np.zeros(4).astype(int)
-            zhists[k][z]+=1
+                zhists[k] = np.zeros(4).astype(int)
+            zhists[k][z] += 1
         for n in zhists:
-            if any([zhists[n][i]>0 for i in range(1,4)]):
+            if any([zhists[n][i] > 0 for i in range(1, 4)]):
                 logger.debug(f'Z-hist for {n} atoms:')
                 for i in range(4):
-                    logger.debug(f'{i:>5d} ({zhists[n][i]:>6d}): '+'*'*(zhists[n][i]//10))
+                    logger.debug(f'{i:>5d} ({zhists[n][i]:>6d}): ' + '*' * (zhists[n][i] // 10))
 
-    def return_bond_lengths(self,bdf):
+    def return_bond_lengths(self, bdf):
         """Returns an ordered list of bond lengths for bonds in bdf.
 
         Args:
@@ -415,9 +416,9 @@ class Coordinates:
         Returns:
             list: atom distances
         """
-        lengths=[]
+        lengths = []
         for b in bdf.itertuples():
-            lengths.append(self.rij(b.ai,b.aj))
+            lengths.append(self.rij(b.ai, b.aj))
         return lengths
 
     def minimum_distance(self, other, self_excludes=None, other_excludes=None):
@@ -477,12 +478,12 @@ class Coordinates:
         Returns:
             numpy.ndarray: array of x-span, y-span, z-span
         """
-        sp=self.A[['posX','posY','posZ']]
+        sp = self.A[['posX', 'posY', 'posZ']]
         return np.array(
             [
-                sp.posX.max()-sp.posX.min(),
-                sp.posY.max()-sp.posY.min(),
-                sp.posZ.max()-sp.posZ.min()
+                sp.posX.max() - sp.posX.min(),
+                sp.posY.max() - sp.posY.min(),
+                sp.posZ.max() - sp.posZ.min()
             ]
         )
 
@@ -492,8 +493,8 @@ class Coordinates:
         Returns:
             tuple(np.ndarray, np.ndarray): lower-leftmost and upper-rightmost points, respectively
         """
-        sp=self.A[['posX','posY','posZ']]
-        return np.array([sp.posX.min(),sp.posY.min(),sp.posZ.min()]),np.array([sp.posX.max(),sp.posY.max(),sp.posZ.max()])
+        sp = self.A[['posX', 'posY', 'posZ']]
+        return np.array([sp.posX.min(), sp.posY.min(), sp.posZ.min()]), np.array([sp.posX.max(), sp.posY.max(), sp.posZ.max()])
 
     def checkbox(self):
         """Checks that all atom positions fit within the designated box.
@@ -501,9 +502,9 @@ class Coordinates:
         Returns:
             tuple(bool, bool): True,True if both lower-leftmost and upper-rightmost points are within the box
         """
-        mm,MM=self.minmax()
-        bb=self.box.diagonal()
-        return mm<bb,MM>bb
+        mm, MM = self.minmax()
+        bb = self.box.diagonal()
+        return mm < bb, MM > bb
 
     def get_R(self, idx: int) -> np.ndarray:
         """Returns the cartesian position of atom with global index idx.
@@ -514,7 +515,7 @@ class Coordinates:
         Returns:
             numpy.ndarray: cartesian position of the atom, shape (3,)
         """
-        return self.A.loc[self.A['globalIdx'] == idx, ['posX','posY','posZ']].values[0]
+        return self.A.loc[self.A['globalIdx'] == idx, ['posX', 'posY', 'posZ']].values[0]
     
     def get_atom_attribute(self, name, attributes):
         """Returns values of attributes listed in name from atoms specified by attribute:value pairs.
@@ -541,10 +542,10 @@ class Coordinates:
         Returns:
             pd.DataFrame: matching dataframe segment
         """
-        df=self.A
-        return get_rows_w_attribute(df,name,attributes)
+        df = self.A
+        return get_rows_w_attribute(df, name, attributes)
 
-    def set_atom_attribute(self,name,value,attributes):
+    def set_atom_attribute(self, name, value, attributes):
         """Sets the attributes named in name to the given values for atoms matching attributes.
 
         Args:
@@ -552,10 +553,10 @@ class Coordinates:
             value (list): values of attributes to set (parallel to name)
             attributes (dict): attribute:value pairs that specify the set of atoms to be considered
         """
-        df=self.A
-        set_row_attribute(df,name,value,attributes)
+        df = self.A
+        set_row_attribute(df, name, value, attributes)
 
-    def delete_atoms(self,idx=[],reindex=True):
+    def delete_atoms(self, idx=[], reindex=True):
         """Deletes atoms whose global indices appear in idx.
 
         If reindex is True, global indices are recalculated to be sequential starting at 1
@@ -567,41 +568,41 @@ class Coordinates:
             reindex (bool): reindex remaining atoms, defaults to True
         """
         # logger.debug(f'Coordinates:delete_atoms {idx}')
-        adf=self.A
-        indexes_to_drop=adf[adf.globalIdx.isin(idx)].index
-        indexes_to_keep=set(range(adf.shape[0]))-set(indexes_to_drop)
-        self.A=adf.take(list(indexes_to_keep)).reset_index(drop=True)
+        adf = self.A
+        indexes_to_drop = adf[adf.globalIdx.isin(idx)].index
+        indexes_to_keep = set(range(adf.shape[0])) - set(indexes_to_drop)
+        self.A = adf.take(list(indexes_to_keep)).reset_index(drop=True)
         if reindex:
-            adf=self.A
-            oldGI=adf['globalIdx'].copy()
-            adf['globalIdx']=adf.index+1
-            mapper={k:v for k,v in zip(oldGI,adf['globalIdx'])}
-        self.N-=len(idx)
+            adf = self.A
+            oldGI = adf['globalIdx'].copy()
+            adf['globalIdx'] = adf.index + 1
+            mapper = {k: v for k, v in zip(oldGI, adf['globalIdx'])}
+        self.N -= len(idx)
         ''' delete appropriate bonds '''
         if not self.mol2_bonds.empty:
-            d=self.mol2_bonds
-            indexes_to_drop=d[(d.ai.isin(idx))|(d.aj.isin(idx))].index
-            indexes_to_keep=set(range(d.shape[0]))-set(indexes_to_drop)
-            self.mol2_bonds=d.take(list(indexes_to_keep)).reset_index(drop=True)
+            d = self.mol2_bonds
+            indexes_to_drop = d[(d.ai.isin(idx)) | (d.aj.isin(idx))].index
+            indexes_to_keep = set(range(d.shape[0])) - set(indexes_to_drop)
+            self.mol2_bonds = d.take(list(indexes_to_keep)).reset_index(drop=True)
             if reindex:
-                d=self.mol2_bonds
-                d.ai=d.ai.map(mapper)
-                d.aj=d.aj.map(mapper)
-                d.bondIdx=d.index+1
+                d = self.mol2_bonds
+                d.ai = d.ai.map(mapper)
+                d.aj = d.aj.map(mapper)
+                d.bondIdx = d.index + 1
             if 'nBonds' in self.metadat:
-                self.metadat['nBonds']=len(self.mol2_bonds)
-            self.bondlist=Bondlist.fromDataFrame(self.mol2_bonds)
+                self.metadat['nBonds'] = len(self.mol2_bonds)
+            self.bondlist = Bondlist.fromDataFrame(self.mol2_bonds)
 
-    def write_gro(self,filename,grotitle=''):
+    def write_gro(self, filename, grotitle=''):
         """Writes coordinates and, if present, velocities to a GROMACS-format coordinate file.
 
         Args:
             filename (str): name of file to write
             grotitle (str): title line for the .gro file, defaults to ''
         """
-        _gro_io.write(filename,self.A,self.box,self.name,grotitle=grotitle)
+        _gro_io.write(filename, self.A, self.box, self.name, grotitle=grotitle)
 
-    def write_mol2(self,filename,bondsDF=pd.DataFrame(),molname='',other_attributes=pd.DataFrame()):
+    def write_mol2(self, filename, bondsDF=pd.DataFrame(), molname='', other_attributes=pd.DataFrame()):
         """Writes a mol2-format file from coordinates and an optional bonds DataFrame.
 
         Args:
