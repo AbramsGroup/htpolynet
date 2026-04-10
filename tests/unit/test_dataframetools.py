@@ -10,19 +10,15 @@ import unittest
 import os
 import logging
 logger=logging.getLogger(__name__)
-from htpolynet.utils.dataframetools import *
+from htpolynet.utils.dataframetools import get_rows_w_attribute, set_row_attribute, set_rows_attributes_from_dict
 import pandas as pd
 
 class TestDataframeTools(unittest.TestCase):
-    def test_getrow(self):
+    def test_get_rows_w_attribute(self):
         df=pd.DataFrame({
             'a':[ 1, 2, 3, 4, 5],
             'b':[ 6, 7, 8, 9,10],
             'c':[11,12,13,14,15]
-        }
-        )
-        qdict={'a':3,'b':8}
-        row=get_row(df,qdict)
-        ans=pd.Series({'a':3,'b':8,'c':13})
-        res=row==ans
-        self.assertTrue(res.all())
+        })
+        result=get_rows_w_attribute(df,'c',{'a':3,'b':8})
+        self.assertEqual(result[0],13)

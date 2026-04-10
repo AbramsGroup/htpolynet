@@ -1,7 +1,7 @@
 Program Flow
 ------------
 
-.. figure:: flow1.png
+.. figure:: pics/flow1.png
    :scale: 80 %
    :alt: outer program flow
 
@@ -19,7 +19,7 @@ This workflow should make clear that the two required tasks of the user are:
 The Connect-Update-Relax-Equilibrate (CURE) algorithm
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. figure:: CURE.png 
+.. figure:: pics/CURE.png
    :scale: 80 %
    :alt: picture of cure algorithm block flow diagram
 
@@ -34,7 +34,7 @@ Identifying allowable bonds:  Bondsearch filters
 
 A key task of ``htpolynet`` is identifying potential bonds between reactive atoms.  ``htpolynet`` organizes its "bondsearch" in any one CURE iteration along reactions.  Each reaction specified in the :ref:`configuration file <configuration_files>` usually defines one bond by the identies of each reactant and the name of each atom in each reactant.  The bondsearch algorithm begins considering each reaction, and for each one, filtering the set of *possible* bonds using a series of rules, depicted below.
 
-.. figure:: bond_filter.png 
+.. figure:: pics/bond_filter.png
 
    Bondsearch filtering in one CURE iteration.
 

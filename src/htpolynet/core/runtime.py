@@ -16,9 +16,9 @@ import htpolynet.external.software as software
 from htpolynet.external.gromacs import insert_molecules, mdp_modify, mdp_get
 import htpolynet.utils.checkpoint as cp
 from htpolynet.analysis.plot import trace
-from htpolynet.core.molecule import Molecule, MoleculeDict, generate_stereo_reactions, generate_symmetry_reactions
+from htpolynet.core.molecule import Molecule, MoleculeDict
 from htpolynet.cure.reaction import Reaction, ReactionList, parse_reaction_list, extract_molecule_reactions, is_reactant, reaction_stage
-from htpolynet.cure.expandreactions import bondchain_expand_reactions
+from htpolynet.cure.expandreactions import bondchain_expand_reactions, generate_stereo_reactions, generate_symmetry_reactions
 from htpolynet.cure.curecontroller import CureController, CureState
 from htpolynet.cure.chain import ChainManager
 from htpolynet.utils.stringthings import my_logger
@@ -263,7 +263,7 @@ class Runtime:
             force_checkin (bool): forces HTPolyNet to overwrite molecule library, defaults to False
         """
         for mname,M in self.molecules.items():
-            M.set_origin('unparameterized')
+            M.origin='unparameterized'
         pfs.go_to(pfs.Dirs.molecules_parameterized)
         my_logger(f'Templates in {pfs.cwd()}',logger.info)
         ess='' if len(self.molecules)==1 else 's'
@@ -282,7 +282,7 @@ class Runtime:
             make_molecules={k:v for k,v in new_molecules.items() if k not in self.molecules}
             for mname,M in make_molecules.items():
                 self._generate_molecule(M,force_parameterization=force_parameterization,force_checkin=force_checkin)
-                assert M.get_origin()!='unparameterized'
+                assert M.origin!='unparameterized'
                 self.molecules[mname]=M
                 logger.debug(f'Generated {mname}')
 
@@ -488,7 +488,7 @@ class Runtime:
                 M.generate(available_molecules=self.molecules,gaff=self.cfg.gaff,ambertools=self.cfg.ambertools)
                 for ex in ['mol2','top','tpx','itp','gro','grx']:
                     checkin(f'{pfs.Dirs.molecules_parameterized}/{mname}.{ex}',overwrite=force_checkin)
-                M.set_origin('newly parameterized')
+                M.origin='newly parameterized'
             else:
                 logger.debug(f'Error: could not generate {mname}')
                 logger.debug(f'not ({mname}.generator) = {bool(not M.generator)}')
@@ -504,7 +504,7 @@ class Runtime:
             M.set_sequence_from_coordinates()
             if M.generator:
                 M.prepare_new_bonds(available_molecules=self.molecules)
-            M.set_origin('previously parameterized')
+            M.origin='previously parameterized'
 
         ''' Generate any stereoisomers and/or conformers '''
         M.generate_stereoisomers()

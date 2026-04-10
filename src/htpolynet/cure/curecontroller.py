@@ -584,7 +584,7 @@ class CureController:
         gro=TC.files['gro']
         ncpu=self.dicts['controls']['ncpu']
         if stage==reaction_stage.cure:
-            TC.linkcell_initialize(self.state.current_radius,ncpu=ncpu,force_repopulate=reentry)
+            TC.linkcell_initialize(self.state.current_radius,force_repopulate=reentry)
         raset=adf[adf['z']>0]  # this view will be used for downselecting to potential A-B partners
         bdf=pd.DataFrame()
         Rlist=[x for x in RL if (x.stage==stage and x.probability>0.0)]

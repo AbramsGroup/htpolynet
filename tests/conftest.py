@@ -8,10 +8,46 @@
 """
 import pytest
 import os
+from pathlib import Path
 # import sys
 collect_ignore = ["__defunct__"]
+
+def pytest_configure(config):
+    """Ensure the running Python's bin dir is on PATH.
+
+    When invoked as ``/path/to/env/bin/python -m pytest``, the env's bin
+    directory is not always inherited by subprocesses.  Prepending it makes
+    co-installed tools (e.g. gmx) discoverable without hard-coding any path.
+    """
+    import sys
+    env_bin = os.path.dirname(sys.executable)
+    path = os.environ.get('PATH', '')
+    if env_bin not in path:
+        os.environ['PATH'] = env_bin + os.pathsep + path
 # if sys.version_info[0] > 2:
 #     collect_ignore.append("pkg/module_py2.py")
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        '--gen-figs', action='store_true', default=False,
+        help='Generate documentation figures as test side effects'
+    )
+
+
+@pytest.fixture
+def figdir(request):
+    """Return a Path to the figure output dir, or None when --gen-figs is absent.
+
+    Tests that produce documentation figures should call
+    ``pytest.skip(...)`` when this fixture returns None.
+    """
+    if not request.config.getoption('--gen-figs'):
+        return None
+    d = (Path(__file__).parent.parent
+         / 'docs' / 'source' / 'user-guide' / 'pics' / 'ring_pierce')
+    d.mkdir(parents=True, exist_ok=True)
+    return d
 
 @pytest.fixture(autouse=True)
 def change_test_dir(request, monkeypatch):

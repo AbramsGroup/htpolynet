@@ -11,7 +11,8 @@ import os
 import shutil
 from copy import deepcopy
 import networkx as nx
-from htpolynet.core.coordinates import Coordinates, GRX_ATTRIBUTES, GRX_GLOBALLY_UNIQUE, GRX_UNSET_DEFAULTS
+from htpolynet.core.coordinates import Coordinates
+from htpolynet.io.gro import GRX_ATTRIBUTES, GRX_GLOBALLY_UNIQUE, GRX_UNSET_DEFAULTS
 from htpolynet.core.topology import Topology
 from htpolynet.core.bondtemplate import BondTemplate, ReactionBond
 from htpolynet.geometry.matrix4 import Matrix4
@@ -74,6 +75,75 @@ class TopoCoord:
         X=cls(topfilename=top,grofilename=gro)
         return X
 
+    def _sacH(self,ai,aj,rename=False):
+        """Finds the two H atoms (one bound to ai, one to aj) that are closest to each other.
+
+        Args:
+            ai (int): index of one bond atom
+            aj (int): index of the other bond atom
+            rename (bool): if True, renames remaining H atoms so highest-sorted names appear sacrificed, defaults to False
+
+        Returns:
+            list: global indexes of the two sacrificial H atoms
+        """
+        bondlist=self.Topology.bondlist
+        i_partners=bondlist.partners_of(ai)
+        j_partners=bondlist.partners_of(aj)
+        A=self.Coordinates.A
+        i_Hpartners={k:v for k,v in zip(i_partners,[A[A['globalIdx']==i]['atomName'].values[0] for i in i_partners]) if v.startswith('H')}
+        j_Hpartners={k:v for k,v in zip(j_partners,[A[A['globalIdx']==i]['atomName'].values[0] for i in j_partners]) if v.startswith('H')}
+        assert len(i_Hpartners)>0,f'Error: atom {ai} does not have a deletable H atom!'
+        assert len(j_Hpartners)>0,f'Error: atom {aj} does not have a deletable H atom!'
+        minHH=(1.e9,-1,-1)
+        for ih in i_Hpartners:
+            RiH=self.Coordinates.get_R(ih)
+            for jh in j_Hpartners:
+                RjH=self.Coordinates.get_R(jh)
+                RijH=RiH-RjH
+                rijh=np.sqrt(RijH.dot(RijH))
+                if rijh<minHH[0]:
+                    minHH=(rijh,ih,jh)
+        if rename:
+            i_avails=list(sorted(i_Hpartners.values(),key=lambda x: int(x.split('H')[1] if x.split('H')[1]!='' else '0')))[:-1]
+            j_avails=list(sorted(j_Hpartners.values(),key=lambda x: int(x.split('H')[1] if x.split('H')[1]!='' else '0')))[:-1]
+            logger.debug(f'i_avails {i_avails}')
+            logger.debug(f'j_avails {j_avails}')
+            del i_Hpartners[ih]
+            del j_Hpartners[jh]
+            Top=self.Topology.D['atoms']
+            Cor=self.Coordinates.A
+            for h in i_Hpartners:
+                i_Hpartners[h]=i_avails.pop(0)
+                Top.iloc[h-1,Top.columns=='atom']=i_Hpartners[h]
+                Cor.iloc[h-1,Cor.columns=='atomName']=i_Hpartners[h]
+                logger.debug(f'i: changed name of {h} to {i_Hpartners[h]}')
+            for h in j_Hpartners:
+                j_Hpartners[h]=j_avails.pop(0)
+                Top.iloc[h-1,Top.columns=='atom']=j_Hpartners[h]
+                Cor.iloc[h-1,Cor.columns=='atomName']=j_Hpartners[h]
+                logger.debug(f'j: changed name of {h} to {j_Hpartners[h]}')
+        return [ih,jh]
+
+    def _find_sacrificial_H(self,pairs,rename=False,explicit_sacH={}):
+        """Identifies all appropriate sacrificial hydrogen atoms for the given bond pairs.
+
+        Args:
+            pairs (list): list of (ai, aj, order) tuples indicating bonds
+            rename (bool): if True, renames remaining H atoms so highest-order names appear sacrificed, defaults to False
+            explicit_sacH (dict): pre-chosen sacrificial H atoms keyed by pair index, defaults to {}
+
+        Returns:
+            list: global atom indices to delete
+        """
+        idx_to_delete=[]
+        for i,b in enumerate(pairs):
+            if not i in explicit_sacH:
+                ai,aj,o=b
+                idx_to_delete.extend(self._sacH(ai,aj,rename=rename))
+            else:
+                idx_to_delete.extend(explicit_sacH[i])
+        return idx_to_delete
+
     def make_bonds(self,pairs,explicit_sacH={},chain_manager=None):
         """Adds new bonds to the global topology.
 
@@ -85,7 +155,7 @@ class TopoCoord:
         Returns:
             list: list of indexes of atoms that must now be deleted (sacrificial H's)
         """
-        idx_to_ignore=self.Coordinates.find_sacrificial_H(pairs,self.Topology,explicit_sacH=explicit_sacH)
+        idx_to_ignore=self._find_sacrificial_H(pairs,explicit_sacH=explicit_sacH)
         logger.debug(f'idx_to_ignore {idx_to_ignore}')
         self.Topology.add_bonds(pairs)
         if chain_manager is not None:
@@ -96,7 +166,7 @@ class TopoCoord:
         # self.bondchainlist_update(pairs,msg='TopoCoord.make_bonds')
         self.Topology.null_check(msg='add_bonds')
         rename=False if len(explicit_sacH)>0 else False
-        idx_to_delete=self.Coordinates.find_sacrificial_H(pairs,self.Topology,explicit_sacH=explicit_sacH,rename=rename)
+        idx_to_delete=self._find_sacrificial_H(pairs,rename=rename,explicit_sacH=explicit_sacH)
         assert type(idx_to_delete)==list
         return idx_to_delete
 
@@ -627,7 +697,7 @@ class TopoCoord:
             bdf (pd.DataFrame): a pandas dataframe with 'ai' and 'aj' columns of atom indices indicating bonds
             attr_name (str): name of length attribute column, defaults to 'length'
         """
-        self.Coordinates.add_length_attribute(bdf,attr_name=attr_name)
+        bdf[attr_name]=self.Coordinates.return_bond_lengths(bdf)
 
     def copy_bond_parameters(self,bonds):
         """Generates and returns a copy of a bonds dataframe that contains all bonds listed in bonds.
@@ -877,21 +947,18 @@ class TopoCoord:
                 result.append(j)
         return result
 
-    def minimum_distance(self,other,self_excludes=[],other_excludes=[]):
+    def minimum_distance(self, other, self_excludes=None, other_excludes=None):
         """Computes the distance of closest approach between self's Coordinates and other's Coordinates.
 
         Args:
             other (TopoCoord): another TopoCoord object
-            self_excludes (list): list of global atom indices to ignore in self, defaults to []
-            other_excludes (list): list of global atom indices to ignore in other, defaults to []
+            self_excludes (list, optional): atom globalIdx values to ignore in self, defaults to None
+            other_excludes (list, optional): atom globalIdx values to ignore in other, defaults to None
 
         Returns:
-            float: distance of closest approach: i.e., the distance between the two atoms, one from self and one from other, that are closest together
+            float: distance of closest approach (nm)
         """
-        return self.Coordinates.minimum_distance(other.Coordinates,self_excludes=self_excludes,other_excludes=other_excludes)
-
-    # def has_gro_attributes(self,attribute_list):
-    #     return self.Coordinates.has_atom_attributes(attribute_list)
+        return self.Coordinates.minimum_distance(other.Coordinates, self_excludes=self_excludes, other_excludes=other_excludes)
 
     def are_bonded(self,i,j):
         """Checks to see if atoms with indices i and j are bonded to each other.
@@ -904,9 +971,6 @@ class TopoCoord:
             bool: True if atoms are bonded, False otherwise
         """
         return self.Topology.bondlist.are_bonded(i,j)
-
-    # def decrement_z(self,pairs):
-    #     self.Coordinates.decrement_z(pairs)
 
     def adjust_charges(self,atoms=[],overcharge_threshhold=0.1,netcharge=0.0,msg=''):
         """Adjusts the partial charges on atoms in list 'atoms' if the absolute net charge exceeds 'netcharge' by the 'overcharge_threshhold'.
@@ -953,15 +1017,14 @@ class TopoCoord:
         self.Coordinates.A=C.reset_index()
         # logger.debug(f'after update:\n{self.Coordinates.A.to_string()}')
 
-    def linkcell_initialize(self,cutoff,ncpu=1,force_repopulate=True):
+    def linkcell_initialize(self,cutoff,force_repopulate=True):
         """Initializes the linkcell structure; a wrapper for Coordinates.
 
         Args:
-            cutoff (float): minimum value of cell side-length
-            ncpu (int): number of processors to use in populating linkcell structure in parallel, defaults to 1
-            force_repopulate (bool): if True, force repopulation of the linkcell structure, defaults to True
+            cutoff (float): cell side length (nm)
+            force_repopulate (bool): if True, ignore any cached linkcell_idx file, defaults to True
         """
-        self.Coordinates.linkcell_initialize(cutoff,ncpu=ncpu,populate=True,force_repopulate=force_repopulate)
+        self.Coordinates.linkcell_initialize(cutoff,populate=True,force_repopulate=force_repopulate)
 
     def linkcell_cleanup(self):
         """Removes linkcell_idx attribute from Coordinate.A.
@@ -1224,18 +1287,12 @@ class TopoCoord:
         """
         adf=self.Coordinates.A
         LC=self.Coordinates.linkcell
-        # at the current state, a linkcell is active under Coordinates
-        # with spacing *greater* than the initial length of any bond.
-        # so we can visit rings with one or more atom in a cell neighboring
-        # the cells of the two atoms
-        assert 'linkcell_idx' in adf,f'Error: atoms have no linkcell_idx attribute - bug!'
-        i_lcidx=self.get_gro_attribute_by_attributes('linkcell_idx',{'globalIdx':i})
-        j_lcidx=self.get_gro_attribute_by_attributes('linkcell_idx',{'globalIdx':j})
-        joint_idx=[]
-        for idx in LC.neighborlists[i_lcidx]+LC.neighborlists[j_lcidx]+[i_lcidx,j_lcidx]:
-            if not idx in joint_idx:
-                joint_idx.append(idx)
-        nearby_rings=self.Topology.rings.filter(joint_idx)
+        assert 'linkcell_idx' in adf.columns,f'Error: atoms have no linkcell_idx attribute - bug!'
+        i_lcidx=int(self.get_gro_attribute_by_attributes('linkcell_idx',{'globalIdx':i}))
+        j_lcidx=int(self.get_gro_attribute_by_attributes('linkcell_idx',{'globalIdx':j}))
+        nearby_cells=LC.neighbor_cell_set(i_lcidx) | LC.neighbor_cell_set(j_lcidx)
+        nearby_atom_ids=LC.nearby_atom_ids(adf,nearby_cells)
+        nearby_rings=self.Topology.rings.filter(nearby_atom_ids)
         logger.debug(f'Ring-pierce check for bond {i}-{j} will consider {len(nearby_rings)} rings')
         B=adf.iloc[[i-1,j-1]].copy()
         seg=np.array(B[['posX','posY','posZ']].values)

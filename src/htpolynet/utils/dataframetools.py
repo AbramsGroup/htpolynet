@@ -7,34 +7,6 @@ import logging
 
 logger=logging.getLogger(__name__)
 
-def get_row(df:pd.DataFrame,attributes:dict): 
-    """return a pandas Series of the row that matches the attribute dict"""
-    assert all([k in df for k in attributes.keys()]),f'One or more keys not in dataframe'
-    ga={k:v for k,v in attributes.items() if k in df}
-    assert len(ga)>0,f'Cannot find row with attributes {attributes} in dataframe with {df.columns}'
-    sdf=df
-    for k,v in attributes.items():
-        sdf=sdf[sdf[k]==v]
-    # res=pd.Series(sdf.iloc[0,:])
-    # logger.debug(f'sdf dtypes {sdf.dtypes}')
-    # logger.debug(f'get_row returns series {res.to_string()} with dtypes {res.dtypes}')
-    return pd.Series(sdf.iloc[0,:])
-
-def get_row_attribute(df:pd.DataFrame,name,attributes):
-    """Returns a scalar value of attribute "name" in row expected to be uniquely defined by attributes dict.
-
-    Args:
-        df (pandas.DataFrame): dataframe to search
-        name (str): name of attribute whose value you want
-        attributes (dict): dictionary of attribute:value pairs that defines target set or row
-
-    Returns:
-        scalar: value of attribute name
-    """
-    row=get_row(df,attributes)
-    # res=row[name]
-    # logger.debug(f'get_row_attribute of {name} returns {res} with type {type(res)}')
-    return row[name]
 
 def get_row_as_string(df:pd.DataFrame,attributes):
     """Returns the selected rows as a string, with rows expected to be uniquely defined by attributes dict.

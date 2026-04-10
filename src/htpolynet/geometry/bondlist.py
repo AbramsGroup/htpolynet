@@ -40,7 +40,9 @@ class Bondlist:
         ajset=set(df.aj)
         keyset=aiset.union(ajset)
         keys=sorted(list(keyset))
-        self.B.update({k:[] for k in keys})
+        for k in keys:
+            if k not in self.B:
+                self.B[k] = []
         assert all([type(x)==int for x in self.B.keys()])
         for r in df.itertuples():
             ai=r.ai 

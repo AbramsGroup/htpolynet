@@ -29,7 +29,7 @@ Typical Usage
 
 htpolynet is designed to allow one to easily simulate many system replicas of a given polymerization recipe.  A typical use of htpolynet to measure thermomechanical properties of a polymerized system is shown below.
 
-.. figure:: TypicalUsageFlow.png
+.. figure:: pics/TypicalUsageFlow.png
 
   Example of a typical workflow for using htpolynet to measure a system density, fractional free volume, Young's modulus *E* and glass-transition temperature *T*:sub:`g`.  
 

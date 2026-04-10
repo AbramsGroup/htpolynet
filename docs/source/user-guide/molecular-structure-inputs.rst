@@ -9,17 +9,17 @@ The first **very important** thing is this:  ``htpolynet`` requires **valence-co
 
 To illustrate how to handle this, let's consider the simple monomer styrene.  The "inactive" form of styrene is its "actual" structure:
 
-.. image:: STYCC.png 
+.. image:: pics/STYCC.png
 
 However, for ``htpolynet``, styrene's **active** form is actually ethylbenzene:
 
-.. image:: STY.png 
+.. image:: pics/STY.png
 
 So we need to generate a ``mol2`` and/or ``pdb`` file for an ethylbenzene to use styrene as a monomer in ``htpolynet``.
 
 One way to generate ``mol2`` files is with any one of a number of chemical "sketching" tools.  For example, the `ChemDoodle 2D sketcher <https://web.chemdoodle.com/demos/2d-sketcher>`_:
 
-.. figure:: chemdoodle-2dsketcher-emb.png
+.. figure:: pics/chemdoodle-2dsketcher-emb.png
 
     Example of a Chemdoodle 2d-sketcher session for creating an input ``mol2`` file for styrene (ahem, actually ethylbenzene).
 
