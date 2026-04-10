@@ -33,7 +33,7 @@ class TopoCoord:
     """Container for Topology and Coordinates, along with methods that
         use either or both of them
     """
-    def __init__(self,topfilename='',tpxfilename='',grofilename='',grxfilename='',mol2filename='',system_name='htpolynet',**kwargs):
+    def __init__(self, topfilename='', tpxfilename='', grofilename='', grxfilename='', mol2filename='', system_name='htpolynet', wrap_coords=False, ignore_bonds=False, overwrite_coordinates=False):
         """Constructor method for TopoCoord.
 
         Args:
@@ -42,40 +42,51 @@ class TopoCoord:
             grofilename (str): name of Gromacs-format coordinate file (gro), defaults to ''
             grxfilename (str): name of custom-format extended coordinate file (grx), defaults to ''
             mol2filename (str): name of SYBYL MOL2-format coordinate/bonds file, defaults to ''
+            system_name (str): name of the system, defaults to 'htpolynet'
+            wrap_coords (bool): if True, wrap coordinates into the box after reading gro, defaults to False
+            ignore_bonds (bool): if True, skip reading bonds from mol2, defaults to False
+            overwrite_coordinates (bool): if True, overwrite existing coordinates when reading mol2, defaults to False
         """
-        wrap_coords=kwargs.get('wrap_coords',False)
-        self.files={}
-        self.files['top']=os.path.abspath(topfilename)
-        self.files['tpx']=os.path.abspath(tpxfilename)
-        self.files['gro']=os.path.abspath(grofilename)
-        self.files['grx']=os.path.abspath(grxfilename)
-        self.files['mol2']=os.path.abspath(mol2filename)
-        self.grxattr=[]
+        self.files = {}
+        self.files['top'] = os.path.abspath(topfilename)
+        self.files['tpx'] = os.path.abspath(tpxfilename)
+        self.files['gro'] = os.path.abspath(grofilename)
+        self.files['grx'] = os.path.abspath(grxfilename)
+        self.files['mol2'] = os.path.abspath(mol2filename)
+        self.grxattr = []
 
         # self.idx_lists={}
         # self.idx_lists['bondchain']=[]
-        if grofilename!='':
-            self.read_gro(grofilename,wrap_coords=wrap_coords)
+        if grofilename != '':
+            self.read_gro(grofilename, wrap_coords=wrap_coords)
         else:
-            self.Coordinates=Coordinates()  # empty
-        if topfilename!='':
+            self.Coordinates = Coordinates()  # empty
+        if topfilename != '':
             self.read_top(topfilename)
         else:
-            self.Topology=Topology(system_name=system_name) # empty
-        if tpxfilename!='':
+            self.Topology = Topology(system_name=system_name) # empty
+        if tpxfilename != '':
             self.read_tpx(tpxfilename)
-        if mol2filename!='':
-            self.read_mol2(mol2filename,**kwargs)
-        if grxfilename!='':
+        if mol2filename != '':
+            self.read_mol2(mol2filename, ignore_bonds=ignore_bonds, overwrite_coordinates=overwrite_coordinates)
+        if grxfilename != '':
             self.read_gro_attributes(grxfilename)
         self.Coordinates.claim_parent(self)
 
     @classmethod
-    def from_top_gro(cls,top,gro):
-        X=cls(topfilename=top,grofilename=gro)
-        return X
+    def from_top_gro(cls, top, gro):
+        """Constructs a TopoCoord object from a top / gro pair.
 
-    def _sacH(self,ai,aj,rename=False):
+        Args:
+            top (str): Gromacs topology file
+            gro (str): Gromacs gro coordinate file
+
+        Returns:
+            TopoCoord: TopoCoord instance with the top / gro read in
+        """
+        return cls(topfilename=top, grofilename=gro)
+
+    def _sacH(self, ai, aj, rename=False):
         """Finds the two H atoms (one bound to ai, one to aj) that are closest to each other.
 
         Args:
@@ -86,45 +97,45 @@ class TopoCoord:
         Returns:
             list: global indexes of the two sacrificial H atoms
         """
-        bondlist=self.Topology.bondlist
-        i_partners=bondlist.partners_of(ai)
-        j_partners=bondlist.partners_of(aj)
-        A=self.Coordinates.A
-        i_Hpartners={k:v for k,v in zip(i_partners,[A[A['globalIdx']==i]['atomName'].values[0] for i in i_partners]) if v.startswith('H')}
-        j_Hpartners={k:v for k,v in zip(j_partners,[A[A['globalIdx']==i]['atomName'].values[0] for i in j_partners]) if v.startswith('H')}
-        assert len(i_Hpartners)>0,f'Error: atom {ai} does not have a deletable H atom!'
-        assert len(j_Hpartners)>0,f'Error: atom {aj} does not have a deletable H atom!'
-        minHH=(1.e9,-1,-1)
+        bondlist = self.Topology.bondlist
+        i_partners = bondlist.partners_of(ai)
+        j_partners = bondlist.partners_of(aj)
+        A = self.Coordinates.A
+        i_Hpartners = {k: v for k, v in zip(i_partners, [A[A['globalIdx'] == i]['atomName'].values[0] for i in i_partners]) if v.startswith('H')}
+        j_Hpartners = {k: v for k, v in zip(j_partners, [A[A['globalIdx'] == i]['atomName'].values[0] for i in j_partners]) if v.startswith('H')}
+        assert len(i_Hpartners) > 0, f'Error: atom {ai} does not have a deletable H atom ligand!'
+        assert len(j_Hpartners) > 0, f'Error: atom {aj} does not have a deletable H atom ligand!'
+        minHH = (1.e9, -1, -1)
         for ih in i_Hpartners:
-            RiH=self.Coordinates.get_R(ih)
+            RiH = self.Coordinates.get_R(ih)
             for jh in j_Hpartners:
-                RjH=self.Coordinates.get_R(jh)
-                RijH=RiH-RjH
-                rijh=np.sqrt(RijH.dot(RijH))
-                if rijh<minHH[0]:
-                    minHH=(rijh,ih,jh)
+                RjH = self.Coordinates.get_R(jh)
+                RijH = RiH - RjH
+                rijh = np.sqrt(RijH.dot(RijH))
+                if rijh < minHH[0]:
+                    minHH = (rijh, ih, jh)
         if rename:
-            i_avails=list(sorted(i_Hpartners.values(),key=lambda x: int(x.split('H')[1] if x.split('H')[1]!='' else '0')))[:-1]
-            j_avails=list(sorted(j_Hpartners.values(),key=lambda x: int(x.split('H')[1] if x.split('H')[1]!='' else '0')))[:-1]
+            i_avails = list(sorted(i_Hpartners.values(), key=lambda x: int(x.split('H')[1] if x.split('H')[1] != '' else '0')))[:-1]
+            j_avails = list(sorted(j_Hpartners.values(), key=lambda x: int(x.split('H')[1] if x.split('H')[1] != '' else '0')))[:-1]
             logger.debug(f'i_avails {i_avails}')
             logger.debug(f'j_avails {j_avails}')
             del i_Hpartners[ih]
             del j_Hpartners[jh]
-            Top=self.Topology.D['atoms']
-            Cor=self.Coordinates.A
+            Top = self.Topology.D['atoms']
+            Cor = self.Coordinates.A
             for h in i_Hpartners:
-                i_Hpartners[h]=i_avails.pop(0)
-                Top.iloc[h-1,Top.columns=='atom']=i_Hpartners[h]
-                Cor.iloc[h-1,Cor.columns=='atomName']=i_Hpartners[h]
+                i_Hpartners[h] = i_avails.pop(0)
+                Top.iloc[h-1, Top.columns == 'atom'] = i_Hpartners[h]
+                Cor.iloc[h-1, Cor.columns == 'atomName'] = i_Hpartners[h]
                 logger.debug(f'i: changed name of {h} to {i_Hpartners[h]}')
             for h in j_Hpartners:
-                j_Hpartners[h]=j_avails.pop(0)
-                Top.iloc[h-1,Top.columns=='atom']=j_Hpartners[h]
-                Cor.iloc[h-1,Cor.columns=='atomName']=j_Hpartners[h]
+                j_Hpartners[h] = j_avails.pop(0)  
+                Top.iloc[h-1, Top.columns == 'atom'] = j_Hpartners[h]
+                Cor.iloc[h-1, Cor.columns == 'atomName'] = j_Hpartners[h]
                 logger.debug(f'j: changed name of {h} to {j_Hpartners[h]}')
-        return [ih,jh]
+        return [ih, jh]
 
-    def _find_sacrificial_H(self,pairs,rename=False,explicit_sacH={}):
+    def _find_sacrificial_H(self, pairs, rename=False, explicit_sacH={}):
         """Identifies all appropriate sacrificial hydrogen atoms for the given bond pairs.
 
         Args:
@@ -135,16 +146,16 @@ class TopoCoord:
         Returns:
             list: global atom indices to delete
         """
-        idx_to_delete=[]
+        idx_to_delete = []
         for i,b in enumerate(pairs):
             if not i in explicit_sacH:
-                ai,aj,o=b
-                idx_to_delete.extend(self._sacH(ai,aj,rename=rename))
+                ai, aj, o = b
+                idx_to_delete.extend(self._sacH(ai, aj, rename=rename))
             else:
                 idx_to_delete.extend(explicit_sacH[i])
         return idx_to_delete
 
-    def make_bonds(self,pairs,explicit_sacH={},chain_manager=None):
+    def make_bonds(self, pairs, explicit_sacH={}, chain_manager=None):
         """Adds new bonds to the global topology.
 
         Args:
@@ -155,7 +166,7 @@ class TopoCoord:
         Returns:
             list: list of indexes of atoms that must now be deleted (sacrificial H's)
         """
-        idx_to_ignore=self._find_sacrificial_H(pairs,explicit_sacH=explicit_sacH)
+        idx_to_ignore = self._find_sacrificial_H(pairs, explicit_sacH=explicit_sacH)
         logger.debug(f'idx_to_ignore {idx_to_ignore}')
         self.Topology.add_bonds(pairs)
         if chain_manager is not None:
@@ -165,21 +176,21 @@ class TopoCoord:
             chain_manager.to_dataframe(self.Coordinates.A)
         # self.bondchainlist_update(pairs,msg='TopoCoord.make_bonds')
         self.Topology.null_check(msg='add_bonds')
-        rename=False if len(explicit_sacH)>0 else False
-        idx_to_delete=self._find_sacrificial_H(pairs,rename=rename,explicit_sacH=explicit_sacH)
-        assert type(idx_to_delete)==list
+        rename = False if len(explicit_sacH) > 0 else False
+        idx_to_delete = self._find_sacrificial_H(pairs, rename=rename, explicit_sacH=explicit_sacH)
+        assert type(idx_to_delete) == list
         return idx_to_delete
 
-    def add_restraints(self,pairdf,typ=6):
+    def add_restraints(self, pairdf, typ=6):
         """Adds bonds of type typ to the topology from the dataframe pairdf.
 
         Args:
             pairdf (pandas.DataFrame): dataframe with ai, aj, initial-distance columns
             typ (int): bond type to add, defaults to 6 (non-topological restraint)
         """
-        self.Topology.add_restraints(pairdf,typ=typ)
+        self.Topology.add_restraints(pairdf, typ=typ)
 
-    def delete_atoms(self,atomlist):
+    def delete_atoms(self, atomlist):
         """Deletes atoms from both the Topology and Coordinates instances.
 
         Args:
@@ -190,8 +201,8 @@ class TopoCoord:
         """
         # logger.debug(f'delete_atoms: {atomlist}')
         self.Coordinates.delete_atoms(atomlist)
-        idx_mapper=self.Topology.delete_atoms(atomlist)
-        assert type(idx_mapper)==dict
+        idx_mapper = self.Topology.delete_atoms(atomlist)
+        assert type(idx_mapper) == dict
         # logger.debug(f'idx_mapper: {idx_mapper}')
         # for list_name in ['bondchain']:
         #     # logger.debug(f'remapping idxs in stale {list_name} lists: {self.idx_lists[list_name]}')
@@ -209,12 +220,12 @@ class TopoCoord:
         Returns:
             int: number of H atoms bound to this atom
         """
-        aneigh=self.partners_of(idx)
-        aneighnames=[self.get_gro_attribute_by_attributes('atomName',{'globalIdx':y}) for y in aneigh]
-        anH=sum([int(x.upper().startswith('H')) for x in aneighnames])
+        aneigh = self.Topology.bondlist.partners_of(idx)
+        aneighnames = [self.get_gro_attribute_by_attributes('atomName', {'globalIdx': y}) for y in aneigh]
+        anH = sum([int(x.upper().startswith('H')) for x in aneighnames])
         return anH
 
-    def map_from_templates(self,bdf,moldict,overcharge_threshhold=0.1,chain_manager=None):
+    def map_from_templates(self, bdf, moldict, overcharge_threshhold=0.1, chain_manager=None):
         """Updates angles, pairs, dihedrals, atom types, and charges, based on product templates associated with each bond in 'bdf'.
 
         Args:
@@ -231,28 +242,28 @@ class TopoCoord:
             Exception: if nan found in aj attribute of any template pair
             Exception: if nan found in any system pair
         """
-        atdf=self.Topology.D['atoms']
+        atdf = self.Topology.D['atoms']
         # ij=self.Topology.D['bondtypes'].set_index(['i','j'])
         #mb=self.D['mol2_bonds']
         # bmi=self.Topology.D['bonds'].set_index(['ai','aj']).sort_index().index
-        grodf=self.Coordinates.A
-        grodf['old_reactantName']=grodf['reactantName'].copy()
+        grodf = self.Coordinates.A
+        grodf['old_reactantName'] = grodf['reactantName'].copy()
         logger.debug(f'Mapping {bdf.shape[0]} bonds.')
-        premapping_total_charge=self.Topology.total_charge()
+        premapping_total_charge = self.Topology.total_charge()
         logger.debug(f'Must compensate for an overcharge of {premapping_total_charge:.4f}')
-        mapped_inst_atoms=[]
+        mapped_inst_atoms = []
         for b in bdf.itertuples():
             logger.debug(f'Mapping bond {b}')
             # for ln in b.to_string().split('\n'):
             #     logger.debug(f'  -> {ln}')
-            bb=[b.ai,b.aj]
-            order=b.order
-            names=[self.get_gro_attribute_by_attributes('atomName',{'globalIdx':x}) for x in bb]
-            resnames=[self.get_gro_attribute_by_attributes('resName',{'globalIdx':x}) for x in bb]
+            bb = [b.ai,b.aj]
+            order = b.order
+            names = [self.get_gro_attribute_by_attributes('atomName', {'globalIdx': x}) for x in bb]
+            resnames = [self.get_gro_attribute_by_attributes('resName', {'globalIdx': x}) for x in bb]
             logger.debug(f'{resnames}')
-            resids=[self.get_gro_attribute_by_attributes('resNum',{'globalIdx':x}) for x in bb]
+            resids = [self.get_gro_attribute_by_attributes('resNum', {'globalIdx': x}) for x in bb]
             # this is the product name of the reaction used to identify this bond
-            product_name=b.reactantName
+            product_name = b.reactantName
             if product_name in moldict:
                 P=moldict[product_name]
                 if P.is_reactant:
@@ -264,72 +275,72 @@ class TopoCoord:
                         self.set_gro_attribute_by_attributes('reactantName',product_name,{'globalIdx':j})
                 else:
                     logger.debug(f'{P.name} is not a reactant; no update of \"reactantName\" attributes')
-            bystander_resids,bystander_resnames,bystander_atomidx,bystander_atomnames=self.get_bystanders(bb)
-            oneaway_resids,oneaway_resnames,oneaway_atomidx,oneaway_atomnames=self.get_oneaways(bb,chain_manager=chain_manager)
-            intraresidue=resids[0]==resids[1]
-            BT=BondTemplate(names,resnames,intraresidue,order,bystander_resnames,bystander_atomnames,oneaway_resnames,oneaway_atomnames)
-            RB=ReactionBond(bb,resids,order,bystander_resids,bystander_atomidx,oneaway_resids,oneaway_atomidx)
+            bystander_resids, bystander_resnames, bystander_atomidx, bystander_atomnames = self.get_bystanders(bb)
+            oneaway_resids, oneaway_resnames, oneaway_atomidx, oneaway_atomnames = self.get_oneaways(bb, chain_manager=chain_manager)
+            intraresidue = resids[0] == resids[1]
+            BT = BondTemplate(names, resnames, intraresidue, order, bystander_resnames, bystander_atomnames, oneaway_resnames, oneaway_atomnames)
+            RB = ReactionBond(bb, resids, order, bystander_resids, bystander_atomidx, oneaway_resids, oneaway_atomidx)
             logger.debug(f'apparent bond template {str(BT)}')
             logger.debug(f'apparent bond instance {str(RB)}')
-            T,rb,reverse_bond=find_template(BT,moldict)
+            T, rb, reverse_bond = find_template(BT, moldict)
             if reverse_bond: RB.reverse()
-            temp_i_idx,temp_j_idx=rb.idx
-            d=T.TopoCoord.Topology.D['bonds']
+            temp_i_idx, temp_j_idx = rb.idx
+            d = T.TopoCoord.Topology.D['bonds']
             # copy all bond records matching these two bonds; should be only one!!
-            d=d[((d.ai==temp_i_idx)&(d.aj==temp_j_idx))|
-                ((d.ai==temp_j_idx)&(d.aj==temp_i_idx))].copy()
-            assert d.shape[0]==1,f'Using {T.name} is sent inst-bond {i_idx}-{j_idx} which is claimed to map to {temp_i_idx}-{temp_j_idx}, but no such unique bond is found:\n{T.TopoCoord.Topology.D["bonds"].to_string()}'
+            d = d[((d.ai == temp_i_idx) & (d.aj == temp_j_idx)) |
+                ((d.ai == temp_j_idx) & (d.aj == temp_i_idx))].copy()
+            assert d.shape[0] == 1, f'Using {T.name} is sent inst-bond {i_idx}-{j_idx} which is claimed to map to {temp_i_idx}-{temp_j_idx}, but no such unique bond is found:\n{T.TopoCoord.Topology.D["bonds"].to_string()}'
             ''' check passed '''
-            temp_angles,temp_dihedrals,temp_pairs=T.get_angles_dihedrals((temp_i_idx,temp_j_idx))
+            temp_angles, temp_dihedrals, temp_pairs = T.get_angles_dihedrals((temp_i_idx, temp_j_idx))
             logger.debug(f'Mapping {temp_angles.shape[0]} angles, {temp_dihedrals.shape[0]} dihedrals, and {temp_pairs.shape[0]} pairs from template {T.name}')
             # determine the set of unique atoms in template that must be mapped to instance -- it is all
             # atoms involved in these bonded interactions
-            uniq_temp_idx=set()
-            for df in [temp_angles,temp_dihedrals,temp_pairs]:
+            uniq_temp_idx = set()
+            for df in [temp_angles, temp_dihedrals, temp_pairs]:
                 for label in ['ai','aj','ak','al']:
                     if label in df:
-                        uniq_temp_idx=uniq_temp_idx.union(set(df[label].to_list()))
+                        uniq_temp_idx = uniq_temp_idx.union(set(df[label].to_list()))
             logger.debug(f'Template atom indexes that must be mapped: {uniq_temp_idx}')
             # get the bidirectional instance<->template mapping dictionaries
-            inst2temp,temp2inst=T.idx_mappers(self,RB.idx,RB.bystander_resids,RB.oneaway_resids,uniq_temp_idx)
+            inst2temp, temp2inst = T.idx_mappers(self, RB.idx, RB.bystander_resids, RB.oneaway_resids, uniq_temp_idx)
             # some hard checks on compatibility of the dicts
-            assert len(inst2temp)==len(temp2inst)
-            check=True
-            for k,v in inst2temp.items():
+            assert len(inst2temp) == len(temp2inst)
+            check = True
+            for k, v in inst2temp.items():
                 check = check and (k == temp2inst[v])
-            for k,v in temp2inst.items():
+            for k, v in temp2inst.items():
                 check = check and (k == inst2temp[v])
             assert check,f'Error: bidirectional dicts are incompatible; bug\n{inst2temp}\b{temp2inst}'
             # logger.debug(f'inst2temp {inst2temp}')
             # logger.debug(f'temp2inst {temp2inst}')
-            i_idx,j_idx=bb
-            _temp_i_idx,_temp_j_idx=inst2temp[i_idx],inst2temp[j_idx]
-            assert temp_i_idx==_temp_i_idx,f'mapping mismatch -- bug'
-            assert temp_j_idx==_temp_j_idx,f'mapping mismatch -- bug'
+            i_idx, j_idx = bb
+            _temp_i_idx, _temp_j_idx = inst2temp[i_idx], inst2temp[j_idx]
+            assert temp_i_idx == _temp_i_idx, f'mapping mismatch -- bug'
+            assert temp_j_idx == _temp_j_idx, f'mapping mismatch -- bug'
 
-            need_new_bond_parameters=False
-            total_dcharge=0.0
-            temp_atdf=T.TopoCoord.Topology.D['atoms']
-            for temp_atom,inst_atom in temp2inst.items():
-                assert inst_atom in atdf['nr'].values,f'Error: mapped atom {inst_atom} not found in [ atoms ]'
-                inst_type,inst_charge,inst_name,inst_resn,inst_rnam=atdf[atdf['nr']==inst_atom][['type','charge','atom','resnr','residue']].values[0]
-                temp_type,temp_charge,temp_name,temp_resn,temp_rnam=temp_atdf[temp_atdf['nr']==temp_atom][['type','charge','atom','resnr','residue']].values[0]
+            need_new_bond_parameters = False
+            total_dcharge = 0.0
+            temp_atdf = T.TopoCoord.Topology.D['atoms']
+            for temp_atom, inst_atom in temp2inst.items():
+                assert inst_atom in atdf['nr'].values, f'Error: mapped atom {inst_atom} not found in [ atoms ]'
+                inst_type, inst_charge, inst_name, inst_resn, inst_rnam = atdf[atdf['nr'] == inst_atom][['type','charge','atom','resnr','residue']].values[0]
+                temp_type, temp_charge, temp_name, temp_resn, temp_rnam = temp_atdf[temp_atdf['nr'] == temp_atom][['type','charge','atom','resnr','residue']].values[0]
                 # logger.debug(f'temp {temp_atom} {temp_name} {temp_rnam} {temp_resn} {temp_type} {temp_charge}')
                 # logger.debug(f'inst {inst_atom} {inst_name} {inst_rnam} {inst_resn} {inst_type} {inst_charge}')
-                if inst_type!=temp_type:
+                if inst_type != temp_type:
                     logger.debug(f'changing type of inst atom {inst_atom} ({inst_resn} {inst_rnam} {inst_name}) from {inst_type} to {temp_type}')
-                    atdf.loc[atdf['nr']==inst_atom,'type']=temp_type
-                    if inst_atom==b.ai or inst_atom==b.aj:
+                    atdf.loc[atdf['nr'] == inst_atom, 'type'] = temp_type
+                    if inst_atom == b.ai or inst_atom == b.aj:
                         # changed type of one or both of the bond atoms
-                        need_new_bond_parameters=True
-                if inst_charge!=temp_charge:
+                        need_new_bond_parameters = True
+                if inst_charge != temp_charge:
                     logger.debug(f'charge {inst_atom} ({inst_resn} {inst_rnam} {inst_name}) from {inst_charge} to {temp_charge}')
-                    atdf.loc[atdf['nr']==inst_atom,'charge']=temp_charge
-                    dcharge=temp_charge-inst_charge
-                    total_dcharge+=dcharge
+                    atdf.loc[atdf['nr'] == inst_atom, 'charge'] = temp_charge
+                    dcharge = temp_charge - inst_charge
+                    total_dcharge += dcharge
             mapped_inst_atoms.extend(list(temp2inst.values()))
             if need_new_bond_parameters:
-                self.Topology.reset_override_from_type('bonds','bondtypes',inst_idx=(b.ai,b.aj))
+                self.Topology.reset_override_from_type('bonds', 'bondtypes', inst_idx=(b.ai, b.aj))
 
             # get all angle, dihedrals, and pairs from template that result from the existence of the specified bond
             # temp_angles,temp_dihedrals,temp_pairs=T.get_angles_dihedrals((temp_i_idx,temp_j_idx))
@@ -338,113 +349,115 @@ class TopoCoord:
             # logger.debug(f'Template angles:')
             # for ln in temp_angles.to_string().split('\n'):
             #     logger.debug(ln)
-            inst_angles=temp_angles.copy()
-            inst_angles.ai=temp_angles.ai.map(temp2inst)
-            inst_angles.aj=temp_angles.aj.map(temp2inst)
-            inst_angles.ak=temp_angles.ak.map(temp2inst)
+            inst_angles = temp_angles.copy()
+            inst_angles.ai = temp_angles.ai.map(temp2inst)
+            inst_angles.aj = temp_angles.aj.map(temp2inst)
+            inst_angles.ak = temp_angles.ak.map(temp2inst)
             # logger.debug(f'Mapped instance angles:')
             # for ln in inst_angles.to_string().split('\n'):
             #     logger.debug(ln)
             # add new angles to the system topology
-            d=self.Topology.D['angles']
-            self.Topology.D['angles']=pd.concat((d,inst_angles),ignore_index=True)                            
+            d = self.Topology.D['angles']
+            self.Topology.D['angles'] = pd.concat((d, inst_angles), ignore_index=True)                            
             # hard check for any nan's in any atom index attribute in any angle
-            d=self.Topology.D['angles']
-            check=True
-            for a in ['ai','aj','ak']:
-                check=check and d[a].isnull().values.any()
+            d = self.Topology.D['angles']
+            check = True
+            for a in ['ai', 'aj', 'ak']:
+                check = check and d[a].isnull().values.any()
             if check:
                 logger.error('NAN in angles')
-                raise Exception
+                raise ValueError('NAN in angles')
 
             # logger.debug(f'Template dihedrals:')
             # for ln in temp_dihedrals.to_string().split('\n'):
             #     logger.debug(ln)
             # map from template atom indicies to system atom indicies in dihedrals
-            inst_dihedrals=temp_dihedrals.copy()
-            inst_dihedrals.ai=temp_dihedrals.ai.map(temp2inst)
-            inst_dihedrals.aj=temp_dihedrals.aj.map(temp2inst)
-            inst_dihedrals.ak=temp_dihedrals.ak.map(temp2inst)
-            inst_dihedrals.al=temp_dihedrals.al.map(temp2inst)
+            inst_dihedrals = temp_dihedrals.copy()
+            inst_dihedrals.ai = temp_dihedrals.ai.map(temp2inst)
+            inst_dihedrals.aj = temp_dihedrals.aj.map(temp2inst)
+            inst_dihedrals.ak = temp_dihedrals.ak.map(temp2inst)
+            inst_dihedrals.al = temp_dihedrals.al.map(temp2inst)
             # logger.debug(f'Mapped instance dihedrals:')
             # for ln in inst_dihedrals.to_string().split('\n'):
             #     logger.debug(ln)
-            d=inst_dihedrals
-            check=False
+            d = inst_dihedrals
+            check = False
             for a in ['ai','aj','ak','al']:
-                check=check or d[a].isnull().values.any()
+                check = check or d[a].isnull().values.any()
             if check:
                 logger.error(f'a {a} NAN in dihedrals\n{inst_dihedrals.to_string()}')
-                raise Exception
+                raise ValueError('NAN in dihedrals')
             # add new dihedrals to global topology
-            d=self.Topology.D['dihedrals']
-            self.Topology.D['dihedrals']=pd.concat((d,inst_dihedrals),ignore_index=True)
+            d = self.Topology.D['dihedrals']
+            self.Topology.D['dihedrals'] = pd.concat((d, inst_dihedrals), ignore_index=True)
             # hard check for no nans
-            d=self.Topology.D['dihedrals']
-            check=True
+            d = self.Topology.D['dihedrals']
+            check = True
             for a in ['ai','aj','ak','al']:
-                check=check and d[a].isnull().values.any()
+                check = check and d[a].isnull().values.any()
             if check:
                 logger.error('NAN in dihedrals')
-                raise Exception
-            d=self.Topology.D['pairs']
-            check=True
+                raise ValueError('NAN in dihedrals')
+            d = self.Topology.D['pairs']
+            check = True
             for a in ['ai','aj']:
-                check=check and d[a].isnull().values.any()
+                check = check and d[a].isnull().values.any()
             if check:
                 logger.error('NAN in pairs premapping')
-                raise Exception
+                raise ValueError('NAN in pairs premapping')
 
             # double-hard check to make sure pairs can be mapped
-            k=np.array(list(temp2inst.keys()))
-            v=np.array(list(temp2inst.values()))
+            k = np.array(list(temp2inst.keys()))
+            v = np.array(list(temp2inst.values()))
             if any(np.isnan(k)):
                 logger.error('null in temp2inst keys')
+                raise ValueError('null in temp2inst keys')
             if any(np.isnan(v)):
                 logger.error('null in temp2inst values')
+                raise ValueError('null in temp2inst values')
             # logger.debug(f'temp_pairs:\n{temp_pairs.to_string()}')
-            isin=[not x in temp2inst for x in temp_pairs.ai]
+            isin = [not x in temp2inst for x in temp_pairs.ai]
             if any(isin):
-                for ii,jj in enumerate(isin):
+                for ii, jj in enumerate(isin):
                     if jj:
                         logger.error(f'atom ai {temp_pairs.ai.iloc[ii]} not in temp2inst')
-            isin=[not x in temp2inst for x in temp_pairs.aj]
+            isin = [not x in temp2inst for x in temp_pairs.aj]
             if any(isin):
-                for ii,jj in enumerate(isin):
+                for ii, jj in enumerate(isin):
                     if jj:
                         logger.error(f'atom aj {temp_pairs.aj.iloc[ii]} not in temp2inst')
 
             # map all ai attributes of all template pairs to global ai
-            temp_pairs.ai=temp_pairs.ai.map(temp2inst)
+            temp_pairs.ai = temp_pairs.ai.map(temp2inst)
             # check AGAIN for nans (I am afraid of nans)
             if temp_pairs.ai.isnull().values.any():
                 logger.error('NAN in pairs ai')
-                raise Exception
+                raise ValueError('NAN in pairs ai')
             # map all aj attributes of all template pairs to global ai
-            temp_pairs.aj=temp_pairs.aj.map(temp2inst)
+            temp_pairs.aj = temp_pairs.aj.map(temp2inst)
             # check YET AGAIN for nans (eek!)
             if temp_pairs.aj.isnull().values.any():
                 logger.error('NAN in pairs aj')
-                raise Exception
+                raise ValueError('NAN in pairs aj')
             # add these pairs to the topology
             # logger.debug(f'Concatenating this pairs to global pairs')
             # for ln in temp_pairs.to_string().split('\n'):
             #     logger.debug(ln)
-            self.Topology.D['pairs']=pd.concat((d,temp_pairs),ignore_index=True)
-            d=self.Topology.D['pairs']
+            self.Topology.D['pairs'] = pd.concat((d,temp_pairs),ignore_index=True)
+            d = self.Topology.D['pairs']
             # check AGAIN for nans
-            check=True
+            check = True
             for a in ['ai','aj']:
-                check=check and d[a].isnull().values.any()
+                check = check and d[a].isnull().values.any()
             if check:
                 logger.error('NAN in pairs post mapping')
-                raise Exception
+                raise ValueError('NAN in pairs post mapping')
             # return temp_pairs
-        mapped_inst_atoms=list(set(mapped_inst_atoms))
+        mapped_inst_atoms = list(set(mapped_inst_atoms))
         logger.debug(f'System overcharge after mapping: {self.Topology.total_charge():.4f}')
-        self.adjust_charges(atoms=mapped_inst_atoms,overcharge_threshhold=overcharge_threshhold,msg=f'overcharge magnitude exceeds {overcharge_threshhold}')
+        self.Topology.adjust_charges(atoms=mapped_inst_atoms, overcharge_threshhold=overcharge_threshhold, msg=f'overcharge magnitude exceeds {overcharge_threshhold}')
 
-    def enumerate_1_4_pairs(self,at_idx):
+    def enumerate_1_4_pairs(self, at_idx):
         """Enumerates all 1-4 pair interactions resulting from new bonds in at_idx.
 
         Args:
@@ -453,37 +466,37 @@ class TopoCoord:
         Returns:
             pandas.DataFrame: dataframe of all pairs
         """
-        pdf=self.Topology.D['pairs']
+        pdf = self.Topology.D['pairs']
         # each of these bonds results in 1-4 pair interactions
-        bl=self.Topology.bondlist
-        pai=[]
-        paj=[]
-        pri=[]
-        prj=[]
-        prsource=[]
+        bl = self.Topology.bondlist
+        pai = []
+        paj = []
+        pri = []
+        prj = []
+        prsource = []
         for p in at_idx:
             # determine all nj--nk pairs from j-k bond, where nj are neighbors of j not including k, and nk are neighbors of k not including j
             # and all nnj--k pairs from all nj-j bonds, where nnj are next-nearest neighbors of j excluding j
             # and all j--nnk pairs from all k-nk bonds, where nnk are next-nearest neighbors of k excluding k
-            j,k=p
-            nj=bl.partners_of(j)
+            j, k = p
+            nj = bl.partners_of(j)
             nj.remove(k)
-            nnj=[]
+            nnj = []
             for nn in nj:
-                t=bl.partners_of(nn)
+                t = bl.partners_of(nn)
                 t.remove(j)
                 nnj.append(t)
-            nk=bl.partners_of(k)
+            nk = bl.partners_of(k)
             nk.remove(j)
-            nnk=[]
+            nnk = []
             for nn in nk:
-                t=bl.partners_of(nn)
+                t = bl.partners_of(nn)
                 t.remove(k)
                 nnk.append(t)
             logger.debug(f'{j} {nj} {k} {nk}')
             logger.debug(f'{nnj} {nnk}')
-            for pp in product(nj,nk):
-                jj,kk=pp
+            for pp in product(nj, nk):
+                jj, kk = pp
                 pai.append(jj)
                 paj.append(kk)
                 pri.append(j)
@@ -504,8 +517,8 @@ class TopoCoord:
                         prj.append(k)
                         prsource.append('r')
 
-        pi_df=pd.DataFrame({'ai':pai,'aj':paj,'source':prsource,'bi':pri,'bj':prj})
-        pi_df.drop_duplicates(inplace=True,ignore_index=True)
+        pi_df = pd.DataFrame({'ai': pai, 'aj': paj, 'source': prsource, 'bi': pri, 'bj': prj})
+        pi_df.drop_duplicates(inplace=True, ignore_index=True)
         return pi_df
 
     def update_topology_and_coordinates(self,bdf,template_dict={},write_mapper_to=None,chain_manager=None,**kwargs):
@@ -595,14 +608,14 @@ class TopoCoord:
             self.Coordinates.box=savebox
         # logger.debug(f'box: {self.Coordinates.box}')
 
-    def read_mol2(self,mol2filename,**kwargs):
+    def read_mol2(self,mol2filename,ignore_bonds=False,overwrite_coordinates=False):
         """Creates a new Coordinates member by reading from a SYBYL-style MOL2 file. A wrapper for read_mol2 from Coordinates, but also sets the 'mol2_bonds' dataframe in the Topology if the parameter ignore_bonds is False. If the mol2_bonds dataframe is created, and the Topology already has a 'bonds' dataframe, a consistency check is performed.
 
         Args:
             mol2filename (str): name of mol2 file
+            ignore_bonds (bool): if True, skip reading bonds from mol2, defaults to False
+            overwrite_coordinates (bool): if True, overwrite existing coordinates, defaults to False
         """
-        ignore_bonds=kwargs.get('ignore_bonds',False)
-        overwrite_coordinates=kwargs.get('overwrite_coordinates',False)
         self.files['mol2']=os.path.abspath(mol2filename)
         temp_coords=Coordinates.read_mol2(mol2filename)
         if self.Coordinates.empty or overwrite_coordinates:
@@ -699,48 +712,6 @@ class TopoCoord:
         """
         bdf[attr_name]=self.Coordinates.return_bond_lengths(bdf)
 
-    def copy_bond_parameters(self,bonds):
-        """Generates and returns a copy of a bonds dataframe that contains all bonds listed in bonds.
-
-        Args:
-            bonds (list): list of bonds, each a 2-tuple of global atom indices
-
-        Returns:
-            pandas.DataFrame: bonds dataframe
-        """
-        return self.Topology.copy_bond_parameters(bonds)
-
-    def remove_restraints(self,pairsdf):
-        """Removes all bonds represented in pairsdf. These are interpreted as non-topological restraints, so deleting these 'bonds' does not influence angles or dihedrals.
-
-        Args:
-            pairsdf (pandas.DataFrame): dataframe of pairs with columns 'ai', 'aj'
-        """
-        self.Topology.remove_restraints(pairsdf)
-
-    def attenuate_bond_parameters(self,bonds,i,n,minimum_distance=0.0,init_colname='initial_distance'):
-        """Alters the kb and b0 parameters for new crosslink bonds according to the values prior to relaxation (stored in lengths), their equilibrium values, and the ratio stage/max_stages. Let stage/max_stages be x, and 1/max_stages <= x <= 1. The spring constant for each bond is multiplied by x and the distance is 1 xth of the way from its maximum value to its equilibrium value.
-
-        Args:
-            bonds (pandas.DataFrame): bonds dataframe with columns 'ai', 'aj', 'initial_distance'
-            i (int): index of stage in the series of post-bond-formation relaxation
-            n (int): total number of relaxation stages for this iteration
-            minimum_distance (float): minimum bond length allowed, overriding type-specific b0, defaults to 0.0
-            init_colname (str): name of column with initial distances, defaults to 'initial_distance'
-        """
-        self.Topology.attenuate_bond_parameters(bonds,i,n,minimum_distance=minimum_distance,init_colname=init_colname)
-
-    def attenuate_pair_parameters(self,pairdf,i,n,draglimit_nm=0.3):
-        """Alters the kb and b0 parameters for new pre-crosslink pairs according to the values prior to dragging (stored in pairdf['initial_distances']), the desired lower limit of interatomic distance 'draglimit_nm', and the ratio stage/max_stages.
-
-        Args:
-            pairdf (pandas.DataFrame): pairs dataframe with columns 'ai', 'aj', 'initial_distance'
-            i (int): index of stage in the series of pre-bond-formation dragging
-            n (int): total number of drag stages for this iteration
-            draglimit_nm (float): lower limit of interatomic distance requested from drag, defaults to 0.3
-        """
-        self.Topology.attenuate_pair_parameters(pairdf,i,n,minimum_distance=draglimit_nm)
-
     def copy_coords(self,other):
         """Copies coordinates and box size from other to self.
 
@@ -750,14 +721,6 @@ class TopoCoord:
         self.Coordinates.copy_coords(other.Coordinates)
         self.Coordinates.box=other.Coordinates.box.copy()
         self.files['gro']=os.path.abspath(other.files['gro'])
-
-    def restore_bond_parameters(self,saved):
-        """Restores saved bond parameters in df saved by overwriting.
-
-        Args:
-            saved (pandas.DataFrame): bonds dataframe
-        """
-        self.Topology.restore_bond_parameters(saved)
 
     def set_grx_attributes(self,attributes=[]):
         """Overrides the global GRX_ATTRIBUTES.
@@ -897,17 +860,6 @@ class TopoCoord:
         """
         self.Coordinates.translate(L)
 
-    def partners_of(self,i):
-        """Returns list of atom indices of bonded partners of atom i.
-
-        Args:
-            i (int): global index of atom
-
-        Returns:
-            list: list of partner global indices
-        """
-        return self.Topology.bondlist.partners_of(i)
-
     def resid_partners_of(self,ri):
         """Returns list of resid partners of resid ri.
 
@@ -959,29 +911,6 @@ class TopoCoord:
             float: distance of closest approach (nm)
         """
         return self.Coordinates.minimum_distance(other.Coordinates, self_excludes=self_excludes, other_excludes=other_excludes)
-
-    def are_bonded(self,i,j):
-        """Checks to see if atoms with indices i and j are bonded to each other.
-
-        Args:
-            i (int): an atom global index
-            j (int): another atom global index
-
-        Returns:
-            bool: True if atoms are bonded, False otherwise
-        """
-        return self.Topology.bondlist.are_bonded(i,j)
-
-    def adjust_charges(self,atoms=[],overcharge_threshhold=0.1,netcharge=0.0,msg=''):
-        """Adjusts the partial charges on atoms in list 'atoms' if the absolute net charge exceeds 'netcharge' by the 'overcharge_threshhold'.
-
-        Args:
-            atoms (list): list of atom indexes to consider, defaults to []
-            overcharge_threshhold (float): absolute deviation from netcharge that triggers adjustment, defaults to 0.1
-            netcharge (float): desired net charge, defaults to 0.0
-            msg (str): a little message to echo to console if adjustment is necessary, defaults to ''
-        """
-        self.Topology.adjust_charges(atoms=atoms,overcharge_threshhold=overcharge_threshhold,desired_charge=netcharge,msg=msg)
 
     def gro_DataFrame(self,name):
         """Returns the appropriate Coordinates dataframe based on the directive in 'name'.
@@ -1040,17 +969,6 @@ class TopoCoord:
         assert self.Coordinates.A.shape[0]==self.Topology.D['atoms'].shape[0]
         return self.Coordinates.A.shape[0]
 
-    def total_mass(self,units='SI'):
-        """Returns the total mass of the system. Just a wrapper.
-
-        Args:
-            units (str): units designation, defaults to 'SI' (other option is 'gromacs')
-
-        Returns:
-            float: mass
-        """
-        return self.Topology.total_mass(units=units)
-
     def total_volume(self,units='SI'):
         """Returns total volume represented by the system's Coordinates.
 
@@ -1071,7 +989,7 @@ class TopoCoord:
         Returns:
             float: density
         """
-        return self.total_mass(units)/self.total_volume(units)
+        return self.Topology.total_mass(units)/self.total_volume(units)
 
     def wrap_coords(self):
         """Wraps all coordinates into center periodic box.
@@ -1146,14 +1064,6 @@ class TopoCoord:
         for k,L in attribute_lists.items():
             self.Coordinates.A[k]=L
         logger.debug(f'postinherit adf columns {self.Coordinates.A.columns}')
-
-    def make_resid_graph(self,json_file=None):
-        """Makes a residue connectivity graph.
-
-        Args:
-            json_file (str): name of output JSON file to write, defaults to None
-        """
-        self.Topology.make_resid_graph(json_file=json_file)
 
     def maxspan(self):
         """Returns the maxspan of the Coordinates (dimensions of orthorhombic convex hull enclosing Coordinates). Just a wrapper.
@@ -1334,8 +1244,8 @@ class TopoCoord:
         In a cure reaction, atoms that react should be in different residues
         '''
         assert i_resNum!=j_resNum,f'shortcircuit test error {i}-{j} both in residue {i_resNum}?'
-        i_neighbors=self.partners_of(i)
-        j_neighbors=self.partners_of(j)
+        i_neighbors=self.Topology.bondlist.partners_of(i)
+        j_neighbors=self.Topology.bondlist.partners_of(j)
         # if i in j_neighbors or j in i_neighbors:
         #     # logger.debug(f'atoms {i} and {j} already on each other\'s list of bonded partners')
         #     return True
@@ -1358,7 +1268,7 @@ class TopoCoord:
         Test to see if there exists any bond between these two molecules
         '''
         for i,j in product(R1DF['globalIdx'].to_list(),R2DF['globalIdx'].to_list()):
-            if self.are_bonded(i,j):
+            if self.Topology.bondlist.are_bonded(i,j):
                 return True
         return False
 

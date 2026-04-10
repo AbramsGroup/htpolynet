@@ -531,13 +531,13 @@ class CureController:
         this_nstages=int(maxL/d['increment'])
         this_firststage=self.state.current_stage[mode]
         logger.debug(f'{self.state.step} {this_nstages} {this_firststage}')
-        saveT=TC.copy_bond_parameters(self.bonds_df)
+        saveT=TC.Topology.copy_bond_parameters(self.bonds_df)
         for i in range(this_firststage,this_nstages):
             self.state.current_stage[mode]=i
             if mode=='drag':
-                TC.attenuate_bond_parameters(self.bonds_df,i,this_nstages,minimum_distance=d['limit'],init_colname='initial_distance')
+                TC.Topology.attenuate_bond_parameters(self.bonds_df,i,this_nstages,minimum_distance=d['limit'],init_colname='initial_distance')
             else:
-                TC.attenuate_bond_parameters(self.bonds_df,i,this_nstages,init_colname='initial_distance')
+                TC.Topology.attenuate_bond_parameters(self.bonds_df,i,this_nstages,init_colname='initial_distance')
             stagepfx=f'{opfx}-stage-{i+1}'
             TC.write_top(f'{stagepfx}.top')
             for stg_dict in d['equilibration']:
@@ -545,7 +545,7 @@ class CureController:
                 impfx=f'{statename}-{ensemble}' # e.g., drag-min, drag-nvt, drag-npt
                 TC.grompp_and_mdrun(out=f'{stagepfx}-{ensemble}',mdp=f'{impfx}',**gromacs_dict)
                 # logger.debug(f'{TC.files["gro"]}')
-            TC.restore_bond_parameters(saveT)
+            TC.Topology.restore_bond_parameters(saveT)
             TC.add_length_attribute(nbdf,attr_name='current_lengths')
             maxL,minL,meanL=nbdf['current_lengths'].max(),nbdf['current_lengths'].min(),nbdf['current_lengths'].mean()
             logger.debug(f'Distances avg/min/max: {meanL:.3f}/{minL:.3f}/{maxL:.3f}')
@@ -558,7 +558,7 @@ class CureController:
                 logger.info(f'{i+1:>10d}  {maxL:>17.3f}  {pmaxL:>21.3f}')
             self.state._to_yaml()
         if mode=='drag':
-            TC.remove_restraints(self.bonds_df)
+            TC.Topology.remove_restraints(self.bonds_df)
         TC.write_top(f'{opfx}-complete.top')
         self._register_bonds(nbdf,pdf,f'{opfx}-{mode}-bonds.csv',bonds_are=('relaxed' if mode=='relax' else 'dragged'))
         self.state.current_stage[mode]=0

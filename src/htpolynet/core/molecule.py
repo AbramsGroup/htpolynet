@@ -248,7 +248,7 @@ class Molecule:
             if i < j:
                 iname = TC.get_gro_attribute_by_attributes('atomName', {'globalIdx': i})
                 jname = TC.get_gro_attribute_by_attributes('atomName', {'globalIdx': j})
-                if TC.are_bonded(i, j) and iname.startswith('C') and jname.startswith('C'):
+                if TC.Topology.bondlist.are_bonded(i, j) and iname.startswith('C') and jname.startswith('C'):
                     # this monomer has two carbon atoms capable of reacting
                     # that are bound to each other -- this means that
                     # the two originated as a double-bond.
@@ -440,7 +440,7 @@ class Molecule:
         Returns:
             float: molecular weight in g/mol
         """
-        mass = self.TopoCoord.total_mass(units='gromacs') # g
+        mass = self.TopoCoord.Topology.total_mass(units='gromacs') # g
         return mass
 
     def prepare_new_bonds(self, available_molecules={}):
@@ -684,7 +684,7 @@ class Molecule:
         shifts = self.TopoCoord.merge(other.TopoCoord, self_cm=self.chain_manager, other_cm=other.chain_manager)
         return shifts
 
-    def load_top_gro(self, topfilename, grofilename, tpxfilename='', mol2filename='', **kwargs):
+    def load_top_gro(self, topfilename, grofilename, tpxfilename='', mol2filename='', wrap_coords=False, ignore_bonds=False, overwrite_coordinates=False):
         """Generates a new TopoCoord member object for this molecule by reading in a Gromacs topology file and a Gromacs gro file.
 
         Args:
@@ -692,8 +692,11 @@ class Molecule:
             grofilename (str): Gromacs gro file
             tpxfilename (str, optional): extended topology file, defaults to ''
             mol2filename (str, optional): alternative coordinate mol2 file, defaults to ''
+            wrap_coords (bool): if True, wrap coordinates into the box after reading gro, defaults to False
+            ignore_bonds (bool): if True, skip reading bonds from mol2, defaults to False
+            overwrite_coordinates (bool): if True, overwrite existing coordinates when reading mol2, defaults to False
         """
-        self.TopoCoord = TopoCoord(topfilename=topfilename, grofilename=grofilename, tpxfilename=tpxfilename, mol2filename=mol2filename, **kwargs)
+        self.TopoCoord = TopoCoord(topfilename=topfilename, grofilename=grofilename, tpxfilename=tpxfilename, mol2filename=mol2filename, wrap_coords=wrap_coords, ignore_bonds=ignore_bonds, overwrite_coordinates=overwrite_coordinates)
 
     def set_gro_attribute(self, attribute, srs):
         """Sets attribute of atoms to srs (drills through to Coordinates.set_atomset_attributes()).
@@ -777,8 +780,8 @@ class Molecule:
         logger.debug(f'holding {at_resid} ({NONROT})')
         logger.debug(f'rotating/translating {bresids} ({BTC.Coordinates.A.shape[0]})')
         assert self.TopoCoord.Coordinates.A.shape[0] == (NONROT + BTC.Coordinates.A.shape[0])
-        mypartners = TC.partners_of(at_idx)
-        otpartners = TC.partners_of(from_idx)
+        mypartners = TC.Topology.bondlist.partners_of(at_idx)
+        otpartners = TC.Topology.bondlist.partners_of(from_idx)
         logger.debug(f'Partners of {at_idx} {mypartners}')
         logger.debug(f'Partners of {from_idx} {otpartners}')
         myHpartners = {k: v for k, v in zip(mypartners, [C[C['globalIdx'] == i]['atomName'].values[0] for i in mypartners]) if v.startswith('H')}

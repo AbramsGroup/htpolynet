@@ -73,7 +73,7 @@ class PostSimMD:
         local_gro=os.path.basename(p['input_gro'])
         local_grx=os.path.basename(p['input_grx'])
         TC=TopoCoord(topfilename=local_top,grofilename=local_gro,grxfilename=local_grx)
-        logger.info(f'{TC.Coordinates.A.shape[0]} atoms {TC.total_mass(units="gromacs"):.2f} amu')
+        logger.info(f'{TC.Coordinates.A.shape[0]} atoms {TC.Topology.total_mass(units="gromacs"):.2f} amu')
         box=TC.Coordinates.box
         pfs.checkout(pfs.Dirs.mdp_file('npt'))
         os.rename('npt.mdp',f'{mdp_pfx}.mdp')

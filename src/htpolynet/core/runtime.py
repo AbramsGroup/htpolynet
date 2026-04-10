@@ -605,7 +605,7 @@ class Runtime:
         if 'initial_boxsize' in densification_dict:
             boxsize=densification_dict['initial_boxsize']
         else:
-            mass_kg=TC.total_mass(units='SI')
+            mass_kg=TC.Topology.total_mass(units='SI')
             V0_m3=mass_kg/densification_dict['initial_density']
             ar=densification_dict.get('aspect_ratio',np.array([1.,1.,1.]))
             assert ar[0]==1.,f'Error: parameter aspect_ratio must be a 3-element-list with first element 1'
@@ -663,7 +663,7 @@ class Runtime:
         TC.inherit_grx_attributes_from_molecules(self.molecules,self.cfg.initial_composition)
         self.chain_manager=ChainManager()
         self.chain_manager.from_dataframe(TC.Coordinates.A)
-        TC.make_resid_graph()
+        TC.Topology.make_resid_graph()
         TC.write_grx_attributes(f'{inpfnm}.grx')
         logger.info(f'Coordinates "{inpfnm}.gro" in {pfs.cwd()}')
         logger.info(f'Extended attributes "{inpfnm}.grx" in {pfs.cwd()}')
