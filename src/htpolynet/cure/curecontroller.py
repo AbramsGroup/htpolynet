@@ -2,25 +2,29 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
-import pandas as pd
-from enum import Enum
-import yaml
-import numpy as np
-import os
-from itertools import product
-from htpolynet.core.topocoord import TopoCoord, BTRC
-from htpolynet.external.gromacs import gromacs_distance, mdp_modify
-from htpolynet.cure.reaction import ReactionList
-from htpolynet.core.molecule import MoleculeDict
-from htpolynet.cure.reaction import reaction_stage
-from multiprocessing import Pool
-from functools import partial
-import htpolynet.core.projectfilesystem as pfs
-from htpolynet.utils.stringthings import my_logger
-import htpolynet.utils.checkpoint as cp
-from htpolynet.analysis.plot import trace
-
 import logging
+import os
+
+from enum import Enum
+from functools import partial
+from itertools import product
+from multiprocessing import Pool
+
+import yaml
+
+import numpy as np
+import pandas as pd
+
+from ..core import projectfilesystem as pfs
+from ..utils import checkpoint as cp
+
+from ..analysis.plot import trace
+from ..core.molecule import MoleculeDict
+from ..core.topocoord import TopoCoord, BTRC
+from ..cure.reaction import ReactionList
+from ..cure.reaction import reaction_stage
+from ..external.gromacs import gromacs_distance, mdp_modify
+from ..utils.stringthings import my_logger
 
 logger = logging.getLogger(__name__)
 

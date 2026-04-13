@@ -2,11 +2,13 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
-from itertools import product
 import logging
+
 from copy import deepcopy
-from htpolynet.core.molecule import Molecule, MoleculeList, MoleculeDict
-from htpolynet.cure.reaction import reaction_stage, Reaction, ReactionList, generate_product_name, reactant_resid_to_presid
+from itertools import product
+
+from ..core.molecule import Molecule, MoleculeList, MoleculeDict
+from ..cure.reaction import reaction_stage, Reaction, ReactionList, generate_product_name, reactant_resid_to_presid
 
 logger=logging.getLogger(__name__)
 

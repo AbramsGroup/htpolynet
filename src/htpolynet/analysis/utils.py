@@ -2,16 +2,19 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
-from htpolynet.core.coordinates import Coordinates
-from htpolynet.core.topocoord import TopoCoord
-from htpolynet.external.gromacs import gmx_energy_trace
+import logging
+import os
+
+import networkx as nx
+import numpy as np
+import pandas as pd
+
 from scipy.constants import physical_constants
 from scipy.optimize import curve_fit
-import pandas as pd
-import os
-import numpy as np
-import networkx as nx
-import logging
+
+from ..core.coordinates import Coordinates
+from ..core.topocoord import TopoCoord
+from ..external.gromacs import gmx_energy_trace
 
 logger=logging.getLogger(__name__)
 

@@ -2,12 +2,14 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
-import logging
 import hashlib
+import logging
 import shutil
+
 import parmed
-from htpolynet.external.command import Command
-from htpolynet.core.coordinates import Coordinates
+
+from ..core.coordinates import Coordinates
+from ..external.command import Command
 logger=logging.getLogger(__name__)
 
 def GAFFParameterize(inputPrefix,outputPrefix,input_structure_format='mol2',ambertools={}):

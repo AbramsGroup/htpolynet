@@ -2,10 +2,11 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
-import os
-import yaml
-import logging
 import functools
+import logging
+import os
+
+import yaml
 
 logger=logging.getLogger(__name__)
 

@@ -2,24 +2,27 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
-import os
-import pandas as pd
-import numpy as np
 import logging
+import os
 import shutil
-from itertools import product
-from copy import deepcopy
 
-import htpolynet.core.projectfilesystem as pfs
-from htpolynet.geometry.matrix4 import Matrix4
-from htpolynet.core.topocoord import TopoCoord
-from htpolynet.core.bondtemplate import BondTemplate, BondTemplateList, ReactionBond, ReactionBondList
-from htpolynet.io.gro import GRX_ATTRIBUTES
-from htpolynet.external.ambertools import GAFFParameterize
-from htpolynet.external.gromacs import mdp_modify,gro_from_trr
-from htpolynet.external.command import Command
-from htpolynet.cure.reaction import Reaction, ReactionList, reaction_stage
-from htpolynet.cure.chain import ChainManager
+from copy import deepcopy
+from itertools import product
+
+import numpy as np
+import pandas as pd
+
+from ..core import projectfilesystem as pfs
+
+from ..core.bondtemplate import BondTemplate, BondTemplateList, ReactionBond, ReactionBondList
+from ..core.topocoord import TopoCoord
+from ..cure.chain import ChainManager
+from ..cure.reaction import Reaction, ReactionList, reaction_stage
+from ..external.ambertools import GAFFParameterize
+from ..external.command import Command
+from ..external.gromacs import mdp_modify,gro_from_trr
+from ..geometry.matrix4 import Matrix4
+from ..io.gro import GRX_ATTRIBUTES
 
 logger=logging.getLogger(__name__)
 

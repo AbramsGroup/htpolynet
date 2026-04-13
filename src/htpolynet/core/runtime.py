@@ -4,25 +4,29 @@ Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import logging
 import os
-import shutil
-import numpy as np
 import random
-from copy import deepcopy
-from htpolynet.core.configuration import Configuration
-from htpolynet.core.topology import select_topology_type_option
-from htpolynet.core.topocoord import TopoCoord
-import htpolynet.core.projectfilesystem as pfs
-import htpolynet.external.software as software
-from htpolynet.external.gromacs import insert_molecules, mdp_modify, mdp_get
-import htpolynet.utils.checkpoint as cp
-from htpolynet.analysis.plot import trace
-from htpolynet.core.molecule import Molecule, MoleculeDict
-from htpolynet.cure.reaction import Reaction, ReactionList, parse_reaction_list, extract_molecule_reactions, is_reactant, reaction_stage
-from htpolynet.cure.expandreactions import bondchain_expand_reactions, generate_stereo_reactions, generate_symmetry_reactions
-from htpolynet.cure.curecontroller import CureController, CureState
-from htpolynet.cure.chain import ChainManager
-from htpolynet.utils.stringthings import my_logger
+import shutil
+
 from collections import namedtuple
+from copy import deepcopy
+
+import numpy as np
+
+from ..core import projectfilesystem as pfs
+from ..external import software as software
+from ..utils import checkpoint as cp
+
+from ..analysis.plot import trace
+from ..core.configuration import Configuration
+from ..core.molecule import Molecule, MoleculeDict
+from ..core.topocoord import TopoCoord
+from ..core.topology import select_topology_type_option
+from ..cure.chain import ChainManager
+from ..cure.curecontroller import CureController, CureState
+from ..cure.expandreactions import bondchain_expand_reactions, generate_stereo_reactions, generate_symmetry_reactions
+from ..cure.reaction import Reaction, ReactionList, parse_reaction_list, extract_molecule_reactions, is_reactant, reaction_stage
+from ..external.gromacs import insert_molecules, mdp_modify, mdp_get
+from ..utils.stringthings import my_logger
 
 logger=logging.getLogger(__name__)
 

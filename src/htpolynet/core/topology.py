@@ -2,18 +2,22 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
-import logging
 import json
+import logging
 import os
-import pandas as pd
-import numpy as np
-import networkx as nx
+
 from copy import deepcopy
-from scipy.constants import physical_constants
-from networkx.readwrite import json_graph
 from itertools import product
-from htpolynet.geometry.bondlist import Bondlist
-from htpolynet.geometry.ring import Ring, RingList
+
+import networkx as nx
+import numpy as np
+import pandas as pd
+
+from networkx.readwrite import json_graph
+from scipy.constants import physical_constants
+
+from ..geometry.bondlist import Bondlist
+from ..geometry.ring import Ring, RingList
 
 logger = logging.getLogger(__name__)
 

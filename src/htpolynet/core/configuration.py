@@ -3,9 +3,10 @@
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import json
-import yaml
-import os
 import logging
+import os
+
+import yaml
 
 logger = logging.getLogger(__name__)
 

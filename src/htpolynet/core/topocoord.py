@@ -2,22 +2,26 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
-from itertools import product
-import pandas as pd
 import logging
-import numpy as np
-from enum import Enum
 import os
 import shutil
+
 from copy import deepcopy
+from enum import Enum
+from itertools import product
+
 import networkx as nx
-from htpolynet.core.coordinates import Coordinates
-from htpolynet.io.gro import GRX_ATTRIBUTES, GRX_GLOBALLY_UNIQUE, GRX_UNSET_DEFAULTS
-from htpolynet.core.topology import Topology
-from htpolynet.core.bondtemplate import BondTemplate, ReactionBond
-from htpolynet.geometry.matrix4 import Matrix4
-from htpolynet.external.gromacs import grompp_and_mdrun,mdp_get, mdp_modify, gmx_energy_trace
-import htpolynet.core.projectfilesystem as pfs
+import numpy as np
+import pandas as pd
+
+from ..core import projectfilesystem as pfs
+
+from ..core.bondtemplate import BondTemplate, ReactionBond
+from ..core.coordinates import Coordinates
+from ..core.topology import Topology
+from ..external.gromacs import grompp_and_mdrun,mdp_get, mdp_modify, gmx_energy_trace
+from ..geometry.matrix4 import Matrix4
+from ..io.gro import GRX_ATTRIBUTES, GRX_GLOBALLY_UNIQUE, GRX_UNSET_DEFAULTS
 
 logger=logging.getLogger(__name__)
 

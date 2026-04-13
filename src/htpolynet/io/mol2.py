@@ -2,12 +2,14 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
-from io import StringIO
-import numpy as np
-import pandas as pd
 import logging
 
-from htpolynet.geometry.bondlist import Bondlist
+from io import StringIO
+
+import numpy as np
+import pandas as pd
+
+from ..geometry.bondlist import Bondlist
 
 logger = logging.getLogger(__name__)
 

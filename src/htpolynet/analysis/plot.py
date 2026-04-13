@@ -2,16 +2,20 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
-from htpolynet.external.gromacs import *
-from htpolynet.analysis.utils import *
-from htpolynet.utils.logsetup import setup_logging
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import pandas as pd
 import logging
-import networkx as nx
+
 from datetime import datetime
+
 import yaml
+
+import matplotlib.cm as cm
+import matplotlib.pyplot as plt
+import networkx as nx
+import pandas as pd
+
+from ..analysis.utils import *
+from ..external.gromacs import *
+from ..utils.logsetup import setup_logging
 
 logger=logging.getLogger(__name__)
 

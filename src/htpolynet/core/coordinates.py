@@ -3,20 +3,21 @@
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 
-import pandas as pd
-import numpy as np
-import os
 import logging
+import os
 
+import numpy as np
+import pandas as pd
 
-from htpolynet.geometry.bondlist import Bondlist
-from htpolynet.geometry.linkcell import Linkcell
-from htpolynet.geometry.ring import Ring, Segment
-from htpolynet.utils.dataframetools import get_rows_w_attribute, set_row_attribute, set_rows_attributes_from_dict
-from htpolynet.geometry.matrix4 import Matrix4
-import htpolynet.io.gro as _gro_io
-from htpolynet.io.gro import GRX_ATTRIBUTES, GRX_GLOBALLY_UNIQUE, GRX_UNSET_DEFAULTS
-import htpolynet.io.mol2 as _mol2_io
+from ..io import gro as _gro_io
+from ..io import mol2 as _mol2_io
+
+from ..geometry.bondlist import Bondlist
+from ..geometry.linkcell import Linkcell
+from ..geometry.matrix4 import Matrix4
+from ..geometry.ring import Ring, Segment
+from ..io.gro import GRX_ATTRIBUTES, GRX_GLOBALLY_UNIQUE, GRX_UNSET_DEFAULTS
+from ..utils.dataframetools import get_rows_w_attribute, set_row_attribute, set_rows_attributes_from_dict
 
 logger = logging.getLogger(__name__)
 

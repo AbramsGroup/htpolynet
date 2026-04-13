@@ -2,19 +2,23 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
-import logging
-import shutil
-import numpy as np
-import os
 import json
+import logging
+import os
+import shutil
+
 import yaml
-import htpolynet.core.projectfilesystem as pfs
-from htpolynet.core.topocoord import TopoCoord
-from htpolynet.external.gromacs import mdp_get, mdp_modify, gmx_energy_trace
-import htpolynet.external.software as software
-from htpolynet.core.configuration import Configuration
-from htpolynet.utils.logsetup import setup_logging
-from htpolynet.analysis.plot import scatter
+
+import numpy as np
+
+from ..core import projectfilesystem as pfs
+from ..external import software as software
+
+from ..analysis.plot import scatter
+from ..core.configuration import Configuration
+from ..core.topocoord import TopoCoord
+from ..external.gromacs import mdp_get, mdp_modify, gmx_energy_trace
+from ..utils.logsetup import setup_logging
 
 logger=logging.getLogger(__name__)
 

@@ -4,12 +4,16 @@ Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import logging
 import os
-import pandas as pd
-import numpy as np
-from itertools import product
+
 from collections import namedtuple
-from htpolynet.external.command import Command
-import htpolynet.external.software as sw
+from itertools import product
+
+import numpy as np
+import pandas as pd
+
+from ..external import software as sw
+
+from ..external.command import Command
 logger=logging.getLogger(__name__)
 
 

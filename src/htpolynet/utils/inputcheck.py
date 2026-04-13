@@ -2,11 +2,12 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
-from htpolynet.core.topocoord import TopoCoord
-from htpolynet.core.configuration import Configuration
-from htpolynet.core.coordinates import Coordinates
-from htpolynet.external.command import Command
 import os
+
+from ..core.configuration import Configuration
+from ..core.coordinates import Coordinates
+from ..core.topocoord import TopoCoord
+from ..external.command import Command
 
 def input_check(args):
     """Manages the input-check subcommand.

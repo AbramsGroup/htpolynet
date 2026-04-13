@@ -2,9 +2,11 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
-import numpy as np
 import logging
+
 from itertools import product
+
+import numpy as np
 
 logger = logging.getLogger(__name__)
 

@@ -8,6 +8,7 @@ and have no htpolynet dependencies.
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import logging
+
 from copy import deepcopy
 
 logger = logging.getLogger(__name__)

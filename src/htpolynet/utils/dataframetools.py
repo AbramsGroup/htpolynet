@@ -2,8 +2,9 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
-import pandas as pd
 import logging
+
+import pandas as pd
 
 logger=logging.getLogger(__name__)
 

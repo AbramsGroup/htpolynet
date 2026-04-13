@@ -45,5 +45,5 @@ packages = ["src/htpolynet"]
 log_cli = true
 
 [project.scripts]
-htpolynet = "htpolynet.driver:cli"
+htpolynet = "htpolynet.cli:cli"
 

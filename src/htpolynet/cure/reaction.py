@@ -3,10 +3,13 @@
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import logging
+
 from copy import deepcopy
 from enum import Enum
+
 import networkx as nx
-from htpolynet.analysis.plot import network_graph
+
+from ..analysis.plot import network_graph
 logger=logging.getLogger(__name__)
 
 class reaction_stage(Enum):

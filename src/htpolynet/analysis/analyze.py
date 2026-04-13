@@ -2,16 +2,20 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
+import json
 import logging
 import os
-import json
-import yaml
-import htpolynet.core.projectfilesystem as pfs
-from htpolynet.external.gromacs import gmx_command
-from htpolynet.utils.logsetup import setup_logging
-import htpolynet.external.software as software
-from htpolynet.core.configuration import Configuration
+
 from pathlib import Path
+
+import yaml
+
+from ..core import projectfilesystem as pfs
+from ..external import software as software
+
+from ..core.configuration import Configuration
+from ..external.gromacs import gmx_command
+from ..utils.logsetup import setup_logging
 
 logger=logging.getLogger(__name__)
 

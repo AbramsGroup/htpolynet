@@ -36,12 +36,14 @@ Author: Cameron F. Abrams <cfa22@drexel.edu>
 # coordinates must be unwrapped into the *same*
 # periodic image!
 #
-import numpy as np
-from collections import UserList
-from functools import singledispatchmethod
-import networkx as nx
-from copy import deepcopy
 import logging
+
+from collections import UserList
+from copy import deepcopy
+from functools import singledispatchmethod
+
+import networkx as nx
+import numpy as np
 logger=logging.getLogger(__name__)
 
 def lawofcos(a,b):

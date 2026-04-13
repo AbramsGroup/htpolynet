@@ -2,8 +2,9 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
-import numpy as np
 from itertools import product
+
+import numpy as np
 
 
 def fcc(a, nc=(1, 1, 1)):

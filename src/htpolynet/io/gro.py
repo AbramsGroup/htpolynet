@@ -2,10 +2,11 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
+import logging
 import os
+
 import numpy as np
 import pandas as pd
-import logging
 
 logger = logging.getLogger(__name__)
 

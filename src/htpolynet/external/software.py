@@ -3,10 +3,11 @@
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import json
-import subprocess
 import logging
 import os
-from htpolynet.utils.stringthings import my_logger
+import subprocess
+
+from ..utils.stringthings import my_logger
 
 logger = logging.getLogger(__name__)
 

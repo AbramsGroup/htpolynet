@@ -5,7 +5,8 @@ Author: Cameron F. Abrams <cfa22@drexel.edu>
 import logging
 import os
 import shutil
-from htpolynet.utils.banner import banner
+
+from ..utils.banner import banner
 
 _logger = logging.getLogger(__name__)
 

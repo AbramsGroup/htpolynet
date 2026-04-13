@@ -2,11 +2,12 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
-import shutil
-import logging
-import os
 import glob
 import importlib.resources
+import logging
+import os
+import shutil
+
 from pathlib import Path
 
 logger = logging.getLogger(__name__)

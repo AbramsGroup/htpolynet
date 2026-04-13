@@ -3,11 +3,11 @@
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 
-import numpy as np
-import networkx as nx
-import pandas as pd
-
 import logging
+
+import networkx as nx
+import numpy as np
+import pandas as pd
 logger=logging.getLogger(__name__)
 
 class Bondlist:
