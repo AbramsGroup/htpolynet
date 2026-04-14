@@ -580,7 +580,7 @@ class Topology:
                 # logger.info(f'add_bond:\n{bdtoadd.to_string()}')
                 logger.debug(f'just added {bonddict}')
                 if 'mol2_bonds' in self.D:
-                    data = [len(self.D['mol2_bonds']), ai, aj, 1]  # assume single bond
+                    data = [len(self.D['mol2_bonds']), ai, aj, '1']  # assume single bond; order is str dtype
                     bonddict = {k: [v] for k, v in zip(['bondIdx', 'ai', 'aj', 'order'], data)}
                     self.D['mol2_bonds'] = pd.concat((self.D['mol2_bonds'], pd.DataFrame(bonddict)),    ignore_index=True)
                 # remove this pair from pairs if it's in there (it won't be)
@@ -600,7 +600,7 @@ class Topology:
                 if 'mol2_bonds' in self.D:
                     mb = self.D['mol2_bonds']
                     bi = (mb['ai'] == ai) & (mb['aj'] == aj)
-                    mb.loc[bi, 'order'] = order
+                    mb.loc[bi, 'order'] = str(order)
         '''
         update the bondlist
         '''
