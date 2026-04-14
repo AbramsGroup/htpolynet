@@ -502,7 +502,8 @@ class Runtime:
             logger.debug(f'Fetching parameterized {mname}')
             exts=pfs.fetch_molecule_files(mname)
             logger.debug(f'fetched {mname} exts {exts}')
-            M.load_top_gro(f'{mname}.top',f'{mname}.gro',tpxfilename=f'{mname}.tpx',mol2filename='',wrap_coords=False)
+            mol2fn = f'{mname}.mol2' if 'mol2' in exts else ''
+            M.load_top_gro(f'{mname}.top',f'{mname}.gro',tpxfilename=f'{mname}.tpx',mol2filename=mol2fn,wrap_coords=False)
             M.TopoCoord.read_gro_attributes(f'{mname}.grx')
             M.set_sequence_from_coordinates()
             if M.generator:

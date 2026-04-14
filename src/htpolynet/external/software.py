@@ -2,6 +2,7 @@
 
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
+import glob
 import json
 import logging
 import os
@@ -77,23 +78,29 @@ def sw_setup():
 
 
 def _get_versions():
-    """Queries conda for the ambertools package version. Reports
-    'installed (version unknown)' if conda is unavailable or the package
-    is not listed.
+    """Reads the ambertools package version from conda-meta in the environment
+    where antechamber is installed. Avoids running 'conda list', which can fail
+    when the host has a broken or mismatched conda on PATH (e.g. inside a container
+    on a cluster with a system conda that points to a non-existent environment).
+    Falls back to 'installed (version unknown)' if the metadata cannot be found.
     """
     global versions
     if passes:
-        version=None
+        version = None
         try:
-            CP=subprocess.run(['conda','list','ambertools','--json'],capture_output=True,text=True)
-            pkgs=json.loads(CP.stdout)
-            if pkgs:
-                version=f'ver. {pkgs[0]["version"]} (conda)'
+            cp = subprocess.run(['which', 'antechamber'], capture_output=True, text=True)
+            if cp.returncode == 0:
+                prefix = os.path.dirname(os.path.dirname(cp.stdout.strip()))
+                matches = glob.glob(os.path.join(prefix, 'conda-meta', 'ambertools-*.json'))
+                if matches:
+                    with open(matches[0]) as f:
+                        meta = json.load(f)
+                    version = f'ver. {meta["version"]} (conda)'
         except Exception:
             pass
-        versions['ambertools']=version or 'installed (version unknown)'
+        versions['ambertools'] = version or 'installed (version unknown)'
     else:
-        versions['ambertools']='Not installed.'
+        versions['ambertools'] = 'Not installed.'
 
 
 def set_gmx_preferences(gromacs_dict={}):
