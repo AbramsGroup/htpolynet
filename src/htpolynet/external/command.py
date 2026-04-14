@@ -1,42 +1,73 @@
-"""
+"""Thin wrapper around subprocess for running external commands.
 
-.. module:: command
-   :synopsis: Custom handling of calls to subprocess.Popen() 
-   
-.. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
-
+Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import logging
 import subprocess
-logger=logging.getLogger(__name__)
 
-class Command:
-    linelen=55
-    def __init__(self,command,**options):
-        self.command=command
-        self.options=options
-        self.c=f'{self.command} '+' '.join([f'-{k} {v}' for k,v in self.options.items()])
-        
-    def run(self,override=(),ignore_codes=[],quiet=True):
-        if not quiet:
-            logger.debug(f'{self.c}')
-        process=subprocess.Popen(self.c,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
-        out,err=process.communicate()
-        if process.returncode!=0 and not process.returncode in ignore_codes:
-            logger.error(f'Returncode: {process.returncode}')
-            if len(out)>0:
-                logger.error('stdout buffer follows\n'+'*'*self.linelen+'\n'+out+'\n'+'*'*self.linelen)
-            if len(err)>0:
-                logger.error('stderr buffer follows\n'+'*'*self.linelen+'\n'+err+'\n'+'*'*self.linelen)
-            raise subprocess.SubprocessError(f'Command "{self.c}" failed with returncode {process.returncode}')
-        else:
-            if len(override)==2:
-                needle,msg=override
-                if needle in out or needle in err:
-                    logger.error(f'Returncode: {process.returncode}, but another error was detected:')
-                    logger.error(msg)
-                    if len(out)>0:
-                        logger.error('stdout buffer follows\n'+'*'*self.linelen+'\n'+out+'\n'+'*'*self.linelen)
-                    if len(err)>0:
-                        logger.error('stderr buffer follows\n'+'*'*self.linelen+'\n'+err+'\n'+'*'*self.linelen)
-        return out,err
+logger = logging.getLogger(__name__)
+
+_LINELEN = 55
+
+
+def opts(**kwargs):
+    """Format keyword arguments as '-key value' flag pairs.
+
+    Useful for building command strings from option dicts, e.g.::
+
+        opts(f='in.gro', o='out.gro')  ->  '-f in.gro -o out.gro'
+
+    Args:
+        **kwargs: option name/value pairs
+
+    Returns:
+        str: space-separated '-key value' string
+    """
+    return ' '.join(f'-{k} {v}' for k, v in kwargs.items())
+
+
+def run(command, ignore_codes=(), override=None, quiet=True):
+    """Run a shell command and return its output.
+
+    Args:
+        command (str): shell command to run
+        ignore_codes (tuple | list): return codes to treat as success, defaults to ()
+        override (tuple[str, str] | None): ``(needle, msg)`` — if needle appears
+            in stdout or stderr, raise even when returncode == 0, defaults to None
+        quiet (bool): if False, log the command before running, defaults to True
+
+    Returns:
+        tuple[str, str]: (stdout, stderr)
+
+    Raises:
+        subprocess.SubprocessError: on non-zero return code (unless in ignore_codes),
+            or when the override needle is found in output
+    """
+    if not quiet:
+        logger.debug(command)
+    process = subprocess.Popen(
+        command, shell=True,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+    )
+    out, err = process.communicate()
+    rc = process.returncode
+
+    def _log_output():
+        if out:
+            logger.error('stdout:\n' + '*' * _LINELEN + '\n' + out + '*' * _LINELEN)
+        if err:
+            logger.error('stderr:\n' + '*' * _LINELEN + '\n' + err + '*' * _LINELEN)
+
+    if rc != 0 and rc not in ignore_codes:
+        logger.error(f'Returncode: {rc}')
+        _log_output()
+        raise subprocess.SubprocessError(f'Command "{command}" failed with returncode {rc}')
+
+    if override is not None:
+        needle, msg = override
+        if needle in out or needle in err:
+            logger.error(f'Returncode: {rc}, but error detected: {msg}')
+            _log_output()
+            raise subprocess.SubprocessError(f'Command "{command}" triggered override: {msg}')
+
+    return out, err

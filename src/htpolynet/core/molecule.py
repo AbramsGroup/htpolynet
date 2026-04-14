@@ -13,13 +13,12 @@ import numpy as np
 import pandas as pd
 
 from ..core import projectfilesystem as pfs
-
 from ..core.bondtemplate import BondTemplate, BondTemplateList, ReactionBond, ReactionBondList
 from ..core.topocoord import TopoCoord
 from ..cure.chain import ChainManager
 from ..cure.reaction import Reaction, ReactionList, reaction_stage
 from ..external.ambertools import GAFFParameterize
-from ..external.command import Command
+from ..external.command import run
 from ..external.gromacs import mdp_modify,gro_from_trr
 from ..geometry.matrix4 import Matrix4
 from ..io.gro import GRX_ATTRIBUTES
@@ -44,7 +43,7 @@ def _yield_bonds_as_df(R: Reaction, TC: TopoCoord, resid_mapper) -> pd.DataFrame
         assert len(atom_keys) == 2, f'bond record must have exactly 2 atoms, got {len(atom_keys)}'
         atomrecs = [R.atoms[k] for k in atom_keys]
         atom_names = [rec['atom'] for rec in atomrecs]
-        in_product_resids = [resid_mapper[x][atomrecs[x]['resid']] for x in (0, 1)]
+        in_product_resids = [resid_mapper[atomrecs[x]['reactant'] - 1][atomrecs[x]['resid']] for x in (0, 1)]
         ai = TC.get_gro_attribute_by_attributes('globalIdx', {'resNum': in_product_resids[0], 'atomName': atom_names[0]})
         aj = TC.get_gro_attribute_by_attributes('globalIdx', {'resNum': in_product_resids[1], 'atomName': atom_names[1]})
         rows.append({'ai': ai, 'aj': aj, 'ri': in_product_resids[0], 'rj': in_product_resids[1],
@@ -959,14 +958,11 @@ class Molecule:
             pfx = f'{gro}-C'
             if generator['name'] == 'obabel':
                 compfile = f'{gro}-obabel-confs.gro'
-                c = Command(f'obabel -igro {gro}.gro -O {compfile} --conformer --nconf {self.nconformers} --writeconformers')
-                out,err = c.run()
-                c = Command(f'wc -l {compfile}')
-                out,err = c.run()
+                run(f'obabel -igro {gro}.gro -O {compfile} --conformer --nconf {self.nconformers} --writeconformers')
+                out,err = run(f'wc -l {compfile}')
                 tok = out.split()
                 lpf = int(tok[0]) // self.nconformers
-                c = Command(f'split -d -n {nd} -l {lpf} {compfile} {pfx} --additional-suffix=".gro"')
-                out,err = c.run()
+                run(f'split -d -n {nd} -l {lpf} {compfile} {pfx} --additional-suffix=".gro"')
             elif generator['name'] == 'gromacs':
                 params = generator.get('params', default_gromacs_params)
                 begin_at = params.get('begin_at', 0.0)

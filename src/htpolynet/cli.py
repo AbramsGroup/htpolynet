@@ -17,14 +17,13 @@ from importlib.metadata import distribution
 from .analysis.analyze import analyze
 from .analysis.plot import plots
 from .analysis.postsim import postsim
+from .core import projectfilesystem as pfs
 from .core.runtime import Runtime
 from .external import software
 from .utils.banner import banner_message
 from .utils.inputcheck import input_check
 from .utils.logsetup import setup_logging
 from .utils.stringthings import my_logger
-
-from .core import projectfilesystem as pfs
 
 logger = logging.getLogger(__name__)
 

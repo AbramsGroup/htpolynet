@@ -15,7 +15,6 @@ import numpy as np
 import pandas as pd
 
 from ..core import projectfilesystem as pfs
-
 from ..core.bondtemplate import BondTemplate, ReactionBond
 from ..core.coordinates import Coordinates
 from ..core.topology import Topology

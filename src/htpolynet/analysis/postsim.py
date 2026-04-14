@@ -11,12 +11,11 @@ import yaml
 
 import numpy as np
 
-from ..core import projectfilesystem as pfs
-from ..external import software as software
-
 from ..analysis.plot import scatter
+from ..core import projectfilesystem as pfs
 from ..core.configuration import Configuration
 from ..core.topocoord import TopoCoord
+from ..external import software as software
 from ..external.gromacs import mdp_get, mdp_modify, gmx_energy_trace
 from ..utils.logsetup import setup_logging
 

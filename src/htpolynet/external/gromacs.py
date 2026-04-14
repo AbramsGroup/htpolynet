@@ -12,8 +12,7 @@ import numpy as np
 import pandas as pd
 
 from ..external import software as sw
-
-from ..external.command import Command
+from ..external.command import opts, run
 logger=logging.getLogger(__name__)
 
 
@@ -40,11 +39,10 @@ def insert_molecules(composition,boxSize,outName,inputs_dir='.',**kwargs):
         if os.path.isfile(f'{outName}.gro'):
             logger.debug(f'gmx insert-molecules inserts into existing {outName}.gro')
             ''' final gro file exists; we must insert into it '''
-            c=Command(f'{sw.gmx} {sw.gmx_options} insert-molecules',f=f'{outName}.gro',ci=ci,nmol=num,o=outName,box=box,scale=scale)
+            out,err=run(f'{sw.gmx} {sw.gmx_options} insert-molecules -f {outName}.gro -ci {ci} -nmol {num} -o {outName} -box {box} -scale {scale}')
         else:
             ''' no final gro file yet; make it '''
-            c=Command(f'{sw.gmx} {sw.gmx_options} insert-molecules',ci=ci,nmol=num,o=outName,box=box,scale=scale)
-        out,err=c.run()
+            out,err=run(f'{sw.gmx} {sw.gmx_options} insert-molecules -ci {ci} -nmol {num} -o {outName} -box {box} -scale {scale}')
         out+=err
         # logger.debug(f'Output of "{sw.gmx} insert-molecules"')
         # for ln in out.split('\n'):
@@ -89,20 +87,17 @@ def grompp_and_mdrun(gro='',top='',out='',mdp='',boxSize=[],single_molecule=Fals
     assert all([os.path.exists(x) for x in infiles])
     if len(boxSize)>0:
         logger.debug(f'Resizing to {boxSize}')
-        c=Command(f'{sw.gmx} {sw.gmx_options} editconf',f=f'{gro}.gro',o=gro,
-                     box=' '.join([f'{x:.8f}' for x in boxSize]))
-        c.run(quiet=quiet)
+        box_str = ' '.join(f'{x:.8f}' for x in boxSize)
+        run(f'{sw.gmx} {sw.gmx_options} editconf -f {gro}.gro -o {gro} -box {box_str}', quiet=quiet)
     # nsteps=kwargs.get('nsteps',-2)
-    c=Command(f'{sw.gmx} {sw.gmx_options} grompp',f=f'{mdp}.mdp',c=f'{gro}.gro',p=f'{top}.top',o=f'{out}.tpr',maxwarn=maxwarn)
-    c.run(quiet=quiet)
+    run(f'{sw.gmx} {sw.gmx_options} grompp -f {mdp}.mdp -c {gro}.gro -p {top}.top -o {out}.tpr -maxwarn {maxwarn}', quiet=quiet)
     if 'gpu_id' in mdrun_options and not sw.gpu_ids:
         logger.warning(f'mdrun_options specifies gpu_id={mdrun_options["gpu_id"]} but no GPUs were detected; ignoring gpu_id')
         mdrun_options = {k: v for k, v in mdrun_options.items() if k != 'gpu_id'}
     if single_molecule:
-        c=Command(f'{sw.mdrun_single_molecule}',deffnm=out,**mdrun_options)
+        run(f'{sw.mdrun_single_molecule} ' + opts(deffnm=out, **mdrun_options), quiet=quiet, ignore_codes=ignore_codes)
     else:
-        c=Command(f'{sw.mdrun}',deffnm=out,**mdrun_options)
-    c.run(quiet=quiet,ignore_codes=ignore_codes)
+        run(f'{sw.mdrun} ' + opts(deffnm=out, **mdrun_options), quiet=quiet, ignore_codes=ignore_codes)
     if os.path.exists(f'{out}.gro'):
         pass
         # logger.info(f'grompp_and_mdrun completed.  Check {gro}.gro.')
@@ -122,8 +117,7 @@ def get_energy_menu(edr,**kwargs):
     assert os.path.exists(edr+'.edr'),f'Error: {edr} not found'
     with open('_menugetter_','w') as f:
         f.write('\n')
-    c=Command(f'{sw.gmx} {sw.gmx_options} energy -f {edr}.edr -o {edr}-out.xvg -xvg none < _menugetter_ > _menu_ 2>&1')
-    c.run(ignore_codes=[1,2])
+    run(f'{sw.gmx} {sw.gmx_options} energy -f {edr}.edr -o {edr}-out.xvg -xvg none < _menugetter_ > _menu_ 2>&1', ignore_codes=(1, 2))
     with open('_menu_','r') as f:
         lines=f.read().split('\n')
     topline=lines.index('End your selection with an empty line or a zero.')
@@ -167,8 +161,7 @@ def gmx_energy_trace(edr,names=[],report_averages=False,keep_files=False,**kwarg
                 namvals.append((i,int(menu[i])))
         f.write('\n')
     namvals.sort(key=lambda x: x[1])
-    c=Command(f'{sw.gmx} {sw.gmx_options} energy -f {edr}.edr -o {edr}-out.xvg -xvg none < {edr}-gmx.in')
-    c.run()
+    run(f'{sw.gmx} {sw.gmx_options} energy -f {edr}.edr -o {edr}-out.xvg -xvg none < {edr}-gmx.in')
     colnames=[x[0] for x in namvals]
     colnames.insert(0,'time(ps)')
     data=pd.read_csv(f'{edr}-out.xvg',sep=r'\s+',header=None,names=colnames)
@@ -217,8 +210,7 @@ def gromacs_distance(idf,gro,new_column_name='r',pfx='tmp',force_recalculate=Fal
     ''' create the user-input file '''
     with open (f'{pfx}.in','w') as f:
         f.write('0\n\n')
-    c=Command(f'{sw.gmx} {sw.gmx_options} distance -f {gro} -n {pfx}.ndx -oall {pfx}.xvg -xvg none < {pfx}.in')
-    c.run()
+    run(f'{sw.gmx} {sw.gmx_options} distance -f {gro} -n {pfx}.ndx -oall {pfx}.xvg -xvg none < {pfx}.in')
     ''' read the xvg file that 'gmx distance' creates '''
     with open (f'{pfx}.xvg','r') as f:
         datastr=f.read().split()
@@ -285,8 +277,7 @@ def mdp_modify(mdp_filename,opt_dict,new_filename=None,add_if_missing=True):
 
 def gmx_traj_info(trr):
     Result=namedtuple('gmx_check','nframes time')
-    c=Command(f'{sw.gmx} {sw.gmx_options} check -f {trr}')
-    out,err=c.run()
+    out,err=run(f'{sw.gmx} {sw.gmx_options} check -f {trr}')
     out+=err
     for l in out.split('\n'):
         tok=l.split()
@@ -301,23 +292,17 @@ def gmx_traj_info(trr):
     return result
 
 def gmx_command(name,options={},console_in=''):
-    optstring=''
-    for a,v in options.items():
-        optstring+=f'-{a} {v} '
-    cmdstr=f'{sw.gmx} {sw.gmx_options} {name} {optstring}'
+    cmdstr = f'{sw.gmx} {sw.gmx_options} {name} {opts(**options)}'
     if console_in:
-        cmdstr+=f' < {console_in}'
-    c=Command(cmdstr)
-    out,err=c.run()
-    out+=err
-    return out
+        cmdstr += f' < {console_in}'
+    out, err = run(cmdstr)
+    return out + err
 
 def gro_from_trr(pfx,nzero=2,b=0,outpfx=''):
     if not outpfx:
         outpfx=pfx
     with open('tmp.in','w') as f:
         f.write('0\n')
-    c=Command(f'{sw.gmx} {sw.gmx_options} trjconv -f {pfx}.trr -s {pfx}.tpr -o {outpfx}.gro -sep -nzero {nzero} -b {b} < tmp.in')
-    out,err=c.run()
+    out,err=run(f'{sw.gmx} {sw.gmx_options} trjconv -f {pfx}.trr -s {pfx}.tpr -o {outpfx}.gro -sep -nzero {nzero} -b {b} < tmp.in')
     os.remove('tmp.in')
     out+=err

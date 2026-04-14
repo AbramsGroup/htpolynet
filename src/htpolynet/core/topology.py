@@ -64,19 +64,20 @@ def df_typeorder(df, typs):
     for i in df.index:
         df.loc[i,typs] = typeorder(tuple(df.loc[i, typs]))
 
-_GromacsIntegers_=('nr','atnum','resnr','ai','aj','ak','al','#mols','nrexcl','funct','func','nbfunc','comb-rule')
-_GromacsFloats_=('charge','mass','chargeB','massB',*tuple([f'c{i}' for i in range(5)]),
-                 'b0','kb','th0','cth','rub','kub','phase','kd','pn','fudgeLJ','fudgeQQ')
-def typedata(h,s):
+_GromacsIntegers_ = ('nr', 'atnum', 'resnr', 'ai', 'aj', 'ak', 'al', '#mols', 'nrexcl', 'funct', 'func', 'nbfunc', 'comb-rule')
+_GromacsFloats_ = ('charge', 'mass', 'chargeB', 'massB', *tuple([f'c{i}' for i in range(5)]),
+                 'b0', 'kb', 'th0', 'cth', 'rub', 'kub', 'phase', 'kd', 'pn',
+                 'fudgeLJ', 'fudgeQQ')
+def typedata(h, s):
     if h in _GromacsIntegers_:
         return int(s)
     if h in _GromacsFloats_:
         return float(s)
     return s
 
-_GromacsExtensiveDirectives_ = ['atoms','pairs','bonds','angles','dihedrals']
+_GromacsExtensiveDirectives_ = ['atoms', 'pairs', 'bonds', 'angles', 'dihedrals']
 _NonGromacsExtensiveDirectives_ = ['mol2_bonds']
-_GromacsTopologyDirectiveOrder_ = ['defaults','atomtypes','bondtypes','angletypes','dihedraltypes','moleculetype','atoms','pairs','bonds','angles','dihedrals','system','molecules']
+_GromacsTopologyDirectiveOrder_ = ['defaults', 'atomtypes', 'bondtypes', 'angletypes', 'dihedraltypes', 'moleculetype', 'atoms', 'pairs', 'bonds', 'angles', 'dihedrals', 'system', 'molecules']
 _GromacsTopologyDirectiveHeaders_ = {
     'atoms': ['nr', 'type', 'resnr', 'residue', 'atom', 'cgnr', 'charge', 'mass','typeB', 'chargeB', 'massB'],
     'pairs': ['ai', 'aj', 'funct', 'c0', 'c1'],
@@ -85,12 +86,12 @@ _GromacsTopologyDirectiveHeaders_ = {
     'dihedrals': ['ai', 'aj', 'ak', 'al', 'funct', 'c0', 'c1', 'c2', 'c3', 'c4', 'c5'],
     'atomtypes': ['name', 'atnum', 'mass', 'charge', 'ptype', 'sigma', 'epsilon'],
     'moleculetype': ['name', 'nrexcl'],
-    'bondtypes': ['i','j','func','b0','kb'],
-    'angletypes': ['i','j','k','func','th0','cth','rub','kub'],
-    'dihedraltypes': ['i','j','k','l','func','phase','kd','pn'],
+    'bondtypes': ['i', 'j', 'func', 'b0','kb'],
+    'angletypes': ['i', 'j', 'k', 'func', 'th0', 'cth', 'rub', 'kub'],
+    'dihedraltypes': ['i', 'j', 'k', 'l', 'func', 'phase', 'kd', 'pn'],
     'system': ['Name'],
-    'molecules': ['Compound','#mols'],
-    'defaults': ['nbfunc','comb-rule','gen-pairs','fudgeLJ','fudgeQQ']
+    'molecules': ['Compound', '#mols'],
+    'defaults': ['nbfunc', 'comb-rule', 'gen-pairs', 'fudgeLJ', 'fudgeQQ']
 }
 
 _GromacsTopologyHashables_ = { # attributes/columns that should always have values, no NaNs; these are how each item is sorted
@@ -100,9 +101,9 @@ _GromacsTopologyHashables_ = { # attributes/columns that should always have valu
     'angles': ['ai', 'aj', 'ak'],
     'dihedrals': ['ai', 'aj', 'ak', 'al'],
     'atomtypes': ['name'],
-    'bondtypes': ['i','j'],
-    'angletypes': ['i','j','k'],
-    'dihedraltypes': ['i','j','k','l']
+    'bondtypes': ['i', 'j'],
+    'angletypes': ['i', 'j', 'k'],
+    'dihedraltypes': ['i', 'j', 'k', 'l']
 }
 
 _GromacsTopologyDirectiveDefaults_ = {

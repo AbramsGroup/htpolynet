@@ -12,11 +12,8 @@ from copy import deepcopy
 
 import numpy as np
 
-from ..core import projectfilesystem as pfs
-from ..external import software as software
-from ..utils import checkpoint as cp
-
 from ..analysis.plot import trace
+from ..core import projectfilesystem as pfs
 from ..core.configuration import Configuration
 from ..core.molecule import Molecule, MoleculeDict
 from ..core.topocoord import TopoCoord
@@ -25,7 +22,9 @@ from ..cure.chain import ChainManager
 from ..cure.curecontroller import CureController, CureState
 from ..cure.expandreactions import bondchain_expand_reactions, generate_stereo_reactions, generate_symmetry_reactions
 from ..cure.reaction import Reaction, ReactionList, parse_reaction_list, extract_molecule_reactions, is_reactant, reaction_stage
+from ..external import software as software
 from ..external.gromacs import insert_molecules, mdp_modify, mdp_get
+from ..utils import checkpoint as cp
 from ..utils.stringthings import my_logger
 
 logger=logging.getLogger(__name__)

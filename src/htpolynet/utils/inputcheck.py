@@ -7,7 +7,7 @@ import os
 from ..core.configuration import Configuration
 from ..core.coordinates import Coordinates
 from ..core.topocoord import TopoCoord
-from ..external.command import Command
+from ..external.command import run
 
 def input_check(args):
     """Manages the input-check subcommand.
@@ -32,9 +32,9 @@ def input_check(args):
             c=Coordinates.read_mol2(os.path.join(lib,'inputs',f'{mname}.mol2'))
             matoms=c.A.shape[0]
         elif os.path.exists(os.path.join(lib,'inputs',f'{mname}.pdb')):
-            out,err=Command(f'grep -c ^ATOM {os.path.join(lib,"inputs",f"{mname}.pdb")}').run(ignore_codes=[1])
+            out,err=run(f'grep -c ^ATOM {os.path.join(lib,"inputs",f"{mname}.pdb")}', ignore_codes=(1,))
             matoms=int(out)
-            out,err=Command(f'grep -c ^HETATM {os.path.join(lib,"inputs",f"{mname}.pdb")}').run(ignore_codes=[1])
+            out,err=run(f'grep -c ^HETATM {os.path.join(lib,"inputs",f"{mname}.pdb")}', ignore_codes=(1,))
             matoms+=int(out)
         if matoms>0 and count:
             natoms+=count*matoms

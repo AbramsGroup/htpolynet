@@ -15,15 +15,14 @@ import yaml
 import numpy as np
 import pandas as pd
 
-from ..core import projectfilesystem as pfs
-from ..utils import checkpoint as cp
-
 from ..analysis.plot import trace
+from ..core import projectfilesystem as pfs
 from ..core.molecule import MoleculeDict
 from ..core.topocoord import TopoCoord, BTRC
 from ..cure.reaction import ReactionList
 from ..cure.reaction import reaction_stage
 from ..external.gromacs import gromacs_distance, mdp_modify
+from ..utils import checkpoint as cp
 from ..utils.stringthings import my_logger
 
 logger = logging.getLogger(__name__)

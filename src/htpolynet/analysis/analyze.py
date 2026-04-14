@@ -11,9 +11,8 @@ from pathlib import Path
 import yaml
 
 from ..core import projectfilesystem as pfs
-from ..external import software as software
-
 from ..core.configuration import Configuration
+from ..external import software as software
 from ..external.gromacs import gmx_command
 from ..utils.logsetup import setup_logging
 
