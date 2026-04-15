@@ -30,43 +30,43 @@ def bondchain_expand_reactions(molecules:MoleculeDict):
     dimer_lefts:MoleculeList=[]
     dimer_rights:MoleculeList=[]
     for mname,M in molecules.items():
-        if len(M.sequence)==1 and len(M.TopoCoord.ChainManager.chains)>0 and M.generator==None and M.parentname==M.name:
+        if len(M.sequence)==1 and len(M.chain_manager.chains)>0 and M.generator==None and M.parentname==M.name:
             monomers.append(M)
         elif len(M.sequence)==2:
             A=molecules[M.sequence[0]]
-            if len(A.TopoCoord.ChainManager.chains)>0:
+            if len(A.chain_manager.chains)>0:
                 dimer_lefts.append(M)
             A=molecules[M.sequence[1]]
-            if len(A.TopoCoord.ChainManager.chains)>0:
+            if len(A.chain_manager.chains)>0:
                 dimer_rights.append(M)
     for mon in monomers:
         cnms=[]
-        for c in mon.TopoCoord.ChainManager.chains:
+        for c in mon.chain_manager.chains:
             cnms.append([mon.TopoCoord.get_gro_attribute_by_attributes('atomName',{'globalIdx':x}) for x in c.idx_list])
-        logger.debug(f'Monomer {mon.name} has {len(mon.TopoCoord.ChainManager.chains)} 2-chains: {[x for x in mon.TopoCoord.ChainManager.chains]} {cnms}')
+        logger.debug(f'Monomer {mon.name} has {len(mon.chain_manager.chains)} 2-chains: {[x for x in mon.chain_manager.chains]} {cnms}')
 
     for dim in dimer_lefts:
         logger.debug(f'Dimer_left {dim.name} has sequence {dim.sequence}')
-        logger.debug(f'-> chains: {[x for x in dim.TopoCoord.ChainManager.chains]}')
-        for cl in dim.TopoCoord.ChainManager.chains:
+        logger.debug(f'-> chains: {[x for x in dim.chain_manager.chains]}')
+        for cl in dim.chain_manager.chains:
             nl=[dim.TopoCoord.get_gro_attribute_by_attributes('atomName',{'globalIdx':x}) for x in cl.idx_list]
             logger.debug(f'  -> {nl}')
     for dim in dimer_rights:
         logger.debug(f'Dimer_right {dim.name} has sequence {dim.sequence}')
-        logger.debug(f'-> chains: {[x for x in dim.TopoCoord.ChainManager.chains]}')
-        for cl in dim.TopoCoord.ChainManager.chains:
+        logger.debug(f'-> chains: {[x for x in dim.chain_manager.chains]}')
+        for cl in dim.chain_manager.chains:
             nl=[dim.TopoCoord.get_gro_attribute_by_attributes('atomName',{'globalIdx':x}) for x in cl.idx_list]
             logger.debug(f'  -> {nl}')
 
     # monomer head attacks dimer tail
     MD=product(monomers,dimer_lefts)
     for m,d in MD:
-        for mb in m.TopoCoord.ChainManager.chains:
+        for mb in m.chain_manager.chains:
             h_idx=mb.idx_list[0]
             h_name=m.TopoCoord.get_gro_attribute_by_attributes('atomName',{'globalIdx':h_idx})
             # by definition, the dimer must have one C-C bondchain of length 4
             D4=[]
-            for dc in d.TopoCoord.ChainManager.chains:
+            for dc in d.chain_manager.chains:
                 if len(dc.idx_list)==4:
                     D4.append(dc.idx_list)
             for DC in D4:
@@ -92,12 +92,12 @@ def bondchain_expand_reactions(molecules:MoleculeDict):
     # dimer head attacks monomer tail
     MD=product(monomers,dimer_rights)
     for m,d in MD:
-        for mb in m.TopoCoord.ChainManager.chains:
+        for mb in m.chain_manager.chains:
             assert len(mb.idx_list)==2,f'monomer {m.name} has a bondchain that is not length-2 -- this is IMPOSSIBLE'
             t_idx=mb.idx_list[-1]
             t_name=m.TopoCoord.get_gro_attribute_by_attributes('atomName',{'globalIdx':t_idx})
             D4=[]
-            for dc in d.TopoCoord.ChainManager.chains:
+            for dc in d.chain_manager.chains:
                 if len(dc.idx_list)==4:
                     D4.append(dc.idx_list)
             for DC in D4:
@@ -125,7 +125,7 @@ def bondchain_expand_reactions(molecules:MoleculeDict):
     DD=product(dimer_rights,dimer_lefts)
     for dr,dl in DD:
         ''' head of dr attacks tail of dl '''
-        for cr,cl in product(dr.TopoCoord.ChainManager.chains,dl.TopoCoord.ChainManager.chains):
+        for cr,cl in product(dr.chain_manager.chains,dl.chain_manager.chains):
             if len(cr.idx_list)==4 and len(cl.idx_list)==4:
                 h_idx=cr.idx_list[0]
                 h_name=dr.TopoCoord.get_gro_attribute_by_attributes('atomName',{'globalIdx':h_idx})

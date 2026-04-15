@@ -638,7 +638,7 @@ class CureController:
                         ess='' if idf.shape[0]!=1 else 's'
                         bondtestoutcomes={k:0 for k in BTRC}
                         p=Pool(processes=ncpu)
-                        idf_split=np.array_split(idf,ncpu)
+                        idf_split=[idf.iloc[s] for s in np.array_split(np.arange(len(idf)),ncpu)]
                         packets=[(i,idf_split[i]) for i in range(ncpu)]
                         logger.debug(f'Decomposed dataframe lengths: {", ".join([str(x.shape[0]) for x in idf_split])}')
                         results=p.map(partial(gromacs_distance,gro=gro,new_column_name='r'),packets)
@@ -653,7 +653,7 @@ class CureController:
                         ess='' if idf.shape[0]!=1 else 's'
                         logger.debug(f'{idf.shape[0]} bond-candidate{ess} with lengths below {self.state.current_radius} nm')
                         p=Pool(processes=ncpu)
-                        idf_split=np.array_split(idf,ncpu)
+                        idf_split=[idf.iloc[s] for s in np.array_split(np.arange(len(idf)),ncpu)]
                         # logger.debug(f'Decomposed dataframe lengths: {", ".join([str(x.shape[0]) for x in idf_split])}')
                         results=p.map(partial(TC.bondtest_df),idf_split)
                         p.close()

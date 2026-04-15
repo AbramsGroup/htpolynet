@@ -92,7 +92,7 @@ def grompp_and_mdrun(gro='',top='',out='',mdp='',boxSize=[],single_molecule=Fals
     # nsteps=kwargs.get('nsteps',-2)
     run(f'{sw.gmx} {sw.gmx_options} grompp -f {mdp}.mdp -c {gro}.gro -p {top}.top -o {out}.tpr -maxwarn {maxwarn}', quiet=quiet)
     if 'gpu_id' in mdrun_options and not sw.gpu_ids:
-        logger.warning(f'mdrun_options specifies gpu_id={mdrun_options["gpu_id"]} but no GPUs were detected; ignoring gpu_id')
+        logger.debug(f'mdrun_options specifies gpu_id={mdrun_options["gpu_id"]} but no GPUs were detected; ignoring gpu_id')
         mdrun_options = {k: v for k, v in mdrun_options.items() if k != 'gpu_id'}
     if single_molecule:
         run(f'{sw.mdrun_single_molecule} ' + opts(deffnm=out, **mdrun_options), quiet=quiet, ignore_codes=ignore_codes)

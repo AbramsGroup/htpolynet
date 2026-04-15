@@ -74,6 +74,7 @@ def run(args: ap.Namespace):
     my_logger('htpolynet runtime begins', logger.info)
     userlib = args.lib if os.path.exists(args.lib) else None
     software.sw_setup()
+    software.info()
     pfs.pfs_setup(root=os.getcwd(), topdirs=pfs.Dirs.run_topdirs, verbose=True, projdir=args.proj, reProject=args.restart, userlibrary=userlib)
     a = Runtime(cfgfile=args.config, restart=args.restart)
     if args.param_only:

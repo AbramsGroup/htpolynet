@@ -21,6 +21,9 @@ versions = {}
 # GPU state — populated by _detect_gpus() during sw_setup()
 gpu_ids = []
 
+# HTPolyNet git commit — populated by _get_git_commit() during sw_setup()
+git_commit = 'unknown'
+
 # Gromacs state — updated by sw_setup() and set_gmx_preferences()
 gmx = 'gmx'
 gmx_options = '-quiet'
@@ -58,6 +61,30 @@ def _mdrun_cmd(base):
         return f'{base} -nb cpu'  # force CPU for non-bonded when no GPU present
 
 
+def _get_git_commit():
+    """Records the short git commit hash of the htpolynet source tree and
+    whether there are uncommitted changes.  Falls back to 'unknown' if the
+    working directory is not inside a git repo or git is not available.
+    """
+    global git_commit
+    src = os.path.dirname(__file__)
+    try:
+        cp = subprocess.run(
+            ['git', 'rev-parse', '--short', 'HEAD'],
+            capture_output=True, text=True, cwd=src,
+        )
+        if cp.returncode == 0:
+            git_commit = cp.stdout.strip()
+            dirty = subprocess.run(
+                ['git', 'status', '--porcelain'],
+                capture_output=True, text=True, cwd=src,
+            )
+            if dirty.returncode == 0 and dirty.stdout.strip():
+                git_commit += ' (uncommitted changes present)'
+    except Exception:
+        pass
+
+
 def sw_setup():
     """Checks that all required AmberTools executables are accessible and queries their version."""
     global passes, versions, mdrun, mdrun_single_molecule
@@ -73,6 +100,7 @@ def sw_setup():
     _get_versions()
     _get_gmx_version()
     _detect_gpus()
+    _get_git_commit()
     mdrun = _mdrun_cmd(f'{gmx} {gmx_options} mdrun')
     mdrun_single_molecule = _mdrun_cmd(f'{gmx} {gmx_options} mdrun')
 
@@ -138,8 +166,9 @@ def _get_gmx_version():
 
 
 def to_string():
-    """Returns a formatted string listing AmberTools, GROMACS, and GPU info."""
-    r=['Ambertools:']
+    """Returns a formatted string listing HTPolyNet commit, AmberTools, GROMACS, and GPU info."""
+    r=[f'HTPolyNet git commit: {git_commit}']
+    r.append('Ambertools:')
     for c in _ambertools:
         r.append(f'{os.path.split(c)[1]:>12s} ({versions.get("ambertools","unknown")})')
     r.append('Gromacs:')

@@ -506,8 +506,8 @@ class Runtime:
             M.load_top_gro(f'{mname}.top',f'{mname}.gro',tpxfilename=f'{mname}.tpx',mol2filename=mol2fn,wrap_coords=False)
             M.TopoCoord.read_gro_attributes(f'{mname}.grx')
             M.set_sequence_from_coordinates()
+            M.chain_manager.from_dataframe(M.TopoCoord.Coordinates.A)
             if M.generator:
-                M.chain_manager.from_dataframe(M.TopoCoord.Coordinates.A)
                 M.prepare_new_bonds(available_molecules=self.molecules)
             M.origin='previously parameterized'
 

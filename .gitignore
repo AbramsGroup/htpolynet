@@ -1,3 +1,9 @@
+# Singularity/Apptainer images and Docker artifacts
+*.sif
+*.simg
+*.img
+docker-*.tar
+
 *.bak
 __defunct__/
 # Byte-compiled / optimized / DLL files
