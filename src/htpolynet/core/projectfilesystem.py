@@ -61,11 +61,18 @@ class SystemLibrary:
     def get_example_names(self):
         """Returns sorted list of example names available in the depot.
 
+        Recognises both .sh scripts and legacy .tgz tarballs; returns unique
+        names (without extension) in numeric-prefix order.
+
         Returns:
-            list: example names without the .tgz extension
+            list: example names without extension
         """
         depot = self._root.joinpath('example_depot')
-        return sorted(f.name[:-4] for f in depot.iterdir() if f.name.endswith('.tgz'))
+        names = set()
+        for f in depot.iterdir():
+            if f.name.endswith('.tgz') or f.name.endswith('.sh'):
+                names.add(f.stem)
+        return sorted(names)
 
     def get_molecule_names(self):
         """Returns sorted list of molecule names available as inputs in the system library.

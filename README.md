@@ -17,8 +17,8 @@ conda install -c conda-forge htpolynet
 
 From source:
 ```bash
-git clone git@github.com:AbramsGroup/HTPolyNet.git
-cd HTPolyNet
+git clone git@github.com:AbramsGroup/htpolynet.git
+cd htpolynet
 pip install -e .
 ```
 
@@ -29,29 +29,6 @@ IMPORTANT NOTES: The programs ``antechamber``, ``parmchk2`` and ``tleap`` from A
 ## Documentation
 
 Please consult documentation at [abramsgroup.github.io/htpolynet](https://abramsgroup.github.io/htpolynet/).
-
-## Release History
-* 1.0.9
-   * ``minimum_bondcycle_length`` parameter added to allow for cyclic polymerization above a certain threshold length
-   * bugfixes: 
-     * rings not transferred from monomer templates if they are pre-parameterized
-     * atom indexes in bondchain structure not remapped after atom deletion
-* 1.0.8
-    * uses ``chordless_cycles`` to find rings; ringidx no long unique atom attribute; improved ring-pierce detection
-* 1.0.7.2
-    * moved Library package to resources subpackage of HTPolyNet.HTPolyNet
-* 1.0.6
-    * gmx-style analyze subcommand added
-* 1.0.5
-    * Post-build MD simulations and plotting functionalities added
-* 1.0.2
-    * Enhanced molecule-network graph drawing in the plot subcommand
-* 1.0.1
-    * Fixed atom index assignment issue for systems with more than 100,000 atoms
-* 1.0.0
-    * First release
-* 0.0.1
-    * Initial beta version
 
 ## Meta
 
@@ -65,7 +42,7 @@ Distributed under the MIT license. See ``LICENSE`` for more information.
 
 ## Contributing
 
-1. Fork it (<https://github.com/AbramsGroup/HTPolyNet/fork>)
+1. Fork it (<https://github.com/AbramsGroup/htolynet/fork>)
 2. Create your feature branch (`git checkout -b feature/fooBar`)
 3. Commit your changes (`git commit -am 'Add some fooBar'`)
 4. Push to the branch (`git push origin feature/fooBar`)
