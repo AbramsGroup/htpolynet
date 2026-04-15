@@ -346,7 +346,7 @@ YAML
 # Optionally launch the build
 # ---------------------------------------------------------------------------
 if [[ "${1:-}" == "--run" ]]; then
-    htpolynet run -diag diagnostics.log GMASTY.yaml
+    htpolynet run -diag diagnostics.log GMASTY.yaml &> console.log
 else
     echo "Setup complete. To run:"
     echo "  cd $EXDIR && htpolynet run -diag diagnostics.log GMASTY.yaml"

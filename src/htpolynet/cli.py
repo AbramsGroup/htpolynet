@@ -291,7 +291,7 @@ def pack_example_sh(args):
         '# Optionally launch the build',
         '# ---------------------------------------------------------------------------',
         'if [[ "${1:-}" == "--run" ]]; then',
-        f'    htpolynet run -diag diagnostics.log {primary_yaml}',
+        f'    htpolynet run -diag diagnostics.log {primary_yaml} &> console.log',
         'else',
         '    echo "Setup complete. To run:"',
         f'    echo "  cd $EXDIR && htpolynet run -diag diagnostics.log {primary_yaml}"',
