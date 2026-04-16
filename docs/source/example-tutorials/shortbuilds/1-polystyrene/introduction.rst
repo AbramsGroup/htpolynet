@@ -9,7 +9,7 @@ The first step is to get to a clean working directory, and then use ``htpolynet 
 
    $ mkdir my_polystyrene
    $ cd my_polystyrene
-   $ htpolynet fetch-example -n 1
+   $ htpolynet fetch-example 1
    $ ls
    1-polystyrene.sh
 

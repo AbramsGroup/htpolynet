@@ -9,7 +9,7 @@ The first step is to get to a clean working directory, and then use ``htpolynet 
 
    $ mkdir my_vinyl_ester
    $ cd my_vinyl_ester
-   $ htpolynet fetch-example -n 2
+   $ htpolynet fetch-example 2
    $ ls
    2-bisgma-styrene-thermoset/
    $ tree 2-bisgma-styrene-thermoset

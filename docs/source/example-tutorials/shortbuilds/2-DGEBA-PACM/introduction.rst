@@ -9,7 +9,7 @@ The first step is to get to a clean working directory, and then use ``htpolynet 
 
    $ mkdir my_dgeba_pacm
    $ cd my_dgeba_pacm
-   $ htpolynet fetch-example -n 3
+   $ htpolynet fetch-example 3
    $ ls
    3-pacm-dgeba-epoxy-thermoset/
    $ tree 3-pacm-dgeba-epoxy-thermoset
