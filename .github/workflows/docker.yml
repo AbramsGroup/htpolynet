@@ -2,7 +2,9 @@ name: Build and push Docker image
 
 on:
   push:
-    branches: [main]
+    tags:
+      - "v*"
+      - "d*"
   schedule:
     # Rebuild weekly (Monday 03:00 UTC) to pick up latest Gromacs/AmberTools
     - cron: '0 3 * * 1'
