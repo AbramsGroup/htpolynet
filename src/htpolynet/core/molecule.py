@@ -297,6 +297,15 @@ class Molecule:
         assert os.path.exists(f'{self.name}.{input_structure_format}'),f'Cannot parameterize molecule {self.name} without {self.name}.{input_structure_format} as input'
         if outname == '':
             outname = f'{self.name}'
+        if input_structure_format == 'pdb':
+            # Convert PDB → mol2 before antechamber so that repeated CONECT entries
+            # (which encode double bonds in PDB format) are written as proper bond
+            # orders in the mol2 bond table rather than duplicated single bonds.
+            from .coordinates import Coordinates
+            coords = Coordinates.read_pdb(f'{self.name}.pdb')
+            coords.write_mol2(f'{self.name}.mol2', molname=self.name)
+            logger.info(f'Converted {self.name}.pdb → {self.name}.mol2 with bond orders from CONECT records')
+            input_structure_format = 'mol2'
         GAFFParameterize(self.name, outname, input_structure_format=input_structure_format, ambertools=ambertools)
         self.load_top_gro(f'{outname}.top', f'{outname}.gro', mol2filename=f'{outname}.mol2', wrap_coords=False)
         self.initialize_molecule_rings()

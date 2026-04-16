@@ -15,6 +15,7 @@ from ..geometry.matrix4 import Matrix4
 from ..geometry.ring import Ring, Segment
 from ..io import gro as _gro_io
 from ..io import mol2 as _mol2_io
+from ..io import pdb as _pdb_io
 from ..io.gro import GRX_ATTRIBUTES, GRX_GLOBALLY_UNIQUE, GRX_UNSET_DEFAULTS
 from ..utils.dataframetools import get_rows_w_attribute, set_row_attribute, set_rows_attributes_from_dict
 
@@ -89,6 +90,32 @@ class Coordinates:
         """
         inst = cls(name=filename)
         data = _mol2_io.read(filename)
+        inst.name = data['name']
+        inst.N = data['N']
+        inst.metadat = data['metadat']
+        inst.A = data['A']
+        inst.mol2_bonds = data['mol2_bonds']
+        inst.mol2_bondlist = data['mol2_bondlist']
+        inst.empty = False
+        return inst
+
+    @classmethod
+    def read_pdb(cls, filename):
+        """Reads a PDB file into a Coordinates instance.
+
+        CONECT records are parsed to build a bond table.  Repeated entries for
+        the same atom pair within one CONECT line are interpreted as higher-order
+        bonds (e.g. two appearances → double bond, order '2').  Positions are
+        converted from Ångström to nm.
+
+        Args:
+            filename (str): path to the PDB file
+
+        Returns:
+            Coordinates: a new Coordinates instance with mol2_bonds populated
+        """
+        inst = cls(name=filename)
+        data = _pdb_io.read(filename)
         inst.name = data['name']
         inst.N = data['N']
         inst.metadat = data['metadat']
