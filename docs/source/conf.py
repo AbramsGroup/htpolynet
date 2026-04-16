@@ -12,10 +12,9 @@
 #
 import os
 import sys
+from importlib.metadata import version as _pkg_version
 sys.path.insert(0, os.path.abspath('../../'))
-# dnw:
-#from HTPolyNet.__init__.py import HTPOLYNET_VERSION
-THIS_HTPOLYNET_VERSION='1.0.9'
+
 # -- Project information -----------------------------------------------------
 
 project = 'HTPolyNet'
@@ -23,8 +22,8 @@ copyright = '2024, Cameron Abrams, Ming Huang'
 author = 'Cameron Abrams, Ming Huang'
 
 # The full version, including alpha/beta/rc tags
-release = THIS_HTPOLYNET_VERSION
-version = THIS_HTPOLYNET_VERSION
+release = _pkg_version('htpolynet')
+version = release
 
 
 # -- General configuration ---------------------------------------------------
