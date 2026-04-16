@@ -1,0 +1,60 @@
+digraph bond_filter {
+    graph [rankdir=TB, splines=ortho, nodesep=0.6, ranksep=0.5, fontname="Helvetica"]
+    node  [fontname="Helvetica", fontsize=11, style=filled, fillcolor=white]
+    edge  [color="#2255aa", arrowsize=0.8]
+
+    // ---- external entry ----
+    node [shape=box, style="filled,dashed", fillcolor="#eeeeee",
+          color="#888888", fontcolor="#888888"]
+    prev [label="From previous\niteration"]
+
+    // ---- init box ----
+    node [shape=box, style=filled, fillcolor=white, color="#2255aa",
+          fontcolor=black, penwidth=1.5]
+    init [label="r = 0\nBondset empty"]
+
+    // ---- loop guard ----
+    node [shape=diamond]
+    loop [label="r < nReactions?"]
+
+    // ---- filter funnel: stacked table node ----
+    node [shape=none, margin="0"]
+    funnel [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="3" CELLPADDING="4"
+       BGCOLOR="white" COLOR="#2255aa">
+  <TR><TD WIDTH="320" ALIGN="CENTER">All atoms</TD></TR>
+  <TR><TD WIDTH="300" ALIGN="CENTER"><FONT COLOR="#cc3333">All pairs conforming to Reaction[r]</FONT></TD></TR>
+  <TR><TD WIDTH="280" ALIGN="CENTER">Non-short-circuits</TD></TR>
+  <TR><TD WIDTH="260" ALIGN="CENTER">Non-ring-piercers</TD></TR>
+  <TR><TD WIDTH="240" ALIGN="CENTER">Non-C-C&#x2019; cyclizers</TD></TR>
+  <TR><TD WIDTH="220" ALIGN="CENTER">Shortest non-monomer-repeating</TD></TR>
+  <TR><TD WIDTH="200" ALIGN="CENTER">Shortest collective non-C-C&#x2019; cyclizers</TD></TR>
+  <TR><TD WIDTH="180" ALIGN="CENTER">Probability survivors</TD></TR>
+  <TR><TD WIDTH="160" ALIGN="CENTER">Iteration limit survivors</TD></TR>
+</TABLE>>]
+
+    // ---- result box ----
+    node [shape=box, margin="0.15", style=filled, fillcolor=white,
+          color="#2255aa", fontcolor="#cc3333", penwidth=1.5]
+    result [label="Final set of proposed\nbonds for Reaction[r]"]
+
+    // ---- loop bookkeeping ----
+    node [fontcolor=black]
+    append  [label="Append set\nto Bondset"]
+    incr    [label="Increment r", fontcolor="#cc3333"]
+
+    // ---- output ----
+    node [shape=box, style="filled,dashed", fillcolor="#eeeeee",
+          color="#888888", fontcolor="#888888"]
+    deliver [label="Deliver Bondset\nto topology update"]
+
+    // ---- edges ----
+    prev   -> init
+    init   -> loop
+    loop   -> funnel  [label="y"]
+    loop   -> deliver [label="n"]
+    funnel -> result
+    result -> append
+    append -> incr
+    incr   -> loop    [constraint=false]
+}

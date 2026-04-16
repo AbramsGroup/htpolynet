@@ -1,0 +1,42 @@
+digraph flow1 {
+    graph [rankdir=TB, splines=ortho, nodesep=0.5, ranksep=0.6, fontname="Helvetica"]
+    node  [fontname="Helvetica", fontsize=11, style=filled]
+    edge  [color="#2255aa", arrowsize=0.8]
+
+    // ---- node styles ----
+    node [shape=box, fillcolor=white, color="#2255aa", penwidth=1.5]
+
+    start  [label="htpolynet\nbegins", shape=box,
+            fillcolor=white, color="#22aa55", fontcolor="#22aa55", penwidth=2]
+    end    [label="htpolynet\nends",   shape=box,
+            fillcolor=white, color="#22aa55", fontcolor="#22aa55", penwidth=2]
+
+    input  [label="Make input\nmolecular\nstructures",
+            shape=box, style="filled,dashed", fillcolor="#eeeeee",
+            color="#888888", fontcolor="#888888"]
+
+    react  [label="Set up reactions\nand oligomer\ntemplates"]
+    top    [label="Build system\ntopology\n(e.g., init.top)", fontcolor="#cc3333"]
+    coord  [label="Build system\ncoordinates\n(e.g., init.gro)", fontcolor="#cc3333"]
+
+    densif [label="MD: Densification\nand precure\nequilibration"]
+    cure   [label="CURE", fontsize=20, fontcolor="#22aa55",
+            shape=box, fillcolor=white, color="#22aa55", penwidth=2]
+    post   [label="MD: Postcure\nequilibration"]
+
+    // ---- layout: two columns via invisible node ----
+    { rank=same; start; densif }
+    { rank=same; react; cure   }
+    { rank=same; top;   post   }
+    { rank=same; coord         }
+
+    input  -> start  [style=dashed, color="#888888"]
+    start  -> react
+    react  -> top
+    top    -> coord
+    coord  -> densif [constraint=false]
+    densif -> cure
+    cure   -> post
+    post   -> end
+    coord  -> end   [style=invis]   // force end below coord column
+}
