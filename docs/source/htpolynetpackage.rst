@@ -70,13 +70,34 @@ htpolynet.core
    :undoc-members:
    :show-inheritance:
 
-htpolynet.cure
---------------
+htpolynet.io
+------------
 
-.. automodule:: htpolynet.cure.bondtemplate
+.. automodule:: htpolynet.io.gro
    :members:
    :undoc-members:
    :show-inheritance:
+
+.. automodule:: htpolynet.io.mol2
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: htpolynet.io.pdb
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+htpolynet.core
+--------------
+
+.. automodule:: htpolynet.core.bondtemplate
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+htpolynet.cure
+--------------
 
 .. automodule:: htpolynet.cure.chain
    :members:
