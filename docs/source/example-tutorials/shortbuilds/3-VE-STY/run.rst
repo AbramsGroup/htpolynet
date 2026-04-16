@@ -3,7 +3,7 @@
 Running the Build
 =================
 
-Now, in our working directory ``my_vinyl_ester/3-bisgma-styrene-thermoset/``, if you haven't already, go ahead and launch via ``./run.sh``.
+Now, in our working directory ``my_vinyl_ester/2-bisgma-styrene-thermoset/``, if you haven't already, go ahead and launch via ``./run.sh``.
 
 .. code-block:: console
 
@@ -34,8 +34,8 @@ As the two ``htpolynet run`` commands indicate, standard output is being redirec
     INFO>     pp. 101303, 2023 (doi:10.1016/j.softx.2022.101303) 
     INFO>                                                                    
     INFO> ******************** htpolynet runtime begins *********************
-    INFO> User library is /home/cfa/htpolynet-tutorials/1.0.8/3-bisgma-styrene-thermoset/lib
-    INFO> New project in /home/cfa/htpolynet-tutorials/1.0.8/3-bisgma-styrene-thermoset/proj-0
+    INFO> User library is /home/cfa/htpolynet-tutorials/1.0.8/2-bisgma-styrene-thermoset/lib
+    INFO> New project in /home/cfa/htpolynet-tutorials/1.0.8/2-bisgma-styrene-thermoset/proj-0
     INFO> *************************** Ambertools: ***************************
     INFO> ********************  antechamber (ver. 22.0) *********************
     INFO> ********************        tleap (ver. 22.0) *********************

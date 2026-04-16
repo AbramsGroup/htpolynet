@@ -9,11 +9,11 @@ The first step is to get to a clean working directory, and then use ``htpolynet 
 
    $ mkdir my_dgeba_pacm
    $ cd my_dgeba_pacm
-   $ htpolynet fetch-example -n 4
+   $ htpolynet fetch-example -n 3
    $ ls
-   4-pacm-dgeba-epoxy-thermoset/
-   $ tree 4-pacm-dgeba-epoxy-thermoset
-   4-pacm-dgeba-epoxy-thermoset/
+   3-pacm-dgeba-epoxy-thermoset/
+   $ tree 3-pacm-dgeba-epoxy-thermoset
+   3-pacm-dgeba-epoxy-thermoset/
    ├── DGEPAC.yaml
    ├── lib
    │   └── molecules

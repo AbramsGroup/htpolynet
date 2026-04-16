@@ -1,11 +1,11 @@
 #!/bin/bash
-# htpolynet -- Example 3 -- Bis-GMA/Styrene Thermoset
+# htpolynet -- Example 2 -- Bis-GMA/Styrene Thermoset
 #
-# Writes all input files into ./3-bisgma-styrene-thermoset/ and optionally launches the build.
+# Writes all input files into ./2-bisgma-styrene-thermoset/ and optionally launches the build.
 #
 # Usage:
-#   bash 3-bisgma-styrene-thermoset.sh          # set up directory only
-#   bash 3-bisgma-styrene-thermoset.sh --run    # set up and launch htpolynet
+#   bash 2-bisgma-styrene-thermoset.sh          # set up directory only
+#   bash 2-bisgma-styrene-thermoset.sh --run    # set up and launch htpolynet
 #
 # Requirements: obabel on PATH, htpolynet installed and on PATH.
 #
@@ -17,7 +17,7 @@
 
 set -euo pipefail
 
-EXDIR="3-bisgma-styrene-thermoset"
+EXDIR="2-bisgma-styrene-thermoset"
 if [ -d "$EXDIR" ]; then
     echo "Error: directory '$EXDIR' already exists. Remove it first." >&2
     exit 1

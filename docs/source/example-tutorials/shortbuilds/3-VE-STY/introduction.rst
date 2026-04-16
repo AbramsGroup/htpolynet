@@ -9,11 +9,11 @@ The first step is to get to a clean working directory, and then use ``htpolynet 
 
    $ mkdir my_vinyl_ester
    $ cd my_vinyl_ester
-   $ htpolynet fetch-example -n 3
+   $ htpolynet fetch-example -n 2
    $ ls
-   3-bisgma-styrene-thermoset/
-   $ tree 3-bisgma-styrene-thermoset
-   3-bisgma-styrene-thermoset
+   2-bisgma-styrene-thermoset/
+   $ tree 2-bisgma-styrene-thermoset
+   2-bisgma-styrene-thermoset
    ├── GMASTY.yaml
    ├── lib
    │   └── molecules

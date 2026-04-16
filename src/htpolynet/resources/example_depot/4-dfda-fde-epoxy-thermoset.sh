@@ -1,11 +1,11 @@
 #!/bin/bash
-# htpolynet -- Example 5 -- DFDA/FDE Furan-based Epoxy Thermoset
+# htpolynet -- Example 4 -- DFDA/FDE Furan-based Epoxy Thermoset
 #
-# Writes all input files into ./5-dfda-fde-epoxy-thermoset/ and optionally launches the build.
+# Writes all input files into ./4-dfda-fde-epoxy-thermoset/ and optionally launches the build.
 #
 # Usage:
-#   bash 5-dfda-fde-epoxy-thermoset.sh          # set up directory only
-#   bash 5-dfda-fde-epoxy-thermoset.sh --run    # set up and launch htpolynet
+#   bash 4-dfda-fde-epoxy-thermoset.sh          # set up directory only
+#   bash 4-dfda-fde-epoxy-thermoset.sh --run    # set up and launch htpolynet
 #
 # Requirements: obabel on PATH, htpolynet installed and on PATH.
 #
@@ -16,7 +16,7 @@
 
 set -euo pipefail
 
-EXDIR="5-dfda-fde-epoxy-thermoset"
+EXDIR="4-dfda-fde-epoxy-thermoset"
 if [ -d "$EXDIR" ]; then
     echo "Error: directory '$EXDIR' already exists. Remove it first." >&2
     exit 1

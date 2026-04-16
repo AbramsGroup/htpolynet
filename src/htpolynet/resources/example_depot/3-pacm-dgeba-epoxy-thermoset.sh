@@ -1,11 +1,11 @@
 #!/bin/bash
-# htpolynet -- Example 4 -- PACM/DGEBA Epoxy Thermoset
+# htpolynet -- Example 3 -- PACM/DGEBA Epoxy Thermoset
 #
-# Writes all input files into ./4-pacm-dgeba-epoxy-thermoset/ and optionally launches the build.
+# Writes all input files into ./3-pacm-dgeba-epoxy-thermoset/ and optionally launches the build.
 #
 # Usage:
-#   bash 4-pacm-dgeba-epoxy-thermoset.sh          # set up directory only
-#   bash 4-pacm-dgeba-epoxy-thermoset.sh --run    # set up and launch htpolynet
+#   bash 3-pacm-dgeba-epoxy-thermoset.sh          # set up directory only
+#   bash 3-pacm-dgeba-epoxy-thermoset.sh --run    # set up and launch htpolynet
 #
 # Requirements: obabel on PATH, htpolynet installed and on PATH.
 #
@@ -13,7 +13,7 @@
 
 set -euo pipefail
 
-EXDIR="4-pacm-dgeba-epoxy-thermoset"
+EXDIR="3-pacm-dgeba-epoxy-thermoset"
 if [ -d "$EXDIR" ]; then
     echo "Error: directory '$EXDIR' already exists. Remove it first." >&2
     exit 1

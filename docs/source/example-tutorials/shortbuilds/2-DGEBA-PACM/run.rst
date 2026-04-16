@@ -3,7 +3,7 @@
 Running the Build
 =================
 
-Now, in our working directory ``my_dgeba_pacm/4-pacm-dgeba-epoxy-thermoset/``, if you haven't already, go ahead and launch via ``./run.sh``.
+Now, in our working directory ``my_dgeba_pacm/3-pacm-dgeba-epoxy-thermoset/``, if you haven't already, go ahead and launch via ``./run.sh``.
 
 .. code-block:: console
 
@@ -36,8 +36,8 @@ First the banner and the runtime initialization messages:
     INFO>     pp. 101303, 2023 (doi:10.1016/j.softx.2022.101303) 
     INFO>                                                                    
     INFO> ******************** htpolynet runtime begins *********************
-    INFO> User library is /home/cfa/htpolynet-tutorials/1.0.8/4-pacm-dgeba-epoxy-thermoset/lib
-    INFO> New project in /home/cfa/htpolynet-tutorials/1.0.8/4-pacm-dgeba-epoxy-thermoset/proj-0
+    INFO> User library is /home/cfa/htpolynet-tutorials/1.0.8/3-pacm-dgeba-epoxy-thermoset/lib
+    INFO> New project in /home/cfa/htpolynet-tutorials/1.0.8/3-pacm-dgeba-epoxy-thermoset/proj-0
     INFO> *************************** Ambertools: ***************************
     INFO> ********************  antechamber (ver. 22.0) *********************
     INFO> ********************        tleap (ver. 22.0) *********************

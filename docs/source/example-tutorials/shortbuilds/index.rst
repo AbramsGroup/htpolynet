@@ -13,6 +13,6 @@ These are *not* production-level builds.  The system sizes are *way too small* a
    :maxdepth: 2
    :caption: Contents:
 
-   1-polymethylstyrene/index
+   1-polystyrene/index
    2-DGEBA-PACM/index
    3-VE-STY/index
