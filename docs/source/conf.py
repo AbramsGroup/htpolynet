@@ -15,7 +15,7 @@ import sys
 sys.path.insert(0, os.path.abspath('../../'))
 # dnw:
 #from HTPolyNet.__init__.py import HTPOLYNET_VERSION
-THIS_HTPOLYNET_VERSION='2.0.0'
+THIS_HTPOLYNET_VERSION='1.0.9'
 # -- Project information -----------------------------------------------------
 
 project = 'HTPolyNet'
@@ -40,9 +40,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage', 'sphinx.ext.napoleon'
 # extensions.append('sphinx.ext.mathjax')
 extensions.append('sphinx.ext.viewcode')
 
-extensions.append('sphinx.ext.graphviz')
-graphviz_dot = '/home/cfa/anaconda3/envs/panacea/bin/dot'
-graphviz_output_format = 'svg'
+# extensions.append('sphinx.ext.graphviz')
 bibtex_bibfiles = ['references.bib']
 
 # Add any paths that contain templates here, relative to this directory.
