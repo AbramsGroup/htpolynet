@@ -9,7 +9,6 @@ on:
 jobs:
   release:
     uses: cameronabrams/workflows/.github/workflows/python-release.yml@main
-    environment: pypi
     with:
       run_tests: false
     secrets: inherit
