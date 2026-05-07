@@ -33,7 +33,7 @@ version = release
 # ones.
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage', 'sphinx.ext.napoleon', 'sphinx.ext.githubpages',
-    'sphinxcontrib.bibtex', 'sphinx_copybutton',]
+    'sphinxcontrib.bibtex', 'sphinx_copybutton', 'myst_parser',]
 # extensions.append('sphinx.ext.todo')
 # extensions.append('sphinx.ext.intersphinx')
 # extensions.append('sphinx.ext.mathjax')

@@ -17,7 +17,7 @@ using Gromacs.
    :caption: Contents:
 
    install
-   release-history
+   changelog
    user-guide/index
    example-tutorials/index
    references/index

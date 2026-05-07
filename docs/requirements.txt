@@ -1,4 +1,5 @@
 sphinx
+myst-parser
 furo
 sphinxcontrib-bibtex
 sphinx-copybutton
