@@ -8,11 +8,84 @@ on:
 
 jobs:
   release:
-    uses: cameronabrams/workflows/.github/workflows/python-release.yml@main
-    with:
-      run_tests: false
-      rtd_slug: htpolynet
-    secrets: inherit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install package
+        run: pip install -e .
+
+      - name: Install Hatch
+        run: python -m pip install --upgrade hatch
+
+      - name: Verify tag matches pyproject version and CHANGELOG
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          VER="$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')"
+          echo "Tag version:     $TAG"
+          echo "Project version: $VER"
+          test "$TAG" = "$VER" || { echo "ERROR: tag $TAG != pyproject version $VER"; exit 1; }
+          grep -q "^## \[$VER\]" CHANGELOG.md || { echo "ERROR: no CHANGELOG entry for $VER"; exit 1; }
+
+      - name: Clean previous builds
+        run: rm -rf dist/
+
+      - name: Build the package with Hatch
+        run: hatch build
+
+      - name: Extract release notes from CHANGELOG.md
+        run: |
+          echo 'RELEASE_BODY<<EOF' >> $GITHUB_ENV
+          awk '
+            BEGIN {found=0; capture=0}
+            /^## \[Unreleased\]/ {next}
+            /^## \[/ {
+              if (found) exit;
+              found = 1;
+              capture = 1;
+              next
+            }
+            /^## / {capture=0}
+            capture {print}
+          ' CHANGELOG.md >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: ${{ env.RELEASE_BODY }}
+          files: |
+            dist/*.tar.gz
+            dist/*.whl
+
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Trigger ReadTheDocs build
+        run: |
+          curl -X POST \
+            -H "Authorization: Token ${{ secrets.RTD_SECRET }}" \
+            https://readthedocs.org/api/v3/projects/htpolynet/versions/latest/builds/
+          curl -X POST \
+            -H "Authorization: Token ${{ secrets.RTD_SECRET }}" \
+            https://readthedocs.org/api/v3/projects/htpolynet/versions/${{ github.ref_name }}/builds/
 
   publish:
     needs: release
