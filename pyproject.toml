@@ -35,7 +35,7 @@ dev = ["pytest"]
 
 [project.urls]
 "Source" = "https://github.com/AbramsGroup/htpolynet"
-"Documentation" = "https://abramsgroup.github.io/htpolynet/"
+"Documentation" = "https://htpolynet.readthedocs.io/"
 "Bug Tracker" = "https://github.com/AbramsGroup/htpolynet/issues"
 
 [tool.hatch.build.targets.wheel]

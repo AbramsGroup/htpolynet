@@ -11,6 +11,7 @@ jobs:
     uses: cameronabrams/workflows/.github/workflows/python-release.yml@main
     with:
       run_tests: false
+      rtd_slug: htpolynet
     secrets: inherit
 
   publish:

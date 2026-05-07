@@ -32,7 +32,7 @@ version = release
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage', 'sphinx.ext.napoleon', 'sphinx.ext.githubpages',
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage', 'sphinx.ext.napoleon',
     'sphinxcontrib.bibtex', 'sphinx_copybutton', 'myst_parser',]
 # extensions.append('sphinx.ext.todo')
 # extensions.append('sphinx.ext.intersphinx')
