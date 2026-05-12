@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-05-12
+
 ### Changed
 
 - `compose.yml`: bind-mount source switched from `.` to `${PWD}` so a single shared `compose.yml` referenced via `docker compose -f` mounts the caller's working directory rather than the file's directory.
