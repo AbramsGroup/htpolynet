@@ -2,6 +2,6 @@ services:
   htpolynet:
     image: ghcr.io/abramsgroup/htpolynet:latest
     volumes:
-      - .:/work
+      - ${PWD}:/work
     working_dir: /work
     user: "${UID:-0}:${GID:-0}"

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `compose.yml`: bind-mount source switched from `.` to `${PWD}` so a single shared `compose.yml` referenced via `docker compose -f` mounts the caller's working directory rather than the file's directory.
+
+### Fixed
+
+- Dockerfile header comments: removed duplicated `htpolynet` token in the example `docker run` invocations (the `ENTRYPOINT` already provides it) and added `--user $(id -u):$(id -g)` so output files are not owned by root.
+
+### Documentation
+
+- Container-usage page now notes that the image is published only to GHCR (a bare `docker run htpolynet` resolves against Docker Hub and fails) and shows a `docker tag` shortcut for a local alias.
+- Added a `curl -O` one-liner for fetching `compose.yml` directly from the repo.
+
 ## [2.0.0] - 2026-05-07
 
 ### Changed

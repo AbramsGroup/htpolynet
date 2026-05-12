@@ -1,14 +1,24 @@
 # HTPolyNet container image
 # Includes Gromacs, AmberTools (antechamber, tleap, parmchk2), and OpenBabel via conda-forge.
+# ENTRYPOINT is `htpolynet`, so anything after the image name is passed as
+# subcommand/arguments (e.g. `run config.yaml`, `fetch-example 4`, `info`).
 #
-# Usage:
-#   docker run --rm -v $(pwd):/work ghcr.io/abramsgroup/htpolynet htpolynet run config.yaml
+# Recommended usage is via Docker Compose; see compose.yml at the repo root and
+# docs/source/user-guide/container-usage.rst for the full story (incl. GPU and
+# Singularity/Apptainer on HPC).
 #
-# To avoid files being written as root, pass your host uid/gid:
-#   docker run --rm -v $(pwd):/work --user $(id -u):$(id -g) ghcr.io/abramsgroup/htpolynet htpolynet run config.yaml
+#   docker compose run --rm htpolynet run config.yaml
+#
+# Raw `docker run` equivalent (mounts cwd to /work, runs as host user so output
+# files are not owned by root):
+#
+#   docker run --rm -v $(pwd):/work --user $(id -u):$(id -g) \
+#       ghcr.io/abramsgroup/htpolynet run config.yaml
 #
 # GPU support (requires nvidia-container-toolkit):
-#   docker run --rm --gpus all -v $(pwd):/work ghcr.io/abramsgroup/htpolynet htpolynet run config.yaml
+#
+#   docker run --rm --gpus all -v $(pwd):/work --user $(id -u):$(id -g) \
+#       ghcr.io/abramsgroup/htpolynet run config.yaml
 
 FROM continuumio/miniconda3:latest
 

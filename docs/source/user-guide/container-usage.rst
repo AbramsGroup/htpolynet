@@ -8,14 +8,29 @@ A pre-built container image is published to the GitHub Container Registry at
 OpenBabel, and ``htpolynet`` itself, so no local installation of any of these
 tools is required.
 
+.. note::
+
+  The image is published only to GHCR, not to Docker Hub.  Always refer to it
+  by its full path ``ghcr.io/abramsgroup/htpolynet[:tag]``.  A bare reference
+  like ``docker run htpolynet ...`` will fail because Docker resolves unqualified
+  names against Docker Hub (``docker.io/library/htpolynet``), where no such
+  image exists.  If you want a short local alias, tag the pulled image once::
+
+    $ docker pull ghcr.io/abramsgroup/htpolynet:latest
+    $ docker tag ghcr.io/abramsgroup/htpolynet:latest htpolynet
+
 Desktop Users (Docker)
 ^^^^^^^^^^^^^^^^^^^^^^
 
 `Docker Desktop <https://www.docker.com/products/docker-desktop/>`_ (Windows
 and Mac) or Docker Engine (Linux) is required.
 
-The recommended way to use the image is with Docker Compose.  Save the
-following as ``compose.yml`` in your working directory:
+The recommended way to use the image is with Docker Compose.  Either fetch
+the file from the repository::
+
+  $ curl -O https://raw.githubusercontent.com/AbramsGroup/htpolynet/main/compose.yml
+
+or save the following as ``compose.yml`` in your working directory:
 
 .. code-block:: yaml
 
@@ -23,9 +38,15 @@ following as ``compose.yml`` in your working directory:
     htpolynet:
       image: ghcr.io/abramsgroup/htpolynet:latest
       volumes:
-        - .:/work
+        - ${PWD}:/work
       working_dir: /work
       user: "${UID:-0}:${GID:-0}"
+
+Using ``${PWD}`` (rather than ``.``) means the mount follows your current
+working directory even when you pass ``-f`` to point at a ``compose.yml``
+that lives elsewhere::
+
+  $ docker compose -f /path/to/htpolynet/compose.yml run --rm htpolynet run config.yaml
 
 Then run ``htpolynet`` subcommands via:
 
@@ -64,7 +85,7 @@ installed, add a ``deploy`` block to your local copy of ``compose.yml``:
     htpolynet:
       image: ghcr.io/abramsgroup/htpolynet:latest
       volumes:
-        - .:/work
+        - ${PWD}:/work
       working_dir: /work
       user: "${UID:-0}:${GID:-0}"
       deploy:
