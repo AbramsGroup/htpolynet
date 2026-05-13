@@ -26,6 +26,7 @@ from .utils.banner import banner_message
 from .utils.inputcheck import input_check
 from .utils.logsetup import setup_logging
 from .utils.stringthings import my_logger
+from .utils.vmd_viz import make_viz
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +75,21 @@ def run(args: ap.Namespace):
     """
     setup_logging(args.loglevel, diag=args.diag, no_banner=args.no_banner)
     my_logger('htpolynet runtime begins', logger.info)
-    userlib = args.lib if os.path.exists(args.lib) else None
+    if args.restart:
+        logger.warning(
+            'Restart (-restart) is experimental and currently broken at the '
+            'cure stage: pre-cure stages skip correctly, but the first '
+            'topology update of the resumed cure iteration fails with an '
+            'internal "temp_idx ... already claimed" assertion (insufficient '
+            'in-memory state reconstruction).  Re-running from scratch is the '
+            'safe path.'
+        )
+    # Ensure the user-library directory tree exists so pfs.exists() / pfs.checkout()
+    # can find any monomer inputs we generate from SMILES.  Without this, the
+    # generated mol2 files would land in projPath/lib/... where pfs does not look.
+    os.makedirs(os.path.join(args.lib, pfs.Dirs.molecules_inputs), exist_ok=True)
+    os.makedirs(os.path.join(args.lib, pfs.Dirs.molecules_parameterized), exist_ok=True)
+    userlib = args.lib
     software.sw_setup()
     my_logger(software.to_string(), logger.info)
     pfs.pfs_setup(root=os.getcwd(), topdirs=pfs.Dirs.run_topdirs, verbose=True, projdir=args.proj, reProject=args.restart, userlibrary=userlib)
@@ -95,16 +110,24 @@ def _unpack_example(fullpath):
         tf.extractall('.')
 
 def _fetch_one(depot, fullname):
-    """Fetches one example by name, preferring a .sh script over a .tgz tarball.
+    """Fetches one example by name.
+
+    Preference order is .yaml (self-contained config) > .sh (legacy shell
+    script that pre-generates a YAML and mol2 inputs) > .tgz (legacy tarball).
 
     Args:
         depot (str): path to the example depot directory
         fullname (str): example name without extension
     """
     import shutil
+    yaml_path = os.path.join(depot, f'{fullname}.yaml')
     sh_path = os.path.join(depot, f'{fullname}.sh')
     tgz_path = os.path.join(depot, f'{fullname}.tgz')
-    if os.path.exists(sh_path):
+    if os.path.exists(yaml_path):
+        dest = os.path.basename(yaml_path)
+        shutil.copy(yaml_path, dest)
+        print(f'Fetched {dest}  (run with: htpolynet run {dest})')
+    elif os.path.exists(sh_path):
         dest = os.path.basename(sh_path)
         shutil.copy(sh_path, dest)
         print(f'Fetched {dest}  (run with: bash {dest})')
@@ -310,7 +333,7 @@ def _add_run_options(p, loglevel='debug'):
     p.add_argument('-lib',type=str,default='lib',help='local user library of molecular structures and parameterizations')
     p.add_argument('-proj',type=str,default='next',help='project directory; "next" generates the next available; otherwise creates or resumes (with -restart) a named directory')
     p.add_argument('-diag',type=str,default='htpolynet_runtime_diagnostics.log',help='diagnostic log file')
-    p.add_argument('-restart',default=False,action='store_true',help='restart in latest proj dir')
+    p.add_argument('-restart',default=False,action='store_true',help='restart in latest proj dir (EXPERIMENTAL: broken at the cure stage; see usage docs)')
     p.add_argument('--no-banner',default=False,action='store_true',help='suppress the startup banner')
     p.add_argument('--force-parameterization',default=False,action='store_true',help='force GAFF parameterization of any input mol2 structures')
     p.add_argument('--force-checkin',default=False,action='store_true',help='force check-in of generated parameter files to the system library')
@@ -442,6 +465,7 @@ def cli():
         ('postsim',          postsim,          'perform specified post-cure MD simulations on final results in one or more project directories'),
         ('analyze',          analyze,          "perform 'gmx <command>' style analyses specified in the config file"),
         ('gen-slurm-script', gen_slurm_script, 'generate a SLURM submission script for running htpolynet on a cluster'),
+        ('make-viz',         make_viz,         'regenerate VMD viz files (.viz.psf + .viz.tcl) from an existing gromacs top + gro pair'),
     ]
     if _is_editable_install():
         subcommands.append(('pack-example', pack_example, '(dev) pack current directory as a tarball into resources/example_depot'))
@@ -473,6 +497,10 @@ def cli():
 
     cp['input-check'].add_argument('config', type=str, default=None, help='input configuration file in YAML format')
     cp['input-check'].add_argument('-lib', type=str, default='lib', help='local user library of molecular structures and parameterizations')
+
+    cp['make-viz'].add_argument('-top', type=str, default='final.top', help='input gromacs topology file (default: final.top)')
+    cp['make-viz'].add_argument('-gro', type=str, default='final.gro', help='input gromacs coordinate file (default: final.gro)')
+    cp['make-viz'].add_argument('-prefix', type=str, default=None, help='output basename; the .viz.psf and .viz.tcl are written next to the input gro (default: stem of -gro)')
 
     _add_analysis_args(cp['postsim'])
     _add_analysis_args(cp['analyze'])

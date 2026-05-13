@@ -1,0 +1,81 @@
+# htpolynet -- Example 0 -- Liquid Styrene
+#
+# Self-contained config: the styrene monomer is generated from SMILES
+# (RDKit path via the atom-mapping syntax).  Run with:
+#
+#   htpolynet run -diag diagnostics.log 0-liquid-styrene.yaml
+#
+# This example produces a densified liquid of "active" styrene monomers
+# (no curing).  After the run completes you can compute properties with
+# `htpolynet analyze` -- save the following as `ck.yaml` and invoke
+# `htpolynet analyze -cfg ck.yaml -ocfg 0-liquid-styrene.yaml -proj proj-0`:
+#
+#   - command: check
+#     subdir: analyze/check
+#     links: [systems/densification/densified-npt.trr]
+#     options: {f: densified-npt.trr}
+#     outfile: check.out
+#     matchlines: ['Last frame', 'Coords']
+#   - command: report-methods
+#     subdir: analyze/report-methods
+#     links: [systems/densification/densified-npt.tpr]
+#     options: {s: densified-npt.tpr, m: report.tex}
+#   - command: freevolume
+#     subdir: analyze/freevolume
+#     links:
+#       - systems/densification/densified-npt.tpr
+#       - systems/densification/densified-npt.trr
+#     options: {s: densified-npt.tpr, f: densified-npt.trr}
+#
+# Cameron F. Abrams -- cfa22@drexel.edu
+
+Title: Liquid of Active Styrene Monomers
+gromacs:
+  gmx: gmx
+  gmx_options: -quiet -nobackup
+  mdrun: gmx mdrun
+  mdrun_options:
+    gpu_id: 0            # auto-stripped at runtime if gmx is not GPU-capable or no GPU is visible
+ambertools:
+  charge_method: gas
+constituents:
+  STY:
+    smiles: "c1ccccc1[CH2:1][CH3:2]"
+    reactive_atoms: {1: C1, 2: C2}
+    count: 200
+densification:
+  initial_density: 300.0  # kg/m3
+  equilibration:
+    - ensemble: min
+    - ensemble: nvt
+      temperature: 300.0
+      ps: 10.0
+    - ensemble: npt
+      temperature: 300.0
+      pressure: 10.0
+      ps: 200.0
+precure:
+  preequilibration:
+    ensemble: npt
+    temperature: 300        # K
+    pressure: 1.0           # bar
+    ps: 200
+  anneal:
+    ncycles: 2
+    initial_temperature: 300.0
+    cycle_segments:
+      - T: 300.0
+        ps: 0
+      - T: 600.0
+        ps: 20
+      - T: 600.0
+        ps: 20
+      - T: 300.0
+        ps: 20
+      - T: 300.0
+        ps: 20
+  postequilibration:
+    ensemble: npt
+    temperature: 300.0      # K
+    pressure: 1.0           # bar
+    ps: 100

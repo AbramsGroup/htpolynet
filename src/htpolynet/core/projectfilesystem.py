@@ -16,6 +16,19 @@ _CACHE_ENV_VAR = 'HTPOLYNET_CACHE'
 _CACHE_DEFAULT = Path.home() / '.htpolynet'
 
 
+def _safe_copyfile(src, dst):
+    """Like ``shutil.copyfile`` but a no-op when src and dst resolve to the
+    same path.  This arises on restart, when the search path for a checkout
+    includes ``projPath`` and the cwd is already inside ``projPath`` (so the
+    source we find IS the destination)."""
+    try:
+        if os.path.abspath(src) == os.path.abspath(dst):
+            return
+    except Exception:
+        pass
+    shutil.copyfile(src, dst)
+
+
 class SystemLibrary:
     """Read-only access to bundled package resources via importlib.resources."""
 
@@ -61,8 +74,9 @@ class SystemLibrary:
     def get_example_names(self):
         """Returns sorted list of example names available in the depot.
 
-        Recognises both .sh scripts and legacy .tgz tarballs; returns unique
-        names (without extension) in numeric-prefix order.
+        Recognises self-contained .yaml configs, legacy .sh scripts, and
+        legacy .tgz tarballs; returns unique names (without extension) in
+        numeric-prefix order.
 
         Returns:
             list: example names without extension
@@ -70,7 +84,7 @@ class SystemLibrary:
         depot = self._root.joinpath('example_depot')
         names = set()
         for f in depot.iterdir():
-            if f.name.endswith('.tgz') or f.name.endswith('.sh'):
+            if f.name.endswith(('.yaml', '.tgz', '.sh')):
                 names.add(f.stem)
         return sorted(names)
 
@@ -140,7 +154,7 @@ class UserCache:
         """
         src = self.root / filename
         if src.exists():
-            shutil.copyfile(src, os.path.basename(filename))
+            _safe_copyfile(src, os.path.basename(filename))
             return True
         return False
 
@@ -161,7 +175,7 @@ class UserCache:
         dest = self.root / filename
         dest.parent.mkdir(parents=True, exist_ok=True)
         if not dest.exists() or overwrite:
-            shutil.copyfile(src, dest)
+            _safe_copyfile(src, dest)
         return True
 
     def get_molecule_names(self):
@@ -220,7 +234,7 @@ class UserLibrary:
         """
         src = self.root / filename
         if src.exists():
-            shutil.copyfile(src, os.path.basename(filename))
+            _safe_copyfile(src, os.path.basename(filename))
             return True
         all_paths = list(searchpath)
         if altpath:
@@ -228,7 +242,7 @@ class UserLibrary:
         for p in all_paths:
             candidate = Path(p) / filename
             if candidate.exists():
-                shutil.copyfile(candidate, os.path.basename(filename))
+                _safe_copyfile(candidate, os.path.basename(filename))
                 return True
         return False
 

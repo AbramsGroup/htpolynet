@@ -1,54 +1,30 @@
-#!/bin/bash
 # htpolynet -- Example 1 -- Polystyrene
 #
-# Writes all input files into ./1-polystyrene/ and optionally launches the build.
+# Self-contained config: the styrene monomer is generated from SMILES by
+# htpolynet itself.  The two reactive vinyl carbons are identified inline in
+# the SMILES with atom-map labels [CH2:1] and [CH:2]; the `reactive_atoms`
+# block maps those labels to the atom names (C1, C2) referenced by the
+# reactions below.  This path requires RDKit (`pip install 'htpolynet[smiles]'`,
+# or use the container which ships RDKit).
 #
-# Usage:
-#   bash 1-polystyrene.sh          # set up directory only
-#   bash 1-polystyrene.sh --run    # set up and launch htpolynet
+#   htpolynet run -diag diagnostics.log 1-polystyrene.yaml
 #
-# Requirements: obabel on PATH, htpolynet installed and on PATH.
-#
-# Cameron F. Abrams — cfa22@drexel.edu
+# Cameron F. Abrams -- cfa22@drexel.edu
 
-set -euo pipefail
-
-EXDIR="1-polystyrene"
-if [ -d "$EXDIR" ]; then
-    echo "Error: directory '$EXDIR' already exists. Remove it first." >&2
-    exit 1
-fi
-
-mkdir -p "$EXDIR/lib/molecules/inputs" "$EXDIR/lib/molecules/parameterized"
-cd "$EXDIR"
-
-# ---------------------------------------------------------------------------
-# Generate the styrene monomer mol2 via obabel.
-# Atoms 7 and 8 are renamed C1 and C2 — the reactive vinyl carbons.
-# ---------------------------------------------------------------------------
-STYRENE_SMILES="C1=CC=CC=C1CC"
-obabel -:"$STYRENE_SMILES" -ismi --gen2d -opng -O lib/molecules/inputs/STY.png
-obabel -:"$STYRENE_SMILES" -ismi -omol2 -h --gen3d --title styrene-active \
-    | sed s/" 7 C "/" 7 C1"/ \
-    | sed s/" 8 C "/" 8 C2"/ \
-    | sed s/"UNL1"/"STY "/ > lib/molecules/inputs/STY.mol2
-
-# ---------------------------------------------------------------------------
-# Configuration file
-# ---------------------------------------------------------------------------
-cat > pSTY.yaml << 'YAML'
 Title: polystyrene
 gromacs:
   gmx: gmx
   gmx_options: -quiet -nobackup
   mdrun: gmx mdrun
   mdrun_options:
-    gpu_id: 0
+    gpu_id: 0            # auto-stripped at runtime if gmx is not GPU-capable or no GPU is visible
 ambertools:
   charge_method: gas
 constituents:
   STY:
-    count: 200
+    smiles: "c1ccccc1[CH2:1][CH3:2]"
+    reactive_atoms: {1: C1, 2: C2}
+    count: 1000
 densification:
   initial_density: 300.0  # kg/m3
   equilibration:
@@ -189,14 +165,3 @@ reactions:
           - A
           - B
         order: 2
-YAML
-
-# ---------------------------------------------------------------------------
-# Optionally launch the build
-# ---------------------------------------------------------------------------
-if [[ "${1:-}" == "--run" ]]; then
-    htpolynet run -diag diagnostics.log pSTY.yaml &> console.log
-else
-    echo "Setup complete. To run:"
-    echo "  cd $EXDIR && htpolynet run -diag diagnostics.log pSTY.yaml"
-fi

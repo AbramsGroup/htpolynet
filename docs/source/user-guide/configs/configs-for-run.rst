@@ -89,9 +89,12 @@ In this section we show all subdirectives for each of the five main directives i
     ``stereocenters``                        list               (optional) list of names of chiral carbon atoms if any
     ``symmetry_equivalent_atoms``            list               (optional) list of sets of symmetry equivalent atom names, if any
     ``conformers``                           conformers record  (optional) parameters specifying if and how initial conformers are generated
+    ``smiles``                               string             (optional) SMILES for in-config monomer generation; htpolynet runs ``obabel`` (or RDKit) to materialize ``lib/molecules/inputs/<NAME>.mol2`` before parameterization
+    ``rename_atoms``                         dict               (optional) ``{1-based-mol2-index: atom-name}`` map applied after obabel writes the mol2 (obabel path; pairs with ``smiles``)
+    ``reactive_atoms``                       dict               (optional) ``{smiles-atom-map-label: atom-name}`` map (RDKit path; pairs with a ``smiles`` that uses ``[*:N]`` atom-mapping tokens). Requires ``rdkit`` — install with ``pip install 'htpolynet[smiles]'``
     =====================================    =================  =====================
 
-    In the example below, we are requesting a system of 100 styrene molecules.  The key ``STY`` signals to ``htpolynet`` that it should look for either ``STY.mol2`` or ``STY.pdb`` in ``./lib/molecules/inputs`` **or** it should look for ``STY.gro``, ``STY.itp``, ``STY.top``, and ``STY.grx`` in ``./lib/molecules/parameterized``.  The latter is the case if either ``htpolynet run`` or ``htpolynet parameterized`` has already been run with ``STY.mol2`` or ``STY.pdb``.  Multiple records in ``constituents`` should all have the "key":"record" syntax and be separated by commas.
+    In the example below, we are requesting a system of 100 styrene molecules.  The key ``STY`` signals to ``htpolynet`` that it should look for either ``STY.mol2`` or ``STY.pdb`` in ``./lib/molecules/inputs`` **or** it should look for ``STY.gro``, ``STY.itp``, ``STY.top``, and ``STY.grx`` in ``./lib/molecules/parameterized``.  The latter is the case if either ``htpolynet run`` or ``htpolynet parameterized`` has already been run with ``STY.mol2`` or ``STY.pdb``.  If neither set of files is found but the constituent carries a ``smiles`` key, ``htpolynet`` generates the input ``mol2`` itself.  Multiple records in ``constituents`` should all have the "key":"record" syntax and be separated by commas.
 
     Any entry in ``constituents`` for which the ``count`` is 0 or missing is treated as an intermediate for which stereocenters or symmetry-equivalent atoms are specified.
 

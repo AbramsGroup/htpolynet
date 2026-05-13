@@ -32,6 +32,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest"]
+smiles = ["rdkit"]  # enables SMILES atom-mapping syntax in constituents; obabel-only path always available
 
 [project.urls]
 "Source" = "https://github.com/AbramsGroup/htpolynet"

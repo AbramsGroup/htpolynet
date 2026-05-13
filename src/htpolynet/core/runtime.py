@@ -24,6 +24,7 @@ from ..cure.expandreactions import bondchain_expand_reactions, generate_stereo_r
 from ..cure.reaction import Reaction, ReactionList, parse_reaction_list, extract_molecule_reactions, is_reactant, reaction_stage
 from ..external import software as software
 from ..external.gromacs import insert_molecules, mdp_modify, mdp_get
+from ..external.smiles_input import materialize_smiles_inputs
 from ..utils import checkpoint as cp
 from ..utils.stringthings import my_logger
 
@@ -133,7 +134,6 @@ class Runtime:
             cfgfile (str): name of YAML cfg file, defaults to ''
             restart (bool): flag indicating if this is a restart
         """
-        my_logger(software.to_string(),logger.info)
         self.cfgfile=cfgfile
         if cfgfile=='':
             logger.error('HTPolyNet requires a configuration file.')
@@ -154,6 +154,17 @@ class Runtime:
         if self.cfg.cure:
             logger.debug('Setting up cure controller')
             self.cc=CureController(self.cfg.cure)
+        # Write generated mol2 into the user library (rootPath/lib/...) so that
+        # pfs.checkout() finds them later when molecule.generate() runs from
+        # inside the project directory.  Defaulting to a relative path here
+        # would resolve against projPath instead, leaving the files unfindable.
+        if pfs._PFS_ and pfs._PFS_.userlibrary:
+            inputs_dir = str(pfs._PFS_.userlibrary.root / pfs.Dirs.molecules_inputs)
+        else:
+            inputs_dir = os.path.join(pfs.root(), 'lib', pfs.Dirs.molecules_inputs)
+        generated=materialize_smiles_inputs(self.cfg.constituents, inputs_dir=inputs_dir)
+        if generated:
+            logger.info(f'Generated mol2 inputs from SMILES for: {", ".join(generated)}')
         self._build_molecules_and_reactions()
 
     def _apply_runtime_defaults(self):
@@ -277,6 +288,18 @@ class Runtime:
         logger.debug(f'Generating: {list(self.molecules.keys())}')
         for mname,M in self.molecules.items():
             self._generate_molecule(M,force_parameterization=force_parameterization,force_checkin=force_checkin)
+        n_cached=sum(1 for M in self.molecules.values() if M.origin=='previously parameterized')
+        n_new=sum(1 for M in self.molecules.values() if M.origin=='newly parameterized')
+        if n_cached or n_new:
+            logger.info(
+                f'Parameterization summary: {n_cached} reused from cache '
+                f'(~/.htpolynet/molecules/parameterized/), {n_new} freshly parameterized.'
+            )
+            if n_cached:
+                logger.info(
+                    '  to force re-parameterization on the next run, use '
+                    '`htpolynet run --force-parameterization --force-checkin ...`'
+                )
         new_reactions,new_molecules=bondchain_expand_reactions(self.molecules)
         if len(new_molecules)>0:
             ess='' if len(new_molecules)==1 else 's'
@@ -427,7 +450,8 @@ class Runtime:
 
     @cp.enableCheckpoint
     def save_data(self,result_name='final'):
-        """Writes 'gro', 'top', 'tpx', and 'grx' files for system.
+        """Writes 'gro', 'top', 'tpx', and 'grx' files for system, plus a PSF
+        + TCL pair for VMD visualization.
 
         Args:
             result_name (str): output file basename, defaults to 'final'
@@ -441,7 +465,24 @@ class Runtime:
         TC.write_gro(f'{result_name}.gro')
         TC.write_top(f'{result_name}.top')
         TC.write_tpx(f'{result_name}.tpx')
+        self._write_vmd_viz_files(result_name)
         return {c:os.path.basename(x) for c,x in TC.files.items() if c!='mol2'}
+
+    def _write_vmd_viz_files(self, result_name='final'):
+        """Writes a PSF (real bond topology for VMD) and a TCL helper that
+        trims bonds spanning periodic boundaries so VMD doesn't render the
+        long "wrap-around" bonds inherent to a crosslinked network in PBC.
+
+        Usage afterward:
+            vmd final.viz.psf final.gro -e final.viz.tcl
+        """
+        from ..utils.vmd_viz import write_viz_files
+        try:
+            write_viz_files(f'{result_name}.top', f'{result_name}.gro', prefix=result_name)
+        except ImportError:
+            logger.warning('parmed not importable; skipping VMD viz files')
+        except Exception as e:
+            logger.warning(f'Could not write {result_name}.viz.psf: {e}')
 
     def do_workflow(self,**kwargs):
         """do_workflow manages runtime for one entire system-build workflow
@@ -458,6 +499,14 @@ class Runtime:
         last_data=cp.read_checkpoint()
         logger.debug(f'Checkpoint last_data {last_data}')
         TC.load_files(last_data)
+        # On a restart, do_initialization is skipped by the checkpoint decorator,
+        # so the in-memory chain_manager it would have built isn't there.
+        # Rebuild it from the reloaded coordinates before any later stage tries
+        # to consume it (do_cure at minimum).
+        if last_data and getattr(TC, 'Coordinates', None) is not None and getattr(TC.Coordinates, 'A', None) is not None and not getattr(self, 'chain_manager', None):
+            self.chain_manager = ChainManager()
+            self.chain_manager.from_dataframe(TC.Coordinates.A)
+            logger.info('Rebuilt chain_manager from checkpoint-loaded coordinates')
         pfs.go_to(pfs.Dirs.systems_init)
         self.do_initialization()
         pfs.go_to(pfs.Dirs.systems_densification)
@@ -499,7 +548,7 @@ class Runtime:
                     logger.debug(f'reactants {list(M.generator.reactants.values())}')
                 return
         else:
-            logger.debug(f'Fetching parameterized {mname}')
+            logger.info(f'Using cached parameterization for {mname}')
             exts=pfs.fetch_molecule_files(mname)
             logger.debug(f'fetched {mname} exts {exts}')
             mol2fn = f'{mname}.mol2' if 'mol2' in exts else ''
@@ -769,6 +818,9 @@ class Runtime:
             'nsteps':nsteps
             }
         mdp_modify(f'{mdp_pfx}.mdp',mod_dict)
+        t_lo=min(float(t) for t in temps)
+        t_hi=max(float(t) for t in temps)
+        logger.info(f'Running Gromacs: anneal; {total_duration:.2f} ps, {ncycles} cycle(s), {t_lo:.2f}-{t_hi:.2f} K')
         msg=TC.grompp_and_mdrun(out=deffnm,mdp=mdp_pfx,quiet=False,**gromacs_dict)
         logger.info(f'Annealed coordinates in {deffnm}.gro')
 

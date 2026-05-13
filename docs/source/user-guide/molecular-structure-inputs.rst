@@ -29,7 +29,67 @@ Another way is to use `OpenBabel <https://openbabel.org/wiki/Main_Page>`_'s ``ob
 
     $ obabel -:"C1=CC=CC=C1CC" -ismi --gen-3d -h -omol2 -O STY.mol2
 
-SMILES is a really great way to describe molecular structures, and it makes monomer structure generation simply a matter of expressing it as a string and using ``obabel`` to generate coordinates.  
+SMILES is a really great way to describe molecular structures, and it makes monomer structure generation simply a matter of expressing it as a string and using ``obabel`` to generate coordinates.
 
-The second **very important** thing is that you must **edit** the ``mol2`` or ``pdb`` files for your monomers that are the output of either a sketcher or ``obabel``.  This is because ``htpolynet`` expects atoms that it must reference to have **unique names** in each type of monomer.  It doesn't matter what the names are, but they must be unique.  And not **all** atoms need to be uniquely named; only the ones that ``htpolynet`` needs in order to make bonds happen need unique names.  We provide several examples of atom naming conventions in the :ref:`tutorials <example_tutorials>`.
+In-config SMILES (preferred)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can skip the standalone ``obabel`` invocation entirely by giving the
+SMILES string directly to ``htpolynet`` inside the config file's
+``constituents`` block.  ``htpolynet`` runs ``obabel`` (or RDKit, see below)
+itself before parameterization, writes the resulting ``mol2`` into
+``lib/molecules/inputs/<NAME>.mol2``, and proceeds as if you had generated it
+by hand.  Two flavours of the spec are accepted:
+
+* **obabel index path** (no extra dependencies).  Provide ``smiles`` and a
+  ``rename_atoms`` map keyed by 1-based mol2 atom index::
+
+    constituents:
+      STY:
+        smiles: "C1=CC=CC=C1CC"
+        rename_atoms: {7: C1, 8: C2}
+
+  You need to know which obabel-emitted indices to rename, which usually
+  means running ``obabel`` once by hand to inspect the atom order.
+
+* **RDKit atom-mapping path** (recommended; requires ``rdkit``).  Encode
+  reactive atoms inline with SMILES atom-map labels (``[CH2:1]``) and a
+  ``reactive_atoms`` map keyed by those labels::
+
+    constituents:
+      STY:
+        smiles: "c1ccccc1[CH2:1][CH3:2]"
+        reactive_atoms: {1: C1, 2: C2}
+
+  This identifies the reactive atoms by chemical identity rather than by
+  index, so the spec is robust to changes in ``obabel``'s output ordering.
+  Install with ``pip install 'htpolynet[smiles]'`` or use the container,
+  which ships RDKit by default.
+
+  .. warning::
+
+     SMILES bracket atoms (``[...]``) take an **explicit** hydrogen count.
+     ``[C:1]`` means *zero implicit H* — the carbon stays at its explicit
+     valence.  For an sp³ carbon you almost always want ``[CH:1]`` (one
+     implicit H) or ``[CH2:1]`` / ``[CH3:1]`` as appropriate.  Mis-specified
+     hydrogen counts typically show up as antechamber typing a saturated
+     carbon as ``c2`` instead of ``c3``, propagating into a missing GAFF
+     angle parameter in ``tleap``.
+
+If an existing ``lib/molecules/inputs/<NAME>.mol2`` is present, it is left
+alone and the SMILES regeneration is skipped — hand-edits survive a re-run.
+Delete the file to force regeneration.
+
+Atom-naming
+^^^^^^^^^^^
+
+Whether the ``mol2`` came from a sketcher, raw ``obabel``, or in-config
+SMILES, ``htpolynet`` expects atoms that it must reference to have **unique
+names** in each type of monomer.  It doesn't matter what the names are, but
+they must be unique.  Not **all** atoms need to be uniquely named; only the
+ones that ``htpolynet`` needs in order to make bonds happen need unique
+names.  The in-config SMILES path handles this naming automatically via
+``rename_atoms`` / ``reactive_atoms``; for hand-generated mol2 you must
+edit the atom-name field yourself.  We provide several examples of atom
+naming conventions in the :ref:`tutorials <example_tutorials>`.
 

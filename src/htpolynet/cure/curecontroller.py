@@ -93,7 +93,9 @@ class CureState:
         """
         with open(filename,'r') as f:
             yaml_string=f.read()
-        return yaml.load(yaml_string,Loader=yaml.FullLoader)
+        # FullLoader was tightened in recent PyYAML versions to reject Python
+        # object tags; use yaml.Loader to round-trip yaml.dump(self) output.
+        return yaml.load(yaml_string,Loader=yaml.Loader)
 
     def reset(self):
         """Resets this CureState object to begin a new CURE iteration.

@@ -97,10 +97,65 @@ The subdirectories of a project directory upon its creation are as follows.
 These will be explained more fully in the tutorials.
 
 * ``-diag`` names the diagnostic output file, and ``--loglevel`` specifies the logging level it uses.  The default level is ``debug`` (i.e., the most informative).
-* ``-restart`` indicates that this is a restart (experimental!).
+* ``-restart`` resumes the latest project directory from a previously-written
+  checkpoint.
+
+  .. warning::
+
+     Restart is **experimental and currently broken at the cure stage.**
+     Stages that complete before any cure iteration (``do_initialization``,
+     ``do_densification``, ``do_precure``) skip correctly on resume, but the
+     cure machinery fails on the first topology update after a restart with
+     an internal "``temp_idx N already claimed in temp2inst; bug``" assertion.
+     The root cause is that the cure controller's per-iteration in-memory
+     chain state is not fully reconstructible from the on-disk
+     ``cure_state.yaml`` + reloaded gro/top/grx files.  Treat restart as a
+     development-only feature pending a redesign of cure-state persistence.
+     Re-running from scratch with the same config is the safe path.
 * ``--force-parameterization`` signals that ``htpolynet`` should perform all molecular parameterizations from scratch even if parameterizations exist in the library.
 * ``--force-checkin`` signals that any parameterizations ``htpolynet`` performs should have their results "checked-in" to the library, even if previous parameterizations are there already.
 * ``--param-only`` stops after parameterizing all monomers and oligomer templates without proceeding to build the full system.  This is useful for debugging parameterization issues before committing to a full run.
+
+Parameterization caching
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Every time ``htpolynet`` successfully parameterizes a molecule it copies the
+resulting ``mol2`` / ``top`` / ``tpx`` / ``itp`` / ``gro`` / ``grx`` files
+into a **per-user cache** at ``~/.htpolynet/molecules/parameterized/``.  On
+subsequent runs — *anywhere on the filesystem*, not just within the same
+project directory — that cache is consulted via the same lookup chain as
+the user library: a constituent named ``BPA`` will be picked up from the
+cache before antechamber/tleap is invoked, even if you started in a brand
+new working directory.
+
+This is a performance feature (re-parameterizing AmberTools-heavy monomers
+can take minutes per species), but it has one important consequence:
+
+.. warning::
+
+   **A stale cache entry will silently get reused.**  If you fix a bug in
+   a constituent's SMILES, atom-naming, or charge method, the next run
+   will still pick up the *old* parameterization from
+   ``~/.htpolynet/molecules/parameterized/``.  The symptom is usually a
+   downstream error that does not seem to match the config you're looking
+   at.
+
+Knobs to manage the cache:
+
+* ``HTPOLYNET_CACHE=<path>`` — environment variable that overrides the
+  default cache location.
+* ``rm -rf ~/.htpolynet/molecules/parameterized`` — nuke everything and
+  start fresh.  In the container, the equivalent is
+  ``docker volume rm <project>_htpolynet-home``.
+* ``htpolynet run --force-parameterization <config>`` — re-parameterize
+  every molecule for this run, ignoring the cache for lookup but **without
+  overwriting** existing cache entries.
+* ``htpolynet run --force-parameterization --force-checkin <config>`` —
+  re-parameterize *and* overwrite the cache entries with the new results.
+  This is the right combination after fixing a constituent's SMILES.
+
+The cache is keyed by molecule name only.  Renaming a constituent in your
+YAML (``HIE`` → ``HEMA``, say) bypasses the stale entry naturally.
 
 ``htpolynet info``
 !!!!!!!!!!!!!!!!!!
@@ -184,15 +239,19 @@ Fetching unpacks the requested example directly into the current directory.  For
 .. code-block:: console
 
   $ htpolynet fetch-example 4
+  Fetched 4-dfda-fde-epoxy-thermoset.yaml  (run with: htpolynet run 4-dfda-fde-epoxy-thermoset.yaml)
   $ ls
-  4-pacm-dgeba-epoxy-thermoset/
-  $ cd 4-pacm-dgeba-epoxy-thermoset
-  $ ls
-  DGE-PAC-hi.yaml  DGE-PAC-lo.yaml  lib/  run.sh
+  4-dfda-fde-epoxy-thermoset.yaml
 
-This folder (like all example folders) comes with two configuration files that differ only the the requested degree of cure.  "hi" refers to 95\% cure, and "lo" to 50\%.  Also provided is the ``./lib/molecules`` folders with the ``./lib/molecules/inputs`` and ``./lib/molecules/parameterized`` empty subfolders.  Finally, the bash script ``run.sh`` can just be invoked to build the input monomers and run the two builds in series.  This will be described in much more detail in the tutorials.
+Each example is now a single self-contained YAML config.  Monomer inputs
+are generated from SMILES strings embedded in the ``constituents`` section
+(see :ref:`molecular_structure_inputs`), so there is no separate
+``lib/molecules/inputs/`` setup step and no shell wrapper to run.  Drive it
+directly with::
 
-``htpolynet fetch-example all`` just grabs all seven examples.
+  $ htpolynet run 4-dfda-fde-epoxy-thermoset.yaml
+
+``htpolynet fetch-example all`` just grabs every example yaml.
 
 ``htpolynet pack-example``
 !!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -1,0 +1,250 @@
+"""Generate mol2 input files for constituents from SMILES strings.
+
+Two code paths are supported:
+
+* ``obabel`` — uses OpenBabel's ``--gen3d`` to embed coordinates, then renames
+  atoms by 1-based mol2 index according to ``rename_atoms``.  Always available
+  (the container ships OpenBabel; ``htpolynet`` requires it on PATH).
+
+* ``rdkit`` — parses SMILES atom-mapping tokens (``[CH2:1]=[CH:2]c1ccccc1``)
+  and renames mapped atoms via ``reactive_atoms``.  Used automatically when
+  the SMILES contains atom-mapping syntax and RDKit is importable; otherwise
+  htpolynet falls back to the obabel path.
+
+Author: Cameron F. Abrams <cfa22@drexel.edu>
+"""
+import logging
+import os
+import re
+import shutil
+import subprocess
+import tempfile
+
+logger = logging.getLogger(__name__)
+
+
+def materialize_smiles_inputs(constituents, inputs_dir='lib/molecules/inputs'):
+    """Walk constituents and write a mol2 for any whose spec carries a SMILES.
+
+    Existing mol2 files in ``inputs_dir`` are left alone — users who hand-edit
+    a generated mol2 do not lose their changes on re-runs.  Delete the file
+    to regenerate.
+
+    Args:
+        constituents (dict): {name: spec} from the parsed YAML config.
+        inputs_dir (str): destination for generated mol2 files.
+
+    Returns:
+        list[str]: names that were generated this call.
+    """
+    generated = []
+    os.makedirs(inputs_dir, exist_ok=True)
+    for name, spec in constituents.items():
+        if not isinstance(spec, dict) or not spec.get('smiles'):
+            continue
+        out = os.path.join(inputs_dir, f'{name}.mol2')
+        if os.path.exists(out):
+            logger.debug(f'{out} exists, skipping SMILES regeneration')
+            continue
+        _generate(name, spec, out)
+        generated.append(name)
+    return generated
+
+
+def _generate(name, spec, output_path):
+    """Dispatch to RDKit or obabel based on spec contents."""
+    smiles = spec['smiles']
+    rdkit_path_requested = _has_atom_mapping(smiles) and 'reactive_atoms' in spec
+    if rdkit_path_requested:
+        try:
+            _rdkit_path(name, smiles, spec['reactive_atoms'], output_path)
+            return
+        except ImportError:
+            if 'rename_atoms' not in spec:
+                raise RuntimeError(
+                    f"{name}: SMILES uses atom-mapping syntax and config "
+                    f"specifies `reactive_atoms`, but RDKit is not installed. "
+                    f"Install with `pip install 'htpolynet[smiles]'`, or "
+                    f"provide `rename_atoms: {{<1-based-index>: <name>}}` as "
+                    f"a fallback."
+                )
+            logger.warning(
+                f'{name}: RDKit not installed; falling back to obabel + '
+                f'`rename_atoms` index map.'
+            )
+    _obabel_path(name, smiles, spec.get('rename_atoms', {}), output_path)
+
+
+_ATOM_MAP_RE = re.compile(r'\[[^\[\]]*:\d+[^\[\]]*\]')
+
+
+def _has_atom_mapping(smiles):
+    return bool(_ATOM_MAP_RE.search(smiles))
+
+
+def _obabel_path(name, smiles, rename_atoms, output_path):
+    """Shell out to obabel and rename atoms by 1-based index."""
+    if not shutil.which('obabel'):
+        raise RuntimeError(
+            f'{name}: cannot generate mol2 from SMILES — obabel is not on PATH'
+        )
+    cmd = [
+        'obabel', f'-:{smiles}', '-ismi', '-omol2', '-h', '--gen3d',
+        '--title', name,
+    ]
+    logger.info(f'{name}: generating mol2 from SMILES via obabel')
+    res = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    mol2 = res.stdout
+    mol2 = _set_residue_name(mol2, name)
+    if rename_atoms:
+        mol2 = _rename_by_index(mol2, rename_atoms)
+    with open(output_path, 'w') as f:
+        f.write(mol2)
+    logger.info(f'{name}: wrote {output_path}')
+
+
+def _rdkit_path(name, smiles, reactive_atoms, output_path):
+    """Use RDKit to parse, embed, and write a mol2 with mapped atoms renamed."""
+    from rdkit import Chem
+    from rdkit.Chem import AllChem
+
+    logger.info(f'{name}: generating mol2 from SMILES via RDKit')
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        raise ValueError(f'{name}: RDKit could not parse SMILES {smiles!r}')
+
+    # Cache mapping (mapNum -> rdkit atom index) before we strip the labels.
+    map_to_idx = {}
+    for atom in mol.GetAtoms():
+        m = atom.GetAtomMapNum()
+        if m:
+            map_to_idx[m] = atom.GetIdx()
+            atom.SetAtomMapNum(0)
+
+    mol = Chem.AddHs(mol)
+    if AllChem.EmbedMolecule(mol, randomSeed=0xC0FFEE) != 0:
+        raise RuntimeError(f'{name}: RDKit failed to embed 3D coordinates')
+    AllChem.UFFOptimizeMolecule(mol)
+
+    # SDF/molfile roundtrip → mol2 via obabel.  We go through SDF rather than
+    # PDB because SDF carries explicit bond orders; PDB loses them, which
+    # leads obabel to re-infer (often wrongly, e.g. assigning a carbonyl
+    # carbon `c2` instead of `c`), and the resulting GAFF atom types then
+    # miss angle parameters in tleap.
+    if not shutil.which('obabel'):
+        raise RuntimeError(
+            f'{name}: RDKit produced a structure but obabel is not on PATH '
+            f'to convert it to mol2'
+        )
+    with tempfile.NamedTemporaryFile('w', suffix='.sdf', delete=False) as fh:
+        fh.write(Chem.MolToMolBlock(mol))
+        sdf_path = fh.name
+    try:
+        res = subprocess.run(
+            ['obabel', sdf_path, '-omol2', '--title', name],
+            capture_output=True, text=True, check=True,
+        )
+    finally:
+        os.unlink(sdf_path)
+    mol2 = res.stdout
+    mol2 = _set_residue_name(mol2, name)
+    # RDKit's PDB writer assigns unique per-element names (C1, C2, ...) that
+    # obabel propagates into the mol2.  Reset every atom name to its element
+    # symbol so the only renamed atoms are the ones the user marked.
+    mol2 = _reset_names_to_element(mol2)
+
+    # Convert mapNum→target_name into 1-based mol2 index→target_name.
+    # obabel keeps PDB atom order, so RDKit's GetIdx (0-based) +1 lines up.
+    index_to_name = {map_to_idx[m] + 1: nm for m, nm in reactive_atoms.items()
+                     if m in map_to_idx}
+    missing = set(reactive_atoms) - set(map_to_idx)
+    if missing:
+        raise ValueError(
+            f'{name}: reactive_atoms references atom-map labels not in SMILES: '
+            f'{sorted(missing)}'
+        )
+    if index_to_name:
+        mol2 = _rename_by_index(mol2, index_to_name)
+    with open(output_path, 'w') as f:
+        f.write(mol2)
+    logger.info(f'{name}: wrote {output_path}')
+
+
+def _set_residue_name(mol2_text, name):
+    """Rewrite the residue name (UNL1 etc.) in every ATOM line to ``name``.
+
+    The mol2 atom record's 8th whitespace-separated field is the residue
+    name.  We left-pad/truncate the requested name to 4 chars to keep the
+    fixed-width feel of obabel's output.
+    """
+    fixed = []
+    in_atom = False
+    resname = f'{name[:4]:<4s}'
+    for line in mol2_text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith('@<TRIPOS>'):
+            in_atom = (stripped == '@<TRIPOS>ATOM')
+            fixed.append(line)
+            continue
+        if in_atom and stripped:
+            parts = line.split()
+            if len(parts) >= 8:
+                parts[7] = resname.strip()
+                line = '  ' + '  '.join(parts)
+        fixed.append(line)
+    return '\n'.join(fixed) + '\n'
+
+
+def _reset_names_to_element(mol2_text):
+    """Rewrite every ATOM line's name field to the element symbol from atom_type.
+
+    The mol2 atom record's 6th field is the Sybyl atom type (``C.ar``, ``O.3``,
+    ``H``, ...).  We take the substring before any dot as the element and use
+    it as the atom name, mirroring what ``obabel`` emits when generating mol2
+    directly from SMILES.
+    """
+    out = []
+    in_atom = False
+    for line in mol2_text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith('@<TRIPOS>'):
+            in_atom = (stripped == '@<TRIPOS>ATOM')
+            out.append(line)
+            continue
+        if in_atom and stripped:
+            parts = line.split()
+            if len(parts) >= 6:
+                parts[1] = parts[5].split('.')[0]
+                line = '  ' + '  '.join(parts)
+        out.append(line)
+    return '\n'.join(out) + '\n'
+
+
+def _rename_by_index(mol2_text, rename_atoms):
+    """Replace the atom-name field of mol2 ATOM records whose index is in the map.
+
+    The mol2 atom record's 1st field is a 1-based index, the 2nd is the atom
+    name.  We replace just the name, preserving everything else verbatim so
+    bond and substructure records still resolve.
+    """
+    rename_atoms = {int(k): str(v) for k, v in rename_atoms.items()}
+    out = []
+    in_atom = False
+    for line in mol2_text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith('@<TRIPOS>'):
+            in_atom = (stripped == '@<TRIPOS>ATOM')
+            out.append(line)
+            continue
+        if in_atom and stripped:
+            parts = line.split()
+            try:
+                idx = int(parts[0])
+            except (IndexError, ValueError):
+                out.append(line)
+                continue
+            if idx in rename_atoms:
+                parts[1] = rename_atoms[idx]
+                line = '  ' + '  '.join(parts)
+        out.append(line)
+    return '\n'.join(out) + '\n'

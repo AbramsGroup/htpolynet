@@ -94,6 +94,21 @@ _GromacsTopologyDirectiveHeaders_ = {
     'defaults': ['nbfunc', 'comb-rule', 'gen-pairs', 'fudgeLJ', 'fudgeQQ']
 }
 
+_GromacsTopologyIntegerColumns_ = { # columns that must be written without a trailing '.0'; the dataframes can carry these as float when pandas demotes during NaN handling, so we re-cast to nullable Int64 just before serialization
+    'atoms': ['nr', 'resnr', 'cgnr'],
+    'pairs': ['ai', 'aj', 'funct'],
+    'bonds': ['ai', 'aj', 'funct'],
+    'angles': ['ai', 'aj', 'ak', 'funct'],
+    'dihedrals': ['ai', 'aj', 'ak', 'al', 'funct'],
+    'atomtypes': ['atnum'],
+    'moleculetype': ['nrexcl'],
+    'bondtypes': ['func'],
+    'angletypes': ['func'],
+    'dihedraltypes': ['func', 'pn'],
+    'molecules': ['#mols'],
+    'defaults': ['nbfunc', 'comb-rule'],
+}
+
 _GromacsTopologyHashables_ = { # attributes/columns that should always have values, no NaNs; these are how each item is sorted
     'atoms': ['nr'],
     'pairs': ['ai', 'aj'],
@@ -408,6 +423,12 @@ class Topology:
                 f.write(f'[ {k} ]\n; ')
                 if k in _GromacsTopologyHashables_:
                     df = df.sort_values(by=_GromacsTopologyHashables_[k])
+                # Cast integer-valued columns to nullable Int64 so they serialize
+                # as e.g. "2" rather than "2.0" (parmed's gromacs reader insists
+                # on parsing pn/func/atom-index columns as int).
+                for col in _GromacsTopologyIntegerColumns_.get(k, []):
+                    if col in df.columns:
+                        df[col] = df[col].astype('Int64')
                 df.to_csv(f, sep=' ', index=False, header=True, doublequote=False)
                 f.write('\n')
             f.write('; end\n')

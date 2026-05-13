@@ -148,21 +148,53 @@ def set_gmx_preferences(gromacs_dict={}):
     CP=subprocess.run(['which',gmx],capture_output=True,text=True)
     assert CP.returncode==0,f'{gmx} not found'
     _get_gmx_version()
+    _enforce_gpu_consistency(gromacs_dict)
+
+
+def _enforce_gpu_consistency(gromacs_dict):
+    """Strip mdrun_options.gpu_id when the runtime cannot honor it.
+
+    A `gpu_id` request is invalid (and will crash gmx mdrun) if either
+    (a) the gmx binary was built without GPU support, or (b) no GPU devices
+    are visible on the host.  In either case log a warning and remove the
+    option so the run can proceed on CPU.
+    """
+    if not isinstance(gromacs_dict, dict):
+        return
+    mdrun_options = gromacs_dict.get('mdrun_options')
+    if not isinstance(mdrun_options, dict) or 'gpu_id' not in mdrun_options:
+        return
+    gpu_support = versions.get('gromacs_gpu', 'unknown')
+    reasons = []
+    if gpu_support.lower() in ('disabled', 'no', 'none', 'off'):
+        reasons.append(f'gmx was built with GPU support {gpu_support!r}')
+    if not gpu_ids:
+        reasons.append('no GPU devices detected on this host')
+    if reasons:
+        requested = mdrun_options.pop('gpu_id')
+        logger.warning(
+            f'Removing mdrun_options.gpu_id={requested} from config: '
+            + '; '.join(reasons)
+            + '. mdrun will run on CPU.'
+        )
 
 
 def _get_gmx_version():
-    """Parses the GROMACS version from 'gmx --version' output."""
+    """Parses the GROMACS version and GPU-support backend from 'gmx --version'."""
     global versions
     version = None
+    gpu_support = None
     try:
         CP = subprocess.run([gmx, '--version'], capture_output=True, text=True)
         for line in (CP.stdout + CP.stderr).splitlines():
-            if 'GROMACS version' in line:
-                version = line.split(':',1)[1].strip()
-                break
+            if 'GROMACS version' in line and version is None:
+                version = line.split(':', 1)[1].strip()
+            elif 'GPU support' in line and gpu_support is None:
+                gpu_support = line.split(':', 1)[1].strip()
     except Exception:
         pass
     versions['gromacs'] = version or 'installed (version unknown)'
+    versions['gromacs_gpu'] = gpu_support or 'unknown'
 
 
 def to_string():
@@ -173,6 +205,7 @@ def to_string():
         r.append(f'{os.path.split(c)[1]:>12s} ({versions.get("ambertools","unknown")})')
     r.append('Gromacs:')
     r.append(f'{"gmx":>12s} ({versions.get("gromacs","unknown")})')
+    r.append(f'{"GPU support":>12s}: {versions.get("gromacs_gpu","unknown")}')
     r.append('GPUs:')
     r.append(f'  {len(gpu_ids)} detected ({", ".join(str(i) for i in gpu_ids) if gpu_ids else "none — mdrun will use CPU"})')
     return '\n'.join(r)

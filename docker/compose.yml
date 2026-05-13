@@ -1,0 +1,13 @@
+services:
+  htpolynet:
+    image: ghcr.io/abramsgroup/htpolynet:latest
+    volumes:
+      - ${PWD}:/work:Z
+      - htpolynet-home:/home/htpolynet
+    working_dir: /work
+    environment:
+      - HOME=/home/htpolynet
+      - MPLCONFIGDIR=/tmp/matplotlib
+
+volumes:
+  htpolynet-home:

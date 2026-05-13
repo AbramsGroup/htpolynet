@@ -8,6 +8,7 @@ from ..core.configuration import Configuration
 from ..core.coordinates import Coordinates
 from ..core.topocoord import TopoCoord
 from ..external.command import run
+from ..external.smiles_input import materialize_smiles_inputs
 
 def input_check(args):
     """Manages the input-check subcommand.
@@ -17,6 +18,7 @@ def input_check(args):
     """
     lib='./lib/molecules'
     C=Configuration.read(args.config)
+    materialize_smiles_inputs(C.constituents, inputs_dir=os.path.join(lib,'inputs'))
     natoms=0
     tmass=0.0
     mmass={}

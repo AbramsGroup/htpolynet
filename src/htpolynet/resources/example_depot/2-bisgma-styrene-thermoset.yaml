@@ -1,86 +1,44 @@
-#!/bin/bash
 # htpolynet -- Example 2 -- Bis-GMA/Styrene Thermoset
 #
-# Writes all input files into ./2-bisgma-styrene-thermoset/ and optionally launches the build.
+# Self-contained config: STY, BPA, and HIE monomers are generated from SMILES
+# (RDKit path via the atom-mapping syntax).  Bis-GMA (GMA) is assembled at
+# runtime from BPA + 2 HIE via the two param-stage reactions defined below.
+# Run with:
 #
-# Usage:
-#   bash 2-bisgma-styrene-thermoset.sh          # set up directory only
-#   bash 2-bisgma-styrene-thermoset.sh --run    # set up and launch htpolynet
+#   htpolynet run -diag diagnostics.log 2-bisgma-styrene-thermoset.yaml
 #
-# Requirements: obabel on PATH, htpolynet installed and on PATH.
-#
-# The bis-GMA monomer (GMA) is assembled from bisphenol-A (BPA) and
-# 1-hydroxyethyl methacrylate (HIE) via two param-stage reactions specified
-# in the config file.
-#
-# Cameron F. Abrams — cfa22@drexel.edu
+# Cameron F. Abrams -- cfa22@drexel.edu
 
-set -euo pipefail
-
-EXDIR="2-bisgma-styrene-thermoset"
-if [ -d "$EXDIR" ]; then
-    echo "Error: directory '$EXDIR' already exists. Remove it first." >&2
-    exit 1
-fi
-
-mkdir -p "$EXDIR/lib/molecules/inputs" "$EXDIR/lib/molecules/parameterized"
-cd "$EXDIR"
-
-# ---------------------------------------------------------------------------
-# Generate monomer mol2 files via obabel.
-# ---------------------------------------------------------------------------
-
-# Styrene (active form) — reactive vinyl carbons C1 (atom 7) and C2 (atom 8)
-STYRENE="C1=CC=CC=C1CC"
-obabel -:"$STYRENE" -ismi --gen2d -opng -O lib/molecules/inputs/STY.png
-obabel -:"$STYRENE" -ismi -omol2 -h --gen3d --title "Styrene-active" \
-    | sed s/" 7 C "/" 7 C1"/ \
-    | sed s/" 8 C "/" 8 C2"/ \
-    | sed s/"UNL1"/"STY "/ > lib/molecules/inputs/STY.mol2
-
-# Bisphenol-A — reactive oxygens O1 (atom 7) and O2 (atom 14)
-PHENOL="C1=CC=C(O)C=C1"
-BPA="CC($PHENOL)($PHENOL)C"
-obabel -:"$BPA" -ismi --gen2d -opng -O lib/molecules/inputs/BPA.png -xp 600
-obabel -:"$BPA" -ismi --gen3d -h -omol2 --title "Bisphenol A" \
-    | sed s/"UNL1"/"BPA "/ \
-    | sed s/" 7 O "/" 7 O1"/ \
-    | sed s/"14 O "/"14 O2"/ \
-    > lib/molecules/inputs/BPA.mol2
-
-# 1-hydroxyethyl methacrylate (HIE) — reactive carbons C1 (atom 2), C2 (atom 10), C3 (atom 7), C4 (atom 9)
-HIE="CC(C(=O)OCC(O)C)C"
-obabel -:"$HIE" -ismi --gen2d -opng -O lib/molecules/inputs/HIE.png -xp 600
-obabel -:"$HIE" -ismi --gen3d -h -omol2 --title "1-hydroxyethyl methacrylate" \
-    | sed s/"UNL1"/"HIE "/ \
-    | sed s/"10 C "/"10 C2"/ \
-    | sed s/" 2 C "/" 2 C1"/ \
-    | sed s/" 7 C "/" 7 C3"/ \
-    | sed s/" 9 C "/" 9 C4"/ \
-    > lib/molecules/inputs/HIE.mol2
-
-# ---------------------------------------------------------------------------
-# Configuration file
-# ---------------------------------------------------------------------------
-cat > GMASTY.yaml << 'YAML'
 Title: GMA-STY thermoset
 gromacs:
   gmx: gmx
   gmx_options: -quiet -nobackup
   mdrun: gmx mdrun
   mdrun_options:
-    gpu_id: 0
+    gpu_id: 0            # auto-stripped at runtime if gmx is not GPU-capable or no GPU is visible
 ambertools:
   charge_method: gas
 constituents:
   STY:
+    smiles: "c1ccccc1[CH2:1][CH3:2]"
+    reactive_atoms: {1: C1, 2: C2}
     count: 150
-  GMA:
-    count: 75
+  BPA:
+    smiles: "CC(c1ccc([OH:1])cc1)(c1ccc([OH:2])cc1)C"
+    reactive_atoms: {1: O1, 2: O2}
   HIE:
+    # NB: `[CH:1]` not `[C:1]` — SMILES bracket atoms without an explicit H
+    # count default to zero implicit H, which leaves atom C1 at valence 3 and
+    # confuses antechamber into typing it as `c2` (sp2) and the adjacent
+    # carbonyl as `c2` instead of `c`, breaking tleap with "no angle parameter
+    # for o - c2 - os".
+    smiles: "[CH3:2][CH:1]([CH3])C(=O)OC[CH:3](O)[CH3:4]"
+    reactive_atoms: {1: C1, 2: C2, 3: C3, 4: C4}
     stereocenters:
       - C1
       - C3
+  GMA:
+    count: 75
 densification:
   initial_density: 100.0  # kg/m3
   equilibration:
@@ -340,14 +298,3 @@ reactions:
     bonds:
       - atoms: [A, B]
         order: 2
-YAML
-
-# ---------------------------------------------------------------------------
-# Optionally launch the build
-# ---------------------------------------------------------------------------
-if [[ "${1:-}" == "--run" ]]; then
-    htpolynet run -diag diagnostics.log GMASTY.yaml &> console.log
-else
-    echo "Setup complete. To run:"
-    echo "  cd $EXDIR && htpolynet run -diag diagnostics.log GMASTY.yaml"
-fi
