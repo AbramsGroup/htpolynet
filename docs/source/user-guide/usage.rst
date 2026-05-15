@@ -280,10 +280,10 @@ The purpose of this subcommand is to report the size of the initial system that 
 
 .. code-block:: console
 
-  $ htpolynet input-check DGE-PAC-hi.yaml
+  $ htpolynet input-check 3-pacm-dgeba-epoxy-thermoset.yaml
   Molecule DGE: 53 atoms, 200 molecules
   Molecule PAC: 41 atoms, 100 molecules
-  DGE-PAC-hi.yaml: 14700 atoms in initial system
+  3-pacm-dgeba-epoxy-thermoset.yaml: 14700 atoms in initial system
 
 ``htpolynet postsim``
 !!!!!!!!!!!!!!!!!!!!!

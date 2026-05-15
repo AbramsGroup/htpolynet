@@ -27,13 +27,11 @@ constituents:
     count: 200
     symmetry_equivalent_atoms: [[C1, C2], [C3, C4], [O1, O2]]
     stereocenters: [C3]
-    nconformers: 2
   DFA:
     smiles: "C(c1oc([CH2][NH2:1])cc1)c1oc([CH2][NH2:2])cc1"
     reactive_atoms: {1: N1, 2: N2}
     count: 100
     symmetry_equivalent_atoms: [[N1, N2]]
-    nconformers: 4
 densification:
   initial_density: 300.0  # kg/m3
   equilibration:
@@ -72,11 +70,11 @@ precure:
     ps: 100
 CURE:
   controls:
-    initial_search_radius: 0.5  # nm
+    search_radius: 0.5  # nm
     radial_increment: 0.25      # nm
     max_iterations: 150
     desired_conversion: 0.95
-    late_threshhold: 0.85
+    late_threshold: 0.85
   drag:
     trigger_distance: 0.6   # nm
     increment: 0.08         # nm

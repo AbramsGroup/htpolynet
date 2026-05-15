@@ -11,23 +11,36 @@ From inside the working directory containing ``0-liquid-styrene.yaml``:
 
 This kicks off the full workflow:
 
-1. Parameterize the styrene monomer (``htpolynet`` invokes
-   ``antechamber`` / ``tleap`` / ``parmchk2`` under the hood, after
-   first generating ``STY.mol2`` from the SMILES in the config).
-2. Pack 200 copies of the monomer into a low-density initial box.
-3. Run the densification cascade defined under ``densification`` and
-   then the preequilibration + anneal cascade under ``precure``.
+1. **Monomer setup.**  ``htpolynet`` reads the SMILES from
+   ``constituents.STY.smiles``, builds ``lib/molecules/inputs/STY.mol2``,
+   then invokes ``antechamber``/``parmchk2``/``tleap`` to produce the
+   parameterized monomer in ``lib/molecules/parameterized/``.
+2. **Initial pack.**  1000 copies of styrene are placed into a box sized
+   for ``initial_density: 300 kg/m³``.
+3. **Densification.**  The cascade under ``densification`` runs:
+   minimization, 10 ps NVT, 200 ps NPT at 10 bar.
+4. **Anneal cascade.**  The cascade under ``precure`` runs:
+   pre-equilibration, two 300/600 K cycles, post-equilibration.
 
-Each stage's output lives in a separate subdirectory under
-``proj-N/systems/`` (where ``N`` is the next available index — see the
-``Working in new project`` line at the top of ``diagnostics.log``).
+Each stage writes into its own subdirectory under ``proj-N/systems/``,
+where ``N`` is the next available index (the line ``Working in new
+project proj-N`` near the top of ``diagnostics.log`` tells you which
+one was chosen).  For this no-cure build you'll see:
 
-.. todo::
+.. code-block:: text
 
-   - List the stage subdirectories produced (``init/``,
-     ``densification/``, ``precure/``, ``final-results/``) and what's in
-     each.
-   - Note the absence of ``postcure`` / ``capping`` / ``iter-*`` dirs in
-     this example (those only appear when ``CURE`` is configured).
-   - Show what to look for in ``diagnostics.log`` to confirm the run
-     completed cleanly.
+   proj-0/
+   └── systems/
+       ├── init/             # initial packed box
+       ├── densification/    # min + nvt + npt cascade output
+       ├── precure/          # preequilibration, anneal, postequilibration
+       ├── postcure/         # empty -- no postcure block in this example
+       └── final-results/    # the final structure + topology + viz files
+
+There are no ``capping/`` or ``iter-*/`` subdirectories — those are only
+produced when a ``CURE`` block is configured.
+
+If you tail ``diagnostics.log`` while the run is going, the major stage
+transitions are clearly logged.  A clean finish ends with an
+``htpolynet runtime ends`` line and the ``final-results`` directory
+populated.

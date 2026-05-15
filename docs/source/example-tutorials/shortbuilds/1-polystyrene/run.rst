@@ -1,48 +1,92 @@
 .. _ps_run:
 
 Running the Build
-=================
+-----------------
 
-From inside ``1-polystyrene/``, launch ``htpolynet run``:
+From inside the working directory containing ``1-polystyrene.yaml``:
 
 .. code-block:: console
 
-    $ htpolynet run -diag diagnostics.log pSTY.yaml &> console.log &
+   $ htpolynet run -diag diagnostics.log 1-polystyrene.yaml &> console.log &
 
-The ``-diag`` flag writes per-iteration diagnostic data to ``diagnostics.log`` (used later for plotting).  Redirecting stdout/stderr to ``console.log`` lets you monitor progress with ``tail -f console.log``.
+Tailing ``console.log`` (or ``diagnostics.log``) lets you watch progress
+in real time.
 
-Build stages
-^^^^^^^^^^^^
+Stages
+^^^^^^
 
-``htpolynet`` works through the following stages in order.  Each is visible in ``console.log``.
+``htpolynet`` works through the following stages.  The ``setup``,
+``initialization``, ``densification``, and ``precure`` stages are the
+same as in :ref:`example 0 <liquid_styrene_run>`; the new ones are
+``cure``, ``postcure``, and the final-write.
 
-1. **Template parameterization** — ``htpolynet`` parameterizes the monomer ``STY`` and automatically generates and parameterizes all chain-expanded dimer, trimer, and tetramer templates using AmberTools (``antechamber``, ``parmchk2``, ``tleap``) and Gromacs (energy minimization).
+1. **setup.**  ``htpolynet`` reads the SMILES from
+   ``constituents.STY.smiles``, generates ``STY.mol2``, parameterizes
+   it via AmberTools, and *also* generates and parameterizes all
+   chain-expanded dimer/trimer/tetramer templates needed for the cure
+   reaction.  All of that is invisible in the directory listing but
+   shows up clearly in the profile report at end-of-run.
 
-2. **System assembly** — 200 STY molecules are placed in a cubic box at the requested initial density of 300 kg/m\ :sup:`3`.
+2. **initialization.**  1000 copies of styrene are placed in a box
+   sized for ``initial_density: 300 kg/m³``.
 
-3. **Densification** — a short minimization followed by NVT (10 ps, 300 K) and NPT (200 ps, 300 K, 10 bar) MD simulations compress the box to near the ambient density.
+3. **densification.**  Minimization → 10 ps NVT @ 300 K → 200 ps NPT
+   @ 300 K, 10 bar.
 
-4. **Pre-cure equilibration** — an NPT MD run at 1 bar and 300 K is followed by two annealing cycles (300 → 600 → 300 K) and a final 100 ps NPT equilibration.
+4. **precure.**  Pre-equilibration, two 300/600 K annealing cycles,
+   post-equilibration.
 
-5. **CURE iterations** — the CURE algorithm searches for reactive C1–C2 pairs within the current search radius, optionally drags distant pairs closer, deletes sacrificial H atoms, forms new bonds, relaxes bond lengths, and runs a short NPT equilibration.  The radius expands by 0.25 nm whenever no new bonds are found.  This repeats until 95% conversion is reached or 150 iterations are exhausted.
+5. **cure.**  Each iteration writes to ``proj-N/systems/iter-K/``:
 
-6. **Cap reactions** — unreacted STY monomers have their C1–C2 bond restored to a double bond.
+   * **bondsearch** identifies eligible C1–C2 pairs within the current
+     search radius (grown if needed);
+   * **drag** (if configured) pulls candidate pairs together;
+   * **update** forms the new bond, deletes sacrificial Hs, and remaps
+     the local topology from templates;
+   * **relax** + **equilibrate** runs short MD to relieve strain and
+     re-equilibrate the box.
 
-7. **Post-cure equilibration** — two more annealing cycles followed by a final NPT equilibration produce the finished ``proj-0/`` output.
+   The loop stops when ``desired_conversion`` is reached or
+   ``max_iterations`` is exhausted.  After cure, capping converts any
+   leftover active STY monomers back to the vinyl form
+   (``proj-N/systems/capping/``).
+
+6. **postcure.**  Two more 300/600 K annealing cycles plus a 100 ps NPT.
+
+7. **final.**  ``htpolynet`` writes ``final.gro``, ``final.top``,
+   ``final.tpx``, ``final.grx``, and the VMD-friendly
+   ``final.viz.psf`` / ``final.viz.tcl`` pair into
+   ``proj-N/systems/final-results/``.
+
+Directory layout produced
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+   proj-0/
+   ├── plots/
+   ├── profile.json           # wall-clock + subprocess timing breakdown
+   └── systems/
+       ├── init/
+       ├── densification/
+       ├── precure/
+       ├── iter-1/ iter-2/ ...
+       ├── capping/
+       ├── postcure/
+       └── final-results/
 
 Monitoring progress
 ^^^^^^^^^^^^^^^^^^^
 
-To watch the build in real time:
+To follow what's happening in real time:
 
 .. code-block:: console
 
-    $ tail -f console.log
+   $ tail -f console.log
+   $ # or, just the iteration counters:
+   $ grep "^INFO> Iteration" console.log
 
-To check how many CURE iterations have completed:
-
-.. code-block:: console
-
-    $ grep "^INFO> Iteration" console.log
-
-When the build finishes successfully, the last lines of ``console.log`` will indicate that post-cure equilibration has completed and the final ``top`` and ``gro`` files have been saved to ``proj-0/``.
+A clean finish ends with an ``htpolynet runtime ends`` line in the log
+and a populated ``final-results/`` directory.  The full run profile
+(per-stage wall time plus aggregated subprocess time by tool) is
+emitted to the log just before that and dumped to ``profile.json``.

@@ -4,27 +4,29 @@ The Styrene Monomer
 -------------------
 
 Styrene is a vinyl monomer; in this example we represent its **active**
-form (saturated, ethylbenzene-like) so that the reactive vinyl carbons
-each carry one sacrificial hydrogen.  Because we do no polymerization
-here, that "activeness" only matters insofar as it gives us a single
-all-single-bonds structure to densify.
+form (ethylbenzene-like, all single bonds) rather than its natural
+vinyl form (``c1ccccc1C=C``).  The active form is the template
+``htpolynet`` uses for parameterization: the two vinyl carbons each
+carry one *sacrificial* hydrogen, which is the H that a cure reaction
+would later strip when forming a new C–C bond.  Since this example does
+no curing, the sacrificial Hs simply stay put — but naming the carbons
+now means the same monomer file can be reused in
+:ref:`example 1 <ps_tutorial>` and beyond.
 
-.. todo::
+.. figure:: ../1-polystyrene/pics/STY.png
+   :align: center
+   :width: 240px
 
-   - Insert an image of the active styrene structure (e.g. reuse
-     ``../1-polystyrene/pics/STY.png``).
-   - Explain why the SMILES used is ``c1ccccc1[CH2:1][CH3:2]`` rather
-     than the "natural" ``c1ccccc1C=C``: the saturated form is the
-     valence-conserving template (vinyl carbons each have a sacrificial
-     hydrogen).
+   Active styrene.  ``C1`` and ``C2`` are the (eventually) reactive
+   vinyl carbons; each carries a sacrificial hydrogen.
 
 In-config SMILES generation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The ``constituents`` block of ``0-liquid-styrene.yaml`` carries the
-SMILES string and the names of the two atoms that would *eventually* be
-the polymerization sites (here labelled with the SMILES atom-mapping
-syntax ``[CH2:1]`` and ``[CH3:2]``):
+SMILES string and, via the SMILES atom-mapping syntax (``[CH2:1]``,
+``[CH3:2]``), the names of the two carbons that polymerization
+reactions would target:
 
 .. code-block:: yaml
 
@@ -32,19 +34,13 @@ syntax ``[CH2:1]`` and ``[CH3:2]``):
      STY:
        smiles: "c1ccccc1[CH2:1][CH3:2]"
        reactive_atoms: {1: C1, 2: C2}
-       count: 200
+       count: 1000
 
-When ``htpolynet run`` starts, it sees the ``smiles`` key, invokes RDKit
-(or falls back to ``obabel`` with an explicit index map — see
-:ref:`molecular_structure_inputs`) to generate
-``lib/molecules/inputs/STY.mol2``, and then proceeds with the normal
-parameterization workflow.  Even though there are no reactions for
-``htpolynet`` to apply to those atoms in this example, naming them now
-means the file can be reused as a drop-in monomer template in
-:ref:`example 1 <ps_tutorial>` and beyond.
-
-.. todo::
-
-   - Add a snippet of the generated ``STY.mol2`` showing the atom block
-     with C1 / C2 in place.
-   - Note the ``rename_atoms`` alternative for users without RDKit.
+When ``htpolynet run`` starts, it sees the ``smiles`` key, invokes
+RDKit to generate ``lib/molecules/inputs/STY.mol2`` with the atom-name
+mapping (``:1`` → ``C1``, ``:2`` → ``C2``), and then proceeds with the
+normal AmberTools parameterization workflow (``antechamber`` →
+``parmchk2`` → ``tleap``).  Users without RDKit can instead supply a
+pre-built mol2 in ``lib/molecules/inputs/`` and use the
+``rename_atoms`` key to assign atom names — see
+:ref:`molecular_structure_inputs`.

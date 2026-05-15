@@ -1,164 +1,67 @@
 .. _ps_configuration:
 
 The Configuration File
-======================
+----------------------
 
-The complete ``pSTY.yaml`` file written by ``1-polystyrene.sh`` is shown below.  A detailed explanation of every directive appears in the :ref:`configuration-file reference <configuration_run_example>`.
+The complete ``1-polystyrene.yaml`` carried by the depot:
 
-.. code-block:: yaml
+.. literalinclude:: ../../../../../src/htpolynet/resources/example_depot/1-polystyrene.yaml
+   :language: yaml
 
-  Title: polystyrene
-  gromacs:
-    gmx: gmx
-    gmx_options: -quiet -nobackup
-    mdrun: gmx mdrun
-    mdrun_options:
-      gpu_id: 0
-  ambertools:
-    charge_method: gas
-  constituents:
-    STY:
-      count: 200
-  densification:
-    initial_density: 300.0  # kg/m3
-    equilibration:
-      - ensemble: min
-      - ensemble: nvt
-        temperature: 300
-        ps: 10
-      - ensemble: npt
-        temperature: 300
-        pressure: 10
-        ps: 200
-  precure:
-    preequilibration:
-      ensemble: npt
-      temperature: 300        # K
-      pressure: 1             # bar
-      ps: 200
-    anneal:
-      ncycles: 2
-      initial_temperature: 300
-      cycle_segments:
-        - T: 300
-          ps: 0
-        - T: 600
-          ps: 20
-        - T: 600
-          ps: 20
-        - T: 300
-          ps: 20
-        - T: 300
-          ps: 20
-    postequilibration:
-      ensemble: npt
-      temperature: 300        # K
-      pressure: 1             # bar
-      ps: 100
-  CURE:
-    controls:
-      initial_search_radius: 0.5  # nm
-      radial_increment: 0.25      # nm
-      max_iterations: 150
-      desired_conversion: 0.95
-      late_threshhold: 0.85
-    drag:
-      trigger_distance: 0.6   # nm
-      increment: 0.08         # nm
-      limit: 0.3              # nm
-      equilibration:
-        - ensemble: min
-        - ensemble: nvt
-          temperature: 600
-          nsteps: 1000
-        - ensemble: npt
-          temperature: 600
-          pressure: 1
-          nsteps: 2000
-    relax:
-      increment: 0.08         # nm
-      equilibration:
-        - ensemble: min
-        - ensemble: nvt
-          temperature: 600
-          nsteps: 1000
-        - ensemble: npt
-          temperature: 600
-          pressure: 1
-          nsteps: 2000
-    equilibrate:
-      ensemble: npt
-      temperature: 300       # K
-      pressure: 1            # bar
-      ps: 100
-    gromacs:
-      rdefault: 0.9          # nm
-  postcure:
-    anneal:
-      ncycles: 2
-      initial_temperature: 300
-      cycle_segments:
-        - T: 300
-          ps: 0
-        - T: 600
-          ps: 20
-        - T: 600
-          ps: 20
-        - T: 300
-          ps: 20
-        - T: 300
-          ps: 20
-    postequilibration:
-      ensemble: npt
-      temperature: 300       # K
-      pressure: 1            # bar
-      ps: 100
-  reactions:
-    - name:        sty1_1
-      stage:       cure
-      reactants:
-        1: STY
-        2: STY
-      product:     STY~C1-C2~STY
-      probability: 1.0
-      atoms:
-        A:
-          reactant: 1
-          resid: 1
-          atom: C1
-          z: 1
-        B:
-          reactant: 2
-          resid: 1
-          atom: C2
-          z: 1
-      bonds:
-        - atoms: [A, B]
-          order: 1
-    - name:         styCC
-      stage:        cap
-      reactants:
-        1: STY
-      product:      STYCC
-      probability:  1.0
-      atoms:
-        A:
-          reactant: 1
-          resid: 1
-          atom: C1
-          z: 1
-        B:
-          reactant: 1
-          resid: 1
-          atom: C2
-          z: 1
-      bonds:
-        - atoms: [A, B]
-          order: 2
+A block-by-block walk-through (skipping the blocks already covered in
+:ref:`example 0 <liquid_styrene_configuration>` — ``Title``,
+``gromacs``, ``ambertools``, ``densification``, ``precure``):
 
-A few things to note:
+``constituents``
+   One species: ``STY``, 1000 copies, generated from SMILES.  See
+   :ref:`monomer <ps_monomer>` for the atom-mapping details.
 
-* ``charge_method: gas`` uses gas-phase AM1-BCC charges, which are faster than the default BCC charges and adequate for a tutorial run.
-* The ``constituents`` block requests 200 styrene monomers — large enough to be interesting but small enough to finish in a few hours on a workstation.
-* The ``CURE.gromacs.rdefault`` key sets the non-bonded cutoff radius for CURE-stage MD runs.
-* All ``IMPORTANT DISCLAIMER`` caveats from the :ref:`tutorial index <example_tutorials_builds>` apply: this is *not* a production build.
+``CURE``
+   Controls the Connect-Update-Relax-Equilibrate cycle:
+
+   * ``controls.search_radius`` (0.5 nm) and
+     ``controls.radial_increment`` (0.25 nm) set the starting search
+     radius for finding reactive pairs and how aggressively to grow it
+     when nothing is found.
+   * ``controls.max_iterations`` caps the number of CURE iterations
+     even if conversion has not yet been reached.
+   * ``controls.desired_conversion`` (0.95) is the target.  Conversion
+     is defined relative to the maximum possible bonds for the system.
+   * ``controls.late_threshold`` (0.85) is the conversion above which
+     ``htpolynet`` stops applying the per-reaction ``probability``
+     filter — once you are close to saturation, every eligible bond is
+     worth taking.
+   * ``drag`` configures the optional preupdate dragging step that
+     pulls *almost*-eligible pairs together before bond formation.
+     With ``trigger_distance: 0.6 nm``, ``increment: 0.08 nm``, and
+     ``limit: 0.3 nm``, ``htpolynet`` will progressively shorten
+     candidate bond distances by adding a restraint and running short
+     MD between increments.
+   * ``relax`` configures the bond-relaxation step that runs after
+     every CURE topology update — minimization plus a 1 ps NVT at 600 K
+     plus a 2 ps NPT at 600 K / 1 bar.
+   * ``equilibrate`` runs a 100 ps NPT at 300 K / 1 bar at the end of
+     each iteration.
+   * ``gromacs.rdefault`` (0.9 nm) is the nonbonded cutoff used for
+     CURE-stage MD runs.
+
+   .. tip::
+
+      The ``CURE.controls.min_bonds_per_iteration`` knob (default
+      ``10``) sets the minimum number of bonds an iteration must find
+      before it stops growing the search radius.  Bigger values batch
+      more bonds per iteration and so run fewer relax/equilibrate
+      cycles overall, at the cost of more strained bonds in each
+      batch.  ``htpolynet`` automatically clamps the effective floor
+      against how many bonds are still possible, so demanding
+      ``min_bonds_per_iteration: 50`` near end-of-cure won't stall the
+      build.  Empirically, ``10`` is a good operating point for the
+      epoxy/amine examples in this tutorial set: see :ref:`pde_run`
+      for the measured iteration counts on DGEBA/PACM.
+
+``postcure``
+   The post-cure equilibration cascade: two more 300/600 K annealing
+   cycles followed by a 100 ps NPT at 300 K / 1 bar.
+
+``reactions``
+   The cure and cap reactions described on the previous page.

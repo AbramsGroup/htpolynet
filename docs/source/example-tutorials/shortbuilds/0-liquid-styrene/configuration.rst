@@ -3,25 +3,59 @@
 Configuration
 -------------
 
-The full ``0-liquid-styrene.yaml`` config is short.  There is no
-``CURE``, no ``postcure``, no ``reactions`` block — just enough to
-parameterize a single monomer and run a densification cascade.
+The full ``0-liquid-styrene.yaml`` is short — no ``reactions``, no
+``CURE``, no ``postcure``.  It is just enough to parameterize a single
+monomer, build a low-density box, and run the densification + anneal
+cascade.
 
 .. literalinclude:: ../../../../../src/htpolynet/resources/example_depot/0-liquid-styrene.yaml
    :language: yaml
 
-.. todo::
+A block-by-block walk-through:
 
-   - Walk through each block: ``Title``, ``gromacs``, ``ambertools``,
-     ``constituents``, ``densification``, ``precure``.
-   - Note that ``precure`` here is *not* a curing step in the chemical
-     sense — it is the post-densification preequilibration + anneal +
-     postequilibration cascade that runs even when no cure reactions are
-     defined.  (If that name is misleading for a no-cure example, flag
-     it as a candidate for renaming.)
-   - Discuss the ``mdrun_options.gpu_id: 0`` line: it is left in by
-     default but the runtime will strip it automatically with a warning
-     if ``gmx`` is not GPU-capable or no GPU is visible.
-   - Optionally call out the analysis snippet shown in the comment block
-     at the top of the YAML (the ``ck.yaml`` template for
-     ``htpolynet analyze``).
+``Title``
+   A free-text label for the run; appears in logs and in the title
+   field of generated topology/structure files.
+
+``gromacs``
+   Tells ``htpolynet`` how to invoke GROMACS.  ``gmx_options`` are
+   passed to every ``gmx`` invocation; ``mdrun_options`` are passed to
+   ``mdrun`` only.  The ``gpu_id: 0`` line is left in by default and
+   the runtime will automatically strip it (with a warning) if the
+   ``gmx`` build is not GPU-capable or no GPU is visible.
+
+``ambertools``
+   Selects the partial-charge method for ``antechamber``; ``gas`` is
+   Gasteiger and is fast and good enough for a non-reactive
+   densification.
+
+``constituents``
+   Declares the molecular species in the box.  Here, one species
+   (``STY``, 1000 copies) generated from SMILES.  See
+   :ref:`monomer <liquid_styrene_monomer>` for the atom-mapping
+   details.
+
+``densification``
+   The post-pack equilibration cascade.  Starts at
+   ``initial_density: 300 kg/m³`` (deliberately loose so the pack
+   succeeds without overlaps) and runs minimization → 10 ps NVT at
+   300 K → 200 ps NPT at 300 K, 10 bar.  The deliberately high pressure
+   accelerates compaction.
+
+``precure``
+   Despite the name, ``precure`` is not chemically a curing step — it
+   is the post-densification equilibration that ``htpolynet`` runs
+   whether or not a cure is configured.  Here it is:
+
+   * ``preequilibration`` — 200 ps NPT at 300 K, 1 bar (relax the
+     pressure jolt from densification);
+   * ``anneal`` — two 300 K → 600 K → 300 K cycles, 80 ps per cycle,
+     useful for shaking the liquid out of any pack-induced local
+     traps;
+   * ``postequilibration`` — 100 ps NPT at 300 K, 1 bar.
+
+The comment block at the top of the YAML also sketches an
+``htpolynet analyze`` configuration (``ck.yaml``) you can run after the
+build to compute free volume and similar properties; see
+:ref:`results <liquid_styrene_results>` and
+:ref:`tutorials_postsim_analyses`.

@@ -3,7 +3,7 @@
 Examples Using ``htpolynet run``
 ================================
 
-We present here four tutorials to help illustrate usage of ``htpolynet run``.  Example ``0`` (liquid styrene) does no polymerization and is the simplest possible build; the remaining three add cure and cap reactions of increasing complexity.
+We present here five tutorials to help illustrate usage of ``htpolynet run``.  Example ``0`` (liquid styrene) does no polymerization and is the simplest possible build; the remaining four add cure and cap reactions of increasing complexity.  Each tutorial number matches the example number returned by ``htpolynet fetch-example``.
 
 .. note::
 
@@ -17,5 +17,6 @@ We present here four tutorials to help illustrate usage of ``htpolynet run``.  E
 
    0-liquid-styrene/index
    1-polystyrene/index
-   2-DGEBA-PACM/index
-   3-VE-STY/index
+   2-bisgma-styrene-thermoset/index
+   3-pacm-dgeba-epoxy-thermoset/index
+   4-dfda-fde-epoxy-thermoset/index

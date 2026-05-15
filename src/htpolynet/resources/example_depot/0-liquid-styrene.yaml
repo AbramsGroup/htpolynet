@@ -42,7 +42,7 @@ constituents:
   STY:
     smiles: "c1ccccc1[CH2:1][CH3:2]"
     reactive_atoms: {1: C1, 2: C2}
-    count: 200
+    count: 1000
 densification:
   initial_density: 300.0  # kg/m3
   equilibration:

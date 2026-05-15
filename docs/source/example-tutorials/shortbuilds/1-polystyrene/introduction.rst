@@ -3,36 +3,32 @@
 Introduction
 ------------
 
-The first step is to get to a clean working directory, and then use ``htpolynet fetch-example`` to set up this example.
+Set up a clean working directory and pull the example YAML:
 
 .. code-block:: console
 
    $ mkdir my_polystyrene
    $ cd my_polystyrene
    $ htpolynet fetch-example 1
+   Fetched 1-polystyrene.yaml  (run with: htpolynet run 1-polystyrene.yaml)
    $ ls
-   1-polystyrene.sh
+   1-polystyrene.yaml
 
-``fetch-example`` copies the shell script ``1-polystyrene.sh`` into the current directory.  Running it creates the ``1-polystyrene/`` project directory tree, generates the monomer ``mol2`` file, and writes the ``htpolynet`` configuration file:
+Like example 0, this is a single self-contained YAML — no shell script,
+no pre-generated mol2.  The styrene SMILES is in the ``constituents``
+block and ``htpolynet`` materializes ``STY.mol2`` itself at the start of
+the run.  What this example *adds* over example 0 is the cure chemistry:
+a single C–C inter-monomer reaction (``cure`` stage) and a corresponding
+cap reaction (``cap`` stage) that restores the vinyl double bond on
+any monomer that did not react.
 
-.. code-block:: console
+.. note::
 
-   $ bash 1-polystyrene.sh
-   $ ls 1-polystyrene
-   lib/  pSTY.yaml
-   $ tree 1-polystyrene
-   1-polystyrene/
-   ├── lib
-   │   └── molecules
-   │       ├── inputs
-   │       │   ├── STY.mol2
-   │       │   └── STY.png
-   │       └── parameterized
+   With ``count: 1000`` and a full cure loop, this is a noticeably
+   longer build than example 0 (same monomer count, but the cure
+   iterations dominate overall wall time).  If you just want a smoke
+   test, drop ``constituents.STY.count`` to ~200 before running.
 
-The ``1-polystyrene/lib/molecules/inputs/`` directory now contains the monomer structure file ``STY.mol2``.
-The build is launched from inside ``1-polystyrene/``:
-
-.. code-block:: console
-
-   $ cd 1-polystyrene
-   $ htpolynet run -diag diagnostics.log pSTY.yaml &> console.log &
+The next page covers what the styrene "monomer" actually looks like in
+the config, and why we represent it in its saturated *active* form
+rather than as the natural vinyl.

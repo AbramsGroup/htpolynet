@@ -71,11 +71,11 @@ precure:
     ps: 100
 CURE:
   controls:
-    initial_search_radius: 0.5  # nm
+    search_radius: 0.5  # nm
     radial_increment: 0.25      # nm
     max_iterations: 150
     desired_conversion: 0.95
-    late_threshhold: 0.85
+    late_threshold: 0.85
   drag:
     trigger_distance: 0.6   # nm
     increment: 0.08         # nm

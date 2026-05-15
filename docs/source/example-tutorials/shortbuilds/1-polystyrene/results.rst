@@ -3,30 +3,60 @@
 Results
 -------
 
-After the build completes, the project directory ``proj-0/`` contains the final Gromacs topology (``*.top``) and coordinate (``*.gro``) files for the cured polystyrene system, along with a full archive of intermediate files.
+At the end of the run, ``proj-0/systems/final-results/`` contains:
 
-Using ``htpolynet plots``
-^^^^^^^^^^^^^^^^^^^^^^^^^
+* ``final.gro``, ``final.top``, ``final.tpx``, ``final.grx`` — the
+  cured polystyrene system in GROMACS-friendly form;
+* ``final.viz.psf``, ``final.viz.tcl`` — VMD-friendly companion files
+  that carry the real bond topology and trim PBC-crossing bonds at
+  display time.  Open with:
 
-``htpolynet`` ships with a plotting subcommand that reads ``diagnostics.log`` and generates summary figures:
+  .. code-block:: console
 
-.. code-block:: console
+     $ vmd final.viz.psf final.gro -e final.viz.tcl
 
-    $ htpolynet plots -diag diagnostics.log
+.. figure:: pics/final-box.png
+   :align: center
+   :width: 320px
 
-This produces plots of conversion vs. time, density evolution, and per-iteration bond counts, which give a quick picture of how the cure progressed.
+   The cured polystyrene box rendered from ``final.viz.psf`` +
+   ``final.gro``.  The TCL helper has trimmed bonds that would
+   otherwise wrap across the periodic image, leaving each polymer
+   chain visually contiguous.
 
-As a further exercise, copy ``pSTY.yaml`` to ``pSTY-low.yaml``, change ``desired_conversion`` from ``0.95`` to ``0.50``, and run a second build:
-
-.. code-block:: console
-
-    $ cp pSTY.yaml pSTY-low.yaml
-    $ # edit pSTY-low.yaml: desired_conversion: 0.50
-    $ htpolynet run -diag diagnostics-low.log pSTY-low.yaml &> console-low.log &
-
-The second build will populate ``proj-1/``.  Comparing plots from ``diagnostics.log`` and ``diagnostics-low.log`` shows how cure conversion affects system density and chain structure.
-
-Post-simulation analyses
+Plots from the build log
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Once you have a cured polystyrene system, you can use ``htpolynet postsim`` and ``htpolynet analyze`` to run production MD and compute properties such as the glass-transition temperature.  These workflows are described in the :ref:`post-simulation analyses tutorial <tutorials_postsim_analyses>`.
+``htpolynet`` writes per-stage trace plots into ``proj-0/plots/`` and a
+machine-readable ``proj-0/profile.json`` recording wall time per stage
+and subprocess time per tool.  The plotting subcommand can also
+produce summary figures from the diagnostic log:
+
+.. code-block:: console
+
+   $ htpolynet plots -diag diagnostics.log
+
+A further exercise
+^^^^^^^^^^^^^^^^^^
+
+Copy the YAML and dial down the desired conversion to see what the same
+cure looks like at a lower extent of reaction:
+
+.. code-block:: console
+
+   $ cp 1-polystyrene.yaml 1-polystyrene-low.yaml
+   $ # edit 1-polystyrene-low.yaml: CURE.controls.desired_conversion: 0.50
+   $ htpolynet run -diag diagnostics-low.log 1-polystyrene-low.yaml &> console-low.log &
+
+The second build lands in ``proj-1/``.  Comparing density traces and
+the ``profile.json`` files between the two runs gives a feel for how
+much of the total wall time goes into the cure loop itself.
+
+Post-build analyses
+^^^^^^^^^^^^^^^^^^^
+
+Once you have a cured polystyrene system, ``htpolynet postsim`` and
+``htpolynet analyze`` can drive production MD and compute properties
+such as the glass-transition temperature.  See
+:ref:`tutorials_postsim_analyses` for a worked example of the analysis
+subsystem.
