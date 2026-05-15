@@ -19,6 +19,9 @@ import re
 import shutil
 import subprocess
 import tempfile
+import time
+
+from .. import profiling
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +96,9 @@ def _obabel_path(name, smiles, rename_atoms, output_path):
         '--title', name,
     ]
     logger.info(f'{name}: generating mol2 from SMILES via obabel')
+    _t0 = time.monotonic()
     res = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    profiling.record_subprocess('obabel', time.monotonic() - _t0)
     mol2 = res.stdout
     mol2 = _set_residue_name(mol2, name)
     if rename_atoms:
@@ -109,6 +114,7 @@ def _rdkit_path(name, smiles, reactive_atoms, output_path):
     from rdkit.Chem import AllChem
 
     logger.info(f'{name}: generating mol2 from SMILES via RDKit')
+    _t0 = time.monotonic()
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
         raise ValueError(f'{name}: RDKit could not parse SMILES {smiles!r}')
@@ -125,6 +131,7 @@ def _rdkit_path(name, smiles, reactive_atoms, output_path):
     if AllChem.EmbedMolecule(mol, randomSeed=0xC0FFEE) != 0:
         raise RuntimeError(f'{name}: RDKit failed to embed 3D coordinates')
     AllChem.UFFOptimizeMolecule(mol)
+    profiling.record_subprocess('rdkit', time.monotonic() - _t0)
 
     # SDF/molfile roundtrip → mol2 via obabel.  We go through SDF rather than
     # PDB because SDF carries explicit bond orders; PDB loses them, which
@@ -140,10 +147,12 @@ def _rdkit_path(name, smiles, reactive_atoms, output_path):
         fh.write(Chem.MolToMolBlock(mol))
         sdf_path = fh.name
     try:
+        _t0 = time.monotonic()
         res = subprocess.run(
             ['obabel', sdf_path, '-omol2', '--title', name],
             capture_output=True, text=True, check=True,
         )
+        profiling.record_subprocess('obabel', time.monotonic() - _t0)
     finally:
         os.unlink(sdf_path)
     mol2 = res.stdout

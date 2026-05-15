@@ -25,10 +25,11 @@ from ..cure.reaction import Reaction, ReactionList, parse_reaction_list, extract
 from ..external import software as software
 from ..external.gromacs import insert_molecules, mdp_modify, mdp_get
 from ..external.smiles_input import materialize_smiles_inputs
+from .. import profiling
 from ..utils import checkpoint as cp
 from ..utils.stringthings import my_logger
 
-logger=logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 def logrotate(filename):
     """Renames any existing log file with name 'filename' using a pattern that prevents overwriting any old logs.
@@ -37,10 +38,10 @@ def logrotate(filename):
         filename (str): name of log file
     """
     if os.path.exists(filename):
-        n=1
+        n = 1
         while os.path.exists(f'#{n}#{filename}'):
-            n+=1
-        shutil.copyfile(filename,f'#{n}#{filename}')
+            n += 1
+        shutil.copyfile(filename, f'#{n}#{filename}')
 
 _directives=['ps','nsteps','ncycles']
 def _nonempty_directives(dirlist):
@@ -428,14 +429,16 @@ class Runtime:
         logger.info(f'Attempting to form {cc.state.desired_nxlinkbonds} bonds')
         while not cure_finished:
             pfs.go_to(pfs.Dirs.systems_iter(cc.state.iter))
-            cc.do_iter(TC,RL,MD,gromacs_dict=gromacs_dict)
+            with profiling.stage(f'iter-{cc.state.iter}'):
+                cc.do_iter(TC,RL,MD,gromacs_dict=gromacs_dict)
             cure_finished=cc.is_cured()
             if not cure_finished:
                 cure_finished=cc.next_iter()
         ''' perform capping if necessary '''
         my_logger(f'Capping begins',logger.info)
         pfs.go_to(pfs.Dirs.systems_capping)
-        cc.do_capping(TC,RL,MD,gromacs_dict=gromacs_dict)
+        with profiling.stage('capping'):
+            cc.do_capping(TC,RL,MD,gromacs_dict=gromacs_dict)
         my_logger('Connect-Update-Relax-Equilibrate (CURE) ends',logger.info)
 
     @cp.enableCheckpoint
@@ -461,6 +464,9 @@ class Runtime:
         """
         TC=self.TopoCoord
         my_logger(f'Final data to {pfs.cwd()}',logger.info)
+        dropped = TC.Topology.prune_stale_14_pairs()
+        if dropped:
+            logger.info(f'Pruned {dropped} stale [ pairs ] entries left over from cure-induced path shortening')
         TC.write_grx_attributes(f'{result_name}.grx')
         TC.write_gro(f'{result_name}.gro')
         TC.write_top(f'{result_name}.top')
@@ -490,35 +496,64 @@ class Runtime:
         force_parameterization=kwargs.get('force_parameterization',False)
         force_checkin=kwargs.get('force_checkin',False)
         TC=self.TopoCoord
-        pfs.go_proj()
-        self.generate_molecules(
-            force_parameterization=force_parameterization,  # force antechamber/GAFF parameterization
-            force_checkin=force_checkin                     # force check-in to system libraries
-        )
-        pfs.go_proj()
-        last_data=cp.read_checkpoint()
-        logger.debug(f'Checkpoint last_data {last_data}')
-        TC.load_files(last_data)
-        # On a restart, do_initialization is skipped by the checkpoint decorator,
-        # so the in-memory chain_manager it would have built isn't there.
-        # Rebuild it from the reloaded coordinates before any later stage tries
-        # to consume it (do_cure at minimum).
-        if last_data and getattr(TC, 'Coordinates', None) is not None and getattr(TC.Coordinates, 'A', None) is not None and not getattr(self, 'chain_manager', None):
-            self.chain_manager = ChainManager()
-            self.chain_manager.from_dataframe(TC.Coordinates.A)
-            logger.info('Rebuilt chain_manager from checkpoint-loaded coordinates')
-        pfs.go_to(pfs.Dirs.systems_init)
-        self.do_initialization()
-        pfs.go_to(pfs.Dirs.systems_densification)
-        self.do_densification()
-        pfs.go_to(pfs.Dirs.systems_precure)
-        self.do_precure()
-        self.do_cure()
-        pfs.go_to(pfs.Dirs.systems_postcure)
-        self.do_postcure()
-        pfs.go_to(pfs.Dirs.systems_final)
-        self.save_data()
-        pfs.go_proj()
+        self.profile = profiling.RunProfile()
+        profiling.set_active(self.profile)
+        try:
+            pfs.go_proj()
+            with profiling.stage('setup'):
+                self.generate_molecules(
+                    force_parameterization=force_parameterization,  # force antechamber/GAFF parameterization
+                    force_checkin=force_checkin                     # force check-in to system libraries
+                )
+            pfs.go_proj()
+            last_data=cp.read_checkpoint()
+            logger.debug(f'Checkpoint last_data {last_data}')
+            TC.load_files(last_data)
+            # On a restart, do_initialization is skipped by the checkpoint decorator,
+            # so the in-memory chain_manager it would have built isn't there.
+            # Rebuild it from the reloaded coordinates before any later stage tries
+            # to consume it (do_cure at minimum).
+            if last_data and getattr(TC, 'Coordinates', None) is not None and getattr(TC.Coordinates, 'A', None) is not None and not getattr(self, 'chain_manager', None):
+                self.chain_manager = ChainManager()
+                self.chain_manager.from_dataframe(TC.Coordinates.A)
+                logger.info('Rebuilt chain_manager from checkpoint-loaded coordinates')
+            pfs.go_to(pfs.Dirs.systems_init)
+            with profiling.stage('initialization'):
+                self.do_initialization()
+            pfs.go_to(pfs.Dirs.systems_densification)
+            with profiling.stage('densification'):
+                self.do_densification()
+            pfs.go_to(pfs.Dirs.systems_precure)
+            with profiling.stage('precure'):
+                self.do_precure()
+            with profiling.stage('cure'):
+                self.do_cure()
+            pfs.go_to(pfs.Dirs.systems_postcure)
+            with profiling.stage('postcure'):
+                self.do_postcure()
+            pfs.go_to(pfs.Dirs.systems_final)
+            with profiling.stage('final'):
+                self.save_data()
+            self._write_profile_report()
+            pfs.go_proj()
+        finally:
+            profiling.set_active(None)
+
+    def _write_profile_report(self):
+        """Emit the run profile to the log and to ``proj-N/profile.json``."""
+        p = getattr(self, 'profile', None)
+        if p is None:
+            return
+        # Log raw (one line per logger.info call) so the table isn't wrapped
+        # in my_logger's asterisk fill — that would crowd a multi-line report.
+        for line in p.format_report().split('\n'):
+            logger.info(line)
+        try:
+            json_path = os.path.join(pfs.proj(), 'profile.json')
+            p.write_json(json_path)
+            logger.info(f'Wrote {json_path}')
+        except Exception as e:
+            logger.warning(f'Could not write profile.json: {e}')
 
     def _generate_molecule(self,M:Molecule,**kwargs):
         """Generates and parameterizes a single molecule based on the partially complete instance in parameter M.

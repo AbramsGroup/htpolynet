@@ -4,6 +4,9 @@ Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import logging
 import subprocess
+import time
+
+from .. import profiling
 
 logger = logging.getLogger(__name__)
 
@@ -45,12 +48,14 @@ def run(command, ignore_codes=(), override=None, quiet=True):
     """
     if not quiet:
         logger.debug(command)
+    _t0 = time.monotonic()
     process = subprocess.Popen(
         command, shell=True,
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
     )
     out, err = process.communicate()
     rc = process.returncode
+    profiling.record_subprocess(profiling.classify_command(command), time.monotonic() - _t0)
 
     def _log_output():
         if out:

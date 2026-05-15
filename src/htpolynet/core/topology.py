@@ -742,7 +742,48 @@ class Topology:
         if len(return_idx_of) > 0:
             return new_idx
         return mapper
-        
+
+    def prune_stale_14_pairs(self):
+        """Drops entries from [ pairs ] whose atoms are not actually 1-4 in the
+        current bond graph.
+
+        A template-derived 1-4 pair can become stale during cure when a
+        subsequently formed bond shortens the topological path between its two
+        atoms to 1-3 (or 1-2).  Such an entry incorrectly re-introduces a
+        scaled nonbonded interaction on top of the bond/angle exclusion.
+
+        Returns:
+            int: number of pair entries dropped.
+        """
+        if 'pairs' not in self.D or self.D['pairs'].empty:
+            return 0
+        bl = self.bondlist
+        keep_mask = []
+        for ai, aj in zip(self.D['pairs']['ai'], self.D['pairs']['aj']):
+            one_hop = set(bl.partners_of(int(ai)))
+            if int(aj) in one_hop:
+                keep_mask.append(False)
+                continue
+            two_hop = set()
+            for p in one_hop:
+                two_hop.update(bl.partners_of(int(p)))
+            two_hop.discard(int(ai))
+            two_hop -= one_hop
+            if int(aj) in two_hop:
+                keep_mask.append(False)
+                continue
+            three_hop = set()
+            for p in two_hop:
+                three_hop.update(bl.partners_of(int(p)))
+            three_hop.discard(int(ai))
+            three_hop -= one_hop
+            three_hop -= two_hop
+            keep_mask.append(int(aj) in three_hop)
+        dropped = len(keep_mask) - sum(keep_mask)
+        if dropped:
+            self.D['pairs'] = self.D['pairs'][keep_mask].reset_index(drop=True)
+        return dropped
+
     def _myconcat(self, other, directive='', idxlabel=[], idxshift=0, drop_duplicates=False):
         if not directive in other.D:
             return

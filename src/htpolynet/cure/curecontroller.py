@@ -126,6 +126,7 @@ class CureController:
             'max_iterations': 100,
             'desired_conversion': 0.5,
             'min_allowable_bondcycle_length':-1, # not set
+            'min_bonds_per_iteration': 10, # grow radius until >= this many bonds (or max radius)
             'ncpu' : os.cpu_count()
         },
         'drag': {
@@ -300,24 +301,23 @@ class CureController:
         bond_target=int((d['desired_conversion']-curr_conversion)*self.state.max_nxlinkbonds)
         bond_limit=min([bond_limit,bond_target])
         logger.debug(f'Iteration limited to at most {bond_limit} new bonds')
-        # TODO: new branch: multisearch:
-        # calc and store distances once outside this loop
-        # have a controller that runs loop until a select number
-        # of bonds has been formed, or we've maxed out the radius
-        # raw_bdf=self.make_candidates(TC,RL,MD,...)
-        ''' execute search radius updating until at lesast one bond is identified '''
+        # Minimum bonds to find before we stop growing the search radius.
+        # Clamped against bond_target (don't demand more than physically
+        # possible) and bond_limit (don't demand more than we'd accept).
+        # If we hit max radius with fewer than this many but at least one,
+        # we still proceed -- the post-loop branch handles that.
+        min_floor=max(1,min(int(d.get('min_bonds_per_iteration',1)),bond_target,bond_limit))
+        logger.debug(f'Iteration will grow radius until >= {min_floor} bonds (or max radius)')
+        nbdf=pd.DataFrame()
         nbonds=0
-        while nbonds==0 and self.state.current_radidx<self.state.max_radidx:
-            # test_bdf=raw_bdf[raw_bdf['r']<self.current_radius]
-            # result_bdf=self.apply_filters(TC,RL,MD,...)
+        while nbonds<min_floor and self.state.current_radidx<self.state.max_radidx:
             nbdf=self._searchbonds(TC,RL,MD,stage=reaction_stage.cure,abs_max=bond_limit,apply_probabilities=apply_probabilities,reentry=reentry)
             nbonds=nbdf.shape[0]
-            # nbonds+=result_bdf.shape[0]
-            # if nbonds<PARAMETER:
-            if nbonds==0:
+            logger.debug(f'Search at radius {self.state.current_radius:.3f} nm found {nbonds} bond(s) (floor {min_floor})')
+            if nbonds<min_floor and self.state.current_radidx<self.state.max_radidx:
                 self.state.current_radidx+=1
                 self.state.current_radius+=d['radial_increment']
-                logger.info(f'Radius increased to {self.state.current_radius} nm')
+                logger.info(f'Radius increased to {self.state.current_radius} nm ({nbonds}/{min_floor} eligible bonds so far)')
         if nbonds>0:
             ess='' if nbonds==1 else 's'
             logger.info(f'Iteration {self.state.iter} will generate {nbdf.shape[0]} new bond{ess}')
