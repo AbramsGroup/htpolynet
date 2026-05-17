@@ -5,7 +5,7 @@ The Configuration File
 
 The complete ``1-polystyrene.yaml`` carried by the depot:
 
-.. literalinclude:: ../../../../../src/htpolynet/resources/example_depot/1-polystyrene.yaml
+.. literalinclude:: ../../../../src/htpolynet/resources/example_depot/1-polystyrene.yaml
    :language: yaml
 
 A block-by-block walk-through (skipping the blocks already covered in

@@ -57,6 +57,8 @@ Post-build analyses
 
 Once you have a cured polystyrene system, ``htpolynet postsim`` and
 ``htpolynet analyze`` can drive production MD and compute properties
-such as the glass-transition temperature.  See
-:ref:`tutorials_postsim_analyses` for a worked example of the analysis
-subsystem.
+such as the glass-transition temperature.  See the :doc:`postsim`
+section for the recommended workflow for this system;
+:ref:`pde_tutorial` shows the full set of techniques (including
+uniaxial deformation for Young's modulus) with real production-quality
+plots.

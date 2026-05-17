@@ -8,7 +8,7 @@ The full ``0-liquid-styrene.yaml`` is short — no ``reactions``, no
 monomer, build a low-density box, and run the densification + anneal
 cascade.
 
-.. literalinclude:: ../../../../../src/htpolynet/resources/example_depot/0-liquid-styrene.yaml
+.. literalinclude:: ../../../../src/htpolynet/resources/example_depot/0-liquid-styrene.yaml
    :language: yaml
 
 A block-by-block walk-through:
@@ -57,5 +57,4 @@ A block-by-block walk-through:
 The comment block at the top of the YAML also sketches an
 ``htpolynet analyze`` configuration (``ck.yaml``) you can run after the
 build to compute free volume and similar properties; see
-:ref:`results <liquid_styrene_results>` and
-:ref:`tutorials_postsim_analyses`.
+:ref:`results <liquid_styrene_results>` and the :doc:`postsim` section.

@@ -38,5 +38,7 @@ and a ``freevolume`` calculation.  Save those YAML lines into
    $ htpolynet analyze -cfg ck.yaml -ocfg 0-liquid-styrene.yaml -proj proj-0
 
 Results land under ``proj-0/analyze/{check,report-methods,freevolume}/``.
-See :ref:`tutorials_postsim_analyses` for a fuller worked example of
-the analysis subsystem.
+The :doc:`postsim` section below shows the recommended postsim and
+analyze workflow for this system; :ref:`pde_tutorial` walks through
+the full set of techniques (annealing, ladders, deformation, free
+volume) with real production-quality plots for comparison.

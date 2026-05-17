@@ -21,3 +21,4 @@ initial liquid is drawn from a racemic pool of 16 diastereomers.
    configuration
    run
    results
+   postsim

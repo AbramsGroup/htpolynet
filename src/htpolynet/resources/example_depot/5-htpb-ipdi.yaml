@@ -1,0 +1,363 @@
+# htpolynet -- Example 5 -- HTPB/IPDI polyurethane thermoset
+#
+# Self-contained config: the four small monomers (OB, TB, TBO, IPD) are
+# generated from SMILES; the two long-chain HTPB monomers (DHT = linear,
+# THT = branched) are *built* at runtime by the polymerization-of-monomers
+# logic via the param-stage and build-stage reactions below.  This is the
+# distinguishing feature of this example — htpolynet polymerizes butenyl
+# fragments into HTPB chains as a preparation step, then the cure stage
+# forms urethane linkages between the resulting HTPB hydroxyls and IPDI
+# isocyanates.
+#
+# Active-form notes:
+#   - IPDI isocyanates -N=C=O are drawn as their hydrated/formamide form
+#     -N(H)-C(H)=O so each formyl carbon owns a sacrificial H.  The
+#     urethane reaction removes that H along with the hydroxyl H on TBO
+#     to form the C-O bond.
+#   - The 2-butene and 1-butene units are drawn as-is; chain extension
+#     consumes one methyl H from each side.
+#
+# Run with:
+#
+#   htpolynet run -diag diagnostics.log 5-htpb-ipdi.yaml
+#
+# Cameron F. Abrams -- cfa22@drexel.edu
+
+Title: HTPB-IPDI polyurethane thermoset
+gromacs:
+  gmx: gmx
+  gmx_options: -quiet -nobackup
+  mdrun: gmx mdrun
+  mdrun_options:
+    gpu_id: 0            # auto-stripped at runtime if gmx is not GPU-capable or no GPU is visible
+ambertools:
+  charge_method: gas
+GAFF:
+  resolve_type_discrepancies:
+    - typename: dihedraltypes
+      funcidx: 4
+      rule: stiffest
+constituents:
+  # --- Small building blocks (SMILES-defined) ---
+  OB:
+    # 1-butene.  All four carbons are named explicitly because the chain-
+    # assembly reactions below reference OB.C3 directly (dimer3) and OB.C4
+    # indirectly (propagated through OBT in trimer1).  Reusing the
+    # original PDB naming: C1=C2-C3-C4 with C1=C2 being the vinyl end.
+    smiles: "[CH2:1]=[CH:2][CH2:3][CH3:4]"
+    reactive_atoms: {1: C1, 2: C2, 3: C3, 4: C4}
+  TB:
+    # trans-2-butene.  All four carbons named because reactions reference
+    # TB.C1, TB.C2, and TB.C4 (via various dimers/trimers).  C1=C4 and
+    # C2=C3 by symmetry but htpolynet still needs the names to resolve.
+    smiles: "[CH3:1]/[CH:2]=[CH:3]/[CH3:4]"
+    reactive_atoms: {1: C1, 2: C2, 3: C3, 4: C4}
+  TBO:
+    # 1-hydroxy-trans-2-butene.  C4 is reactive for chain extension, O1
+    # for urethane formation; C1, C2, C3 named for parity with TB and
+    # OB even though they are not currently referenced directly.
+    smiles: "[OH:5][CH2:1]/[CH:2]=[CH:3]/[CH3:4]"
+    reactive_atoms: {1: C1, 2: C2, 3: C3, 4: C4, 5: O1}
+  IPD:
+    # Isophorone diisocyanate in its urethane-active form: each -N=C=O is
+    # drawn as -N(H)-C(H)=O so the formyl carbons (C1, C2) each carry a
+    # sacrificial H.  C3 is the ring stereocenter (the CH bearing the
+    # directly-attached formamide).
+    smiles: "CC1(CN[CH:2]=O)C[CH:3](N[CH:1]=O)CC(C)(C)C1"
+    reactive_atoms: {1: C1, 2: C2, 3: C3}
+    stereocenters:
+      - C3
+    count: 125
+  # --- Long-chain HTPB monomers, assembled at runtime ---
+  # DHT (linear HTPB) and THT (branched HTPB) are built by the param- and
+  # build-stage reactions below; htpolynet treats them as constituents
+  # whose structures are derived rather than supplied.
+  DHT:
+    count: 50
+    conformers:
+      count: 6
+      generator:
+        name: gromacs
+        params:
+          ensemble: nvt
+          temperature: 900
+          ps: 100
+          pad: 10.0
+  THT:
+    count: 50
+    conformers:
+      count: 6
+      generator:
+        name: gromacs
+        params:
+          ensemble: nvt
+          temperature: 900
+          ps: 100
+          pad: 10.0
+densification:
+  initial_density: 20.0  # kg/m3 -- low because long HTPB chains pack slowly
+  equilibration:
+    - ensemble: min
+    - ensemble: nvt
+      temperature: 600
+      ps: 10
+    - ensemble: npt
+      temperature: 600
+      pressure: 10
+      ps: 100
+      repeat: 35
+precure:
+  preequilibration:
+    ensemble: npt
+    temperature: 300        # K
+    pressure: 1             # bar
+    ps: 300
+  anneal:
+    ncycles: 2
+    initial_temperature: 300
+    cycle_segments:
+      - T: 300
+        ps: 0
+      - T: 600
+        ps: 500
+      - T: 600
+        ps: 500
+      - T: 300
+        ps: 500
+      - T: 300
+        ps: 500
+  postequilibration:
+    ensemble: npt
+    temperature: 300        # K
+    pressure: 1             # bar
+    ps: 200
+CURE:
+  controls:
+    search_radius: 0.5          # nm
+    radial_increment: 0.25      # nm
+    max_iterations: 150
+    desired_conversion: 0.95
+    late_threshold: 0.85
+  drag:
+    trigger_distance: 0.6   # nm
+    increment: 0.08         # nm
+    limit: 0.3              # nm
+    equilibration:
+      - ensemble: min
+      - ensemble: nvt
+        temperature: 600
+        nsteps: 1000
+      - ensemble: npt
+        temperature: 600
+        pressure: 1
+        nsteps: 2000
+  relax:
+    increment: 0.08         # nm
+    equilibration:
+      - ensemble: min
+      - ensemble: nvt
+        temperature: 600
+        nsteps: 1000
+      - ensemble: npt
+        temperature: 600
+        pressure: 1
+        nsteps: 2000
+  equilibrate:
+    ensemble: npt
+    temperature: 300       # K
+    pressure: 1            # bar
+    ps: 100
+  gromacs:
+    rdefault: 0.9          # nm
+postcure:
+  anneal:
+    ncycles: 2
+    initial_temperature: 300
+    cycle_segments:
+      - T: 300
+        ps: 0
+      - T: 600
+        ps: 50
+      - T: 600
+        ps: 50
+      - T: 300
+        ps: 50
+      - T: 300
+        ps: 50
+  postequilibration:
+    ensemble: npt
+    temperature: 300       # K
+    pressure: 1            # bar
+    ps: 1000
+reactions:
+  # ---------------------------------------------------------------------
+  # PARAM-stage reactions: small assembled sub-units that get their own
+  # GAFF parameterizations and serve as building blocks for the longer
+  # build-stage assemblies.
+  # ---------------------------------------------------------------------
+  - name: dimer1
+    stage: param
+    reactants: {1: TB, 2: TB}
+    product: A2
+    atoms:
+      A: {reactant: 1, resid: 1, atom: C1, z: 1}
+      B: {reactant: 2, resid: 1, atom: C4, z: 1}
+    bonds:
+      - atoms: [A, B]
+        order: 1
+  - name: dimer2
+    stage: param
+    reactants: {1: TB, 2: TBO}
+    product: AO
+    atoms:
+      A: {reactant: 1, resid: 1, atom: C1, z: 1}
+      B: {reactant: 2, resid: 1, atom: C4, z: 1}
+    bonds:
+      - atoms: [A, B]
+        order: 1
+  - name: dimer3
+    stage: param
+    reactants: {1: OB, 2: TB}
+    product: OBT
+    atoms:
+      A: {reactant: 1, resid: 1, atom: C3, z: 1}
+      B: {reactant: 2, resid: 1, atom: C4, z: 1}
+    bonds:
+      - atoms: [A, B]
+        order: 1
+  - name: trimer1
+    stage: param
+    reactants: {1: OBT, 2: TB}
+    product: OB3
+    atoms:
+      A: {reactant: 1, resid: 1, atom: C4, z: 1}
+      B: {reactant: 2, resid: 1, atom: C4, z: 1}
+    bonds:
+      - atoms: [A, B]
+        order: 1
+  - name: trimer2
+    stage: param
+    reactants: {1: A2, 2: TB}
+    product: A3
+    atoms:
+      A: {reactant: 1, resid: 1, atom: C2, z: 1}
+      B: {reactant: 2, resid: 1, atom: C4, z: 1}
+    bonds:
+      - atoms: [A, B]
+        order: 1
+  - name: quad1
+    stage: param
+    reactants: {1: A3, 2: TB}
+    product: A4
+    atoms:
+      A: {reactant: 1, resid: 1, atom: C4, z: 1}
+      B: {reactant: 2, resid: 1, atom: C4, z: 1}
+    bonds:
+      - atoms: [A, B]
+        order: 1
+  # ---------------------------------------------------------------------
+  # BUILD-stage reactions: assemble the long DHT (linear) and THT
+  # (branched) HTPB monomers from the parameterized sub-units above.
+  # No new parameterization is performed at this stage — bond parameters
+  # are inherited from the param-stage templates.
+  # ---------------------------------------------------------------------
+  - name: polymerization
+    stage: build
+    reactants: {1: A2, 2: TB}
+    product: A18
+    procession:
+      increment_resid: 1
+      count: 15
+    atoms:
+      A: {reactant: 1, resid: 2, atom: C1, z: 1}
+      B: {reactant: 2, resid: 1, atom: C4, z: 1}
+    bonds:
+      - atoms: [A, B]
+        order: 1
+  - name: oterm
+    stage: build
+    reactants: {1: A18, 2: TBO}
+    product: O19
+    atoms:
+      A: {reactant: 1, resid: 18, atom: C1, z: 1}
+      B: {reactant: 2, resid: 1, atom: C4, z: 1}
+    bonds:
+      - atoms: [A, B]
+        order: 1
+  - name: part1
+    stage: build
+    reactants: {1: OB3, 2: O19}
+    product: DHT1
+    atoms:
+      A: {reactant: 1, resid: 2, atom: C1, z: 1}
+      B: {reactant: 2, resid: 1, atom: C4, z: 1}
+    bonds:
+      - atoms: [A, B]
+        order: 1
+  - name: part2
+    stage: build
+    reactants: {1: DHT1, 2: O19}
+    product: DHT
+    atoms:
+      A: {reactant: 1, resid: 3, atom: C1, z: 1}
+      B: {reactant: 2, resid: 1, atom: C4, z: 1}
+    bonds:
+      - atoms: [A, B]
+        order: 1
+  - name: part3
+    stage: build
+    reactants: {1: A4, 2: O19}
+    product: THT1
+    atoms:
+      A: {reactant: 1, resid: 2, atom: C1, z: 1}
+      B: {reactant: 2, resid: 1, atom: C4, z: 1}
+    bonds:
+      - atoms: [A, B]
+        order: 1
+  - name: part4
+    stage: build
+    reactants: {1: THT1, 2: O19}
+    product: THT2
+    atoms:
+      A: {reactant: 1, resid: 3, atom: C1, z: 1}
+      B: {reactant: 2, resid: 1, atom: C4, z: 1}
+    bonds:
+      - atoms: [A, B]
+        order: 1
+  - name: part5
+    stage: build
+    reactants: {1: THT2, 2: O19}
+    product: THT
+    atoms:
+      A: {reactant: 1, resid: 4, atom: C1, z: 1}
+      B: {reactant: 2, resid: 1, atom: C4, z: 1}
+    bonds:
+      - atoms: [A, B]
+        order: 1
+  # ---------------------------------------------------------------------
+  # CURE-stage reactions: form urethane linkages between HTPB hydroxyls
+  # (carried by the TBO terminal residues of DHT/THT, atom O1) and IPDI
+  # formyl carbons (C1 or C2 — the two non-equivalent isocyanate sites).
+  # ---------------------------------------------------------------------
+  - name: urethane-1
+    stage: cure
+    reactants: {1: TBO, 2: IPD}
+    product: UR1
+    probability: 1.0
+    atoms:
+      A: {reactant: 1, resid: 1, atom: O1, z: 1}
+      B: {reactant: 2, resid: 1, atom: C1, z: 1}
+    bonds:
+      - atoms: [A, B]
+        order: 1
+  - name: urethane-2
+    stage: cure
+    reactants: {1: TBO, 2: IPD}
+    product: UR2
+    probability: 1.0
+    atoms:
+      A: {reactant: 1, resid: 1, atom: O1, z: 1}
+      B: {reactant: 2, resid: 1, atom: C2, z: 1}
+    bonds:
+      - atoms: [A, B]
+        order: 1

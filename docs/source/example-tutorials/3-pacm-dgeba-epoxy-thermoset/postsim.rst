@@ -1,9 +1,12 @@
+.. _pde_postsim:
 .. _tutorials_postsim_analyses:
 
-Examples Using ``htpolynet postsim`` and ``analyze``
-====================================================
+Post-build simulations and analyses
+-----------------------------------
 
-Here, we will return to the DGEBA/PACM build we did in the earlier tutorials.  Let us do the following: 
+Now that we have a cured DGEBA/PACM system, we use ``htpolynet postsim``, ``plots``, and ``analyze`` to drive a sequence of post-build MD simulations and extract thermomechanical observables.  This section serves as the canonical worked example for the postsim and analyze subsystems; the corresponding sections in :ref:`tutorials 0, 1, 2, and 4 <example_tutorials>` follow the same pattern with parameters scaled to those systems.
+
+We perform the following:
 
 1. Using the final results of the build as inputs, anneal the system for two cycles of heating and cooling between 300 and 600 K, using 10 ps rise-times and 10 ps hold-times.
 2. Equilibrate at 300 K for an additional 10 ps.
@@ -16,7 +19,7 @@ The flowchart below illustrates:
 .. figure:: pics/postsim-typical.png
 
 
-Navigate into that base directory and create the file ``postsim.yaml`` with these contents:
+In the project base directory, create the file ``postsim.yaml`` with these contents:
 
 .. code-block:: yaml
 
@@ -104,7 +107,7 @@ Now, we can launch these simulations using
 
 .. code-block:: bash
 
-    $ htpolynet postsim -cfg postsim.yaml -ocfg DGEPAC.yaml -proj proj-0
+    $ htpolynet postsim -cfg postsim.yaml -ocfg 3-pacm-dgeba-epoxy-thermoset.yaml -proj proj-0
 
 *Important note*: Because these runs are ridiculously short for illustration purposes, it is not unreasonable to put all their ``postsim`` directives in one long file.  However, if one imagines requiring several hours of supercomputer time to do each one, it makes sense to split them into separate files and submit a series of batch jobs.
 

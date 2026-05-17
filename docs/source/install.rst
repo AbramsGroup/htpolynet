@@ -15,7 +15,13 @@ The following commands should be in your path:
 
 1. ``antechamber``, ``parmchk2``, and ``tleap`` (`AmberTools <https://ambermd.org/GetAmber.php#ambertools>`_, version 22 or higher); preferred installation via ``conda``.
 2. ``gmx`` or ``gmx_mpi`` (`Gromacs <https://manual.gromacs.org/documentation/current/index.html>`_, version 2022.1 or higher); preferred installation via compiling from source.
-3. ``obabel`` (`OpenBabel <https://github.com/openbabel/openbabel>`_); preferred installation via Linux distribution package.  Note that ``htpolynet`` itself does not require OpenBabel, but we show in the examples how to build input monomer structures from SMILES strings using OpenBabel, so it is recommended that you have it installed.
+3. ``obabel`` (`OpenBabel <https://github.com/openbabel/openbabel>`_); preferred installation via Linux distribution package.  OpenBabel is a required runtime dependency whenever you let ``htpolynet`` build monomer structures from SMILES strings (the recommended workflow — see :ref:`molecular_structure_inputs`).  RDKit on its own is not sufficient because it has no ``mol2`` writer, so ``htpolynet`` always shells out to ``obabel`` for the final SDF→mol2 conversion.  The only way to run ``htpolynet`` without ``obabel`` is to supply hand-prepared ``mol2``/``pdb`` files for every monomer.
+
+In addition, the in-config SMILES path supports an optional **atom-mapping** syntax that requires `RDKit <https://www.rdkit.org/>`_.  Install it as an extra::
+
+    $ pip install 'htpolynet[smiles]'
+
+If RDKit is not installed, the index-keyed ``rename_atoms`` form of the SMILES spec still works.
 
 Installation
 ------------
@@ -43,7 +49,7 @@ If you are not a conda user, you can install ``htpolynet`` from PyPI.
 
 Note that you will have to install ``ambertools`` and ``gromacs`` some other way.
 
-Again, to use the examples as provided, you will need to have OpenBabel installed.  We recommend installing OpenBabel from your Linux distribution's package management system.
+As noted above, OpenBabel is required for the recommended SMILES-based monomer workflow used throughout the examples.  We recommend installing it from your Linux distribution's package management system.
 
 To install a development version of ``htpolynet`` you can instal from a freshly cloned Github repository:
 

@@ -26,6 +26,22 @@ Once installed, the user has access to the main ``htpolynet`` command.
 
 IMPORTANT NOTES: The programs ``antechamber``, ``parmchk2`` and ``tleap`` from AmberTools must be in your path.  These can be installed using the ``ambertools`` package from ``conda-forge`` or compiled from source.  You also need Gromacs installed so ``gmx`` is in your path.  The examples show how to build input monomer structures using OpenBabel, so to use them you need ``obabel`` in your path as well.
 
+## Docker
+
+As an alternative to a local installation, a prebuilt container image is published at ``ghcr.io/abramsgroup/htpolynet``.  It bundles htpolynet together with Gromacs, AmberTools, and OpenBabel, so no additional dependencies are required on the host beyond Docker (and, optionally, the NVIDIA Container Toolkit for GPU runs).
+
+Run htpolynet against a configuration file in the current directory:
+```bash
+docker run --rm -v $(pwd):/work ghcr.io/abramsgroup/htpolynet run config.yaml
+```
+
+With GPU support:
+```bash
+docker run --rm --gpus all -v $(pwd):/work ghcr.io/abramsgroup/htpolynet run config.yaml
+```
+
+A Docker Compose file is also provided in [docker/compose.yml](docker/compose.yml) for a shorter invocation (``docker compose run --rm htpolynet run config.yaml``).  See [docs/source/user-guide/container-usage.rst](docs/source/user-guide/container-usage.rst) for the full story, including Singularity/Apptainer use on HPC systems.
+
 ## Documentation
 
 Please consult documentation at [abramsgroup.github.io/htpolynet](https://abramsgroup.github.io/htpolynet/).

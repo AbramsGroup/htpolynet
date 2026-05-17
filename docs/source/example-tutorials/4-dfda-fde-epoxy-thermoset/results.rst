@@ -54,5 +54,5 @@ A note on figures
 This tutorial doesn't yet ship the before/after molecular snapshots
 that examples 2 and 3 do.  If you run the example and produce
 informative VMD renders or build-trace plots, drop them into
-``docs/source/example-tutorials/shortbuilds/4-dfda-fde-epoxy-thermoset/pics/``
+``docs/source/example-tutorials/4-dfda-fde-epoxy-thermoset/pics/``
 and add ``.. figure::`` blocks where they fit.

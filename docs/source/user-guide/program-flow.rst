@@ -1,13 +1,30 @@
 Program Flow
 ------------
 
-.. figure:: pics/flow1.png
-   :scale: 80 %
+.. mermaid::
    :alt: outer program flow
+   :caption: ``htpolynet run`` workflow.
 
-   ``htpolynet run`` workflow.
+   flowchart TD
+       start(["<tt>htpolynet</tt> begins"]):::endpoint
+       pre["Make input<br/>molecular structures"]
+       setup["Set up reactions and<br/>oligomer templates"]
+       topo["Build system topology<br/><i>(e.g., init.top)</i>"]
+       coord["Build system coordinates<br/><i>(e.g., init.gro)</i>"]
+       md1["<b>MD:</b> Densification and<br/>precure equilibration"]:::md
+       cure[["<b>CURE</b>"]]:::cure
+       md2["<b>MD:</b> Postcure equilibration"]:::md
+       finish(["<tt>htpolynet</tt> ends"]):::endpoint
 
-A basic depiction of the the workflow initiated by ``htpolynet run`` is shown in the figure above.  The "0"th step is generation of the molecular structure data for any monomeric reactants, in the form of either Sybyl ``mol2`` or RCSB ``pdb`` files.  ``htpolynet`` does **not** do this; we provide some general guidance :ref:`here <molecular_structure_inputs>` and some specific example cases in the :ref:`tutorials <example_tutorials>`.  Then, based on instructions in the :ref:`configuration file <configuration_files>`, ``htpolynet`` proceeds with setting up all reactions and oligomer templates.  Once these are generated, it then generates the full initial system topology in Gromacs format (that is, it generates a ``top`` file), and an initial set of coordinates (a ``gro`` file).  Since the initial coordinates are built a low density (typically), ``htpolynet`` then performs MD to "densify" the system, followed by any pre-cure equilibration the user would like.  Then the :ref:`CURE algorithm <cure_section>` takes over to generate intermolecular bonds and drive the polymerization.  Once it finishes, ``htpolynet`` conducts any post-cure equilibration the user likes, before saving the final ``top`` and ``gro`` file.  All of this work happens in the project subdirectory of the current directory in which ``run`` is invoked.
+       start --> pre --> setup --> topo --> coord --> md1 --> cure --> md2 --> finish
+
+       click cure "#cure-section" "Jump to CURE algorithm details"
+
+       classDef endpoint fill:#fff,stroke:#2a7a3f,color:#2a7a3f
+       classDef md color:#1f4e9c,stroke:#1f4e9c
+       classDef cure fill:#d4edda,stroke:#2a7a3f,color:#1e5128
+
+A basic depiction of the the workflow initiated by ``htpolynet run`` is shown in the figure above.  The first step is generation of the molecular structure data for any monomeric reactants, which ``htpolynet`` does using `RDKit <https://www.rdkit.org/>`_.  Then, based on instructions in the :ref:`configuration file <configuration_files>`, ``htpolynet`` proceeds with setting up all reactions and oligomer templates.  Once these are generated, it then generates the full initial system topology in Gromacs format (that is, it generates a ``top`` file), and an initial set of coordinates (a ``gro`` file).  Since the initial coordinates are built a low density (typically), ``htpolynet`` then performs MD to "densify" the system, followed by any pre-cure equilibration the user would like.  Then the :ref:`CURE algorithm <cure_section>` takes over to generate intermolecular bonds and drive the polymerization.  Once it finishes, ``htpolynet`` conducts any post-cure equilibration the user likes, before saving the final ``top`` and ``gro`` file.  All of this work happens in the project subdirectory of the current directory in which ``run`` is invoked.
 
 This workflow should make clear that the two required tasks of the user are:
 
@@ -19,11 +36,42 @@ This workflow should make clear that the two required tasks of the user are:
 The Connect-Update-Relax-Equilibrate (CURE) algorithm
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. figure:: pics/CURE.png
-   :scale: 80 %
-   :alt: picture of cure algorithm block flow diagram
+.. mermaid::
+   :alt: block flow diagram of the CURE algorithm
+   :caption: Block flow diagram of the CURE algorithm used in ``htpolynet``.
 
-   Block flow diagram of the CURE algorithm used in ``htpolynet``.
+   flowchart TD
+       start(["<tt>CURE</tt> begins"]):::beginEnd
+       conv{"Conversion<br/>reached?"}
+       init["Initialize<br/>search radius"]
+       ident["Identify<br/>allowable bonds"]
+       found{"Any bonds<br/>found?"}
+       inc["Increment<br/>search radius"]
+       maxr{"Above max<br/>radius?"}
+       longer{"Any longer<br/>than threshold?"}
+       drag["Drag"]
+       topo1["Update topology"]
+       relax1["Relax"]
+       equil["Equilibrate"]
+       cap["Cap unreacted<br/>groups"]
+       topo2["Update topology"]
+       relax2["Relax"]
+       finish(["<tt>CURE</tt> ends"]):::endEnd
+
+       start --> conv
+       conv -- n --> init --> ident --> found
+       found -- n --> inc --> maxr
+       maxr -- n --> ident
+       maxr -- y --> cap
+       found -- y --> longer
+       longer -- y --> drag --> topo1
+       longer -- n --> topo1
+       topo1 --> relax1 --> equil --> conv
+       conv -- y --> cap
+       cap --> topo2 --> relax2 --> finish
+
+       classDef beginEnd fill:#d4edda,stroke:#2a7a3f,color:#1e5128
+       classDef endEnd fill:#fadbd8,stroke:#a93226,color:#7b241c
 
 The algorithm used to create new bonds and polymerize a system is called the CURE algorithm, depicted above.  This is just a slightly modified version of a standard search-radius-type algorithm, first used by Li and Strahan to study EPON/DETDA thermosets (:cite:t:`Li2010Crosslinking`).  The CURE algorithm begins by executing a search for new bonds on a frozen system configuration.  Bonds are downselected through a series of filters to arrive at a final set of bonds to form.  If the distance between any pair of "bond-designate" atoms is greater than some threshold (the ``trigger_distance`` parameter in the :ref:`drag subdirective <cure.drag>` of the ``CURE`` directive of a configuration file), a series of MD simulations that slowly bring all to-be-bound atom closer together is performed.  Then the topology is updated, where ``htpolynet`` applies the charges, atom type, and bonded interaction templates from the oligomer template set to each bond.  After the update, a series of relaxation MD simulations bring all bonds to their equilibrium lengths.  Then a short NPT MD simulation equilibrates the overall density before initiating the next CURE iteration.  CURE iterations continue until (a) a desired conversion is reached, or (b) no new allowable bonds are identified.
 

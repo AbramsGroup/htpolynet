@@ -5,7 +5,7 @@ The Configuration File
 
 The complete ``2-bisgma-styrene-thermoset.yaml`` from the depot:
 
-.. literalinclude:: ../../../../../src/htpolynet/resources/example_depot/2-bisgma-styrene-thermoset.yaml
+.. literalinclude:: ../../../../src/htpolynet/resources/example_depot/2-bisgma-styrene-thermoset.yaml
    :language: yaml
 
 The ``Title``, ``gromacs``, ``ambertools``, ``precure``, ``CURE``, and

@@ -34,3 +34,4 @@ examples works cleanly here too.
    configuration
    run
    results
+   postsim

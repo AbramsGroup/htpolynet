@@ -5,7 +5,7 @@ The Configuration File
 
 The complete ``4-dfda-fde-epoxy-thermoset.yaml`` from the depot:
 
-.. literalinclude:: ../../../../../src/htpolynet/resources/example_depot/4-dfda-fde-epoxy-thermoset.yaml
+.. literalinclude:: ../../../../src/htpolynet/resources/example_depot/4-dfda-fde-epoxy-thermoset.yaml
    :language: yaml
 
 Most blocks follow the same pattern as

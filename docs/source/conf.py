@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('../../'))
 # -- Project information -----------------------------------------------------
 
 project = 'htpolynet'
-copyright = '2024, Cameron Abrams, Ming Huang'
+copyright = '2026, Cameron Abrams, Ming Huang'
 author = 'Cameron Abrams, Ming Huang'
 
 # The full version, including alpha/beta/rc tags
@@ -33,7 +33,7 @@ version = release
 # ones.
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage', 'sphinx.ext.napoleon',
-    'sphinxcontrib.bibtex', 'sphinx_copybutton', 'myst_parser',]
+    'sphinxcontrib.bibtex', 'sphinxcontrib.mermaid', 'sphinx_copybutton', 'myst_parser',]
 # extensions.append('sphinx.ext.todo')
 # extensions.append('sphinx.ext.intersphinx')
 # extensions.append('sphinx.ext.mathjax')

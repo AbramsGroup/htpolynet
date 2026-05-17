@@ -5,7 +5,7 @@ The Configuration File
 
 The complete ``3-pacm-dgeba-epoxy-thermoset.yaml`` from the depot:
 
-.. literalinclude:: ../../../../../src/htpolynet/resources/example_depot/3-pacm-dgeba-epoxy-thermoset.yaml
+.. literalinclude:: ../../../../src/htpolynet/resources/example_depot/3-pacm-dgeba-epoxy-thermoset.yaml
    :language: yaml
 
 The ``Title``, ``gromacs``, ``ambertools``, ``densification``,

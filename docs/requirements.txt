@@ -2,6 +2,7 @@ sphinx
 myst-parser
 furo
 sphinxcontrib-bibtex
+sphinxcontrib-mermaid
 sphinx-copybutton
 matplotlib
 pytrr

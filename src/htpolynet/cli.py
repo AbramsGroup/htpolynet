@@ -3,17 +3,12 @@
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 
-import glob
-import json
 import logging
 import os
-import tarfile
 import textwrap
 
 import argparse as ap
 import yaml
-
-from importlib.metadata import distribution
 
 from .analysis.analyze import analyze
 from .analysis.plot import plots
@@ -29,17 +24,6 @@ from .utils.stringthings import my_logger
 from .utils.vmd_viz import make_viz
 
 logger = logging.getLogger(__name__)
-
-
-def _is_editable_install():
-    """Returns True if htpolynet was installed in editable mode (pip install -e .)."""
-    try:
-        direct_url = distribution('htpolynet').read_text('direct_url.json')
-        if direct_url:
-            return json.loads(direct_url).get('dir_info', {}).get('editable', False)
-    except Exception:
-        pass
-    return False
 
 
 def info(args: ap.Namespace):
@@ -100,20 +84,8 @@ def run(args: ap.Namespace):
         a.do_workflow(force_checkin=args.force_checkin, force_parameterization=args.force_parameterization)
     my_logger('htpolynet runtime ends', logger.info)
 
-def _unpack_example(fullpath):
-    """Extracts a single example tarball into the current directory.
-
-    Args:
-        fullpath (str): absolute path to the .tgz file in the system library
-    """
-    with tarfile.open(fullpath) as tf:
-        tf.extractall('.')
-
 def _fetch_one(depot, fullname):
-    """Fetches one example by name.
-
-    Preference order is .yaml (self-contained config) > .sh (legacy shell
-    script that pre-generates a YAML and mol2 inputs) > .tgz (legacy tarball).
+    """Fetches one example by name (always a self-contained .yaml).
 
     Args:
         depot (str): path to the example depot directory
@@ -121,20 +93,11 @@ def _fetch_one(depot, fullname):
     """
     import shutil
     yaml_path = os.path.join(depot, f'{fullname}.yaml')
-    sh_path = os.path.join(depot, f'{fullname}.sh')
-    tgz_path = os.path.join(depot, f'{fullname}.tgz')
-    if os.path.exists(yaml_path):
-        dest = os.path.basename(yaml_path)
-        shutil.copy(yaml_path, dest)
-        print(f'Fetched {dest}  (run with: htpolynet run {dest})')
-    elif os.path.exists(sh_path):
-        dest = os.path.basename(sh_path)
-        shutil.copy(sh_path, dest)
-        print(f'Fetched {dest}  (run with: bash {dest})')
-    elif os.path.exists(tgz_path):
-        _unpack_example(tgz_path)
-    else:
+    if not os.path.exists(yaml_path):
         raise FileNotFoundError(f'No example found for {fullname}')
+    dest = os.path.basename(yaml_path)
+    shutil.copy(yaml_path, dest)
+    print(f'Fetched {dest}  (run with: htpolynet run {dest})')
 
 def fetch_example(args):
     """Handles the fetch-example subcommand.
@@ -154,178 +117,6 @@ def fetch_example(args):
     else:
         fullname = args.n
     _fetch_one(depot, fullname)
-
-def pack_example(args):
-    l = pfs.system()
-    requires = ['README.md', 'run.sh', 'lib/molecules']
-    for r in requires:
-        assert os.path.exists(r), f'{r}: not found.'
-    ls = glob.glob('*.yaml') + glob.glob('*.yml')
-    assert len(ls)>0, f'No yaml config file found.'
-    bn = os.path.basename(os.getcwd())
-    inspectname = bn.split('-')
-    if len(inspectname) > 0:
-        firstfield = inspectname[0]
-        if firstfield.isdigit():
-            existing_n = int(firstfield)
-            use_n = False
-        else:
-            use_n = True
-    n = args.n
-    overwrite = args.overwrite
-    existing_examples = l.get_example_names()
-    numbers = [int(x.split('-')[0]) for x in existing_examples]
-    if not overwrite:
-        assert not n in numbers, f'Choose an index other than {n}; an example with this index already exists.'
-        if not use_n:
-            assert not existing_n in numbers, f'Choose an index other than {n}; an example with this index already exists. To do this, rename the directory.'
-    if n == -1:
-        n = str(max(numbers) + 1)
-    if use_n:
-        newname = f'{n}-{os.path.basename(os.getcwd())}'
-    else:
-        newname = f'{os.path.basename(os.getcwd())}'
-    depot_location = l.get_example_depot_location()
-    outpath = os.path.join(depot_location, f'{newname}.tgz')
-    if overwrite and os.path.exists(outpath):
-        logger.debug(f'Warning: overwriting example {outpath}')
-
-    def _shallow(tarinfo):
-        # mirror --exclude="*/*/*/*/*": omit paths deeper than 4 components
-        from pathlib import Path
-        return tarinfo if len(Path(tarinfo.name).parts) <= 4 else None
-
-    with tarfile.open(outpath, 'w:gz') as tf:
-        for fname in ['README.md', 'run.sh'] + ls:
-            tf.add(fname, arcname=f'{bn}/{fname}', recursive=False)
-        tf.add('lib/molecules', arcname=f'{bn}/lib/molecules', filter=_shallow)
-    logger.debug(f'Packed {outpath} -- consider a pull request!')
-
-def pack_example_sh(args):
-    """Generates a self-contained bash setup script for the current example directory.
-
-    Scans the current directory for YAML configs and lib/molecules/inputs/ files,
-    embeds them as heredocs, and writes the resulting .sh script to the example depot.
-
-    Args:
-        args (argparse.Namespace): parsed arguments
-    """
-    import textwrap as _tw
-
-    l = pfs.system()
-    yamls = sorted(glob.glob('*.yaml') + glob.glob('*.yml'))
-    assert yamls, 'No YAML config file found in the current directory.'
-    inputs_dir = 'lib/molecules/inputs'
-    assert os.path.isdir(inputs_dir), f'{inputs_dir}: not found.'
-
-    # Collect text-format monomer input files (mol2, pdb); skip binaries like png
-    input_files = sorted(
-        f for f in glob.glob(os.path.join(inputs_dir, '*'))
-        if os.path.splitext(f)[1].lower() in ('.mol2', '.pdb')
-    )
-
-    bn = os.path.basename(os.getcwd())
-    inspectname = bn.split('-')
-    firstfield = inspectname[0] if inspectname else ''
-    use_n = not firstfield.isdigit()
-    existing_n = int(firstfield) if not use_n else None
-
-    n = args.n
-    overwrite = args.overwrite
-    existing_examples = l.get_example_names()
-    numbers = [int(x.split('-')[0]) for x in existing_examples]
-    if not overwrite:
-        if n != -1:
-            assert n not in numbers, f'Index {n} already exists; use --overwrite or choose another.'
-        if not use_n:
-            assert existing_n not in numbers, (
-                f'Index {existing_n} (from directory name) already exists; '
-                f'use --overwrite or rename the directory.'
-            )
-    if n == -1:
-        n = max(numbers) + 1 if numbers else 0
-    newname = f'{n}-{bn}' if use_n else bn
-    display_n = n if use_n else existing_n
-
-    depot_location = l.get_example_depot_location()
-    outpath = os.path.join(depot_location, f'{newname}.sh')
-    if overwrite and os.path.exists(outpath):
-        logger.debug(f'Warning: overwriting {outpath}')
-
-    # Determine the primary config (first yaml alphabetically) for the --run line
-    primary_yaml = yamls[0]
-
-    lines = [
-        '#!/bin/bash',
-        f'# htpolynet -- Example {display_n} -- {bn}',
-        '#',
-        f'# Writes all input files into ./{newname}/ and optionally launches the build.',
-        '#',
-        '# Usage:',
-        f'#   bash {newname}.sh          # set up directory only',
-        f'#   bash {newname}.sh --run    # set up and launch htpolynet',
-        '#',
-        '# Generated by: htpolynet pack-example-sh',
-        '#',
-        '# Cameron F. Abrams — cfa22@drexel.edu',
-        '',
-        'set -euo pipefail',
-        '',
-        f'EXDIR="{newname}"',
-        'if [ -d "$EXDIR" ]; then',
-        '    echo "Error: directory \'$EXDIR\' already exists. Remove it first." >&2',
-        '    exit 1',
-        'fi',
-        '',
-        'mkdir -p "$EXDIR/lib/molecules/inputs" "$EXDIR/lib/molecules/parameterized"',
-        'cd "$EXDIR"',
-        '',
-    ]
-
-    # Embed each monomer input file as a heredoc
-    if input_files:
-        lines.append('# ---------------------------------------------------------------------------')
-        lines.append('# Monomer input files')
-        lines.append('# ---------------------------------------------------------------------------')
-        for fpath in input_files:
-            dest = os.path.join('lib/molecules/inputs', os.path.basename(fpath))
-            token = f'HTPOLYNET_{os.path.basename(fpath).replace(".", "_").upper()}_EOF'
-            lines.append(f"cat > {dest} << '{token}'")
-            with open(fpath) as fh:
-                lines.append(fh.read().rstrip())
-            lines.append(token)
-            lines.append('')
-
-    # Embed each YAML config as a heredoc
-    lines.append('# ---------------------------------------------------------------------------')
-    lines.append('# Configuration file(s)')
-    lines.append('# ---------------------------------------------------------------------------')
-    for yaml_file in yamls:
-        token = f'HTPOLYNET_{yaml_file.replace(".", "_").upper()}_EOF'
-        lines.append(f"cat > {yaml_file} << '{token}'")
-        with open(yaml_file) as fh:
-            lines.append(fh.read().rstrip())
-        lines.append(token)
-        lines.append('')
-
-    # --run launcher
-    lines += [
-        '# ---------------------------------------------------------------------------',
-        '# Optionally launch the build',
-        '# ---------------------------------------------------------------------------',
-        'if [[ "${1:-}" == "--run" ]]; then',
-        f'    htpolynet run -diag diagnostics.log {primary_yaml} &> console.log',
-        'else',
-        '    echo "Setup complete. To run:"',
-        f'    echo "  cd $EXDIR && htpolynet run -diag diagnostics.log {primary_yaml}"',
-        'fi',
-    ]
-
-    script = '\n'.join(lines) + '\n'
-    with open(outpath, 'w') as fh:
-        fh.write(script)
-    logger.debug(f'Wrote {outpath} -- consider a pull request!')
-    print(f'Wrote {outpath}')
 
 
 def _add_run_options(p, loglevel='debug'):
@@ -467,9 +258,6 @@ def cli():
         ('gen-slurm-script', gen_slurm_script, 'generate a SLURM submission script for running htpolynet on a cluster'),
         ('make-viz',         make_viz,         'regenerate VMD viz files (.viz.psf + .viz.tcl) from an existing gromacs top + gro pair'),
     ]
-    if _is_editable_install():
-        subcommands.append(('pack-example', pack_example, '(dev) pack current directory as a tarball into resources/example_depot'))
-        subcommands.append(('pack-example-sh', pack_example_sh, '(dev) generate a self-contained bash setup script from the current example directory'))
 
     parser = ap.ArgumentParser(description=textwrap.dedent(banner_message),formatter_class=ap.RawDescriptionHelpFormatter)
     subparsers = parser.add_subparsers()
@@ -504,13 +292,6 @@ def cli():
 
     _add_analysis_args(cp['postsim'])
     _add_analysis_args(cp['analyze'])
-
-    if 'pack-example' in cp:
-        cp['pack-example'].add_argument('-n', type=int, default=-1, help='desired index for this example (default: next available)')
-        cp['pack-example'].add_argument('--overwrite', default=False, action='store_true', help='overwrite any existing example with this index in the depot')
-    if 'pack-example-sh' in cp:
-        cp['pack-example-sh'].add_argument('-n', type=int, default=-1, help='desired index for this example (default: next available)')
-        cp['pack-example-sh'].add_argument('--overwrite', default=False, action='store_true', help='overwrite any existing example with this index in the depot')
 
     args = parser.parse_args()
     args.func(args)

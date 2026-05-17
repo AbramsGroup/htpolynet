@@ -76,13 +76,25 @@ class ChainManager:
             else:
                 pass
         elif not ic:
-            logger.debug(f'j-Atom {aj} (chain {jc.idx}) bonds to atom {ai}, but {ai} is not yet in a chain.')
-            logger.debug(f'This should never happen in a C=C polymerizing system; all reactive Cs are in chains from the very beginning!')
-            raise Exception('This is a bug - no i-chain!')
+            # aj is in a chain, ai is not.  This is unexpected for vinyl
+            # polymerization (where every reactive C participates in a
+            # former-C=C pair and is therefore in some chain from monomer
+            # init) but is legitimate for multistep / non-vinyl chemistry
+            # (e.g., HTPB chain assembly from butenes, where reactive
+            # methyls are not part of any C=C pair).  Extend jc to include
+            # ai by attaching at the closer end.
+            logger.debug(f'j-Atom {aj} (chain {jc.idx}) bonds to non-chain atom {ai}; extending chain {jc.idx} with {ai}.')
+            if jc.is_head(aj):
+                jc.idx_list.insert(0, ai)
+            else:
+                jc.idx_list.append(ai)
         elif not jc:
-            logger.debug(f'i-Atom {ai} (chain {ic.idx}) bonds to atom {aj}, but {aj} is not yet in a chain.')
-            logger.debug(f'This should never happen in a C=C polymerizing system; all reactive Cs are in chains from the very beginning!')
-            raise Exception('This is a bug - no j-chain!')
+            # symmetric counterpart of the above
+            logger.debug(f'i-Atom {ai} (chain {ic.idx}) bonds to non-chain atom {aj}; extending chain {ic.idx} with {aj}.')
+            if ic.is_tail(ai):
+                ic.idx_list.append(aj)
+            else:
+                ic.idx_list.insert(0, aj)
         elif ic==jc:
             assert (ic.is_head(ai) and ic.is_tail(aj)) or (ic.is_head(aj) and ic.is_tail(ai))
             ic.is_cyclic=True

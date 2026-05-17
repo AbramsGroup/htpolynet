@@ -31,3 +31,4 @@ amines.  Compared to :ref:`example 2 <bgs_tutorial>`, the new wrinkles are:
    configuration
    run
    results
+   postsim
