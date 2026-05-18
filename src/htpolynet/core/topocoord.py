@@ -1493,6 +1493,11 @@ class TopoCoord:
         for i,r in bdf.iterrows():
             tmp_local_cm.injest_bond(r.ai,r.aj)
             c=tmp_local_cm.chain_of(r.ai)
+            if c is None:
+                # Neither endpoint participates in a vinyl C-C bondchain
+                # (e.g. urethane O-C cure bonds), so this bond cannot
+                # contribute to a C-C bondcycle — skip it.
+                continue
             if not hasattr(c,'added_bonds'):
                 c.added_bonds=[]
             c.added_bonds.append(i)

@@ -965,6 +965,12 @@ class Molecule:
             gronames.append(f'{si}')
         for gro in gronames:
             pfx = f'{gro}-C'
+            fmt = r'{A}{B:0'+str(nd) + r'd}'  # the trjconv command in gro_from_trr must generate these files
+            cfnl = [fmt.format(A=pfx,B=x) for x in range(self.nconformers)]
+            if all(os.path.exists(f'{mname}.gro') for mname in cfnl):
+                logger.info(f'Reusing {self.nconformers} existing conformer gro files for {gro}')
+                self.conformers.extend(cfnl)
+                continue
             if generator['name'] == 'obabel':
                 compfile = f'{gro}-obabel-confs.gro'
                 run(f'obabel -igro {gro}.gro -O {compfile} --conformer --nconf {self.nconformers} --writeconformers')
@@ -980,8 +986,6 @@ class Molecule:
                 TC.vacuum_simulate(outname=f'{compfile}', nsamples=cd['count'], params=params)
                 gro_from_trr(compfile, nzero=nd, outpfx=pfx, b=begin_at)
             # os.remove(f'{gro}-confs.gro')
-            fmt = r'{A}{B:0'+str(nd) + r'd}'  # the trjconv command in gro_from_trr must generate these files
-            cfnl = [fmt.format(A=pfx,B=x) for x in range(self.nconformers)]
             for mname in cfnl:
                 assert os.path.exists(f'{mname}.gro'), f'Error: Conformer coordinates file {mname}.gro not found'
             logger.debug(f'Conformer coordinate filenames {cfnl}')

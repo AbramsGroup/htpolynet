@@ -321,7 +321,13 @@ class Topology:
             self.rings.append(Ring(c))
 
     def read_tpx(self, filename):
-        assert os.path.exists(filename), f'Error: {filename} not found.'
+        if not os.path.exists(filename):
+            # .tpx only holds the ring list, which we can rebuild from the bond
+            # graph. This path matters for "Using cached parameterization" on a
+            # molecule whose library had .gro/.top/.mol2 but no .tpx checked in.
+            logger.debug(f'{filename} not found; detecting rings from topology graph.')
+            self.detect_rings()
+            return
         with open(filename, 'r') as f:
             data = f.read().split('[')
             stanzas = [('[' + x).split('\n') for x in data][1:]
@@ -364,13 +370,16 @@ class Topology:
                 idxshift = counts['atoms']
             except:
                 raise Exception(f'Error: expected an "atoms" dataframe')
+            # Per-copy resnr span: shift each replica by this many residues so
+            # multi-residue molecules don't collide on the same resid.
+            resnr_per_copy = int(self.D['atoms']['resnr'].max())
             for t in _GromacsExtensiveDirectives_:
                 if t in self.D:
                     self.D[t] = pd.concat([self.D[t]] * count, ignore_index=True)
             new_rings = RingList([])
             for c in range(1, count):
                 self.shiftatomsidx(idxshift * c, 'atoms', rows=[(c * counts['atoms']), ((c + 1) * counts['atoms'])], idxlabels=['nr'])
-                self.shiftatomsidx(c, 'atoms', rows=[(c * counts['atoms']), ((c + 1) * counts['atoms'])], idxlabels=['resnr'])
+                self.shiftatomsidx(resnr_per_copy * c, 'atoms', rows=[(c * counts['atoms']), ((c + 1) * counts['atoms'])], idxlabels=['resnr'])
                 self.shiftatomsidx(idxshift * c, 'bonds', rows=[(c * counts['bonds']), ((c + 1) * counts['bonds'])], idxlabels=['ai', 'aj'])
                 self.shiftatomsidx(idxshift * c, 'mol2_bonds', rows=[(c * counts['mol2_bonds']), ((c + 1) * counts['mol2_bonds'])], idxlabels=['ai', 'aj'])
                 self.shiftatomsidx(idxshift * c, 'pairs', rows=[(c * counts['pairs']), ((c + 1) * counts['pairs'])], idxlabels=['ai', 'aj'])
