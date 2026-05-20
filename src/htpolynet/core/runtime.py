@@ -596,6 +596,15 @@ class Runtime:
             M.chain_manager.from_dataframe(M.TopoCoord.Coordinates.A)
             if M.generator:
                 M.prepare_new_bonds(available_molecules=self.molecules)
+            else:
+                # Reactivity-related grx attributes (z, sea_idx, bondchain) are
+                # YAML-dependent — they reflect the *current* reaction set, not
+                # something intrinsic to the molecule.  A cache entry written by
+                # a YAML with no reactions (or different reactions) for this
+                # monomer would carry stale z=0 / sea_idx=-1, silently producing
+                # 0 reactive atoms in cure.  Re-derive from the current run.
+                M.TopoCoord.set_gro_attribute('reactantName', mname)
+                M.initialize_monomer_grx_attributes()
             M.origin='previously parameterized'
 
         ''' Generate any stereoisomers and/or conformers '''
