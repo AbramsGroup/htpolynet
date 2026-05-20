@@ -597,21 +597,26 @@ class Runtime:
             stale_cache = False
             if M.generator:
                 M.prepare_new_bonds(available_molecules=self.molecules)
-                # Detect stale chain data on a cached build product: if every
-                # reactant in this product's sequence has a populated
-                # chain_manager (after the monomer fix above), but the product
-                # itself loaded with no chains, the cache predates the current
-                # run's reactivity metadata and the trimer/tetramer templates
-                # implied by bondchain_expand_reactions will silently come up
-                # empty.  Re-parameterize to refresh.
-                reactants_have_chains = (
-                    len(M.sequence) > 0 and
-                    all(r in self.molecules and
-                        len(self.molecules[r].chain_manager.chains) > 0
-                        for r in M.sequence)
+                # Detect stale chain data on a cached build product.  When the
+                # current run's monomer chain_managers are populated (after the
+                # monomer fix above), every chain atom in each reactant should
+                # show up in this build product's chain_manager — either as
+                # part of an existing chain, or merged via the new bond into a
+                # single longer chain.  If the cached product carries fewer
+                # chain atoms than the sum across its reactants, the cache
+                # predates the current run's reactivity metadata.  Catches
+                # both the zero-chains case (homo-dimers from cache written
+                # against a no-z monomer) and the short-chain case (hetero-
+                # dimers whose chain_manager came out length-3 instead of
+                # length-4 because the bond-side chain was never fully merged).
+                expected_chain_atoms = sum(
+                    sum(len(c.idx_list) for c in self.molecules[r].chain_manager.chains)
+                    for r in M.sequence if r in self.molecules
                 )
-                if reactants_have_chains and len(M.chain_manager.chains) == 0:
-                    logger.info(f'Cached chain data for {mname} appears stale; re-parameterizing')
+                actual_chain_atoms = sum(len(c.idx_list) for c in M.chain_manager.chains)
+                if expected_chain_atoms > 0 and actual_chain_atoms < expected_chain_atoms:
+                    logger.info(f'Cached chain data for {mname} appears stale '
+                                f'({actual_chain_atoms} chain atom(s); expected {expected_chain_atoms}); re-parameterizing')
                     stale_cache = True
             else:
                 # Reactivity-related grx attributes (z, sea_idx, bondchain) are
@@ -623,6 +628,23 @@ class Runtime:
                 M.TopoCoord.set_gro_attribute('reactantName', mname)
                 M.initialize_monomer_grx_attributes()
             if stale_cache:
+                # Reset the molecule state populated by cache-load so the
+                # subsequent M.generate() call starts from the same blank
+                # slate the fresh-parameterize branch above would have given
+                # it.  Otherwise the half-loaded TopoCoord / stale
+                # chain_manager interact with merge() and prepare_new_bonds()
+                # in ways that produce float-promoted globalIdx columns.
+                from .topocoord import TopoCoord as _TopoCoord
+                from ..cure.chain import ChainManager as _ChainManager
+                M.TopoCoord = _TopoCoord()
+                M.chain_manager = _ChainManager()
+                M.bond_templates = []
+                M.reaction_bonds = []
+                # Re-derive sequence from generator (this is what
+                # set_sequence_from_moldict normally does at __init__ time;
+                # set_sequence_from_coordinates inside generate() will
+                # assert it matches what falls out of the merged dataframe).
+                M.set_sequence_from_moldict(self.molecules)
                 M.generate(available_molecules=self.molecules,
                            gaff=self.cfg.gaff, ambertools=self.cfg.ambertools)
                 for ex in ['mol2','top','tpx','itp','gro','grx']:
