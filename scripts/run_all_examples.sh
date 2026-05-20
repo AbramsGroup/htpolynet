@@ -2,16 +2,27 @@
 # Run every example in the depot, each in its own working directory.
 #
 # Usage:
-#   ./scripts/run_all_examples.sh [-d <root>] [-- <htpolynet run flags>]
+#   ./scripts/run_all_examples.sh [-d <root>] [--force-reparameterize] [-- <htpolynet run flags>]
 #
 # Options:
-#   -d <root>   Parent directory under which one subdirectory per example
-#               is created.  Defaults to ./examples-runs/.
-#   --          Everything after this is forwarded verbatim as extra flags
-#               to `htpolynet run` (in addition to `-diag diagnostics.log`).
+#   -d <root>               Parent directory under which one subdirectory
+#                           per example is created.  Defaults to
+#                           ./examples-runs/.
+#   --force-reparameterize  Forward --force-parameterization --force-checkin
+#                           to every `htpolynet run` call.  Each example
+#                           re-runs antechamber/parmchk/tleap on its
+#                           monomers and overwrites the user cache
+#                           (~/.htpolynet/molecules/parameterized/).
+#                           Right level of rigor when the cache may be
+#                           stale across YAMLs with different reaction
+#                           sets — single source of truth per fresh run.
+#   --                      Everything after this is forwarded verbatim as
+#                           extra flags to `htpolynet run` (in addition to
+#                           `-diag diagnostics.log`).
 #
 # Example:
-#   ./scripts/run_all_examples.sh -d /tmp/htp-runs -- --loglevel debug
+#   ./scripts/run_all_examples.sh -d /tmp/htp-runs --force-reparameterize
+#   ./scripts/run_all_examples.sh -- --loglevel debug
 #
 # Behavior:
 #   - For each example N, runs `htpolynet fetch-example N` inside its own
@@ -26,6 +37,7 @@ set -uo pipefail
 
 ROOT='./examples-runs'
 EXTRA_RUN_ARGS=()
+FORCE_REPARAM=0
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -33,13 +45,17 @@ while [[ $# -gt 0 ]]; do
             ROOT="$2"
             shift 2
             ;;
+        --force-reparameterize)
+            FORCE_REPARAM=1
+            shift
+            ;;
         --)
             shift
             EXTRA_RUN_ARGS=("$@")
             break
             ;;
         -h|--help)
-            sed -n '2,22p' "$0"
+            sed -n '2,32p' "$0"
             exit 0
             ;;
         *)
@@ -48,6 +64,10 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+if [[ $FORCE_REPARAM -eq 1 ]]; then
+    EXTRA_RUN_ARGS=(--force-parameterization --force-checkin "${EXTRA_RUN_ARGS[@]}")
+fi
 
 if ! command -v htpolynet >/dev/null 2>&1; then
     echo "error: htpolynet is not on PATH" >&2
@@ -69,7 +89,7 @@ if help_text="$(htpolynet fetch-example --help 2>&1)"; then
                  | sort -u)
 fi
 if [[ ${#IDS[@]} -eq 0 ]]; then
-    IDS=(0 1 2 3 4)
+    IDS=(0 1 2 3 4 5)
 fi
 
 echo "Running examples ${IDS[*]} under $ROOT"
