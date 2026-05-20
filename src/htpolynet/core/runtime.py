@@ -594,8 +594,25 @@ class Runtime:
             M.TopoCoord.read_gro_attributes(f'{mname}.grx')
             M.set_sequence_from_coordinates()
             M.chain_manager.from_dataframe(M.TopoCoord.Coordinates.A)
+            stale_cache = False
             if M.generator:
                 M.prepare_new_bonds(available_molecules=self.molecules)
+                # Detect stale chain data on a cached build product: if every
+                # reactant in this product's sequence has a populated
+                # chain_manager (after the monomer fix above), but the product
+                # itself loaded with no chains, the cache predates the current
+                # run's reactivity metadata and the trimer/tetramer templates
+                # implied by bondchain_expand_reactions will silently come up
+                # empty.  Re-parameterize to refresh.
+                reactants_have_chains = (
+                    len(M.sequence) > 0 and
+                    all(r in self.molecules and
+                        len(self.molecules[r].chain_manager.chains) > 0
+                        for r in M.sequence)
+                )
+                if reactants_have_chains and len(M.chain_manager.chains) == 0:
+                    logger.info(f'Cached chain data for {mname} appears stale; re-parameterizing')
+                    stale_cache = True
             else:
                 # Reactivity-related grx attributes (z, sea_idx, bondchain) are
                 # YAML-dependent — they reflect the *current* reaction set, not
@@ -605,7 +622,15 @@ class Runtime:
                 # 0 reactive atoms in cure.  Re-derive from the current run.
                 M.TopoCoord.set_gro_attribute('reactantName', mname)
                 M.initialize_monomer_grx_attributes()
-            M.origin='previously parameterized'
+            if stale_cache:
+                M.generate(available_molecules=self.molecules,
+                           gaff=self.cfg.gaff, ambertools=self.cfg.ambertools)
+                for ex in ['mol2','top','tpx','itp','gro','grx']:
+                    checkin(f'{pfs.Dirs.molecules_parameterized}/{mname}.{ex}',
+                            overwrite=True)
+                M.origin='newly parameterized (stale cache refreshed)'
+            else:
+                M.origin='previously parameterized'
 
         ''' Generate any stereoisomers and/or conformers '''
         M.generate_stereoisomers()
