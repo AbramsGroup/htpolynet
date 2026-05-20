@@ -95,7 +95,7 @@ constituents:
           ps: 100
           pad: 10.0
 densification:
-  initial_density: 20.0  # kg/m3 -- low because long HTPB chains pack slowly
+  initial_density: 30.0  # kg/m3 -- low because long HTPB chains pack slowly
   equilibration:
     - ensemble: min
     - ensemble: nvt
@@ -105,7 +105,7 @@ densification:
       temperature: 600
       pressure: 10
       ps: 100
-      repeat: 35
+      repeat: 25
 precure:
   preequilibration:
     ensemble: npt

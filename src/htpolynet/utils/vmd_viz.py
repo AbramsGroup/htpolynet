@@ -108,17 +108,121 @@ proc htpolynet_viz_fragments {{}} {{
 }}
 
 htpolynet_trim_pbc_bonds 3.0
+
+# Sidecar selection macros (one per constituent class, one per instance).
+# Written when a matching .grx is available next to the .gro.  Defines
+# atomselect macros so VMD selections can be driven by chemical identity
+# (e.g. `GMA`, `DHT_125`) rather than by the building-block residue names.
+if {{[file exists {macros}]}} {{
+    source {macros}
+}}
 '''
 
 
-def write_viz_files(top, gro, prefix=None):
+def _compress_to_ranges(ints):
+    """Compress a list of integers into a VMD-friendly index-selection string.
+
+    Returns ``"0 to 9 15 17 to 19"`` for input ``[0,1,...,9,15,17,18,19]``.
+    Sorts and deduplicates the input.
+
+    Args:
+        ints (iterable[int]): atom indices (0-based, VMD convention).
+
+    Returns:
+        str: space-separated tokens of single indices and ``A to B`` ranges.
+    """
+    s = sorted(set(int(x) for x in ints))
+    if not s:
+        return ''
+    parts = []
+    i = 0
+    n = len(s)
+    while i < n:
+        j = i
+        while j + 1 < n and s[j + 1] == s[j] + 1:
+            j += 1
+        parts.append(str(s[i]) if i == j else f'{s[i]} to {s[j]}')
+        i = j + 1
+    return ' '.join(parts)
+
+
+def write_macros_file(grx, macros_path):
+    """Read a .grx and emit a TCL file of VMD atomselect macros.
+
+    For each unique value in the grx ``molecule_name`` column, writes a
+    class-level macro (``atomselect macro <NAME> "index ..."``).  For each
+    instance (unique pair of ``molecule_name`` and ``molecule``) also writes
+    a per-instance macro (``<NAME>_<NNN>``), where ``<NNN>`` is the global
+    molecule index zero-padded to a uniform width.
+
+    Atom indices are converted to VMD's 0-based ``index`` convention by
+    subtracting 1 from the grx 1-based ``globalIdx``.
+
+    Args:
+        grx (str): path to an htpolynet .grx file.
+        macros_path (str): path to write the TCL macros file.
+
+    Returns:
+        bool: True if the file was written; False if grx lacked the required
+            columns or contained no eligible rows.
+    """
+    import pandas as pd
+
+    df = pd.read_csv(grx, sep=r'\s+', header=0)
+    if 'molecule_name' not in df.columns or 'molecule' not in df.columns \
+            or 'globalIdx' not in df.columns:
+        return False
+    df = df[(df['molecule_name'] != 'UNSET') & (df['molecule'] >= 0)].copy()
+    if df.empty:
+        return False
+    df['_vidx'] = df['globalIdx'].astype(int) - 1
+
+    lines = [
+        '# htpolynet VMD selection macros — by constituent.',
+        '#',
+        '# Sourced automatically from the matching .viz.tcl.  Defines two layers',
+        '# of atomselect macros so selections can be driven by chemical identity',
+        '# rather than by building-block residue names:',
+        '#',
+        '#   <NAME>            all atoms across every instance of constituent <NAME>',
+        '#   <NAME>_<NNN>      all atoms of one specific instance (global molecule index)',
+        '#',
+        '# Example:',
+        '#   mol modselect 0 top GMA       ;# show all bis-GMA molecules',
+        '#   mol modselect 0 top DHT_125   ;# show one specific HTPB chain',
+        '',
+        '# --- constituent classes ---',
+    ]
+    for cls, sub in df.groupby('molecule_name', sort=True):
+        lines.append(f'atomselect macro {cls} "index {_compress_to_ranges(sub["_vidx"].tolist())}"')
+
+    pad = max(3, len(str(int(df['molecule'].max()))))
+    lines.append('')
+    lines.append('# --- individual instances ---')
+    for (cls, mol), sub in df.groupby(['molecule_name', 'molecule'], sort=True):
+        macro_name = f'{cls}_{int(mol):0{pad}d}'
+        lines.append(f'atomselect macro {macro_name} "index {_compress_to_ranges(sub["_vidx"].tolist())}"')
+
+    with open(macros_path, 'w') as f:
+        f.write('\n'.join(lines) + '\n')
+    return True
+
+
+def write_viz_files(top, gro, prefix=None, grx=None):
     """Generate ``<prefix>.viz.psf`` + ``<prefix>.viz.tcl`` from gromacs top + gro.
+
+    If a matching ``.grx`` is found (passed explicitly or auto-discovered next
+    to ``gro``), also writes ``<prefix>.viz.macros.tcl`` with VMD atomselect
+    macros keyed on constituent identity; the main ``.viz.tcl`` sources it
+    when present.
 
     Args:
         top (str): path to a gromacs ``.top`` file.
         gro (str): path to the matching ``.gro`` file.
         prefix (str): output basename.  If None, uses the stem of ``gro``
             (e.g. ``final.gro`` → ``final``).
+        grx (str): path to an htpolynet ``.grx`` file.  If None, looks for
+            ``<gro-stem>.grx`` next to ``gro``.
 
     Returns:
         tuple[str, str]: paths to the written ``.viz.psf`` and ``.viz.tcl``.
@@ -134,6 +238,22 @@ def write_viz_files(top, gro, prefix=None):
     out_dir = os.path.dirname(os.path.abspath(gro)) or '.'
     psf = os.path.join(out_dir, f'{prefix}.viz.psf')
     tcl = os.path.join(out_dir, f'{prefix}.viz.tcl')
+    macros = os.path.join(out_dir, f'{prefix}.viz.macros.tcl')
+
+    if grx is None:
+        candidate = os.path.join(os.path.dirname(os.path.abspath(gro)) or '.',
+                                 os.path.splitext(os.path.basename(gro))[0] + '.grx')
+        if os.path.exists(candidate):
+            grx = candidate
+
+    macros_written = False
+    if grx and os.path.exists(grx):
+        try:
+            macros_written = write_macros_file(grx, macros)
+            if macros_written:
+                logger.info(f'Wrote VMD macros: {macros}')
+        except Exception as e:
+            logger.warning(f'Could not write VMD macros from {grx}: {e}')
 
     s = pmd.load_file(top, xyz=gro)
     s.save(psf, overwrite=True)
@@ -142,6 +262,7 @@ def write_viz_files(top, gro, prefix=None):
             psf=os.path.basename(psf),
             gro=os.path.basename(gro),
             tcl=os.path.basename(tcl),
+            macros=os.path.basename(macros),
         ))
     logger.info(f'Wrote VMD viz files: {psf}, {tcl}')
     return psf, tcl
@@ -152,11 +273,12 @@ def make_viz(args):
 
     Args:
         args (argparse.Namespace): parsed CLI arguments with ``.top``, ``.gro``,
-            and optional ``.prefix``.
+            and optional ``.prefix`` and ``.grx``.
     """
     logging.basicConfig(level=logging.INFO, format='%(message)s')
     try:
-        write_viz_files(args.top, args.gro, prefix=args.prefix)
+        write_viz_files(args.top, args.gro, prefix=args.prefix,
+                        grx=getattr(args, 'grx', None))
     except ImportError:
         logger.error('parmed is required for VMD viz generation; '
                      'install with `pip install parmed`.')

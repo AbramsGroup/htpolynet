@@ -429,18 +429,45 @@ SLURM directives can be provided either on the command line (e.g., ``--partition
 ``htpolynet make-viz``
 !!!!!!!!!!!!!!!!!!!!!!
 
-The ``make-viz`` subcommand regenerates VMD visualization files (``.viz.psf`` + ``.viz.tcl``) from an existing Gromacs ``top`` + ``gro`` pair.  The PSF carries the real bond topology so VMD does not have to guess bonds from interatomic distances; the TCL is a small helper script that trims bonds longer than a 3 Å cutoff from the display (so PBC-crossing bonds in a crosslinked network do not draw as long sticks) and reports a fragment summary by mass.  These files are normally created automatically at the end of a build; use ``make-viz`` to rebuild them after editing the topology or coordinates by hand, or to produce viz files for an arbitrary ``top``/``gro`` pair that was not produced by an htpolynet build.
+The ``make-viz`` subcommand regenerates VMD visualization files (``.viz.psf``, ``.viz.tcl``, and ``.viz.macros.tcl``) from an existing Gromacs ``top`` + ``gro`` pair (plus the matching ``.grx`` for the macros).  The PSF carries the real bond topology so VMD does not have to guess bonds from interatomic distances; the TCL is a small helper script that trims bonds longer than a 3 Å cutoff from the display (so PBC-crossing bonds in a crosslinked network do not draw as long sticks) and reports a fragment summary by mass.  These files are normally created automatically at the end of a build; use ``make-viz`` to rebuild them after editing the topology or coordinates by hand, or to produce viz files for an arbitrary ``top``/``gro`` pair that was not produced by an htpolynet build.
 
 .. code-block:: console
 
   $ htpolynet make-viz -h
-  usage: htpolynet make-viz [-h] [-top TOP] [-gro GRO] [-prefix PREFIX]
+  usage: htpolynet make-viz [-h] [-top TOP] [-gro GRO] [-grx GRX] [-prefix PREFIX]
 
   options:
     -h, --help      show this help message and exit
     -top TOP        input gromacs topology file (default: final.top)
     -gro GRO        input gromacs coordinate file (default: final.gro)
-    -prefix PREFIX  output basename; the .viz.psf and .viz.tcl are written next to the input gro
-                    (default: stem of -gro)
+    -grx GRX        input htpolynet .grx (default: auto-detect <gro-stem>.grx; needed for the
+                    constituent-selection macros)
+    -prefix PREFIX  output basename; the .viz.psf, .viz.tcl, and .viz.macros.tcl are written
+                    next to the input gro (default: stem of -gro)
 
 Open the generated visualization in VMD with ``vmd <prefix>.viz.psf <prefix>.viz.gro -e <prefix>.viz.tcl``.  (Substitute your actual gro filename if it differs from the viz prefix.)
+
+Selecting whole constituents
+""""""""""""""""""""""""""""
+
+By design, the residue names in a cured system reflect the *building blocks* of each constituent, not the final assembled molecules.  This is essential to htpolynet's parameterization and bonding bookkeeping, but it makes interactive visualization awkward: in example 2 the bis-GMA molecules show up as ``BPA`` + 2 ``HIE``; in example 5 each linear HTPB chain (``DHT``) is a sequence of ``OB`` + many ``TB`` + ``TBO`` residues, and each branched chain (``THT``) likewise.
+
+When a ``.grx`` is available alongside the ``.gro``, ``make-viz`` (and the end-of-build save step) additionally write ``<prefix>.viz.macros.tcl``, which defines two layers of VMD ``atomselect`` macros keyed on **constituent** identity rather than residue name:
+
+* ``<NAME>`` — all atoms across every instance of constituent ``<NAME>`` (e.g. ``GMA``, ``DHT``, ``THT``).
+* ``<NAME>_<NNN>`` — all atoms of one specific instance, where ``<NNN>`` is the global molecule index zero-padded to a uniform width.
+
+The main ``.viz.tcl`` sources this file when it exists, so the macros are available immediately after ``vmd ... -e final.viz.tcl``.  Typical uses:
+
+.. code-block:: tcl
+
+  # show only the bis-GMA molecules (75 of them in example 2)
+  mol modselect 0 top GMA
+
+  # isolate a single HTPB chain by global molecule index
+  mol modselect 0 top DHT_125
+
+  # composable with the rest of VMD's selection language
+  mol modselect 0 top "THT and not hydrogen"
+
+The residue-level view is untouched — selections like ``resname TBO`` or ``resname IPD`` still work — the constituent macros are an *additive* layer.

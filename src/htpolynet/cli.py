@@ -288,7 +288,8 @@ def cli():
 
     cp['make-viz'].add_argument('-top', type=str, default='final.top', help='input gromacs topology file (default: final.top)')
     cp['make-viz'].add_argument('-gro', type=str, default='final.gro', help='input gromacs coordinate file (default: final.gro)')
-    cp['make-viz'].add_argument('-prefix', type=str, default=None, help='output basename; the .viz.psf and .viz.tcl are written next to the input gro (default: stem of -gro)')
+    cp['make-viz'].add_argument('-grx', type=str, default=None, help='input htpolynet .grx (default: auto-detect <gro-stem>.grx; needed for the constituent-selection macros)')
+    cp['make-viz'].add_argument('-prefix', type=str, default=None, help='output basename; the .viz.psf, .viz.tcl, and .viz.macros.tcl are written next to the input gro (default: stem of -gro)')
 
     _add_analysis_args(cp['postsim'])
     _add_analysis_args(cp['analyze'])

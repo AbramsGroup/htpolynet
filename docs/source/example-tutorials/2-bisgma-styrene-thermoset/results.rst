@@ -5,12 +5,26 @@ Results
 
 At the end of the run, ``proj-0/systems/final-results/`` contains the
 usual five files (``final.gro``, ``final.top``, ``final.tpx``,
-``final.grx``, plus the ``final.viz.psf``/``final.viz.tcl`` pair).
+``final.grx``, plus the ``final.viz.psf``/``final.viz.tcl`` pair and a
+``final.viz.macros.tcl`` of constituent-keyed selection macros).
 Open with:
 
 .. code-block:: console
 
    $ vmd final.viz.psf final.gro -e final.viz.tcl
+
+Because bis-GMA is a *built* constituent (``BPA`` + 2 ``HIE`` joined by
+the two param-stage reactions in the YAML), each GMA molecule appears
+in the system gro as three residues with their building-block names.
+The constituent macros loaded from ``final.viz.macros.tcl`` let you
+select whole bis-GMAs as one chemical entity — useful for highlighting
+the network in the cured snapshot below:
+
+.. code-block:: tcl
+
+   mol modselect 0 top GMA       ;# all 75 bis-GMA molecules
+   mol modselect 0 top STY       ;# all 150 styrenes
+   mol modselect 0 top GMA_007   ;# one specific bis-GMA (global molecule index 7)
 
 Plots from the build log
 ^^^^^^^^^^^^^^^^^^^^^^^^

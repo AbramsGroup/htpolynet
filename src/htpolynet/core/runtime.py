@@ -478,13 +478,16 @@ class Runtime:
         """Writes a PSF (real bond topology for VMD) and a TCL helper that
         trims bonds spanning periodic boundaries so VMD doesn't render the
         long "wrap-around" bonds inherent to a crosslinked network in PBC.
+        Also emits a ``.viz.macros.tcl`` of constituent-keyed atomselect
+        macros, sourced automatically from the main ``.viz.tcl``.
 
         Usage afterward:
             vmd final.viz.psf final.gro -e final.viz.tcl
         """
         from ..utils.vmd_viz import write_viz_files
         try:
-            write_viz_files(f'{result_name}.top', f'{result_name}.gro', prefix=result_name)
+            write_viz_files(f'{result_name}.top', f'{result_name}.gro',
+                            prefix=result_name, grx=f'{result_name}.grx')
         except ImportError:
             logger.warning('parmed not importable; skipping VMD viz files')
         except Exception as e:
