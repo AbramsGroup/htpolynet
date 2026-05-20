@@ -1,34 +1,26 @@
-# htpolynet -- Example 6 -- Bisphenol-A dicyanate ester (BADCy) thermoset
+# htpolynet -- Example 6 -- Bisphenol-A dicyanate ester (BADCy) liquid
 #
-# Demonstrates cyclotrimerization chemistry: three cyanate ester groups
-# (R-O-C≡N) cure into a 1,3,5-triazine ring -- a 6-membered aromatic
-# ring with alternating C and N.  This is fundamentally a three-functional
-# event, but htpolynet handles it as three successive pairwise C-N bond
-# formations among three different monomers; the triazine ring closes
-# naturally as the third bond forms.
+# *** Experimental: liquid-only build (no cure yet) ***
 #
-# Active-form notes:
-#   - Each cyanate -O-C≡N is drawn in its sp2 imino-formate active form
-#     -O-C(H)=N(H), so each cure C-N bond consumes one sacrificial H
-#     from each side (the standard htpolynet "lose 2H per bond" rule).
-#     This is the same trick example 5 uses for IPDI's -N=C=O groups
-#     (drawn as -N(H)-C(H)=O).
-#   - Each BCY monomer has two cyanate ends.  Because BCY has C2 symmetry,
-#     C1≡C2 and N1≡N2 chemically, but htpolynet looks up bond templates
-#     by atom name, so the four C-N pairings (C1-N1, C1-N2, C2-N1, C2-N2)
-#     between two BCY monomers are each given an explicit cure reaction.
-#     The four resulting dimer templates are chemically equivalent but
-#     differ in atom labels.
-#   - The dimer template captures only the local environment of one new
-#     C-N bond; the aromaticity of the closed triazine ring is left for
-#     equilibration to relax into.  For a more rigorous treatment one
-#     could pre-parameterize a model triazine via param-stage reactions
-#     and let the cure machinery pick that up for ring-closing bonds.
+# This example builds the BADCy monomer in the style of example 2's GMA:
+# the bisphenol-A core (BPA) and a small cyanate "end-group" (CY) are
+# defined as SMILES building blocks, and the two param-stage reactions
+# below stitch BPA + CY + CY into the full BCY constituent placed in the
+# simulation box.  Output is a densified, pre-equilibrated liquid of BCY
+# molecules -- the cure-stage cyclotrimerization-to-triazine chemistry
+# will be added in a follow-up once this build path is verified.
 #
-# Ring closure: htpolynet's bondcycle suppression is C-C-specific (it
-# tracks vinyl-polymer bondchains via the ChainManager).  Cyanate C and
-# N atoms are not in any C-C bondchain, so bondcycle_collective skips
-# them and the 6-atom triazine ring is allowed to close unhindered.
+# Building-block notes:
+#   - BPA: bisphenol-A, two phenolic O atoms (O1, O2) flagged reactive,
+#     z=1 each.  Identical to BPA in example 2.
+#   - CY: a one-carbon cyanate end-group drawn in its sp2 imino-formate
+#     active form (formaldimine, H2C=NH).  The C atom carries z=2 (it
+#     loses one sacrificial H when bonded to BPA's O, leaving one H for
+#     a future cure-stage C-N bond); the N atom carries z=1 (reserved
+#     for a future cure-stage bond -- not yet used).
+#   - BCY: the assembled bisphenol-A dicyanate.  Built via the two
+#     param-stage reactions cn-attach-1 and cn-attach-2 below; given a
+#     count so it is the species inserted into the simulation box.
 #
 # Run with:
 #
@@ -36,7 +28,7 @@
 #
 # Cameron F. Abrams -- cfa22@drexel.edu
 
-Title: Bisphenol-A dicyanate ester (BADCy) thermoset
+Title: Bisphenol-A dicyanate ester (BADCy) liquid
 gromacs:
   gmx: gmx
   gmx_options: -quiet -nobackup
@@ -46,15 +38,21 @@ gromacs:
 ambertools:
   charge_method: gas
 constituents:
+  # Building blocks (no count: consumed in the param-stage build only).
+  BPA:
+    smiles: "CC(c1ccc([OH:1])cc1)(c1ccc([OH:2])cc1)C"
+    reactive_atoms: {1: O1, 2: O2}
+  CY:
+    # Formaldimine (H2C=NH) as the sp2 cyanate end-group.  The C has 2 H's
+    # (one to lose on attachment to BPA's O, one reserved for the
+    # eventual cure-stage C-N bond); the N has 1 H (also for cure).
+    smiles: "[CH2:1]=[NH:2]"
+    reactive_atoms: {1: C1, 2: N1}
+  # Assembled monomer placed in the box.
   BCY:
-    # Bisphenol-A dicyanate.  Both -O-C≡N cyanates drawn in their active
-    # sp2 imino-formate form -O-C(H)=N(H).  Each [CH:n] carries one H by
-    # the SMILES bracket-atom rule, ditto each [NH:n].
-    smiles: "CC(C)(c1ccc(O[CH:1]=[NH:2])cc1)c2ccc(O[CH:3]=[NH:4])cc2"
-    reactive_atoms: {1: C1, 2: N1, 3: C2, 4: N2}
     count: 100
 densification:
-  initial_density: 200.0   # kg/m3
+  initial_density: 200.0  # kg/m3
   equilibration:
     - ensemble: min
     - ensemble: nvt
@@ -90,112 +88,33 @@ precure:
     temperature: 300        # K
     pressure: 1             # bar
     ps: 100
-CURE:
-  controls:
-    search_radius: 0.5          # nm
-    radial_increment: 0.25      # nm
-    max_iterations: 150
-    desired_conversion: 0.90
-    late_threshold: 0.80
-  drag:
-    trigger_distance: 0.6   # nm
-    increment: 0.08         # nm
-    limit: 0.3              # nm
-    equilibration:
-      - ensemble: min
-      - ensemble: nvt
-        temperature: 600
-        nsteps: 1000
-      - ensemble: npt
-        temperature: 600
-        pressure: 1
-        nsteps: 2000
-  relax:
-    increment: 0.08         # nm
-    equilibration:
-      - ensemble: min
-      - ensemble: nvt
-        temperature: 600
-        nsteps: 1000
-      - ensemble: npt
-        temperature: 600
-        pressure: 1
-        nsteps: 2000
-  equilibrate:
-    ensemble: npt
-    temperature: 300       # K
-    pressure: 1            # bar
-    ps: 100
-  gromacs:
-    rdefault: 0.9          # nm
-postcure:
-  anneal:
-    ncycles: 2
-    initial_temperature: 300
-    cycle_segments:
-      - T: 300
-        ps: 0
-      - T: 500
-        ps: 20
-      - T: 500
-        ps: 20
-      - T: 300
-        ps: 20
-      - T: 300
-        ps: 20
-  postequilibration:
-    ensemble: npt
-    temperature: 300       # K
-    pressure: 1            # bar
-    ps: 100
 reactions:
-  # CURE-stage cyanate-cyanate C-N bond formation.  Each event consumes
-  # one sacrificial H from the cyanate C and one from the cyanate N;
-  # three such bonds among three different BCY monomers form the
-  # 1,3,5-triazine ring (C-N-C-N-C-N).  All four C-N atom pairings
-  # between two BCY monomers are enumerated so atom-name lookup succeeds
-  # regardless of which cyanate end of each monomer participates.
-  - name: cn11
-    stage: cure
-    reactants: {1: BCY, 2: BCY}
-    product: BCY~C1-N1~BCY
-    probability: 1.0
+  # PARAM-stage: attach two cyanate end-groups (CY) to the two phenolic
+  # oxygens of BPA.  Mirrors example 2's GMA = BPA + 2 HIE build.
+  #
+  #   cn-attach-1:  BPA.O1 + CY.C1 → BC1   (intermediate, one cyanate)
+  #   cn-attach-2:  BC1.O2 + CY.C1 → BCY   (assembled bisphenol-A dicyanate)
+  #
+  # CY.C1 carries z=2 on the first attach (uses one sacrificial H,
+  # reserves one for the cure-stage C-N bond) and z=1 on the second
+  # (matches the post-decrement state of HIE.C4 in example 2's B2).
+  - name: cn-attach-1
+    stage: param
+    reactants: {1: BPA, 2: CY}
+    product: BC1
     atoms:
-      A: {reactant: 1, resid: 1, atom: C1, z: 1}
-      B: {reactant: 2, resid: 1, atom: N1, z: 1}
+      A: {reactant: 1, resid: 1, atom: O1, z: 1}
+      B: {reactant: 2, resid: 1, atom: C1, z: 2}
     bonds:
       - atoms: [A, B]
         order: 1
-  - name: cn12
-    stage: cure
-    reactants: {1: BCY, 2: BCY}
-    product: BCY~C1-N2~BCY
-    probability: 1.0
+  - name: cn-attach-2
+    stage: param
+    reactants: {1: BC1, 2: CY}
+    product: BCY
     atoms:
-      A: {reactant: 1, resid: 1, atom: C1, z: 1}
-      B: {reactant: 2, resid: 1, atom: N2, z: 1}
-    bonds:
-      - atoms: [A, B]
-        order: 1
-  - name: cn21
-    stage: cure
-    reactants: {1: BCY, 2: BCY}
-    product: BCY~C2-N1~BCY
-    probability: 1.0
-    atoms:
-      A: {reactant: 1, resid: 1, atom: C2, z: 1}
-      B: {reactant: 2, resid: 1, atom: N1, z: 1}
-    bonds:
-      - atoms: [A, B]
-        order: 1
-  - name: cn22
-    stage: cure
-    reactants: {1: BCY, 2: BCY}
-    product: BCY~C2-N2~BCY
-    probability: 1.0
-    atoms:
-      A: {reactant: 1, resid: 1, atom: C2, z: 1}
-      B: {reactant: 2, resid: 1, atom: N2, z: 1}
+      A: {reactant: 1, resid: 1, atom: O2, z: 1}
+      B: {reactant: 2, resid: 1, atom: C1, z: 1}
     bonds:
       - atoms: [A, B]
         order: 1
