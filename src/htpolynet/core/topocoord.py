@@ -2018,32 +2018,31 @@ def find_template(BT:BondTemplate,moldict):
     Returns:
         tuple: template Molecule object, corresponding ReactionBond object from that template, and a boolean flag indicating whether or not the match required a symmetric-reversal of the template
     """
-    use_T=None
-    b_idx=-1
-    reverse_bond=False
-    for template_name,T in moldict.items():
-        # if BT in T.bond_templates:
-        #     use_T=T
-        #     break
-        use_T=None
+    # Collect every (template, bond-index, reverse) tuple whose bond_template
+    # matches the instance under subset-bystander semantics, then pick the
+    # most-specific one (most bystanders declared).  This keeps small-fragment
+    # cure templates (no bystanders) matching instances embedded in larger
+    # assembled monomers while still letting chain-extension templates win
+    # against the bare-dimer template when their additional bystander/oneaway
+    # context is exactly the in-chain instance's.
+    best = None  # (specificity, template, b_idx, reverse_bond)
+    for template_name, T in moldict.items():
         for b_idx in range(len(T.bond_templates)):
-            bt=T.bond_templates[b_idx]
-            # logger.debug(f'comparing to {T.name} {str(bt)}')
-            if bt==BT:
-                # logger.debug(f'TRUE')
-                use_T=T
-                break
-            if bt.is_reverse_of(BT):
-                # logger.debug(f'TRUE, but...')
-                use_T=T
-                reverse_bond=True
-                # logger.debug(f'reversed bond instance {str(RB)}')
-        if use_T!=None:
-            break
-    else:
+            bt = T.bond_templates[b_idx]
+            if bt.matches(BT):
+                spec = bt.bystander_count()
+                if best is None or spec > best[0]:
+                    best = (spec, T, b_idx, False)
+            elif bt.matches_reverse_of(BT):
+                spec = bt.bystander_count()
+                if best is None or spec > best[0]:
+                    best = (spec, T, b_idx, True)
+    if best is None:
         logger.error(f'No template is found for {str(BT)}')
         raise Exception('you have a bond for which I cannot find a template')
-    logger.debug(f'Using template {use_T.name} and bond index {b_idx}')
-    rb=use_T.reaction_bonds[b_idx]
-    return use_T,rb,reverse_bond
+    _, use_T, b_idx, reverse_bond = best
+    logger.debug(f'Using template {use_T.name} and bond index {b_idx}'
+                 f' (specificity {best[0]}, reversed={reverse_bond})')
+    rb = use_T.reaction_bonds[b_idx]
+    return use_T, rb, reverse_bond
 

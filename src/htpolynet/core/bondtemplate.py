@@ -72,6 +72,73 @@ class BondTemplate:
         rb.reverse()
         return self == rb
 
+    def bystander_count(self):
+        """Total number of bystander (resname, atomname) pairs across both sides.
+
+        Used by find_template's best-match selection: more bystanders = more
+        specific template, which should win when multiple templates can match
+        an instance under subset semantics.
+        """
+        return sum(len(s) for s in self.bystander_resnames)
+
+    def matches(self, other):
+        """Return True if `self` (a parameterization-stage template) is a
+        valid description of `other` (an as-found system bond instance).
+
+        Strict equality on:
+        - atom names (``names``)
+        - residue names (``resnames``) and ``intraresidue`` flag
+        - one-away context (``oneaway_resnames`` / ``oneaway_atomnames``) —
+          chain-extension templates use these to discriminate dimer- vs
+          trimer- vs tetramer-context bonds, so the match has to be exact.
+
+        Subset semantics on bystanders:
+        - paired ``(bystander_resname, bystander_atomname)`` items are
+          treated as a multiset on each side; every item the template
+          declares must appear in the instance, but the instance may
+          carry additional bystanders the template does not mention.
+
+        Rationale: a small-fragment parameterization template (e.g. the
+        CY-CY cyanate dimer) carries no inter-residue context at the
+        cure-reactive atom because the fragment is a single residue.
+        The system-instance bond, formed inside an assembled monomer
+        (e.g. BCY = BPA + 2 CY), naturally picks up the BPA-O ester
+        bystander at the same atom.  That extra structural context does
+        not change the local chemistry of the bond template, so the
+        template should still match.  Exact bystander equality would
+        force the cure reactant to mirror every inter-residue partner
+        the instance carries, which forecloses the small-fragment idiom.
+
+        Args:
+            other (BondTemplate): the instance bond to test for compatibility
+
+        Returns:
+            bool: True if self can serve as a template for other
+        """
+        if self.names != other.names: return False
+        if self.intraresidue != other.intraresidue: return False
+        if self.resnames != other.resnames: return False
+        if self.oneaway_resnames != other.oneaway_resnames: return False
+        if self.oneaway_atomnames != other.oneaway_atomnames: return False
+        for side in (0, 1):
+            t_pairs = list(zip(self.bystander_resnames[side],
+                               self.bystander_atomnames[side]))
+            i_pairs = list(zip(other.bystander_resnames[side],
+                               other.bystander_atomnames[side]))
+            remaining = list(i_pairs)
+            for tp in t_pairs:
+                if tp in remaining:
+                    remaining.remove(tp)
+                else:
+                    return False
+        return True
+
+    def matches_reverse_of(self, other):
+        """Like ``matches`` but tries the reversed orientation of ``other``."""
+        rb = deepcopy(other)
+        rb.reverse()
+        return self.matches(rb)
+
 
 BondTemplateList = list[BondTemplate]
 
