@@ -356,12 +356,22 @@ class TopoCoord:
             inst_angles.ai = temp_angles.ai.map(temp2inst)
             inst_angles.aj = temp_angles.aj.map(temp2inst)
             inst_angles.ak = temp_angles.ak.map(temp2inst)
-            # logger.debug(f'Mapped instance angles:')
-            # for ln in inst_angles.to_string().split('\n'):
-            #     logger.debug(ln)
+            # Drop rows that reference template atoms with no system counterpart.
+            # This happens when the cure-reactive atom's H count differs between
+            # the fresh-from-SMILES cure template and the post-build system —
+            # e.g. cyanate-ester CY where the build consumes one H from C before
+            # cure, so a system CY has one fewer H on the cure-side than the
+            # template's fresh CY does.  Template force-field entries for those
+            # phantom H's describe parameters for atoms that don't exist in the
+            # cured system and are correctly skipped.
+            angle_mask = inst_angles[['ai','aj','ak']].notna().all(axis=1)
+            n_skipped_ang = int((~angle_mask).sum())
+            if n_skipped_ang:
+                logger.debug(f'Skipping {n_skipped_ang} template angle(s) referencing unmapped atoms')
+            inst_angles = inst_angles[angle_mask]
             # add new angles to the system topology
             d = self.Topology.D['angles']
-            self.Topology.D['angles'] = pd.concat((d, inst_angles), ignore_index=True)                            
+            self.Topology.D['angles'] = pd.concat((d, inst_angles), ignore_index=True)
             # hard check for any nan's in any atom index attribute in any angle
             d = self.Topology.D['angles']
             check = True
@@ -380,16 +390,13 @@ class TopoCoord:
             inst_dihedrals.aj = temp_dihedrals.aj.map(temp2inst)
             inst_dihedrals.ak = temp_dihedrals.ak.map(temp2inst)
             inst_dihedrals.al = temp_dihedrals.al.map(temp2inst)
-            # logger.debug(f'Mapped instance dihedrals:')
-            # for ln in inst_dihedrals.to_string().split('\n'):
-            #     logger.debug(ln)
-            d = inst_dihedrals
-            check = False
-            for a in ['ai','aj','ak','al']:
-                check = check or d[a].isnull().values.any()
-            if check:
-                logger.error(f'a {a} NAN in dihedrals\n{inst_dihedrals.to_string()}')
-                raise ValueError('NAN in dihedrals')
+            # Same filter as angles — drop rows where any leg of the dihedral
+            # references a template atom with no system counterpart.
+            dh_mask = inst_dihedrals[['ai','aj','ak','al']].notna().all(axis=1)
+            n_skipped_dh = int((~dh_mask).sum())
+            if n_skipped_dh:
+                logger.debug(f'Skipping {n_skipped_dh} template dihedral(s) referencing unmapped atoms')
+            inst_dihedrals = inst_dihedrals[dh_mask]
             # add new dihedrals to global topology
             d = self.Topology.D['dihedrals']
             self.Topology.D['dihedrals'] = pd.concat((d, inst_dihedrals), ignore_index=True)
@@ -409,43 +416,19 @@ class TopoCoord:
                 logger.error('NAN in pairs premapping')
                 raise ValueError('NAN in pairs premapping')
 
-            # double-hard check to make sure pairs can be mapped
-            k = np.array(list(temp2inst.keys()))
-            v = np.array(list(temp2inst.values()))
-            if any(np.isnan(k)):
-                logger.error('null in temp2inst keys')
-                raise ValueError('null in temp2inst keys')
-            if any(np.isnan(v)):
-                logger.error('null in temp2inst values')
-                raise ValueError('null in temp2inst values')
-            # logger.debug(f'temp_pairs:\n{temp_pairs.to_string()}')
-            isin = [not x in temp2inst for x in temp_pairs.ai]
-            if any(isin):
-                for ii, jj in enumerate(isin):
-                    if jj:
-                        logger.error(f'atom ai {temp_pairs.ai.iloc[ii]} not in temp2inst')
-            isin = [not x in temp2inst for x in temp_pairs.aj]
-            if any(isin):
-                for ii, jj in enumerate(isin):
-                    if jj:
-                        logger.error(f'atom aj {temp_pairs.aj.iloc[ii]} not in temp2inst')
-
-            # map all ai attributes of all template pairs to global ai
+            # Map pair atoms.  As with angles/dihedrals, a pair entry that
+            # references a template atom without a system counterpart (an
+            # H present in the fresh-CY template but absent in the post-build
+            # system CY) is silently skipped — its parameters describe an
+            # interaction the cured system doesn't have.
             temp_pairs.ai = temp_pairs.ai.map(temp2inst)
-            # check AGAIN for nans (I am afraid of nans)
-            if temp_pairs.ai.isnull().values.any():
-                logger.error('NAN in pairs ai')
-                raise ValueError('NAN in pairs ai')
-            # map all aj attributes of all template pairs to global ai
             temp_pairs.aj = temp_pairs.aj.map(temp2inst)
-            # check YET AGAIN for nans (eek!)
-            if temp_pairs.aj.isnull().values.any():
-                logger.error('NAN in pairs aj')
-                raise ValueError('NAN in pairs aj')
+            pair_mask = temp_pairs[['ai','aj']].notna().all(axis=1)
+            n_skipped_pr = int((~pair_mask).sum())
+            if n_skipped_pr:
+                logger.debug(f'Skipping {n_skipped_pr} template pair(s) referencing unmapped atoms')
+            temp_pairs = temp_pairs[pair_mask]
             # add these pairs to the topology
-            # logger.debug(f'Concatenating this pairs to global pairs')
-            # for ln in temp_pairs.to_string().split('\n'):
-            #     logger.debug(ln)
             self.Topology.D['pairs'] = pd.concat((d,temp_pairs),ignore_index=True)
             d = self.Topology.D['pairs']
             # check AGAIN for nans

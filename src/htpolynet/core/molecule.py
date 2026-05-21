@@ -548,16 +548,29 @@ class Molecule:
         inst_resids = [inst_resids[ij[x]] for x in [0, 1]]
         inst_bystander_resids = [bystanders[ij[x]] for x in [0, 1]]
         inst_oneaway_resids = [oneaways[ij[x]] for x in [0, 1]]
-        assert all([len(inst_bystander_resids[x]) == len(temp_bystander_resids[x]) for x in [0, 1]]), f'Error: bystander count mismatch'
-           # use dataframe merges to create globalIdx maps
+        # Bystander counts on each side may legitimately differ when the
+        # template (a small parameterization fragment) carries fewer
+        # bystanders than the in-system instance — e.g. cyanate-ester cure,
+        # where the CY+CY dimer template has no BPA bystander but every
+        # BCY-embedded instance does (find_template's subset semantics
+        # let the small-fragment template match in this case).  Allow
+        # the template to be the shorter list on each side; the extra
+        # instance bystanders are residues outside the template and don't
+        # need to be mapped here.  When both lists carry chain context
+        # the counts agree as before.
+        # Pair region-by-region so that a length difference on one side
+        # doesn't shift alignment of the other side's bystanders or the
+        # oneaways.  Within each region zip naturally truncates the longer
+        # (always the instance) list.
         instdf = otherTC.Coordinates.A
         tempdf = self.TopoCoord.Coordinates.A
         inst2temp = {}
         temp2inst = {}
-        # logger.debug(f'inst resids from {[i_resNum,j_resNum,*inst_bystanders]}') 
-        # logger.debug(f'temp resids from {[temp_iresid,temp_jresid,*temp_bystanders]}')
-        for inst, temp in zip([*inst_resids, *inst_bystander_resids[0], *inst_bystander_resids[1],*inst_oneaway_resids],
-                             [*temp_resids, *temp_bystander_resids[0], *temp_bystander_resids[1],*temp_oneaway_resids]):
+        resid_pairs = list(zip(inst_resids, temp_resids))
+        resid_pairs.extend(zip(inst_bystander_resids[0], temp_bystander_resids[0]))
+        resid_pairs.extend(zip(inst_bystander_resids[1], temp_bystander_resids[1]))
+        resid_pairs.extend(zip(inst_oneaway_resids, temp_oneaway_resids))
+        for inst, temp in resid_pairs:
             if inst and temp:  # None's in the bystander lists and oneaways lists should be ignored
                 logger.debug(f'map inst resid {inst} to template resid {temp}')
                 idf = instdf[instdf['resNum'] == inst][['globalIdx','atomName']].copy()
