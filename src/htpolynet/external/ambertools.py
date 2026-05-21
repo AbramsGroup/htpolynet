@@ -71,9 +71,14 @@ def GAFFParameterize(inputPrefix, outputPrefix, input_structure_format='mol2', a
     with open(f'{inputPrefix}-tleap.in', 'w') as f:
         f.write('\n'.join([
             'source leaprc.gaff',
+            # Load parmchk2's patches BEFORE checking the molecule, otherwise
+            # `check` reports any GAFF-coverage gaps (e.g. h5-ce-n2 on cyanate-
+            # ester dimers) as `Error!`, the run-wrapper's override needle
+            # fires, and we abort even though tleap would have completed once
+            # the frcmod was loaded.
+            f'loadamberparams {leapprefix}.frcmod',
             f'mymol = loadmol2 {leapprefix}.mol2',
             'check mymol',
-            f'loadamberparams {leapprefix}.frcmod',
             f'saveamberparm mymol {leapprefix}-tleap.top {leapprefix}-tleap.crd',
             'quit',
             '',

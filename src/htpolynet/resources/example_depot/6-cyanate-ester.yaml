@@ -1,26 +1,33 @@
-# htpolynet -- Example 6 -- Bisphenol-A dicyanate ester (BADCy) liquid
-#
-# *** Experimental: liquid-only build (no cure yet) ***
+# htpolynet -- Example 6 -- Bisphenol-A dicyanate ester (BADCy) thermoset
 #
 # This example builds the BADCy monomer in the style of example 2's GMA:
 # the bisphenol-A core (BPA) and a small cyanate "end-group" (CY) are
 # defined as SMILES building blocks, and the two param-stage reactions
 # below stitch BPA + CY + CY into the full BCY constituent placed in the
-# simulation box.  Output is a densified, pre-equilibrated liquid of BCY
-# molecules -- the cure-stage cyclotrimerization-to-triazine chemistry
-# will be added in a follow-up once this build path is verified.
+# simulation box.  The cure stage then forms C-N bonds between cyanate
+# end-groups on different BCYs; three such bonds among three monomers
+# close into a 1,3,5-triazine ring (the characteristic crosslink of a
+# cured cyanate-ester thermoset).
 #
 # Building-block notes:
 #   - BPA: bisphenol-A, two phenolic O atoms (O1, O2) flagged reactive,
 #     z=1 each.  Identical to BPA in example 2.
 #   - CY: a one-carbon cyanate end-group drawn in its sp2 imino-formate
 #     active form (formaldimine, H2C=NH).  The C atom carries z=2 (it
-#     loses one sacrificial H when bonded to BPA's O, leaving one H for
-#     a future cure-stage C-N bond); the N atom carries z=1 (reserved
-#     for a future cure-stage bond -- not yet used).
+#     loses one sacrificial H when bonded to BPA's O during the build,
+#     leaving one H reserved for the cure-stage C-N bond); the N atom
+#     carries z=1 (untouched during build, reserved for cure).
 #   - BCY: the assembled bisphenol-A dicyanate.  Built via the two
 #     param-stage reactions cn-attach-1 and cn-attach-2 below; given a
 #     count so it is the species inserted into the simulation box.
+#     Each CY end-group inside a BCY carries z=1 on both C1 and N1
+#     after the build, ready for cyanate-cyanate cure bonds.
+#
+# Ring closure: the cure-stage bondcycle-collective check is C-C-specific
+# via the ChainManager (which only tracks vinyl-polymer C-C chains).
+# Cyanate C and N atoms aren't in any C-C bondchain, so the heteroatom
+# triazine ring (6 atoms, alternating C and N) is allowed to close
+# unhindered after the third successive C-N bond among three monomers.
 #
 # Run with:
 #
@@ -28,7 +35,7 @@
 #
 # Cameron F. Abrams -- cfa22@drexel.edu
 
-Title: Bisphenol-A dicyanate ester (BADCy) liquid
+Title: Bisphenol-A dicyanate ester (BADCy) thermoset
 gromacs:
   gmx: gmx
   gmx_options: -quiet -nobackup
@@ -88,6 +95,65 @@ precure:
     temperature: 300        # K
     pressure: 1             # bar
     ps: 100
+CURE:
+  controls:
+    search_radius: 0.5          # nm
+    radial_increment: 0.25      # nm
+    min_bonds_per_iteration: 10
+    max_iterations: 150
+    desired_conversion: 0.90
+    late_threshold: 0.80
+  drag:
+    trigger_distance: 0.6   # nm
+    increment: 0.08         # nm
+    limit: 0.3              # nm
+    equilibration:
+      - ensemble: min
+      - ensemble: nvt
+        temperature: 600
+        nsteps: 1000
+      - ensemble: npt
+        temperature: 600
+        pressure: 1
+        nsteps: 2000
+  relax:
+    increment: 0.08         # nm
+    equilibration:
+      - ensemble: min
+      - ensemble: nvt
+        temperature: 600
+        nsteps: 1000
+      - ensemble: npt
+        temperature: 600
+        pressure: 1
+        nsteps: 2000
+  equilibrate:
+    ensemble: npt
+    temperature: 300       # K
+    pressure: 1            # bar
+    ps: 100
+  gromacs:
+    rdefault: 0.9          # nm
+postcure:
+  anneal:
+    ncycles: 2
+    initial_temperature: 300
+    cycle_segments:
+      - T: 300
+        ps: 0
+      - T: 500
+        ps: 20
+      - T: 500
+        ps: 20
+      - T: 300
+        ps: 20
+      - T: 300
+        ps: 20
+  postequilibration:
+    ensemble: npt
+    temperature: 300       # K
+    pressure: 1            # bar
+    ps: 100
 reactions:
   # PARAM-stage: attach two cyanate end-groups (CY) to the two phenolic
   # oxygens of BPA.  Mirrors example 2's GMA = BPA + 2 HIE build.
@@ -115,6 +181,26 @@ reactions:
     atoms:
       A: {reactant: 1, resid: 1, atom: O2, z: 1}
       B: {reactant: 2, resid: 1, atom: C1, z: 1}
+    bonds:
+      - atoms: [A, B]
+        order: 1
+  # CURE-stage cyanate-cyanate polymerization.  Each event forms one
+  # C-N bond between a CY end-group's C1 and another CY end-group's N1,
+  # consuming one sacrificial H on each side.  Three such bonds among
+  # three different BCY monomers close into the 1,3,5-triazine ring
+  # (C-N-C-N-C-N).  The bondcycle-collective check is C-C-specific so
+  # this heteroatom ring is allowed to close unhindered.  Following
+  # example 2's idiom, the cure reactant is the small CY building block
+  # (not BCY itself), so the parameterization template is a 2-residue
+  # CY-CY dimer rather than a 6-residue BCY-BCY dimer.
+  - name: cyclize
+    stage: cure
+    reactants: {1: CY, 2: CY}
+    product: CY~C1-N1~CY
+    probability: 1.0
+    atoms:
+      A: {reactant: 1, resid: 1, atom: C1, z: 1}
+      B: {reactant: 2, resid: 1, atom: N1, z: 1}
     bonds:
       - atoms: [A, B]
         order: 1
