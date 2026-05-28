@@ -19,6 +19,7 @@ class reaction_stage(Enum):
     param=1   # used to generate parameterized oligomers that are not cure reactions
     cure=2    # used to generate parameterized oligormers that ARE cure reactions
     cap=3     # used to generate parameterized capped monomers
+    repair=4  # parameterized template for postcure topology-repair operations
     unset=99
     def __str__(self):
         return self.name

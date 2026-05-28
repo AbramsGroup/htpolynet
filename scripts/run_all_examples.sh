@@ -89,7 +89,7 @@ if help_text="$(htpolynet fetch-example --help 2>&1)"; then
                  | sort -u)
 fi
 if [[ ${#IDS[@]} -eq 0 ]]; then
-    IDS=(0 1 2 3 4 5)
+    IDS=(0 1 2 3 4 5 6)
 fi
 
 echo "Running examples ${IDS[*]} under $ROOT"

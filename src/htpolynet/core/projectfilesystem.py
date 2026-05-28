@@ -279,6 +279,7 @@ class Dirs:
     systems_precure       = 'systems/precure'
     systems_postcure      = 'systems/postcure'
     systems_capping       = 'systems/capping'
+    systems_repair        = 'systems/repair'
     systems_final         = 'systems/final-results'
 
     # standard topdirs lists for pfs_setup

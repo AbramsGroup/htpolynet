@@ -29,6 +29,7 @@ class Configuration:
         self.gromacs = {}
         self.densification = {}
         self.precure = {}
+        self.postcure_repair = []    # list of postcure topology-repair specs
         self.postcure = {}
         self.cure = {}
         self.gaff = {}
@@ -72,6 +73,7 @@ class Configuration:
         self.gromacs = self.basedict.get('gromacs', {})
         self.densification = self.basedict.get('densification', {})
         self.precure = self.basedict.get('precure', {})
+        self.postcure_repair = self.basedict.get('postcure_repair', [])
         self.postcure = self.basedict.get('postcure', {})
         self.cure = self.basedict.get('CURE', {})
         self.gaff = self.basedict.get('GAFF', {})

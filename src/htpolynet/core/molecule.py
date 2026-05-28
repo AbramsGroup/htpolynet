@@ -362,7 +362,7 @@ class Molecule:
         do_parameterization = False
         if self.generator:
             R = self.generator
-            if R.stage in [reaction_stage.cure, reaction_stage.param, reaction_stage.cap]: do_parameterization = True
+            if R.stage in [reaction_stage.cure, reaction_stage.param, reaction_stage.cap, reaction_stage.repair]: do_parameterization = True
             self.TopoCoord = TopoCoord()
             logger.debug(f'Using reaction {R.name} ({str(R.stage)}) to generate {self.name} parent {self.parentname}')
             isf = 'mol2'
@@ -766,7 +766,7 @@ class Molecule:
                 resid_sets = TC.get_resid_sets([r.ai, r.aj])
                 hxi, hxj = self.transrot(r.ai, r.ri, r.aj, r.rj, connected_resids=resid_sets[1])
                 explicit_sacrificial_Hs[i] = [hxi, hxj]
-        if stage in [reaction_stage.cure, reaction_stage.param, reaction_stage.cap]:
+        if stage in [reaction_stage.cure, reaction_stage.param, reaction_stage.cap, reaction_stage.repair]:
             template_source = 'ambertools'
         else:
             template_source = 'internal'  # signals that a template molecule should be identified to parameterize this bond

@@ -210,7 +210,7 @@ def generate_symmetry_reactions(RL:ReactionList,MD:MoleculeDict):
     terminal_reactions=[]
     tail_adds=0
     for R in RL:
-        if R.stage not in [reaction_stage.param,reaction_stage.cure,reaction_stage.cap]: continue
+        if R.stage not in [reaction_stage.param,reaction_stage.cure,reaction_stage.cap,reaction_stage.repair]: continue
         Prod=MD[R.product]
         logger.debug(f'Symmetry versions for {R.name} ({str(R.stage)})\n{str(R)}')
         sra_by_reactant={k:MD[rname].symmetry_relateds for k,rname in R.reactants.items()}

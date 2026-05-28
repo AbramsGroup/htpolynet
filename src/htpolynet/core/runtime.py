@@ -442,6 +442,45 @@ class Runtime:
         my_logger('Connect-Update-Relax-Equilibrate (CURE) ends',logger.info)
 
     @cp.enableCheckpoint
+    def do_repair(self):
+        """Apply postcure topology-repair operations between cure and postcure.
+
+        Each spec in ``self.cfg.postcure_repair`` is dispatched by ``type:``
+        to a driver in :mod:`htpolynet.repair`; drivers may sever bonds,
+        delete atoms, transfer atoms between residues, and re-template the
+        affected linkages — operations the monotonic cure/cap machinery
+        cannot perform.  After all drivers run, the modified gro/top is
+        written so subsequent stages (postcure MD) start from the repaired
+        system.
+
+        Returns:
+            dict: dictionary of Gromacs file basenames (or empty if no
+                repair specs were configured).
+        """
+        specs = getattr(self.cfg, 'postcure_repair', None) or []
+        if not specs:
+            return {}
+        from ..repair import run_repair
+        TC = self.TopoCoord
+        my_logger(f'Postcure repair in {pfs.cwd()}', logger.info)
+        n_repaired = run_repair(TC, self.molecules, specs, self.reactions)
+        my_logger(f'Postcure repair performed {n_repaired} dismantle operations', logger.info)
+        # Write out the repaired system so the relaxation can pick it up
+        TC.write_grx_attributes('repaired.grx')
+        TC.write_gro('repaired.gro')
+        TC.write_top('repaired.top')
+        TC.write_tpx('repaired.tpx')
+        # Relocated -C#N groups can land close to neighbouring atoms;
+        # a steepest-descent minimization plus a short, soft NVT settle
+        # is needed before the postcure MD ensemble can take over.
+        if n_repaired:
+            logger.info('Relaxing repaired geometry')
+            self._do_equilibration({'ensemble': 'min'}, deffnm='repair-min')
+            self._do_equilibration({'ensemble': 'nvt', 'temperature': 300, 'ps': 5},
+                                   deffnm='repair-nvt')
+        return {c: os.path.basename(x) for c, x in TC.files.items() if c != 'mol2'}
+
+    @cp.enableCheckpoint
     def do_postcure(self):
         """Manages execution of mdrun to perform any post-cure MD simulation(s).
 
@@ -531,6 +570,10 @@ class Runtime:
                 self.do_precure()
             with profiling.stage('cure'):
                 self.do_cure()
+            if getattr(self.cfg, 'postcure_repair', None):
+                pfs.go_to(pfs.Dirs.systems_repair)
+                with profiling.stage('repair'):
+                    self.do_repair()
             pfs.go_to(pfs.Dirs.systems_postcure)
             with profiling.stage('postcure'):
                 self.do_postcure()
@@ -863,11 +906,19 @@ class Runtime:
         if not any([preequil,anneal,postequil]): return
         if not _nonempty_directives([x for x in [preequil,anneal,postequil] if x]): return
         my_logger(f'{pfx.capitalize()} in {pfs.cwd()}',logger.info)
-        if preequil: self._do_equilibration(preequil,deffnm='preequilibration',plot_pfx=f'{pfx}-preequilibration')
-        if anneal and _nonempty_directives([anneal]): 
+        # Every branch needs the _nonempty_directives guard, not just anneal:
+        # _apply_runtime_defaults injects default preequil/anneal/postequil
+        # blocks for any cfg key the user omitted, and the default postequil
+        # carries ps=0 (i.e. "no postequilibration").  Without this guard,
+        # TC.equilibrate returns None for ps=0 and the trace() that follows
+        # crashes on 'NoneType' object is not iterable.
+        if preequil and _nonempty_directives([preequil]):
+            self._do_equilibration(preequil,deffnm='preequilibration',plot_pfx=f'{pfx}-preequilibration')
+        if anneal and _nonempty_directives([anneal]):
             self._do_anneal(anneal,deffnm='annealed')
             trace('Temperature',['annealed'],outfile=os.path.join(pfs.proj(),f'plots/{pfx}-anneal-T.png'))
-        if postequil: self._do_equilibration(postequil,deffnm='postequilibration',plot_pfx=f'{pfx}-postequilibration')
+        if postequil and _nonempty_directives([postequil]):
+            self._do_equilibration(postequil,deffnm='postequilibration',plot_pfx=f'{pfx}-postequilibration')
 
     def _do_anneal(self,anneal_dict={},deffnm='anneal'):
         """Manages execution of an annealing MD simulation.
