@@ -11,6 +11,7 @@ User Guide
    molecular-structure-inputs
    configuration-files
    program-flow
+   postcure-repair
 
 
 

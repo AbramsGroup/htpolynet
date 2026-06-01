@@ -275,10 +275,14 @@ def network_graph(G,filename,**kwargs):
     logging.disable(logging.NOTSET)
 
 # below are representive diagnostic output lines to establish extraction patterns
-_template_1='2022-08-11 17:40:36,969 HTPolyNet.runtime.my_logger INFO> ********* Connect-Update-Relax-Equilibrate (CURE) begins **********'
-_template_1_token_idx=[2,3,5,7]
-_template_2='2022-09-03 19:32:46,830 HTPolyNet.curecontroller.do_iter INFO> Iteration 1 current conversion 0.283 or 1082 bonds'
-_template_2_token_idx=[2,3,6,7]
+_template_1='2026-05-29 04:26:48,821 htpolynet.core.runtime.my_logger INFO> ********* Connect-Update-Relax-Equilibrate (CURE) begins **********'
+# Match on log-level + distinctive message tokens, NOT the module path.
+# The module path token (index 2) was historically included here but kept
+# breaking the parser when we reorganized modules — the message body alone
+# is distinctive enough.
+_template_1_token_idx=[3,5,7]
+_template_2='2026-05-29 04:29:10,323 htpolynet.cure.curecontroller.do_iter INFO> Iteration 1 current conversion 0.222 or 160 bonds'
+_template_2_token_idx=[3,6,7]
 _template_2_data_idx={'iter':(int,5),'conv':(float,8),'nbonds':(int,10)}
 
 def _token_match(l,template,pat_idx):
