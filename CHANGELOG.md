@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-06-01
+
 ### Added
 
 - New `htpolynet.repair` package implementing a postcure topology-repair stage that sits between cure and postcure. Drivers can do bond-breaking, atom deletion, atom transfer between residues, and re-templating — operations the monotonic cure/cap reaction machinery cannot perform. `repair/__init__.py` dispatches each `postcure_repair` config entry by its `type:` field; `repair/topology_surgery.py` provides the generic edit primitives (`delete_bonds` with cascading angle/dihedral/14-pair cleanup, `set_atom_attributes`, `reassign_residue`, `add_bonds_with_template` wrapping `make_bonds` + `map_from_templates` + an int-dtype rescue for atom-index columns that pandas float-promotes via NaN-tainted concat); `repair/cyanate_cap.py` carries the first concrete driver. A new `reaction_stage.repair` enum value lets repair-stage reactions ride the existing symmetry-expansion and parameterization paths so the cure-template lookup at surgery time uses a properly parameterized linked-product Molecule. The runtime gains `cfg.postcure_repair`, `Dirs.systems_repair`, and a `do_repair()` hook wired into `do_workflow` between cure and postcure, including a steepest-descent + short NVT relaxation pass to absorb LJ clashes from relocated cap atoms.
