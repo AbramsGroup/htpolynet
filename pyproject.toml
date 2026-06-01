@@ -27,7 +27,9 @@ dependencies = [
     "scipy>=1.10",
     "parmed>=4",  # parmed 4.x requires compiled extensions; 3.x is pure Python and sufficient for our use of parmed.load_file()
     "networkx>=3.2",
-    "gputil>=1.4"
+    "gputil>=1.4",
+    "matplotlib>=3.5",  # used by htpolynet.analysis.plot (imported at CLI startup)
+    "setuptools"  # gputil imports distutils, removed from stdlib in Py3.12+; setuptools shims it
 ]
 
 [project.optional-dependencies]
