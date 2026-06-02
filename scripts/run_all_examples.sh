@@ -32,6 +32,14 @@
 #     fight for the same resources).
 #   - Per-example exit status is reported at the end; a non-zero overall
 #     exit code is returned if any example failed.
+#
+# Prerequisites (see docs/source/install.rst):
+#   - `htpolynet` on PATH (uv-managed venv, `uv tool install`, etc.)
+#   - `gmx`, `antechamber`, `parmchk2`, `tleap` on PATH (typically from
+#     a Miniforge `gromacs` + `ambertools` env exported in ~/.bashrc).
+#   - `obabel`, `dot` on PATH (distribution packages: openbabel, graphviz).
+# All of these are checked up front so that a missing native binary
+# fails fast rather than hours into a partial build.
 
 set -uo pipefail
 
@@ -55,7 +63,7 @@ while [[ $# -gt 0 ]]; do
             break
             ;;
         -h|--help)
-            sed -n '2,32p' "$0"
+            sed -n '2,40p' "$0"
             exit 0
             ;;
         *)
@@ -69,8 +77,17 @@ if [[ $FORCE_REPARAM -eq 1 ]]; then
     EXTRA_RUN_ARGS=(--force-parameterization --force-checkin "${EXTRA_RUN_ARGS[@]}")
 fi
 
-if ! command -v htpolynet >/dev/null 2>&1; then
-    echo "error: htpolynet is not on PATH" >&2
+# Fail fast if any required tool is missing — better than hitting the
+# first antechamber / gmx / dot call after hours of build wall time.
+missing=()
+for tool in htpolynet antechamber parmchk2 tleap gmx obabel dot; do
+    if ! command -v "$tool" >/dev/null 2>&1; then
+        missing+=("$tool")
+    fi
+done
+if [[ ${#missing[@]} -gt 0 ]]; then
+    echo "error: required tool(s) not on PATH: ${missing[*]}" >&2
+    echo "       see docs/source/install.rst for installation guidance" >&2
     exit 1
 fi
 
