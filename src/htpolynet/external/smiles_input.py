@@ -21,7 +21,7 @@ import subprocess
 import tempfile
 import time
 
-from .. import profiling
+from ..utils import profiling
 
 logger = logging.getLogger(__name__)
 

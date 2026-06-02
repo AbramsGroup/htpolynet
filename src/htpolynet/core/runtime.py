@@ -25,7 +25,7 @@ from ..cure.reaction import Reaction, ReactionList, parse_reaction_list, extract
 from ..external import software as software
 from ..external.gromacs import insert_molecules, mdp_modify, mdp_get
 from ..external.smiles_input import materialize_smiles_inputs
-from .. import profiling
+from ..utils import profiling
 from ..utils import checkpoint as cp
 from ..utils.stringthings import my_logger
 

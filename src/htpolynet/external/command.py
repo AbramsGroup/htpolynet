@@ -6,7 +6,7 @@ import logging
 import subprocess
 import time
 
-from .. import profiling
+from ..utils import profiling
 
 logger = logging.getLogger(__name__)
 
