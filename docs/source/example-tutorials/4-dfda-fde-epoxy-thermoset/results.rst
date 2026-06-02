@@ -3,7 +3,7 @@
 Results
 -------
 
-The standard final-results bundle lives in
+The standard final-results bundle is in
 ``proj-0/systems/final-results/``:
 
 .. code-block:: console
@@ -16,22 +16,112 @@ Diagnostic-log plots:
 
    $ htpolynet plots diag --diags diagnostics.log
 
-The output figures land in ``proj-0/plots/``.  Compared to the
-DGEBA/PACM run, expect:
+.. figure:: pics/densification-density.png
 
-* A similar overall conversion-vs-wall-clock shape — the late
-  iterations dominate the tail.
-* A slightly higher ``setup`` share in ``profile.json`` because of the
-  aromatic-heterocycle type-perception overhead.
-* A network density in the same ballpark as DGEBA/PACM (~1.0–1.1 g/cm³
-  after postcure), though the exact number depends on the run's
-  equilibration discipline.
+   Density vs. time during densification of the DFA/FDE liquid.
+   With ``initial_density: 300 kg/m³`` and a single 300 ps NPT
+   segment the system reaches roughly 1.05 g/cm³ on the first
+   pass — comparable to the DGEBA/PACM system, since the
+   furan + cyclohexyl backbones pack at similar density.
 
-For full system-build traces:
+.. figure:: pics/cure_info.png
+
+   Left: cure conversion vs. wall-clock.  Right: cure iteration
+   index vs. wall-clock.  Converges in 16 iterations to 95 %
+   conversion plus a capping iteration that re-forms 20
+   unreacted oxirane rings (see the run page).  The shape is
+   typical of the DGEBA/PACM-style stepwise amine cure — long
+   tail driven by the secondary-to-tertiary reaction having
+   ``probability: 0.5`` and the late-stage pairs being scarce.
+
+.. figure:: pics/reaction_network.png
+
+   The user-declared reaction set as a bipartite DAG.  Two
+   cure reactions (``Primary-to-secondary-amine`` and
+   ``Secondary-to-tertiary-amine``) feed one intermediate
+   (``DFA~N1-C1~FDE``) and one final crosslink product
+   (``DFA~N1-C1~FDE-C1~FDE``); the cap reaction
+   (``Oxirane-formation``) re-forms unreacted oxirane rings
+   into ``FDEC``.
+
+For end-to-end traces:
 
 .. code-block:: console
 
    $ htpolynet plots build --proj proj-0 --buildplot t --traces t d p
+
+(produces ``proj-0/buildtraces.png`` with temperature, density,
+and potential-energy curves across the full build.  Not shown
+here — needs the ``gmx`` binary on PATH at plotting time, since
+the build-trace extraction shells out to ``gmx energy`` on every
+stage's ``.edr``.)
+
+Before and after
+^^^^^^^^^^^^^^^^
+
+Snapshots of the densified liquid vs. the cured network.  FDE
+residues in mauve, DFA residues in green, capped (re-closed)
+``FDEC`` oxirane rings in purple:
+
+.. list-table::
+
+    * - .. figure:: pics/dfa-fde-liq.png
+
+           System before cure: densified liquid of FDE and DFA.
+
+      - .. figure:: pics/dfa-fde-cured.png
+
+           System after cure + cap: amine-bridged network with
+           leftover oxiranes re-closed by the cap reaction.
+
+Residue census
+^^^^^^^^^^^^^^
+
+On the representative run logged below (95 % cure, 380 / 400
+C–N bonds, plus 20 cap-stage re-closures):
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 30 40
+
+   * - Residue
+     - Atom count
+     - Source
+   * - ``FDE``
+     - 6380
+     - 200 FDE × ~32 atoms each, the diepoxide.
+   * - ``DFA``
+     - 2520
+     - 100 DFA × ~25 atoms each, the diamine.
+   * - **Total**
+     - **8900**
+     - 100 DFA + 200 FDE = 300 monomers.
+
+Profile
+^^^^^^^
+
+From a representative run:
+
+.. code-block:: text
+
+   Stage                                                   wall      subprocess
+   ------------------------------------------------------------------------------
+   setup                                                 1.93 s            0 ms
+   initialization                                         <1 s             <1 s
+   densification                                          ~10 s            ~10 s
+   precure                                              2m32s           2m32s
+   cure                                                39m22s              0 ms
+     capping                                             1m05s            58 s
+   postcure                                             1m29s           1m29s
+   final                                                3.94 s              0 s
+
+Total: ~45 minutes — between the larger PACM/DGEBA system (~30
+min for a similar number of bonds) and the HTPB/IPDI system
+(~13.5 hours).  As with the other amine-cure examples,
+``gmx-mdrun`` dominates subprocess time; ``setup`` is fast
+because the diamine + diepoxide have only a few
+parameterization templates compared to the procession-built
+HTPB chains.
 
 Try it
 ^^^^^^
@@ -42,17 +132,9 @@ default ``min_bonds_per_iteration: 10``, and compare:
 
 * total wall time;
 * total number of CURE iterations;
-* the breakdown of ``cure/iter-*`` wall times in ``profile.json``.
+* the breakdown of ``cure/iter-*`` wall times in
+  ``profile.json``.
 
 Because the late-iteration "one bond per iteration" regime is
-particularly long-tailed in this system, this is a good showcase for
-why the default isn't ``1``.
-
-A note on figures
-^^^^^^^^^^^^^^^^^
-
-This tutorial doesn't yet ship the before/after molecular snapshots
-that examples 2 and 3 do.  If you run the example and produce
-informative VMD renders or build-trace plots, drop them into
-``docs/source/example-tutorials/4-dfda-fde-epoxy-thermoset/pics/``
-and add ``.. figure::`` blocks where they fit.
+particularly long-tailed in this system, this is a good
+showcase for why the default isn't ``1``.
