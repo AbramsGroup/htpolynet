@@ -20,4 +20,5 @@ We present here a series of tutorials to help illustrate usage of ``htpolynet``.
    2-bisgma-styrene-thermoset/index
    3-pacm-dgeba-epoxy-thermoset/index
    4-dfda-fde-epoxy-thermoset/index
+   5-htpb-ipdi/index
    6-cyanate-ester/index
