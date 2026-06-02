@@ -50,11 +50,17 @@ For end-to-end traces:
 
    $ htpolynet plots build --proj proj-0 --buildplot t --traces t d p
 
-(produces ``proj-0/buildtraces.png`` with temperature, density,
-and potential-energy curves across the full build.  Not shown
-here — needs the ``gmx`` binary on PATH at plotting time, since
-the build-trace extraction shells out to ``gmx energy`` on every
-stage's ``.edr``.)
+.. figure:: pics/buildtraces.png
+
+   Top: temperature vs. time (cumulative bond count overlaid).
+   Middle: density vs. time.  Bottom: potential energy vs.
+   time.  The first big temperature spike around 500 ps is the
+   precure anneal cycle; each subsequent narrow temperature
+   pulse with a paired density dip is one CURE iteration's
+   relax + equilibrate cascade.  Density rises monotonically
+   from ~0.3 g/cm³ at the end of densification to ~1.0 g/cm³
+   after postcure, with the trace stepping up at each iteration
+   boundary as new C-N bonds shrink the box.
 
 Before and after
 ^^^^^^^^^^^^^^^^
