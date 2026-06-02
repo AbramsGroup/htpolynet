@@ -7,6 +7,79 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `rdkit` promoted from the `[smiles]` optional extra to a core
+  runtime dependency.  Every depot example uses atom-mapped SMILES
+  (`[CH:1]`, `[NH2:2]`, etc.), so RDKit is required for any normal
+  user workflow; the obabel-only fallback that the extra was
+  guarding remains supported but isn't exercised by anything we
+  ship.  `pip install htpolynet` (or `uv pip install -e .` from the
+  repo) now installs RDKit automatically; `'htpolynet[smiles]'` is
+  no longer needed (and is gone from `install.rst`).
+- Example 5 (`5-htpb-ipdi.yaml`) retuned for shorter wall-clock:
+  `densification.initial_density` 30 → 50 kg/m³, densification
+  NPT `repeat` 25 → 20, precure anneal segment durations 500 →
+  200 ps, postcure postequilibration 1000 → 200 ps.  The build
+  still converges; total wall time drops by several hours.  (Got
+  bundled into commit 43c07dc; this entry documents it
+  separately since it's an independent change.)
+
+### Added
+
+- `scripts/run_all_examples.sh`: fail-fast preflight that checks
+  every required native tool (`htpolynet`, `antechamber`,
+  `parmchk2`, `tleap`, `gmx`, `obabel`, `dot`) is on `PATH` before
+  starting any build.  Better than hitting the first missing
+  binary hours into a partial run.  Header docstring also gains a
+  Prerequisites block pointing at `install.rst` for setup.
+- Docker image now built on `condaforge/miniforge3:latest` (was
+  `continuumio/miniconda3:latest`).  Miniforge is community-
+  maintained, conda-forge only, no Anaconda Inc. terms-of-service
+  exposure.  Package installs switched from `conda` to `mamba` for
+  faster solves.  Verified end-to-end: built container's
+  `antechamber`, `gmx 2025.4-conda_forge`, `obabel`, `parmed`,
+  `rdkit`, and `htpolynet 2.1.0` all callable; `htpolynet
+  fetch-example 6 && htpolynet input-check` round-trips.
+- `install.rst` rewritten around the uv + Miniforge workflow: per-
+  repo `uv venv` + `uv pip install -e .` for the Python side,
+  separate `mamba create -n gromacs` / `mamba create -n ambertools`
+  envs for the native MD binaries (both env bins appended to PATH
+  in `.bashrc`).  Documents `uv tool install --editable .` as the
+  way to get a global `htpolynet` command callable from any shell.
+  Legacy conda-only one-stop install demoted to a subsection.
+- `htpolynet.utils.profiling` (moved from `htpolynet.profiling`).
+  Small utility module — fits utils/ scope; keeps the package root
+  focused on actual subpackages.  Three internal call sites
+  updated.
+
+### Fixed
+
+- `htpolynet plots diag` parser templates: the module-path token
+  the matcher keyed on was `HTPolyNet.runtime.my_logger` /
+  `HTPolyNet.curecontroller.do_iter` from the pre-2.0 namespace.
+  After the module reorganization into `htpolynet.core.runtime` /
+  `htpolynet.cure.curecontroller`, both lines silently stopped
+  matching and the diag parser produced an empty dataframe →
+  `IndexError` at first row access.  Templates refreshed to the
+  current module paths, and the module-name token dropped from
+  `pat_idx` so future renames don't break it again.
+- Reaction-network plot (`plots/reaction_network.png`) replaced
+  with a bipartite DAG rendered via graphviz `dot` (was a
+  spring-layout networkx render that produced tangled, label-
+  overlapping diagrams; example 5 was a 30+ node hairball).  Each
+  molecule is a rounded box; each reaction is a diamond with edges
+  from its reactants and an outgoing edge to its product; nodes are
+  colored by role (constituent / intermediate / final) and reaction
+  stage (param / build / cure / cap / repair).  Procession-
+  expanded reactions (e.g. example 5's `polymerization` with
+  `procession.count: 15`, which `parse_reaction_list` explodes
+  into 16 sequential reactions + 15 `A18_I*` intermediates) are
+  collapsed back into one node labeled `(×N)` so the diagram
+  matches what the user wrote.  New runtime dep: `graphviz` (the
+  Python wrapper; also needs the system `dot` binary, a separate
+  install).
+
 ## [2.1.0] - 2026-06-01
 
 ### Added
