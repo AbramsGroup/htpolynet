@@ -25,20 +25,22 @@
 #   docker run --rm --gpus all -v $(pwd):/work \
 #       ghcr.io/abramsgroup/htpolynet run config.yaml
 
-FROM continuumio/miniconda3:latest
+FROM condaforge/miniforge3:latest
 
-# Install Gromacs and AmberTools (latest available on conda-forge)
+# Install Gromacs and AmberTools (latest available on conda-forge).
+# Miniforge ships with mamba for fast solves; conda-forge is the only
+# channel.  No Anaconda Inc. ToS dependency.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         openbabel \
         gosu \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN conda install -y -c conda-forge \
+RUN mamba install -y -n base -c conda-forge \
         ambertools \
         gromacs \
         parmed \
         rdkit \
-    && conda clean -afy
+    && mamba clean -afy
 
 # Install HTPolyNet
 COPY . /htpolynet
