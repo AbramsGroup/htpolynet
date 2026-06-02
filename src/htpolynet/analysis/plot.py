@@ -248,6 +248,161 @@ def global_trace(df,names,outfile='plot.png',transition_times=[],markers=[],inte
     # re-establish previous logging level
     logging.disable(logging.NOTSET)
 
+def draw_reaction_dag(rlist, filename, format='png'):
+    """Render the user-declared reaction set as a bipartite DAG via graphviz.
+
+    Each molecule template is a rounded box; each reaction is a diamond
+    that takes incoming edges from its reactants and emits an outgoing
+    edge to its product.  Colors encode role (constituent / intermediate
+    / final product) and reaction stage (param / build / cure / cap /
+    repair).
+
+    Procession-expanded reactions (where the YAML declared one reaction
+    with ``procession.count: N`` and `parse_reaction_list` exploded it
+    into N+1 sequential reactions producing intermediate ``<product>_I0``
+    .. ``<product>_I{N-1}`` molecules) are collapsed back into a single
+    reaction node labeled with the iteration count; the synthetic
+    intermediates are hidden so the graph stays close to what the user
+    wrote.
+
+    Args:
+        rlist (ReactionList): reactions as returned by
+            ``parse_reaction_list`` (i.e. already procession-expanded).
+        filename (str): output path with or without the format suffix;
+            the suffix is stripped before passing to graphviz so e.g.
+            ``filename='plots/reaction_network.png'`` works.
+        format (str): graphviz output format, defaults to 'png'.
+
+    Returns:
+        str: the actual output path written.
+    """
+    import os
+    import re
+    import graphviz
+
+    # Reaction-stage palette.  Param / build are setup-time bookkeeping
+    # so they get muted blue/green; cure / cap / repair are the
+    # runtime-firing stages so they get higher-contrast warm hues.
+    stage_color = {
+        'param':  '#a8c5e8',
+        'build':  '#b8d8a8',
+        'cure':   '#e8a8a8',
+        'cap':    '#e8c8a8',
+        'repair': '#c8a8e8',
+        'unset':  '#cccccc',
+        'build_stage_intermediate': '#dddddd',
+    }
+
+    # --- collapse procession expansions ---
+    # parse_reaction_list renames the original reaction to '<name>-i0'
+    # and synthesizes -i1 .. -i{count} producing intermediates
+    # '<product>_I0' .. '<product>_I{count-1}'.  Detect the group by
+    # the trailing '-iN' suffix and treat the whole group as one logical
+    # reaction.  The first member (-i0) gives the true reactant set;
+    # the last member's product is the user-declared final product.
+    proc_pattern = re.compile(r'^(.+)-i(\d+)$')
+    procession_groups = {}      # base_name -> list of (idx, Reaction) ordered by iteration
+    standalone = []             # list of (idx, Reaction)
+    for i, R in enumerate(rlist):
+        m = proc_pattern.match(R.name)
+        if m:
+            procession_groups.setdefault(m.group(1), []).append((int(m.group(2)), R))
+        else:
+            standalone.append((i, R))
+    for k in procession_groups:
+        procession_groups[k].sort(key=lambda x: x[0])
+
+    # Intermediates synthesized by procession that we'll hide.  Any
+    # molecule name '<base>_I{k}' for k in [0, count-1] inside a
+    # procession group is a synthetic intermediate.
+    hidden_intermediates = set()
+    for base, group in procession_groups.items():
+        for _, R in group[:-1]:
+            hidden_intermediates.add(R.product)
+
+    # --- build the molecule census ---
+    # Inputs: appear as reactants but never as products.
+    # Intermediates: appear as both.
+    # Finals: appear only as products (terminal in the DAG).
+    all_reactants, all_products = set(), set()
+    for R in rlist:
+        all_products.add(R.product)
+        for r in R.reactants.values():
+            all_reactants.add(r)
+    inputs = all_reactants - all_products
+    finals = all_products - all_reactants
+    intermediates = all_products & all_reactants
+
+    def molecule_style(name):
+        if name in inputs:
+            return {'fillcolor': '#d8e8f8', 'style': 'filled,rounded'}
+        if name in finals:
+            return {'fillcolor': '#c8e8c8', 'style': 'filled,rounded'}
+        return {'fillcolor': '#f8f0c8', 'style': 'filled,rounded'}  # intermediate
+
+    # --- emit the dot graph ---
+    g = graphviz.Digraph(
+        'reaction_network',
+        graph_attr={
+            'rankdir': 'LR',
+            'fontname': 'Helvetica',
+            'fontsize': '10',
+            'nodesep': '0.25',
+            'ranksep': '0.6',
+        },
+        node_attr={'fontname': 'Helvetica', 'fontsize': '10'},
+        edge_attr={'fontname': 'Helvetica', 'fontsize': '9', 'arrowsize': '0.6'},
+    )
+
+    # molecule nodes (skipping hidden procession intermediates)
+    for m in inputs | finals | intermediates:
+        if m in hidden_intermediates:
+            continue
+        g.node(m, label=m, shape='box', **molecule_style(m))
+
+    # reaction nodes + edges
+    def add_reaction_node(rxn_id, label, stage_name):
+        color = stage_color.get(stage_name, stage_color['unset'])
+        g.node(
+            rxn_id,
+            label=label,
+            shape='diamond',
+            style='filled',
+            fillcolor=color,
+            fontsize='9',
+        )
+
+    rxn_seq = 0
+    for i, R in standalone:
+        rxn_id = f'_rxn_{rxn_seq}'
+        rxn_seq += 1
+        label = f'{R.name}\\n[{R.stage}]'
+        add_reaction_node(rxn_id, label, str(R.stage))
+        for r in R.reactants.values():
+            g.edge(r, rxn_id)
+        g.edge(rxn_id, R.product)
+
+    for base, group in procession_groups.items():
+        rxn_id = f'_rxn_{rxn_seq}'
+        rxn_seq += 1
+        first_R = group[0][1]
+        last_R = group[-1][1]
+        count = len(group)
+        label = f'{base}\\n[{first_R.stage}]\\n(×{count})'
+        add_reaction_node(rxn_id, label, str(first_R.stage))
+        for r in first_R.reactants.values():
+            g.edge(r, rxn_id)
+        g.edge(rxn_id, last_R.product)
+
+    # graphviz appends the format suffix itself, so strip any we got
+    base, ext = os.path.splitext(filename)
+    if ext.lstrip('.').lower() == format.lower():
+        out_base = base
+    else:
+        out_base = filename
+    return g.render(out_base, format=format, cleanup=True)
+
+
 def network_graph(G,filename,**kwargs):
     """Draws a custom formatted network plot from graph G.
 

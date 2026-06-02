@@ -7,9 +7,7 @@ import logging
 from copy import deepcopy
 from enum import Enum
 
-import networkx as nx
-
-from ..analysis.plot import network_graph
+from ..analysis.plot import draw_reaction_dag
 logger=logging.getLogger(__name__)
 
 class reaction_stage(Enum):
@@ -117,8 +115,7 @@ def extract_molecule_reactions(rlist:ReactionList,plot=True):
         list of tuples: ordered list of tuples, each of the form (name-of-product-molecule, Reaction)
     """
     working_rlist=rlist.copy()
-    G=nx.DiGraph()
-    # Given an unsorted list of reactions (list of reactants +  one product), order a list of 
+    # Given an unsorted list of reactions (list of reactants +  one product), order a list of
     # of molecules so that no product comes before any of its reactants
     if not rlist: return []
     molecule_react_order=[]
@@ -128,9 +125,12 @@ def extract_molecule_reactions(rlist:ReactionList,plot=True):
     for R in working_rlist:
         for r in R.reactants.values():
             reactants.add(r)
-            G.add_edge(r,R.product)
         products.add(R.product)
-    if plot: network_graph(G,'plots/reaction_network.png',arrows=True,with_labels=True,figsize=(10,10),node_size=0)
+    if plot:
+        try:
+            draw_reaction_dag(rlist, 'plots/reaction_network.png')
+        except Exception as e:
+            logger.warning(f'reaction_network.png render failed: {e}')
     input_reactants=reactants.intersection(reactants.symmetric_difference(products))
     logger.debug(f'Input reactants: {input_reactants}')
     for i in input_reactants:
