@@ -95,7 +95,7 @@ constituents:
           ps: 100
           pad: 10.0
 densification:
-  initial_density: 30.0  # kg/m3 -- low because long HTPB chains pack slowly
+  initial_density: 50.0  # kg/m3 -- low to avoid overlaps among long HTPB chains
   equilibration:
     - ensemble: min
     - ensemble: nvt
@@ -105,7 +105,7 @@ densification:
       temperature: 600
       pressure: 10
       ps: 100
-      repeat: 25
+      repeat: 20
 precure:
   preequilibration:
     ensemble: npt
@@ -119,13 +119,13 @@ precure:
       - T: 300
         ps: 0
       - T: 600
-        ps: 500
+        ps: 200
       - T: 600
-        ps: 500
+        ps: 200
       - T: 300
-        ps: 500
+        ps: 200
       - T: 300
-        ps: 500
+        ps: 200
   postequilibration:
     ensemble: npt
     temperature: 300        # K
@@ -188,7 +188,7 @@ postcure:
     ensemble: npt
     temperature: 300       # K
     pressure: 1            # bar
-    ps: 1000
+    ps: 200
 reactions:
   # ---------------------------------------------------------------------
   # PARAM-stage reactions: small assembled sub-units that get their own

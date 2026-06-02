@@ -36,14 +36,11 @@ The following commands need to be on your ``PATH``:
    If ``dot`` is not on the ``PATH`` the build still proceeds; the
    plot is skipped with a warning.
 
-In addition, the in-config SMILES path supports an optional
-**atom-mapping** syntax that requires `RDKit <https://www.rdkit.org/>`_.
-Install it as an extra::
-
-    $ pip install 'htpolynet[smiles]'
-
-If RDKit is not installed, the index-keyed ``rename_atoms`` form of the
-SMILES spec still works.
+`RDKit <https://www.rdkit.org/>`_ is a required Python dependency
+(installed automatically with ``htpolynet``); it backs the
+atom-mapping SMILES syntax that every depot example uses.  The
+index-keyed ``rename_atoms`` form of the SMILES spec is still
+supported if you don't need atom-map labels.
 
 Installation
 ------------
@@ -100,7 +97,7 @@ Install ``htpolynet`` into a uv-managed virtualenv:
     $ git clone git@github.com:AbramsGroup/htpolynet.git
     $ cd htpolynet
     $ uv venv
-    $ uv pip install -e '.[smiles]'
+    $ uv pip install -e .
 
 For a global ``htpolynet`` command callable from any directory:
 
@@ -151,7 +148,7 @@ Python-only install of ``htpolynet`` from PyPI is:
 
 .. code-block:: console
 
-    $ pip install 'htpolynet[smiles]'
+    $ pip install htpolynet
 
 You're responsible for ensuring ``antechamber``, ``parmchk2``,
 ``tleap``, ``gmx``, and ``obabel`` are reachable on ``PATH``.
