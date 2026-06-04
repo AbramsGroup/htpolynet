@@ -1,0 +1,56 @@
+# Check that pyproject.toml's runtime dependencies are in sync with
+# the conda-forge feedstock's `requirements.run` block.
+#
+# Two modes:
+#   - Push/PR to main: warn-only.  Drift adds a job-summary line so a
+#     reviewer notices but the workflow doesn't fail.
+#   - Tag push (v*): strict.  Drift fails the job, so a release tag
+#     can't ship with a recipe known to be broken.
+#
+# The script that does the work is scripts/check-conda-sync.py; see
+# its header for what gets compared and the PyPI→conda-forge name
+# remap.
+
+name: conda-forge sync check
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Run sync check
+        id: check
+        run: |
+          set +e
+          out="$(./scripts/check-conda-sync.py 2>&1)"
+          rc=$?
+          echo "$out"
+          {
+            echo '## conda-forge sync check'
+            echo ''
+            echo '```'
+            echo "$out"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+
+      - name: Strict mode on tag push
+        if: startsWith(github.ref, 'refs/tags/v') && steps.check.outputs.rc != '0'
+        run: |
+          echo "::error::pyproject.toml deps drift from conda-forge recipe; release blocked."
+          echo "Either prepare the recipe update on the feedstock before tagging,"
+          echo "or plan to supersede the autotick-bot PR with a manual update."
+          exit 1
