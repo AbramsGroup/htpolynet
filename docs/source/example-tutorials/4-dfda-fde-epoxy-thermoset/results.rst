@@ -27,7 +27,7 @@ Diagnostic-log plots:
 .. figure:: pics/cure_info.png
 
    Left: cure conversion vs. wall-clock.  Right: cure iteration
-   index vs. wall-clock.  Converges in 16 iterations to 95 %
+   index vs. wall-clock.  Converges in 15 iterations to 95 %
    conversion plus a capping iteration that re-forms 20
    unreacted oxirane rings (see the run page).  The shape is
    typical of the DGEBA/PACM-style stepwise amine cure — long
@@ -112,18 +112,18 @@ From a representative run:
 
    Stage                                                   wall      subprocess
    ------------------------------------------------------------------------------
-   setup                                                 1.93 s            0 ms
+   setup                                                 2.06 s            0 ms
    initialization                                         <1 s             <1 s
    densification                                          ~10 s            ~10 s
-   precure                                              2m32s           2m32s
-   cure                                                39m22s              0 ms
-     capping                                             1m05s            58 s
-   postcure                                             1m29s           1m29s
-   final                                                3.94 s              0 s
+   precure                                              2m36s           2m35s
+   cure                                                33m03s              0 ms
+     capping                                             1m07s         1m00s
+   postcure                                             1m31s           1m31s
+   final                                                3.78 s              0 s
 
-Total: ~45 minutes — between the larger PACM/DGEBA system (~30
-min for a similar number of bonds) and the HTPB/IPDI system
-(~13.5 hours).  As with the other amine-cure examples,
+Total: ~38 minutes — about the same as the PACM/DGEBA system (~50
+min for a similar number of bonds) and orders of magnitude shorter
+than the HTPB/IPDI system (~12 hours).  As with the other amine-cure examples,
 ``gmx-mdrun`` dominates subprocess time; ``setup`` is fast
 because the diamine + diepoxide have only a few
 parameterization templates compared to the procession-built

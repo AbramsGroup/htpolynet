@@ -56,14 +56,14 @@ the setup time.
 Densification + precure
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The 25 densification NPT repeats at 600 K / 10 bar progressively
-compact a very dilute initial state into a near-melt density of
+The 20 densification NPT repeats at 600 K / 10 bar progressively
+compact a dilute initial state into a near-melt density of
 ~0.9-1.0 g/cm³.  Each repeat is 100 ps; the full densification
-takes ~50 minutes of wall clock.  Precure adds a 300 ps NPT
-preequilibration at 300 K / 1 bar, then a long anneal cycle (two
-cycles between 300 and 600 K, 500 ps per segment) so the chains can
+takes ~40 minutes of wall clock.  Precure adds a 300 ps NPT
+preequilibration at 300 K / 1 bar, then an anneal cycle (two
+cycles between 300 and 600 K, 200 ps per segment) so the chains can
 explore conformational space before cure starts.  Total precure
-wall-clock: ~2 hours.
+wall-clock: ~1 hour.
 
 Cure
 ^^^^
@@ -82,78 +82,79 @@ revealing:
      - Cumulative conversion
      - Wall time
    * - 1
-     - 47
-     - 0.188
-     - 10:36
+     - 42
+     - 0.168
+     - 10:56
    * - 2
-     - 25
-     - 0.288
-     - 8:58
+     - 31
+     - 0.292
+     - 10:43
    * - 3
-     - 19
-     - 0.364
-     - 10:18
+     - 21
+     - 0.376
+     - 10:40
    * - 4
-     - 12
-     - 0.412
-     - 8:55
+     - 23
+     - 0.468
+     - 10:37
    * - 5
-     - 19
-     - 0.488
-     - 8:54
+     - 13
+     - 0.520
+     - 10:16
    * - 6
-     - 12
-     - 0.536
-     - 10:01
+     - 10
+     - 0.560
+     - 10:26
    * - 7
-     - 19
-     - 0.612
-     - 17:09
+     - 14
+     - 0.616
+     - 16:20
    * - 8
-     - 11
-     - 0.656
-     - 14:48
+     - 18
+     - 0.688
+     - 17:28
    * - 9
-     - 17
-     - 0.724
-     - 16:55
+     - 14
+     - 0.744
+     - 17:28
    * - 10
      - 11
-     - 0.768
-     - 19:40
+     - 0.788
+     - 22:31
    * - 11
      - 10
-     - 0.808
-     - 33:06
+     - 0.828
+     - 22:23
    * - 12
-     - 10
-     - 0.848
-     - 32:45
+     - 11
+     - 0.872
+     - 47:35
    * - 13
      - 10
-     - 0.888
-     - 1:00:30
+     - 0.912
+     - 2:15:17
    * - 14
-     - 11
-     - 0.932
-     - 2:17:33
+     - 8
+     - 0.944
+     - 3:51:37
    * - 15
-     - 5
-     - 0.952
-     - 3:49:45
+     - 1
+     - 0.948
+     - 1:06:10
 
-Look at the bottom of that table: iteration 15 alone took **nearly
-4 hours**.  This is the cure-tail effect at its most extreme — by
-the time only a handful of hydroxyl / isocyanate pairs are left
-unbonded, finding pairs within the bond-search radius requires the
+The cure-tail effect is sharp: the first 11 iterations together
+take ~3 hours; the last 4 take another ~7.  By the late iterations
+only a handful of hydroxyl / isocyanate pairs are left unbonded,
+finding pairs within the bond-search radius requires the
 ``cure_drag`` step to pull distant atoms together over multiple MD
-segments.  ``min_bonds_per_iteration: 10`` is what keeps the
-iteration count from blowing up to 50+ at the tail; raising it
-further would slightly reduce iteration count but each iteration
-would have to drag further-apart atoms together, with diminishing
-returns.
+segments, and each ``cure_drag`` cascade scales with the
+inter-atom separation.  ``min_bonds_per_iteration: 10`` is what
+keeps the iteration count from blowing up to 50+ at the tail;
+raising it further would slightly reduce iteration count but each
+iteration would have to drag further-apart atoms together, with
+diminishing returns.
 
-Total cure wall-time: ~10.3 hours.  Capping is trivially fast (0
+Total cure wall-time: ~10.7 hours.  Capping is trivially fast (0
 bonds — all reactive sites that were going to bond did) and runs in
 milliseconds.
 
@@ -161,10 +162,9 @@ Postcure
 ^^^^^^^^
 
 Postcure runs two anneal cycles between 300 K and 600 K (50 ps per
-segment) followed by a 1 ns NPT postequilibration at 300 K / 1 bar.
-The long postequilibration is the longest of the depot examples,
-intended to let the cured network relax meaningfully before the
-final coordinates are written.  Postcure wall-clock: ~40 minutes.
+segment) followed by a 200 ps NPT postequilibration at 300 K /
+1 bar to let the cured network relax meaningfully before the final
+coordinates are written.  Postcure wall-clock: ~17 minutes.
 
 Profile
 ^^^^^^^
@@ -176,21 +176,21 @@ run:
 
    Stage                                                   wall      subprocess
    ------------------------------------------------------------------------------
-   setup                                                27.09 s          6.51 s
+   setup                                                28.11 s          7.77 s
    initialization                                       ~5 s             ~3 s
-   densification                                        ~50 min          ~50 min
-   precure                                            1h58m58s         1h58m58s
-   cure                                              10h19m51s              0 ms
-     iter-1                                           10m36s            9m33s
-     iter-2                                            8m58s            8m12s
+   densification                                        ~40 min          ~40 min
+   precure                                              57m26s          57m26s
+   cure                                              10h40m27s              0 ms
+     iter-1                                           10m56s            9m52s
+     iter-2                                           10m43s            9m46s
      ...
-     iter-14                                          2h17m33s         2h15m19s
-     iter-15                                          3h49m45s         3h47m07s
+     iter-14                                          3h51m37s         3h48m04s
+     iter-15                                          1h06m10s         1h04m22s
      capping                                              5 ms             0 ms
-   postcure                                            38m05s          38m04s
-   final                                               24.36 s             0 s
+   postcure                                            16m37s          16m37s
+   final                                               24.34 s             0 s
 
-Total: ~13.5 hours.  Of that, gmx-mdrun consumes ~95 % of the
+Total: ~12 hours.  Of that, gmx-mdrun consumes ~95 % of the
 subprocess time; antechamber/parmchk2/tleap account for the rest of
 the setup wall.
 

@@ -150,5 +150,5 @@ times scale accordingly — expect the Tg ladder (50 temperatures ×
 100 ps each = 5 ns total) to take several hours on a single GPU,
 and the deformation runs to take a few minutes each.  A useful
 exercise is to compare wall-clock to the build itself: the postsim
-suite is a small fraction (1-2 hours) of the ~13.5 hours the build
+suite is a small fraction (1-2 hours) of the ~12 hours the build
 takes.

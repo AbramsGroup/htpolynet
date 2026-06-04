@@ -88,34 +88,35 @@ With ``desired_conversion: 0.95`` and a max of 300 bonds, the target is
 default 0.5 nm search radius; as conversion approaches the target, the
 remaining reactive pairs get sparser and ``htpolynet`` has to grow the
 radius (and sometimes drag pairs in) to find anything.  A typical run
-needs ~15–20 iterations.  Excerpted from a representative log:
+needs ~12–15 iterations at the default ``min_bonds_per_iteration: 10``.
+Excerpted from a representative log:
 
 .. code-block:: text
 
    INFO> ~~~~~~~~~~~~~~ Iteration 1 begins ~~~~~~~~~~~~~~
    INFO> Bond search using radius 0.5 nm initiated
-   INFO> Iteration 1 will generate 81 new bonds
+   INFO> Iteration 1 will generate 82 new bonds
    ...
-   INFO> Iteration 1 current conversion 0.270 or 81 bonds
+   INFO> Iteration 1 current conversion 0.273 or 82 bonds
    INFO> ~~~~~~~~~~~~~~ Iteration 2 begins ~~~~~~~~~~~~~~
    INFO> Bond search using radius 0.5 nm initiated
-   INFO> Iteration 2 will generate 78 new bonds
+   INFO> Iteration 2 will generate 67 new bonds
    ...
-   INFO> Iteration 2 current conversion 0.530 or 159 bonds
+   INFO> Iteration 2 current conversion 0.497 or 149 bonds
    ...
-   INFO> ~~~~~~~~~~~~~~ Iteration 15 begins ~~~~~~~~~~~~~~
+   INFO> ~~~~~~~~~~~~~~ Iteration 12 begins ~~~~~~~~~~~~~~
    INFO> Bond search using radius 0.5 nm initiated
    INFO> Radius increased to 0.75 nm
-   INFO> Iteration 15 will generate 1 new bond
+   INFO> Iteration 12 will generate 3 new bonds
    ...
-   INFO> Iteration 15 current conversion 0.943 or 283 bonds
-   INFO> ~~~~~~~~~~~~~~ Iteration 16 begins ~~~~~~~~~~~~~~
+   INFO> Iteration 12 current conversion 0.947 or 284 bonds
+   INFO> ~~~~~~~~~~~~~~ Iteration 13 begins ~~~~~~~~~~~~~~
    INFO> Bond search using radius 0.5 nm initiated
    INFO> Radius increased to 0.75 nm
-   INFO> Iteration 16 will generate 2 new bonds
-   INFO> Step "cure_drag" initiated on 2 distances (max 0.691 nm)
+   INFO> Iteration 13 will generate 1 new bond
+   INFO> Step "cure_drag" initiated on 1 distance (max 0.691 nm)
    ...
-   INFO> Iteration 16 current conversion 0.950 or 285 bonds
+   INFO> Iteration 13 current conversion 0.950 or 285 bonds
 
 .. tip::
 

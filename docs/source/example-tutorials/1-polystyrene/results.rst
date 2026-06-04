@@ -24,6 +24,26 @@ At the end of the run, ``proj-0/systems/final-results/`` contains:
    otherwise wrap across the periodic image, leaving each polymer
    chain visually contiguous.
 
+Before and after
+^^^^^^^^^^^^^^^^
+
+For a sense of how the cure transforms the dispersed liquid into a
+chain network, here is the densified pre-cure box vs. the cured
+final state.  All atoms are rendered in mauve (``STY`` residues);
+cap-stage-reverted vinyls would appear in orange (``STYCC``), but
+this run completed without any cap-stage reverts.
+
+.. list-table::
+
+    * - .. figure:: pics/sty-liq.png
+
+           Before cure: densified liquid of styrene monomers.
+
+      - .. figure:: pics/sty-cured.png
+
+           After cure: each chain is one connected fragment;
+           periodic-image bonds trimmed for clarity.
+
 Plots from the build log
 ^^^^^^^^^^^^^^^^^^^^^^^^
 

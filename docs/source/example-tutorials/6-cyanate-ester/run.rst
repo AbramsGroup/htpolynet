@@ -77,41 +77,41 @@ converges in nine iterations:
      - Cumulative conversion
      - Wall time
    * - 1
-     - 160
-     - 0.222
-     - 2:21
+     - 152
+     - 0.211
+     - 2:18
    * - 2
-     - 153
-     - 0.435
-     - 2:17
+     - 144
+     - 0.411
+     - 2:26
    * - 3
-     - 137
-     - 0.625
-     - 2:21
+     - 133
+     - 0.596
+     - 2:20
    * - 4
-     - 88
-     - 0.747
-     - 2:08
+     - 93
+     - 0.725
+     - 2:10
    * - 5
-     - 52
-     - 0.819
-     - 1:58
+     - 49
+     - 0.793
+     - 1:56
    * - 6
      - 31
-     - 0.863
-     - 1:50
+     - 0.836
+     - 1:51
    * - 7
-     - 14
-     - 0.882
-     - 1:45
+     - 15
+     - 0.857
+     - 1:44
    * - 8
-     - 11
-     - 0.897
-     - 1:42
+     - 20
+     - 0.885
+     - 1:46
    * - 9
-     - 2
-     - 0.900
-     - 1:25
+     - 12
+     - 0.901
+     - 2:36
 
 The classic long tail: 80 % cure in 4 iterations, the remaining 10 %
 takes another 5.  No capping work because ``etherify`` is the only
@@ -126,30 +126,30 @@ After cure converges, the postcure topology-repair stage fires:
 .. code-block:: text
 
    INFO> ************ Postcure repair in proj-0/systems/repair *************
-   INFO> triazine_to_cyanate_cap: 63 incomplete TAZ residues identified (189 caps total, 72 free fragments to donate)
-   INFO> triazine_to_cyanate_cap: redistributing residual charge -23.3716 across 144 repaired-residue neighbours
-   INFO> ******** Postcure repair performed 63 dismantle operations ********
+   INFO> triazine_to_cyanate_cap: 57 incomplete TAZ residues identified (171 caps total, 71 free fragments to donate)
+   INFO> triazine_to_cyanate_cap: redistributing residual charge -23.0470 across 142 repaired-residue neighbours
+   INFO> ******** Postcure repair performed 57 dismantle operations ********
    INFO> Relaxing repaired geometry
    INFO> Running Gromacs: minimization
    INFO> Running Gromacs: nvt ensemble;   5.00 ps,  300.00 K
 
 Decoding the numbers:
 
-* **63 incomplete TAZ residues** out of 240 total — i.e. 177 of the
-  240 triazines (~74 %) reached the full 3-bonded state during cure.
+* **57 incomplete TAZ residues** out of 240 total — i.e. 183 of the
+  240 triazines (~76 %) reached the full 3-bonded state during cure.
   Each incomplete one carries between 0 and 2 bonded BPAs.
-* **189 caps total** = 63 × 3.  Each dismantled ring is split into
+* **171 caps total** = 57 × 3.  Each dismantled ring is split into
   three independent -C#N fragments.
-* **72 free fragments to donate** = the number of dangling triazine
+* **71 free fragments to donate** = the number of dangling triazine
   C atoms across all incomplete rings.  This is also the number of
   unreacted BPA-OH groups (by atom conservation), so the matching is
   exact and every free fragment finds a home.
-* **189 - 72 = 117 in-place caps**: fragments whose ring C atom was
+* **171 - 71 = 100 in-place caps**: fragments whose ring C atom was
   already bonded to a BPA during cure, so the BPA-O-C bond is
   preserved and only the atom types, bond orders, and angle/dihedral
   parameters update from the templated BPA-O-C#N values.
-* **Residual charge ≈ -23 e** distributed across **144 atoms** =
-  72 × 2 (the BPA-O atoms newly bonded to free caps, plus the
+* **Residual charge ≈ -23 e** distributed across **142 atoms** =
+  71 × 2 (the BPA-O atoms newly bonded to free caps, plus the
   CYN-C atoms whose H was deleted).  This is the charge from the
   deleted sacrificial H atoms, redistributed across the heavy-atom
   neighbours so the system stays net-neutral for Ewald.
@@ -177,17 +177,17 @@ End-of-run stage profile (representative run, 4-core CPU + 1 GPU):
 
    Stage                                                   wall      subprocess
    ------------------------------------------------------------------------------
-   setup                                                 721 ms            0 ms
+   setup                                                 688 ms            0 ms
    initialization                                        ~10 s            ~5 s
    densification                                         ~3 min          ~3 min
-   precure                                              3m28s           3m27s
-   cure                                                17m46s              0 ms
-     iter-1                                             2m22s          1m24s
-     iter-2                                             2m17s          1m22s
-     iter-3                                             2m21s          1m30s
+   precure                                              3m31s           3m31s
+   cure                                                19m07s              0 ms
+     iter-1                                             2m18s          1m20s
+     iter-2                                             2m26s          1m28s
+     iter-3                                             2m20s          1m27s
      ...
-   repair                                               1m09s           12 s
-   postcure                                             1m55s          1m55s
+   repair                                               1m08s           10 s
+   postcure                                             1m56s          1m55s
    final                                                5 s              0 s
 
 The cure dominates the run as expected.  The ``repair`` stage's wall

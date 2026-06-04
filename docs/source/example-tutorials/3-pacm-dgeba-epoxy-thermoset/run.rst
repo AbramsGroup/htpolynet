@@ -66,28 +66,29 @@ CURE iterations
 Target conversion is 0.95, so the cure aims for 380 of the maximum
 400 bonds.  Early iterations are productive (dozens of bonds at a
 time); the long tail picks up bonds in ones and twos with the
-search-radius growth machinery doing the work.  A typical run takes
-~25–35 iterations.  Excerpted:
+search-radius growth machinery doing the work.  At the default
+``min_bonds_per_iteration: 10`` a typical run takes ~15–20
+iterations to reach 95 % conversion.  Excerpted:
 
 .. code-block:: text
 
    INFO> ~~~~~~~~~~~~~~ Iteration 1 begins ~~~~~~~~~~~~~~
    INFO> Bond search using radius 0.5 nm initiated
-   INFO> Iteration 1 will generate 71 new bonds
+   INFO> Iteration 1 will generate 72 new bonds
    ...
-   INFO> Iteration 1 current conversion 0.177 or 71 bonds
+   INFO> Iteration 1 current conversion 0.180 or 72 bonds
    INFO> ~~~~~~~~~~~~~~ Iteration 2 begins ~~~~~~~~~~~~~~
    INFO> Bond search using radius 0.5 nm initiated
-   INFO> Iteration 2 will generate 50 new bonds
+   INFO> Iteration 2 will generate 60 new bonds
    ...
-   INFO> Iteration 2 current conversion 0.302 or 121 bonds
+   INFO> Iteration 2 current conversion 0.330 or 132 bonds
    ...
-   INFO> ~~~~~~~~~~~~~~ Iteration 32 begins ~~~~~~~~~~~~~~
+   INFO> ~~~~~~~~~~~~~~ Iteration 16 begins ~~~~~~~~~~~~~~
    INFO> Bond search using radius 0.5 nm initiated
-   INFO> Iteration 32 will generate 2 new bonds
-   INFO> Step "cure_drag" initiated on 2 distances (max 0.720 nm)
+   INFO> Iteration 16 will generate 1 new bond
+   INFO> Step "cure_drag" initiated on 1 distance (max 0.720 nm)
    ...
-   INFO> Iteration 32 current conversion 0.950 or 380 bonds
+   INFO> Iteration 16 current conversion 0.950 or 380 bonds
 
 Notice the late iterations engaging the ``cure_drag`` step — when the
 remaining reactive pairs are far apart, ``htpolynet`` adds a harmonic
@@ -108,7 +109,7 @@ Measured iteration counts on this system:
    * - ``1``
      - 41
    * - ``10`` (default)
-     - 15
+     - 16
    * - ``20``
      - 14
 

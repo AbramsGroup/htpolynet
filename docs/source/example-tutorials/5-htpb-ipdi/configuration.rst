@@ -45,7 +45,7 @@ Low initial density
 .. code-block:: yaml
 
    densification:
-     initial_density: 30.0  # kg/m3
+     initial_density: 50.0  # kg/m3
      equilibration:
        - ensemble: min
        - ensemble: nvt
@@ -55,15 +55,14 @@ Low initial density
          temperature: 600
          pressure: 10
          ps: 100
-         repeat: 25
+         repeat: 20
 
-The ``initial_density: 30.0`` is roughly an order of magnitude lower
-than the other examples (200-300).  Long HTPB chains can interpenetrate
+The ``initial_density: 50.0`` is several times lower than the other
+examples (200-300).  Long HTPB chains can interpenetrate
 catastrophically if placed too close together in the initial liquid;
-starting at a *very* low density and using **25 NPT repeats** at
-600 K / 10 bar to gradually densify avoids that.  The 25 repeats
-dominate the precure stage and account for most of the ~2 hour
-precure wall-clock.
+starting at a low density and using **20 NPT repeats** at 600 K / 10
+bar to gradually densify avoids that.  The 20 repeats dominate the
+precure stage and account for most of the ~1 hour precure wall-clock.
 
 Generated templates
 ^^^^^^^^^^^^^^^^^^^

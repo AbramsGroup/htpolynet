@@ -68,8 +68,8 @@ Before and after
 Residue census
 ^^^^^^^^^^^^^^
 
-On the representative run logged above (90 % cure, 63 incomplete
-triazines, 117 in-place caps + 72 free caps):
+On the representative run logged above (90 % cure, 57 incomplete
+triazines, 100 in-place caps + 71 free caps):
 
 .. list-table::
    :header-rows: 1
@@ -82,11 +82,11 @@ triazines, 117 in-place caps + 72 free caps):
      - 360
      - All 360 input BPAs survive (no monomer-level deletion).
    * - ``TAZ``
-     - 177
-     - The 240 - 63 = 177 triazines that reached k=3 during cure.
+     - 183
+     - The 240 - 57 = 183 triazines that reached k=3 during cure.
    * - ``CYN``
-     - 189
-     - 63 dismantled rings × 3 -C#N fragments = 189 cap residues.
+     - 171
+     - 57 dismantled rings × 3 -C#N fragments = 171 cap residues.
 
 Atom conservation is exact: every C and N atom of every dismantled
 triazine ends up in exactly one ``CYN`` residue, and the only atoms
