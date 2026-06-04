@@ -66,10 +66,12 @@ def _generate(name, spec, output_path):
             if 'rename_atoms' not in spec:
                 raise RuntimeError(
                     f"{name}: SMILES uses atom-mapping syntax and config "
-                    f"specifies `reactive_atoms`, but RDKit is not installed. "
-                    f"Install with `pip install 'htpolynet[smiles]'`, or "
-                    f"provide `rename_atoms: {{<1-based-index>: <name>}}` as "
-                    f"a fallback."
+                    f"specifies `reactive_atoms`, but RDKit is not "
+                    f"importable.  RDKit is a required htpolynet runtime "
+                    f"dependency; the install is likely broken.  Reinstall "
+                    f"htpolynet (`pip install --force-reinstall htpolynet` "
+                    f"or `uv pip install -e .`), or as a fallback provide "
+                    f"`rename_atoms: {{<1-based-index>: <name>}}`."
                 )
             logger.warning(
                 f'{name}: RDKit not installed; falling back to obabel + '

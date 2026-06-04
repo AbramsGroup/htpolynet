@@ -32,7 +32,7 @@ The simplest way to supply a monomer is to write its SMILES string directly into
         smiles: "c1ccccc1[CH2:1][CH3:2]"
         reactive_atoms: {1: C1, 2: C2}
 
-  This identifies the reactive atoms by chemical identity rather than by mol2 index, so the spec is robust to changes in atom ordering between toolchain versions.  Install with ``pip install 'htpolynet[smiles]'`` or use the container, which ships RDKit by default.
+  This identifies the reactive atoms by chemical identity rather than by mol2 index, so the spec is robust to changes in atom ordering between toolchain versions.  RDKit is a required runtime dependency of ``htpolynet`` and is pulled in automatically by ``pip install htpolynet`` / ``uv pip install -e .`` / the container image.
 
   .. warning::
 

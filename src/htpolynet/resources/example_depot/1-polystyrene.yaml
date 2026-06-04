@@ -4,8 +4,8 @@
 # htpolynet itself.  The two reactive vinyl carbons are identified inline in
 # the SMILES with atom-map labels [CH2:1] and [CH:2]; the `reactive_atoms`
 # block maps those labels to the atom names (C1, C2) referenced by the
-# reactions below.  This path requires RDKit (`pip install 'htpolynet[smiles]'`,
-# or use the container which ships RDKit).
+# reactions below.  RDKit is a required runtime dependency and is pulled
+# in by any normal htpolynet install.
 #
 #   htpolynet run -diag diagnostics.log 1-polystyrene.yaml
 #
