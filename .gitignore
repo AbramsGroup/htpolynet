@@ -105,6 +105,10 @@ ipython_config.py
 #   install all needed dependencies.
 #Pipfile.lock
 
+# uv lockfile — regenerated locally; not committed (htpolynet is a
+# library, not a leaf application that needs a pinned dependency tree).
+uv.lock
+
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow
 __pypackages__/
 
