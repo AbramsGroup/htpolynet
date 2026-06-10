@@ -417,7 +417,7 @@ class CureController:
         ens=d['ensemble']
         if ens=='npt':
             plot_pfx=f'iter-{self.state.iter}-{str(self.state.step)}'
-            trace('Density',edr_list,outfile=os.path.join(pfs.proj(),f'plots/{plot_pfx}-density.png'))
+            trace('Density',edr_list,outfile=os.path.join(pfs.proj(),f'plots/{plot_pfx}-density.png'),yunits=r'kg/m$^3$')
         if self.state.step==cure_step.cure_equilibrate:
             # go to next iteration -- this whole method is skipped if nbonds==0 in relax
             self.state.step=cure_step.cure_bondsearch # if not self.search_failed else state.cap_bondsearch

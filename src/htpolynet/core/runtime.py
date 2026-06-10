@@ -860,7 +860,7 @@ class Runtime:
         logger.info(f'Extended attributes "{inpfnm}.grx" in {pfs.cwd()}')
         return f'{inpfnm}.gro',f'{inpfnm}.grx'
 
-    def _do_equilibration(self,edict={},deffnm='equilibrate',plot_pfx=''):
+    def _do_equilibration(self, edict={}, deffnm='equilibrate', plot_pfx=''):
         """Manages execution of TopoCoord.equilibrate using the directive passed in parameter 'edict'.
 
         Args:
@@ -868,15 +868,15 @@ class Runtime:
             deffnm (str): mdrun default file basename, defaults to 'equilibrate'
             plot_pfx (str): basename for any output plots, defaults to ''
         """
-        gromacs_dict=self.cfg.gromacs
-        TC=self.TopoCoord
+        gromacs_dict = self.cfg.gromacs
+        TC = self.TopoCoord
         for k in edict.keys():
             if not k in self.default_edict:
                 logger.debug(f'ignoring unknown equilibration directive "{k}"')
-        edr_list=TC.equilibrate(deffnm,edict,gromacs_dict)
-        ens=edict['ensemble']
-        if ens=='npt' and plot_pfx!='':
-            trace('Density',edr_list,outfile=os.path.join(pfs.proj(),f'plots/{plot_pfx}-density.png'))
+        edr_list = TC.equilibrate(deffnm, edict, gromacs_dict)
+        ens = edict['ensemble']
+        if ens == 'npt' and plot_pfx != '':
+            trace('Density', edr_list, outfile=os.path.join(pfs.proj(), f'plots/{plot_pfx}-density.png'), yunits=r'kg/m$^3$')
 
     def _do_equilibration_series(self,eq_stgs=[],deffnm='equilibrate',plot_pfx=''):
         """Manages a series of equilibrations.
@@ -890,22 +890,22 @@ class Runtime:
         for stg in eq_stgs:
             self._do_equilibration(stg,deffnm,plot_pfx)
                 
-    def _do_pap(self,pfx='precure'):
+    def _do_pap(self, pfx='precure'):
         """Manages a preanneal-anneal-postanneal series of MD simulations.
 
         Args:
             pfx (str): either 'precure' or 'postcure', defaults to 'precure'
         """
         if not pfx: return
-        assert pfx in ['precure','postcure']
-        pap_dict=getattr(self.cfg,pfx,{})
+        assert pfx in ['precure', 'postcure']
+        pap_dict = getattr(self.cfg,pfx,{})
         if not pap_dict: return
-        preequil=pap_dict.get('preequilibration',{})
-        anneal=pap_dict.get('anneal',{})
-        postequil=pap_dict.get('postequilibration',{})
-        if not any([preequil,anneal,postequil]): return
-        if not _nonempty_directives([x for x in [preequil,anneal,postequil] if x]): return
-        my_logger(f'{pfx.capitalize()} in {pfs.cwd()}',logger.info)
+        preequil = pap_dict.get('preequilibration', {})
+        anneal = pap_dict.get('anneal', {})
+        postequil = pap_dict.get('postequilibration', {})
+        if not any([preequil, anneal, postequil]): return
+        if not _nonempty_directives([x for x in [preequil, anneal, postequil] if x]): return
+        my_logger(f'{pfx.capitalize()} in {pfs.cwd()}', logger.info)
         # Every branch needs the _nonempty_directives guard, not just anneal:
         # _apply_runtime_defaults injects default preequil/anneal/postequil
         # blocks for any cfg key the user omitted, and the default postequil
@@ -913,14 +913,14 @@ class Runtime:
         # TC.equilibrate returns None for ps=0 and the trace() that follows
         # crashes on 'NoneType' object is not iterable.
         if preequil and _nonempty_directives([preequil]):
-            self._do_equilibration(preequil,deffnm='preequilibration',plot_pfx=f'{pfx}-preequilibration')
+            self._do_equilibration(preequil, deffnm='preequilibration', plot_pfx=f'{pfx}-preequilibration')
         if anneal and _nonempty_directives([anneal]):
-            self._do_anneal(anneal,deffnm='annealed')
-            trace('Temperature',['annealed'],outfile=os.path.join(pfs.proj(),f'plots/{pfx}-anneal-T.png'))
+            self._do_anneal(anneal, deffnm='annealed')
+            trace('Temperature', ['annealed'], outfile=os.path.join(pfs.proj(), f'plots/{pfx}-anneal-T.png'), yunits='K')
         if postequil and _nonempty_directives([postequil]):
-            self._do_equilibration(postequil,deffnm='postequilibration',plot_pfx=f'{pfx}-postequilibration')
+            self._do_equilibration(postequil, deffnm='postequilibration', plot_pfx=f'{pfx}-postequilibration')
 
-    def _do_anneal(self,anneal_dict={},deffnm='anneal'):
+    def _do_anneal(self, anneal_dict={}, deffnm='anneal'):
         """Manages execution of an annealing MD simulation.
 
         Args:
@@ -931,41 +931,41 @@ class Runtime:
             Exception: if no run duration is indicated in any of the annealing segments
         """
         if not anneal_dict: return
-        ncycles=anneal_dict.get('ncycles',0)
+        ncycles = anneal_dict.get('ncycles', 0)
         if not ncycles: return
-        mdp_pfx='nvt' # assume all annealing run at NVT
-        TC=self.TopoCoord
-        gromacs_dict=self.cfg.gromacs
+        mdp_pfx = 'nvt' # assume all annealing run at NVT
+        TC = self.TopoCoord
+        gromacs_dict = self.cfg.gromacs
         pfs.checkout(pfs.Dirs.mdp_file(mdp_pfx))
-        timestep=float(mdp_get(f'{mdp_pfx}.mdp','dt'))
-        cycle_segments=anneal_dict.get('cycle_segments',[])
-        temps=[str(r['T']) for r in cycle_segments]
-        durations=[r.get('ps',0) for r in cycle_segments]
+        timestep = float(mdp_get(f'{mdp_pfx}.mdp', 'dt'))
+        cycle_segments = anneal_dict.get('cycle_segments', [])
+        temps = [str(r['T']) for r in cycle_segments]
+        durations = [r.get('ps', 0) for r in cycle_segments]
         if not any(durations):
-            durations=['{:.2f}'.format(r.get('nsteps',)*timestep) for r in cycle_segments]
+            durations = ['{:.2f}'.format(r.get('nsteps', 0) * timestep) for r in cycle_segments]
             if not any(durations):
                 raise Exception(f'No "ps" or "nsteps" found.')
-        cycle_duration=sum(durations)
-        total_duration=cycle_duration*ncycles
-        nsteps=int(total_duration/timestep)
-        cum_time=durations.copy()
-        for i in range(1,len(cum_time)):
-            cum_time[i]+=cum_time[i-1]
+        cycle_duration = sum(durations)
+        total_duration = cycle_duration*ncycles
+        nsteps = int(total_duration / timestep)
+        cum_time = durations.copy()
+        for i in range(1, len(cum_time)):
+            cum_time[i] += cum_time[i-1]
         logger.info(f'Annealing: {len(durations)} points for {ncycles} cycles over {total_duration} ps')
         mod_dict={
-            'ref_t':anneal_dict.get('initial_temperature',300.0),
-            'gen-temp':anneal_dict.get('initial_temperature',300.0),
-            'gen-vel':'yes',
-            'annealing-npoints':len(cycle_segments),
-            'annealing-temp':' '.join(temps),
-            'annealing-time':' '.join([f'{x:.2f}' for x in cum_time]),
-            'annealing':'periodic' if ncycles>1 else 'single',
-            'nsteps':nsteps
+            'ref_t': anneal_dict.get('initial_temperature', 300.0),
+            'gen-temp': anneal_dict.get('initial_temperature', 300.0),
+            'gen-vel': 'yes',
+            'annealing-npoints': len(cycle_segments),
+            'annealing-temp': ' '.join(temps),
+            'annealing-time': ' '.join([f'{x:.2f}' for x in cum_time]),
+            'annealing': 'periodic' if ncycles > 1 else 'single',
+            'nsteps': nsteps
             }
-        mdp_modify(f'{mdp_pfx}.mdp',mod_dict)
-        t_lo=min(float(t) for t in temps)
-        t_hi=max(float(t) for t in temps)
+        mdp_modify(f'{mdp_pfx}.mdp', mod_dict)
+        t_lo = min(float(t) for t in temps)
+        t_hi = max(float(t) for t in temps)
         logger.info(f'Running Gromacs: anneal; {total_duration:.2f} ps, {ncycles} cycle(s), {t_lo:.2f}-{t_hi:.2f} K')
-        msg=TC.grompp_and_mdrun(out=deffnm,mdp=mdp_pfx,quiet=False,**gromacs_dict)
+        msg = TC.grompp_and_mdrun(out=deffnm, mdp=mdp_pfx, quiet=False, **gromacs_dict)
         logger.info(f'Annealed coordinates in {deffnm}.gro')
 
