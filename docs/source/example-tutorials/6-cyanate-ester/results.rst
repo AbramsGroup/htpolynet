@@ -55,15 +55,36 @@ For end-to-end traces:
 Before and after
 ^^^^^^^^^^^^^^^^
 
-.. admonition:: Placeholder
-   :class: caution
+Snapshots of one complete crosslink site (a fully-formed triazine
+bonded to three bisphenol-A bridges) alongside the densified liquid
+and the cured + repaired network.  Atoms are coloured CPK by
+element — carbon grey, nitrogen blue, oxygen red — so the colours
+in the detail panel transfer directly to the bulk views.  In the
+bulk panels the BPA phenolic oxygens (``O1``, ``O2``), the triazine
+ring atoms, and the post-repair ``CYN`` cap atoms are drawn in
+thick CPK Licorice on a faded grey lines background, so the new
+inter-residue cure bonds stand out from the BPA carrier mass.  The
+detail panel is rotated so the triazine ring normal is along the
+view direction (face-on).
 
-   **TODO:** snapshots of the densified liquid vs. the cured +
-   repaired network.  Render via ``vmd final.viz.psf final.gro -e
-   final.viz.tcl`` on each of ``proj-0/systems/densification/`` and
-   ``proj-0/systems/final-results/``, colour BPA mauve, intact
-   ``TAZ`` cyan, and ``CYN`` red.  Save as
-   ``pics/badcy-liq.png`` and ``pics/badcy-cured.png``.
+.. list-table::
+
+    * - .. figure:: pics/badcy-detail.png
+
+           One complete crosslink: one fully-formed triazine bonded
+           to three BPAs at its three ring carbons, viewed face-on.
+
+      - .. figure:: pics/badcy-liq.png
+
+           System before cure: densified liquid of BADCy monomers,
+           no inter-monomer cure bonds yet.
+
+      - .. figure:: pics/badcy-cured.png
+
+           System after cure + repair: BPA-O atoms tie the triazine
+           ring junctions together with ``CYN`` caps interspersed
+           where the post-repair cap converted unreacted reactive
+           sites.
 
 Residue census
 ^^^^^^^^^^^^^^

@@ -65,13 +65,24 @@ For end-to-end traces:
 Before and after
 ^^^^^^^^^^^^^^^^
 
-Snapshots of the densified liquid vs. the cured network.  FDE
-residues in mauve, DFA residues in green, capped (re-closed)
-``FDEC`` oxirane rings in purple:
+Snapshots of one complete crosslink site (one DFA bonded to its
+amine-side FDEs) alongside the densified liquid and the cured
+network.  Atoms are coloured CPK by element — carbon grey, nitrogen
+blue, oxygen red — so the colours in the detail panel transfer
+directly to the bulk views.  In the bulk panels the amine→epoxide
+chemistry atoms (DFA ``N1``/``N2``, FDE ``C1``/``C2``, hydroxyl
+carbons, and FDE oxygens) are drawn in thick CPK Licorice on a
+faded grey lines background, so the crosslink sites stand out
+from the FDE carrier mass:
 
 .. list-table::
 
-    * - .. figure:: pics/dfa-fde-liq.png
+    * - .. figure:: pics/dfa-fde-detail.png
+
+           One complete crosslink: one DFA bonded to FDEs at its
+           amine slots.
+
+      - .. figure:: pics/dfa-fde-liq.png
 
            System before cure: densified liquid of FDE and DFA.
 

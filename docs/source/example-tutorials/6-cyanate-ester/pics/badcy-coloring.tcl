@@ -1,28 +1,23 @@
-# Coloring overrides for BADCy snapshots.
-# Three residue classes:
-#   - BPA  (mauve / colour 13)  - the bisphenol-A bridges
-#   - TAZ  (green / colour 7)   - intact 1,3,5-triazine crosslinks
-#   - CYN  (red / colour 1)     - post-repair -C#N end-groups
-#
-# render-snapshot.sh deliberately does NOT source the
-# .viz.macros.tcl that htpolynet emits alongside the PSF, because the
-# auto-generated macros (named after residue names) shadow VMD's
-# built-in `resname` keyword.  Plain `resname BPA` selectors work in
-# both PSF-loaded and autobonded modes.
+# Bulk view for BADCy snapshots.
+# Layered representations:
+#   Rep 1  thin Lines on every heavy atom, faded grey.  Gives the
+#          BPA backbones their phenyl-aryl outlines AND lets VMD draw
+#          every bond, including the new inter-residue cure bonds.
+#   Rep 2  BPA phenolic O atoms (O1, O2), all TAZ ring atoms, and
+#          all CYN cap atoms in thick CPK Licorice (coloured by atom
+#          name = element).  Putting every chemistry-relevant atom
+#          into a single rep means the inter-residue cure bonds
+#          (BPA-O → TAZ-C aryl-ether and BPA-O → CYN-C cap bonds)
+#          draw at full Licorice radius.
 
 mol delrep 0 top
 
-mol representation Licorice 0.3 12.0 12.0
-mol color ColorID 13
-mol selection resname BPA
+mol representation Lines 1.0
+mol color ColorID 6
+mol selection "noh"
 mol addrep top
 
-mol representation Licorice 0.3 12.0 12.0
-mol color ColorID 7
-mol selection resname TAZ
-mol addrep top
-
-mol representation Licorice 0.3 12.0 12.0
-mol color ColorID 1
-mol selection resname CYN
+mol representation Licorice 0.22 18.0 18.0
+mol color Name
+mol selection "((resname BPA and (name O1 or name O2)) or resname TAZ or resname CYN) and noh"
 mol addrep top

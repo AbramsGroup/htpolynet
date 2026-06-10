@@ -28,16 +28,27 @@ Before and after
 ^^^^^^^^^^^^^^^^
 
 For a sense of how the cure transforms the dispersed liquid into a
-chain network, here is the densified pre-cure box vs. the cured
-final state.  All atoms are rendered in mauve (``STY`` residues);
-cap-stage-reverted vinyls would appear in orange (``STYCC``), but
-this run completed without any cap-stage reverts.
+chain network, the figures below show one complete crosslink site
+(three connected styrenes extracted from the cured system) alongside
+the densified pre-cure box and the cured final state.  All snapshots
+use the same CPK-by-element convention — carbon grey, hydrogen-free
+heavy atoms only — so the colours in the detail panel transfer
+directly to the bulk views.  In the bulk panels the polystyrene
+backbone (``C1``-``C2`` chain carbons) is rendered in thick CPK
+Licorice on top of a faded grey lines background, so the new chain
+bonds formed during cure stand out from the phenyl side groups.
 
 .. list-table::
 
-    * - .. figure:: pics/sty-liq.png
+    * - .. figure:: pics/sty-detail.png
 
-           Before cure: densified liquid of styrene monomers.
+           One complete crosslink: three styrenes bonded in a chain
+           segment via the cured ``C1``-``C2`` backbone.
+
+      - .. figure:: pics/sty-liq.png
+
+           Before cure: densified liquid of styrene monomers, no
+           inter-monomer ``C1``-``C2`` bonds yet.
 
       - .. figure:: pics/sty-cured.png
 

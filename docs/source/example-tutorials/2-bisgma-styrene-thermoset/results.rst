@@ -66,24 +66,33 @@ trace; it takes a few minutes on a moderate-sized build.
 Before and after
 ^^^^^^^^^^^^^^^^
 
-Snapshots of the initial liquid and of the cured system, with all
-``C1–C2`` bonds rendered in licorice (intra-monomer in the "before"
-panel, intra- + inter-monomer in the "after" panel).  GMA molecules are
-mauve, STY are green:
+Snapshots of one complete crosslink site (three connected styrene
+units lifted from the cured box) alongside the initial liquid and
+the cured system.  Atoms are coloured CPK by element — carbon grey,
+nitrogen blue, oxygen red — so the colours in the detail panel
+transfer directly to the bulk views.  In the bulk panels the
+``C1``-``C2`` chain carbons of STY and HIE residues are drawn in
+thick CPK Licorice on a faded grey lines background, so the new
+chain bonds formed during cure stand out from the carrier mass:
 
 .. list-table::
 
-    * - .. figure:: pics/gma-sty-liq.png
+    * - .. figure:: pics/gma-sty-detail.png
 
-           Liquid before cure.  Each monomer's intra-monomer ``C1–C2``
+           One complete crosslink: three styrenes bonded into a chain
+           segment via cure-formed ``C1``-``C2`` C-C bonds.
+
+      - .. figure:: pics/gma-sty-liq.png
+
+           Liquid before cure.  Each monomer's intra-monomer ``C1``-``C2``
            single bond is in licorice; cure will convert most of these
            into the network backbone.
 
       - .. figure:: pics/gma-sty-cured.png
 
-           Cured system.  All ``C1–C2`` bonds (intra and inter) are now
-           in licorice; the new C–C inter-monomer bonds are the cure
-           crosslinks.
+           Cured system.  All ``C1``-``C2`` bonds (intra and inter)
+           are now in licorice; the new C-C inter-monomer bonds are
+           the cure crosslinks.
 
 Profile
 ^^^^^^^

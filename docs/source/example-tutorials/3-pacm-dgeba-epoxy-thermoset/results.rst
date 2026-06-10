@@ -46,13 +46,24 @@ For end-to-end traces from ``edr`` files:
 Before and after
 ^^^^^^^^^^^^^^^^
 
-Snapshots of the initial liquid vs. the cured network, with all bonds
-to crosslink sites rendered in licorice.  DGEBA molecules are mauve,
-PACM are green:
+Snapshots of one complete crosslink site (one PACM bonded to four
+DGEBAs at all four amine slots) alongside the initial liquid and
+the cured network.  Atoms are coloured CPK by element — carbon
+grey, nitrogen blue, oxygen red — so the colours in the detail
+panel transfer directly to the bulk views.  In the bulk panels the
+amine→epoxide chemistry atoms (PAC ``N1``/``N2``, DGE ``C1``/``C2``,
+hydroxyl carbons, and DGE oxygens) are drawn in thick CPK Licorice
+on a faded grey lines background, so the crosslink sites stand out
+from the DGEBA carrier mass:
 
 .. list-table::
 
-    * - .. figure:: pics/dge-pac-liq.png
+    * - .. figure:: pics/dge-pac-detail.png
+
+           One complete crosslink: one PACM bonded to four DGEBAs at
+           both amine slots of each nitrogen.
+
+      - .. figure:: pics/dge-pac-liq.png
 
            System before cure.
 

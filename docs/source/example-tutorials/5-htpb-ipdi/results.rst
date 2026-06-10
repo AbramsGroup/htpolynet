@@ -56,14 +56,24 @@ For end-to-end traces:
 Before and after
 ^^^^^^^^^^^^^^^^
 
-Snapshots of the densified liquid (no urethane bonds yet) and the
-cured polyurethane network.  HTPB ``DHT`` and ``THT`` chain
-residues (``OB``, ``TB``, ``TBO``) shown in mauve; IPD residues
-(the urethane crosslinkers) in green:
+Snapshots of one complete urethane crosslink site (one IPDI tethered
+to two HTPB chain ends) alongside the densified liquid and the cured
+network.  Atoms are coloured CPK by element — carbon grey, nitrogen
+blue, oxygen red — so the colours in the detail panel transfer
+directly to the bulk views.  In the bulk panels the polybutadiene
+backbone (``TB`` residues) is hidden — ex 5's crosslink density is
+so low that drawing the matrix swamps the urethane sites visually —
+and only the IPDI crosslinkers (``IPD``) and HTPB chain end-groups
+(``TBO``) are rendered, in thick CPK Licorice:
 
 .. list-table::
 
-    * - .. figure:: pics/htpb-ipdi-liq.png
+    * - .. figure:: pics/htpb-ipdi-detail.png
+
+           One complete crosslink: one IPDI bonded to two HTPB chain
+           ends via urethane bonds.
+
+      - .. figure:: pics/htpb-ipdi-liq.png
 
            System before cure: densified liquid of HTPB chains and
            free IPDs.
