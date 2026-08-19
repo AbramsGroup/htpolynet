@@ -46,6 +46,27 @@ A Docker Compose file is also provided in [docker/compose.yml](docker/compose.ym
 
 Please consult documentation at [htpolynet.readthedocs.io](https://htpolynet.readthedocs.io/).
 
+## Repository relocation
+
+This repository formerly lived at `AbramsGroup/HTPolyNet` and now lives at
+[cameronabrams/htpolynet](https://github.com/cameronabrams/htpolynet).  GitHub redirects
+the old URLs, so existing clones and forks continue to work; if you prefer, you can
+update your remote explicitly:
+
+```bash
+git remote set-url origin git@github.com:cameronabrams/htpolynet.git
+```
+
+## Acknowledgments
+
+htpolynet grew out of the original HTPolyNet prototype begun by Ming Huang in 2020.
+Ketan S. Khare contributed early LAMMPS-related utilities, and S. Alexis Paz contributed
+a bug fix.  The current package is a full rewrite, but the project owes its origins and
+its published description to that earlier work.  When using htpolynet in published work,
+please cite Huang and Abrams, *SoftwareX* **21**, 101303 (2023),
+[doi:10.1016/j.softx.2022.101303](https://doi.org/10.1016/j.softx.2022.101303), along with
+the GAFF and Gromacs papers listed in the [documentation](https://htpolynet.readthedocs.io/).
+
 ## Meta
 
 Cameron F. Abrams – cfa22@drexel.edu
