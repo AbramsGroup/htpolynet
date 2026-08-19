@@ -11,7 +11,7 @@ from ..utils.stringthings import my_logger
 
 banner_message="""
     htpolynet {:s}
-    https://abramsgroup.github.io/htpolynet/
+    https://htpolynet.readthedocs.io/
 
     Ming Huang
     mh3429@dragons.drexel.edu

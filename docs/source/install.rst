@@ -94,7 +94,7 @@ Install ``htpolynet`` into a uv-managed virtualenv:
 
 .. code-block:: console
 
-    $ git clone git@github.com:AbramsGroup/htpolynet.git
+    $ git clone git@github.com:cameronabrams/htpolynet.git
     $ cd htpolynet
     $ uv venv
     $ uv pip install -e .

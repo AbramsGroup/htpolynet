@@ -4,20 +4,20 @@ Container Usage
 ---------------
 
 A pre-built container image is published to the GitHub Container Registry at
-``ghcr.io/abramsgroup/htpolynet:latest``.  It bundles Gromacs, AmberTools,
+``ghcr.io/cameronabrams/htpolynet:latest``.  It bundles Gromacs, AmberTools,
 OpenBabel, and ``htpolynet`` itself, so no local installation of any of these
 tools is required.
 
 .. note::
 
   The image is published only to GHCR, not to Docker Hub.  Always refer to it
-  by its full path ``ghcr.io/abramsgroup/htpolynet[:tag]``.  A bare reference
+  by its full path ``ghcr.io/cameronabrams/htpolynet[:tag]``.  A bare reference
   like ``docker run htpolynet ...`` will fail because Docker resolves unqualified
   names against Docker Hub (``docker.io/library/htpolynet``), where no such
   image exists.  If you want a short local alias, tag the pulled image once::
 
-    $ docker pull ghcr.io/abramsgroup/htpolynet:latest
-    $ docker tag ghcr.io/abramsgroup/htpolynet:latest htpolynet
+    $ docker pull ghcr.io/cameronabrams/htpolynet:latest
+    $ docker tag ghcr.io/cameronabrams/htpolynet:latest htpolynet
 
 Desktop Users (Docker)
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -28,7 +28,7 @@ and Mac) or Docker Engine (Linux) is required.
 The recommended way to use the image is with Docker Compose.  Either fetch
 the file from the repository::
 
-  $ curl -O https://raw.githubusercontent.com/AbramsGroup/htpolynet/main/docker/compose.yml
+  $ curl -O https://raw.githubusercontent.com/cameronabrams/htpolynet/main/docker/compose.yml
 
 or save the following as ``compose.yml`` in your working directory:
 
@@ -36,7 +36,7 @@ or save the following as ``compose.yml`` in your working directory:
 
   services:
     htpolynet:
-      image: ghcr.io/abramsgroup/htpolynet:latest
+      image: ghcr.io/cameronabrams/htpolynet:latest
       volumes:
         - ${PWD}:/work:Z
         - htpolynet-home:/home/htpolynet
@@ -130,7 +130,7 @@ installed, add a ``deploy`` block to your local copy of ``compose.yml``:
 
   services:
     htpolynet:
-      image: ghcr.io/abramsgroup/htpolynet:latest
+      image: ghcr.io/cameronabrams/htpolynet:latest
       volumes:
         - ${PWD}:/work:Z
         - htpolynet-home:/home/htpolynet
@@ -174,7 +174,7 @@ can share it):
 
 .. code-block:: console
 
-  $ singularity pull htpolynet.sif docker://ghcr.io/abramsgroup/htpolynet:latest
+  $ singularity pull htpolynet.sif docker://ghcr.io/cameronabrams/htpolynet:latest
 
 Then run it, binding your working directory:
 

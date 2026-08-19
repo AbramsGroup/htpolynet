@@ -1,6 +1,6 @@
 services:
   htpolynet:
-    image: ghcr.io/abramsgroup/htpolynet:latest
+    image: ghcr.io/cameronabrams/htpolynet:latest
     volumes:
       - ${PWD}:/work:Z
       - htpolynet-home:/home/htpolynet

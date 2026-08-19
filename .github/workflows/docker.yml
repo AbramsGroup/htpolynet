@@ -32,5 +32,5 @@ jobs:
         file: docker/Dockerfile
         push: true
         tags: |
-          ghcr.io/abramsgroup/htpolynet:latest
-          ghcr.io/abramsgroup/htpolynet:${{ github.sha }}
+          ghcr.io/cameronabrams/htpolynet:latest
+          ghcr.io/cameronabrams/htpolynet:${{ github.sha }}

@@ -225,7 +225,7 @@ Now, with a single invocation of ``htpolynet plots``, we can compute T\ :sub:`g`
     $ htpolynet plots post --cfg postsim.yaml --proj proj-0
     INFO>                                                                    
     INFO>     HTPolyNet 1.0.6                                                
-    INFO>     https://abramsgroup.github.io/HTPolyNet/                       
+    INFO>     https://htpolynet.readthedocs.io/                              
     INFO>                                                                    
     INFO>     Ming Huang                                                     
     INFO>     mh3429@dragons.drexel.edu                                      

@@ -38,9 +38,9 @@ dependencies = [
 dev = ["pytest"]
 
 [project.urls]
-"Source" = "https://github.com/AbramsGroup/htpolynet"
+"Source" = "https://github.com/cameronabrams/htpolynet"
 "Documentation" = "https://htpolynet.readthedocs.io/"
-"Bug Tracker" = "https://github.com/AbramsGroup/htpolynet/issues"
+"Bug Tracker" = "https://github.com/cameronabrams/htpolynet/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/htpolynet"]

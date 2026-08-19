@@ -8,7 +8,7 @@
 #
 # Build context must be the repo root (this Dockerfile lives in docker/):
 #
-#   docker build -f docker/Dockerfile -t ghcr.io/abramsgroup/htpolynet:latest .
+#   docker build -f docker/Dockerfile -t ghcr.io/cameronabrams/htpolynet:latest .
 #
 # Recommended usage is via Docker Compose; see docker/compose.yml and
 # docs/source/user-guide/container-usage.rst for the full story (incl. GPU
@@ -18,12 +18,12 @@
 #
 # Raw `docker run` equivalent:
 #
-#   docker run --rm -v $(pwd):/work ghcr.io/abramsgroup/htpolynet run config.yaml
+#   docker run --rm -v $(pwd):/work ghcr.io/cameronabrams/htpolynet run config.yaml
 #
 # GPU support (requires nvidia-container-toolkit):
 #
 #   docker run --rm --gpus all -v $(pwd):/work \
-#       ghcr.io/abramsgroup/htpolynet run config.yaml
+#       ghcr.io/cameronabrams/htpolynet run config.yaml
 
 FROM condaforge/miniforge3:latest
 
