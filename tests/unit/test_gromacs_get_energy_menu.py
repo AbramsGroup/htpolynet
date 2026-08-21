@@ -6,6 +6,7 @@
 .. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
 
 """
+import shutil
 import unittest
 import importlib.resources
 import logging
@@ -13,6 +14,9 @@ logger=logging.getLogger(__name__)
 
 from htpolynet.external.gromacs import get_energy_menu
 
+# These shell out to `gmx energy`; skip rather than fail where it is absent
+# (e.g. a plain CI runner) so the rest of the suite still reports.
+@unittest.skipIf(shutil.which('gmx') is None, 'gmx not on PATH')
 class TestGetEnergyMenu(unittest.TestCase):
     def setUp(self,loglevel='debug',logfile='testlog.log'):
         log_destination=str(importlib.resources.files('tests').joinpath(logfile))

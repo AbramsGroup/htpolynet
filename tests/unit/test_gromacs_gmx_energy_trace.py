@@ -6,6 +6,7 @@
 .. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
 
 """
+import shutil
 import unittest
 import importlib.resources
 import logging
@@ -15,6 +16,9 @@ import os
 
 from htpolynet.external.gromacs import gmx_energy_trace
 
+# These shell out to `gmx energy`; skip rather than fail where it is absent
+# (e.g. a plain CI runner) so the rest of the suite still reports.
+@unittest.skipIf(shutil.which('gmx') is None, 'gmx not on PATH')
 class TestGmxEnergyTrace(unittest.TestCase):
     def setUp(self,loglevel='debug',logfile='testlog.log'):
         log_destination=str(importlib.resources.files('tests').joinpath(logfile))

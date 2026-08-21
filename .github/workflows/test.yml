@@ -1,0 +1,30 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  unit:
+    name: unit (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # floor and current; pyproject requires-python is >=3.10
+        python-version: ['3.10', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      # Tests needing antechamber/tleap/parmchk2/gmx skip themselves when those
+      # binaries are absent, so this runner needs no MD toolchain.  Everything
+      # that does not shell out still runs -- ~250 tests in a few seconds.
+      - name: Run unit tests
+        run: >
+          uv run --python ${{ matrix.python-version }} --extra test
+          pytest tests/unit -q

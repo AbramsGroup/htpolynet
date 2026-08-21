@@ -36,6 +36,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **CI now runs the unit suite** (`.github/workflows/test.yml`), on pushes
+  to `main` and on every pull request, across Python 3.10 and 3.13.  Nothing
+  ran the tests automatically before, which is how a broken import sat in
+  `test_resources.py` aborting collection indefinitely.
+- Tests that shell out to `gmx` / `antechamber` / `tleap` / `parmchk2` now
+  skip when those binaries are absent instead of failing, so a runner with
+  no MD toolchain still reports the ~250 tests that do not need one (in
+  under 4 seconds).
+- Test coverage for four modules that had none.  Overall coverage 34.4% ->
+  38.8%.
+  - `external/slurm.py` 0% -> 98%: directive ordering, pass-through of
+    unrecognised keys, container vs. native invocation, `--nv` gating on
+    `gres`, and `htpolynet run` argument assembly.  `gen-slurm-script` is
+    what the HPC docs now tell users to run; nothing verified it.
+  - `external/smiles_input.py` 0% -> 84%: atom-map detection, which
+    constituents get materialized, refusal to clobber a hand-edited mol2,
+    and generated atom naming.  Every depot example goes through this path.
+  - `utils/inputcheck.py` 0% -> 70%: atom-count arithmetic, zero-count and
+    missing-structure constituents, wt-% suppression without masses.
+  - `analysis/plot.py` 6.7% -> 34%: smoke tests over every figure entry
+    point.  Verified to fail against the pre-fix module under matplotlib
+    3.11, i.e. these would have caught the `cm.get_cmap` removal before it
+    cost a cluster run.
 - `test` optional-dependency extra (`uv run --extra test pytest tests/unit`),
   with `dev` kept as an alias so both spellings work.
 

@@ -12,6 +12,8 @@ PATH — conftest.py prepends the active conda environment's bin dir automatical
 Author: Cameron F. Abrams <cfa22@drexel.edu>
 """
 import os
+import shutil
+
 import pytest
 
 from htpolynet.core.molecule import Molecule
@@ -20,6 +22,13 @@ from htpolynet.core.topocoord import find_template
 from htpolynet.cure.expandreactions import bondchain_expand_reactions
 from htpolynet.cure.reaction import Reaction, reaction_stage
 import htpolynet.core.projectfilesystem as pfs
+
+_REQUIRED_TOOLS = ('antechamber', 'parmchk2', 'tleap', 'gmx')
+_MISSING = [t for t in _REQUIRED_TOOLS if shutil.which(t) is None]
+pytestmark = pytest.mark.skipif(
+    bool(_MISSING),
+    reason=f'external tools not on PATH: {", ".join(_MISSING)}',
+)
 
 
 # ---------------------------------------------------------------------------
