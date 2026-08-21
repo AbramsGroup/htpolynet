@@ -4,7 +4,7 @@
 Release History
 ###############
 
-2.0.0 — 2026-04-15
+2.0.0 — 2026-05-07
 ===================
 
 * Package renamed from ``HTPolyNet`` to ``htpolynet`` (fully lowercase) for PEP 8 compliance and PyPI consistency.

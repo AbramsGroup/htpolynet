@@ -4,7 +4,7 @@ htpolynet package
 htpolynet
 ---------
 
-.. automodule:: htpolynet.driver
+.. automodule:: htpolynet.cli
    :members:
    :undoc-members:
    :show-inheritance:
@@ -34,6 +34,11 @@ htpolynet.analysis
 
 htpolynet.core
 --------------
+
+.. automodule:: htpolynet.core.bondtemplate
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 .. automodule:: htpolynet.core.configuration
    :members:
@@ -88,14 +93,6 @@ htpolynet.io
    :undoc-members:
    :show-inheritance:
 
-htpolynet.core
---------------
-
-.. automodule:: htpolynet.core.bondtemplate
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 htpolynet.cure
 --------------
 
@@ -142,10 +139,25 @@ htpolynet.external
    :undoc-members:
    :show-inheritance:
 
+.. automodule:: htpolynet.external.slurm
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: htpolynet.external.smiles_input
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 htpolynet.geometry
 ------------------
 
 .. automodule:: htpolynet.geometry.bondlist
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: htpolynet.geometry.lattice
    :members:
    :undoc-members:
    :show-inheritance:
@@ -161,6 +173,24 @@ htpolynet.geometry
    :show-inheritance:
 
 .. automodule:: htpolynet.geometry.ring
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+htpolynet.repair
+----------------
+
+.. automodule:: htpolynet.repair
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: htpolynet.repair.cyanate_cap
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: htpolynet.repair.topology_surgery
    :members:
    :undoc-members:
    :show-inheritance:
@@ -193,7 +223,17 @@ htpolynet.utils
    :undoc-members:
    :show-inheritance:
 
+.. automodule:: htpolynet.utils.profiling
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 .. automodule:: htpolynet.utils.stringthings
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: htpolynet.utils.vmd_viz
    :members:
    :undoc-members:
    :show-inheritance:

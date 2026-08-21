@@ -193,6 +193,7 @@ def classify_command(command: str) -> str:
     """Classify a shell command string into a profile category.
 
     Aims to be coarse but informative:
+
     - ``gmx mdrun ...`` → ``gmx-mdrun``; ``gmx grompp ...`` → ``gmx-grompp``;
       similarly for other subcommands.
     - ``antechamber``, ``parmchk2``, ``tleap``, ``obabel`` → kept as-is.

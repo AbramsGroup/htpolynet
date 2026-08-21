@@ -18,6 +18,7 @@ using Gromacs.
 
    install
    changelog
+   release-history
    user-guide/index
    example-tutorials/index
    references/index

@@ -86,6 +86,7 @@ class BondTemplate:
         valid description of `other` (an as-found system bond instance).
 
         Strict equality on:
+
         - atom names (``names``)
         - residue names (``resnames``) and ``intraresidue`` flag
         - one-away context (``oneaway_resnames`` / ``oneaway_atomnames``) —
@@ -93,6 +94,7 @@ class BondTemplate:
           trimer- vs tetramer-context bonds, so the match has to be exact.
 
         Subset semantics on bystanders:
+
         - paired ``(bystander_resname, bystander_atomname)`` items are
           treated as a multiset on each side; every item the template
           declares must appear in the instance, but the instance may

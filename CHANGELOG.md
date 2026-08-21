@@ -30,9 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `densification.initial_density` 30 → 50 kg/m³, densification
   NPT `repeat` 25 → 20, precure anneal segment durations 500 →
   200 ps, postcure postequilibration 1000 → 200 ps.  The build
-  still converges; total wall time drops by several hours.  (Got
-  bundled into commit 43c07dc; this entry documents it
-  separately since it's an independent change.)
+  still converges; total wall time drops by several hours.
 
 ### Added
 
@@ -44,24 +42,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   skip when those binaries are absent instead of failing, so a runner with
   no MD toolchain still reports the ~250 tests that do not need one (in
   under 4 seconds).
-- Test coverage for four modules that had none.  Overall coverage 34.4% ->
-  38.8%.
-  - `external/slurm.py` 0% -> 98%: directive ordering, pass-through of
-    unrecognised keys, container vs. native invocation, `--nv` gating on
-    `gres`, and `htpolynet run` argument assembly.  `gen-slurm-script` is
-    what the HPC docs now tell users to run; nothing verified it.
-  - `external/smiles_input.py` 0% -> 84%: atom-map detection, which
-    constituents get materialized, refusal to clobber a hand-edited mol2,
-    and generated atom naming.  Every depot example goes through this path.
-  - `utils/inputcheck.py` 0% -> 70%: atom-count arithmetic, zero-count and
-    missing-structure constituents, wt-% suppression without masses.
-  - `analysis/plot.py` 6.7% -> 34%: smoke tests over every figure entry
-    point.  Verified to fail against the pre-fix module under matplotlib
-    3.11, i.e. these would have caught the `cm.get_cmap` removal before it
-    cost a cluster run.
+- Test coverage for `external/slurm.py` (0% -> 98%),
+  `external/smiles_input.py` (0% -> 84%), `utils/inputcheck.py`
+  (0% -> 70%), and `analysis/plot.py` (6.7% -> 34%), none of which had
+  any.  Overall coverage 34.4% -> 38.8%.  The plot smoke tests were
+  checked against the pre-fix module under matplotlib 3.11 and do fail
+  there, so they would have caught the `cm.get_cmap` removal.
+- Docker image now carries an `org.opencontainers.image.source` label,
+  linking the published GHCR package back to the repository.  Without
+  it the package is orphaned: it doesn't appear on the repo page and
+  doesn't inherit repository-based access permissions.
 - `test` optional-dependency extra (`uv run --extra test pytest tests/unit`),
   with `dev` kept as an alias so both spellings work.
-
 - `scripts/run_all_examples.sh`: fail-fast preflight that checks
   every required native tool (`htpolynet`, `antechamber`,
   `parmchk2`, `tleap`, `gmx`, `obabel`, `dot`) is on `PATH` before
@@ -90,6 +82,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **API reference documented a module that no longer exists.**
+  `docs/source/htpolynetpackage.rst` autodoc'd `htpolynet.driver`,
+  removed in the 2.0 refactor, so the package's top-level API section
+  rendered empty; it now documents `htpolynet.cli`.  The same page was
+  missing nine modules that do exist -- most notably the entire
+  `repair` subpackage (`repair.cyanate_cap`, `repair.topology_surgery`,
+  i.e. the postcure-repair machinery), plus `external.slurm`,
+  `external.smiles_input`, `geometry.lattice`, `utils.profiling`, and
+  `utils.vmd_viz`.  A duplicated `htpolynet.core` heading was merged.
+- `release-history.rst` appeared in no toctree, so the pre-2.0 release
+  history (1.0.7.2 back to 0.0.1, which `CHANGELOG.md` does not cover)
+  was unreachable from the docs.  Linked from `index.rst`; its 2.0.0
+  date corrected from 2026-04-15 to 2026-05-07 to match the tag.
+- Two docstrings (`BondTemplate.matches`,
+  `utils.profiling.classify_command`) opened bullet lists with no
+  preceding blank line, which docutils rejects; both rendered as
+  errors.  `conf.py` also pointed `html_static_path` at a
+  `docs/source/_static` that did not exist.  The docs now build with
+  zero warnings.
 - **The unit suite could not run at all.**  `tests/unit/test_resources.py`
   imported `RuntimeLibrary` from `htpolynet.utils.projectfilesystem` and
   `Software` from `htpolynet.external.software`; neither symbol nor that
@@ -139,10 +150,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   exception and logs `reaction_network.png render failed` -- so
   container builds simply came out with no reaction-network figure.
   Found while porting example 6 to Picotte via Apptainer.
-- Docker image now carries an `org.opencontainers.image.source` label,
-  linking the published GHCR package back to the repository.  Without
-  it the package is orphaned: it doesn't appear on the repo page and
-  doesn't inherit repository-based access permissions.
 - `htpolynet plots diag` parser templates: the module-path token
   the matcher keyed on was `HTPolyNet.runtime.my_logger` /
   `HTPolyNet.curecontroller.do_iter` from the pre-2.0 namespace.
