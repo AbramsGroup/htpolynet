@@ -6,7 +6,6 @@
 .. moduleauthor: Cameron F. Abrams, <cfa22@drexel.edu>
 
 """
-import pytest
 import unittest
 import logging
 logger=logging.getLogger(__name__)
@@ -72,21 +71,33 @@ class TestChain(unittest.TestCase):
         cm.injest_bond(4,1)
         self.assertTrue(cm.chains[0].is_cyclic)
 
-    def testchain_error1(self):
-        with pytest.raises(Exception) as e_info:
-            cm=ChainManager(create_if_missing=True)
-            cm.injest_bond(1,2)
-            cm.injest_bond(2,3)
-            # atom 3 is not in a chain
-        self.assertEqual(e_info.value.args[0],'This is a bug - no j-chain!')
-    
-    def testchain_error2(self):
-        with pytest.raises(Exception) as e_info:
-            cm=ChainManager(create_if_missing=True)
-            cm.injest_bond(1,2)
-            cm.injest_bond(5,1)
-            # atom 5 is not a chain
-        self.assertEqual(e_info.value.args[0],'This is a bug - no i-chain!')
+    def testchain_bond_to_nonchain_atom_extends_at_tail(self):
+        """Bonding a chain tail to a chain-less atom appends it.
+
+        This used to raise 'This is a bug - no j-chain!'.  It is legitimate
+        for non-vinyl chemistry (e.g. HTPB chain assembly, where reactive
+        methyls belong to no C=C pair), so injest_bond now extends the chain
+        instead of raising.
+        """
+        cm=ChainManager(create_if_missing=True)
+        cm.injest_bond(1,2)
+        cm.injest_bond(2,3)   # atom 3 is in no chain; 2 is the tail
+        self.assertEqual(len(cm.chains),1)
+        self.assertEqual(cm.chains[0].idx_list,[1,2,3])
+
+    def testchain_bond_to_nonchain_atom_extends_at_head(self):
+        """Symmetric case: the chain-less atom is the i-atom, bonding to a head."""
+        cm=ChainManager(create_if_missing=True)
+        cm.injest_bond(1,2)
+        cm.injest_bond(5,1)   # atom 5 is in no chain; 1 is the head
+        self.assertEqual(len(cm.chains),1)
+        self.assertEqual(cm.chains[0].idx_list,[5,1,2])
+
+    def testchain_no_create_if_missing_is_a_noop(self):
+        """Without create_if_missing, a bond between two chain-less atoms is ignored."""
+        cm=ChainManager()
+        cm.injest_bond(1,2)
+        self.assertEqual(len(cm.chains),0)
 
     def testchain_todataframe(self):
         df=pd.DataFrame({'globalIdx':[1,2,3,4,5,6],'bondchain':[-1]*6,'bondchain_idx':[-1]*6})

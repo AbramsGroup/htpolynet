@@ -35,6 +35,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# `test` is the canonical name; `dev` kept as an alias so both
+# `uv run --extra test pytest` and `--extra dev` work.
+test = ["pytest"]
 dev = ["pytest"]
 
 [project.urls]

@@ -11,6 +11,7 @@ import logging
 logger=logging.getLogger(__name__)
 import htpolynet.core.topology as tp
 import os
+import tempfile
 import pandas as pd
 import numpy as np
 
@@ -27,14 +28,16 @@ class TestTopology(unittest.TestCase):
         for c in [f'c{i}' for i in range(6)]:
             self.assertTrue(all(T.D['dihedrals'][c]==tp._PAD_))
     def test_write_top(self):
-        if os.path.exists('write_test.top'):
-            os.remove('write_test.top')
         fn='test.top'
         T=tp.Topology.read_top(fn)
-        T.write_top('write_test.top')
-        self.assertTrue(os.path.exists('write_test.top'))
-        W=tp.Topology.read_top('write_test.top',pad=pd.NA)
-        os.remove('write_test.top')
+        # write into a temp dir: the conftest change_test_dir fixture puts cwd
+        # inside the repo, so writing here leaves an artifact behind whenever
+        # the test fails or is interrupted before its cleanup runs
+        with tempfile.TemporaryDirectory() as td:
+            out=os.path.join(td,'write_test.top')
+            T.write_top(out)
+            self.assertTrue(os.path.exists(out))
+            W=tp.Topology.read_top(out,pad=pd.NA)
         self.assertTrue(all(W.D['bonds']['c1'].isna()))
         self.assertTrue(all(W.D['bonds']['c0'].isna()))
         self.assertTrue(all(W.D['angles']['c1'].isna()))

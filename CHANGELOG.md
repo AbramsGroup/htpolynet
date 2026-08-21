@@ -36,6 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `test` optional-dependency extra (`uv run --extra test pytest tests/unit`),
+  with `dev` kept as an alias so both spellings work.
+
 - `scripts/run_all_examples.sh`: fail-fast preflight that checks
   every required native tool (`htpolynet`, `antechamber`,
   `parmchk2`, `tleap`, `gmx`, `obabel`, `dot`) is on `PATH` before
@@ -64,6 +67,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The unit suite could not run at all.**  `tests/unit/test_resources.py`
+  imported `RuntimeLibrary` from `htpolynet.utils.projectfilesystem` and
+  `Software` from `htpolynet.external.software`; neither symbol nor that
+  module path survived the 2.0 refactor.  Because the imports were at
+  module scope, collection aborted for the *entire* `tests/unit` tree, so
+  `pytest tests/unit` had been failing outright rather than reporting
+  results.  Rewritten against the current `SystemLibrary` API (15 tests).
+- Two `test_chain.py` tests asserted exceptions (`'This is a bug - no
+  i-chain!'` / `'no j-chain!'`) that no longer exist anywhere in the
+  source: `cure/chain.py` deliberately replaced them with graceful chain
+  extension, since bonding to a chain-less atom is legitimate for
+  non-vinyl chemistry such as HTPB assembly.  Rewritten to assert the
+  current semantics, plus a new test for the `create_if_missing=False`
+  branch.  These had been invisible behind the collection failure above.
+- `test_write_top` wrote its scratch file into the repository.  The
+  autouse `change_test_dir` fixture chdirs each test into a directory
+  inside the source tree, and cleanup only ran on the success path, so
+  any failure or interrupt left `tests/unit/test_topology/write_test.top`
+  behind.  Now uses `tempfile.TemporaryDirectory`.
 - **Every plot call crashed on matplotlib 3.11.**  `analysis/plot.py`
   called `matplotlib.cm.get_cmap`, deprecated in 3.7 and removed in
   3.11, at five sites.  Since `pyproject.toml` floors matplotlib at
