@@ -26,11 +26,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ship.  `pip install htpolynet` (or `uv pip install -e .` from the
   repo) now installs RDKit automatically; `'htpolynet[smiles]'` is
   no longer needed (and is gone from `install.rst`).
-- Example 5 (`5-htpb-ipdi.yaml`) retuned for shorter wall-clock:
-  `densification.initial_density` 30 → 50 kg/m³, densification
-  NPT `repeat` 25 → 20, precure anneal segment durations 500 →
-  200 ps, postcure postequilibration 1000 → 200 ps.  The build
-  still converges; total wall time drops by several hours.
+- Example 5 (`5-htpb-ipdi.yaml`) retuned for shorter wall-clock.
+  The saving comes from a smaller system: the monomer pool drops
+  from 125/50/50 to 50/20/20 (IPD/DHT/THT), keeping IPD at
+  (2·DHT + 3·THT)/2 so every crosslinker still has both NCO groups
+  spoken for at full conversion.  Precure anneal segments go 500 →
+  200 ps and postcure postequilibration 1000 → 200 ps.
+  Densification was re-balanced for the smaller box in the other
+  direction — `initial_density` 50 → 10 kg/m³ to give the long HTPB
+  chains room to relax without overlap, and NPT `repeat` 20 → 50 so
+  the looser start still reaches target density — so densification
+  itself does more work, on a much smaller system.  The build still
+  converges.
 
 ### Added
 
