@@ -55,6 +55,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Container image was missing the `graphviz` system package, so the
+  `dot` binary `htpolynet.analysis.plot.draw_reaction_dag` shells out
+  to was absent.  `pyproject.toml` declares the `graphviz` Python
+  binding but the Dockerfile only apt-installed `openbabel` and
+  `gosu`.  Failure was silent-ish -- `cure/reaction.py` catches the
+  exception and logs `reaction_network.png render failed` -- so
+  container builds simply came out with no reaction-network figure.
+  Found while porting example 6 to Picotte via Apptainer.
+- Docker image now carries an `org.opencontainers.image.source` label,
+  linking the published GHCR package back to the repository.  Without
+  it the package is orphaned: it doesn't appear on the repo page and
+  doesn't inherit repository-based access permissions.
 - `htpolynet plots diag` parser templates: the module-path token
   the matcher keyed on was `HTPolyNet.runtime.my_logger` /
   `HTPolyNet.curecontroller.do_iter` from the pre-2.0 namespace.

@@ -27,11 +27,15 @@
 
 FROM condaforge/miniforge3:latest
 
+# Links the published GHCR package to its source repository.
+LABEL org.opencontainers.image.source="https://github.com/cameronabrams/htpolynet"
+
 # Install Gromacs and AmberTools (latest available on conda-forge).
 # Miniforge ships with mamba for fast solves; conda-forge is the only
 # channel.  No Anaconda Inc. ToS dependency.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         openbabel \
+        graphviz \
         gosu \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
