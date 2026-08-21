@@ -1,6 +1,14 @@
 # htpolynet
 > High-Throughput Polymer Network Atomistic Simulations
 
+[![tests](https://github.com/cameronabrams/htpolynet/actions/workflows/test.yml/badge.svg)](https://github.com/cameronabrams/htpolynet/actions/workflows/test.yml)
+[![PyPI](https://img.shields.io/pypi/v/htpolynet.svg)](https://pypi.org/project/htpolynet/)
+[![conda-forge](https://img.shields.io/conda/vn/conda-forge/htpolynet)](https://anaconda.org/conda-forge/htpolynet)
+[![Python](https://img.shields.io/pypi/pyversions/htpolynet)](https://pypi.org/project/htpolynet/)
+[![License: MIT](https://img.shields.io/pypi/l/htpolynet)](https://github.com/cameronabrams/htpolynet/blob/main/LICENSE)
+[![Docs](https://readthedocs.org/projects/htpolynet/badge/?version=latest)](https://htpolynet.readthedocs.io/en/latest/)
+[![PyPI Downloads](https://static.pepy.tech/badge/htpolynet)](https://pepy.tech/projects/htpolynet)
+
 htpolynet is a Python utility for generating atomistic models of cross-linked polymer networks together with appropriate topology and parameter files required for molecular dynamics simulations using Gromacs.  It is intended as a fully automated system builder requiring as inputs only the molecular structures of any monomer species, a description of the polymerization chemistry, and a handful of options describing desired system size and composition.  htpolynet uses the Generalized Amber Force Field for atom-typing and parameter generation.
 
 ## Installation
