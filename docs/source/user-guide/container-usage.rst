@@ -182,11 +182,17 @@ Then run it, binding your working directory:
 
   $ singularity run --bind $(pwd):/work --pwd /work htpolynet.sif run config.yaml
 
-For GPU nodes, add the ``--nv`` flag:
+.. warning::
 
-.. code-block:: console
-
-  $ singularity run --nv --bind $(pwd):/work --pwd /work htpolynet.sif run config.yaml
+  **The bundled Gromacs is not a CUDA build.**  The image installs Gromacs
+  from conda-forge, whose default package is compiled with OpenCL rather than
+  CUDA support, and Gromacs no longer supports OpenCL on NVIDIA devices.  So
+  ``--nv`` and ``--gres=gpu:...`` buy you nothing with this image: target a
+  CPU partition instead.  ``htpolynet`` detects this at startup, reports
+  ``unusable`` in its GPU banner, drops any ``gpu_id`` from the config's
+  ``mdrun_options``, and adds ``-nb cpu`` to the ``mdrun`` command line.  If
+  you need GPU-accelerated Gromacs on a cluster, run htpolynet natively
+  against a CUDA-enabled Gromacs module rather than through this container.
 
 Example shell scripts work the same way as under Docker — the entrypoint will
 recognize ``bash`` as an executable and exec it directly:
@@ -196,20 +202,67 @@ recognize ``bash`` as an executable and exec it directly:
   $ singularity run --bind $(pwd):/work --pwd /work htpolynet.sif fetch-example 1
   $ singularity run --bind $(pwd):/work --pwd /work htpolynet.sif bash 1-polystyrene.sh --run
 
-A typical SLURM job script might look like:
+Submitting to SLURM
+"""""""""""""""""""
+
+Rather than hand-writing a batch script, let htpolynet generate one.  The
+:ref:`gen-slurm-script <usage_gen_slurm_script>` subcommand is container-aware:
+give it ``--sif`` and it emits a ready-to-submit script that invokes
+``htpolynet run`` inside the image.
+
+.. code-block:: console
+
+  $ htpolynet gen-slurm-script config.yaml \
+        --sif /shared/containers/htpolynet.sif \
+        --job-name htpolynet \
+        --partition <cpu-partition> \
+        --account <your-account> \
+        --nodes 1 --ntasks 1 --cpus-per-task 16 \
+        --time 8:00:00 \
+        -o submit.sh
+  $ sbatch submit.sh
+
+which writes:
 
 .. code-block:: bash
 
   #!/bin/bash
   #SBATCH --job-name=htpolynet
+  #SBATCH --partition=<cpu-partition>
+  #SBATCH --account=<your-account>
   #SBATCH --nodes=1
-  #SBATCH --ntasks=8
-  #SBATCH --gres=gpu:1          # remove if no GPU partition
-  #SBATCH --output=slurm-%j.out
+  #SBATCH --ntasks=1
+  #SBATCH --cpus-per-task=16
+  #SBATCH --time=8:00:00
+
+  apptainer exec \
+      --bind $(pwd):$(pwd) --pwd $(pwd) \
+      /shared/containers/htpolynet.sif \
+      htpolynet run config.yaml
+
+Two things to get right when sizing the request:
+
+* **Cores.** Gromacs stops scaling at a few hundred atoms per core, and a
+  cure run is dominated by *many short* ``mdrun`` invocations where
+  per-invocation startup cost matters more than peak throughput.  Check your
+  system size with ``htpolynet input-check config.yaml`` and pick cores
+  accordingly — for a 14,000-atom system, 16 cores is already near the knee,
+  and a full 48-core node would be slower, not faster.
+
+* **Filesystem.** A cure run does heavy small-file I/O every iteration, so
+  submit from a scratch or parallel filesystem rather than an NFS-mounted
+  home or group share.  Note that the generated script runs in the submit
+  directory and does not stage to node-local scratch, so copy results
+  somewhere permanent if your scratch is subject to a purge policy.
+
+If your cluster does not use SLURM, invoke the container directly in whatever
+batch script your scheduler wants:
+
+.. code-block:: bash
 
   SIF=/shared/containers/htpolynet.sif
 
-  singularity run --nv \
+  singularity run \
       --bind $SLURM_SUBMIT_DIR:/work \
       --pwd /work \
       $SIF run config.yaml -proj next

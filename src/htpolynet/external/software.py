@@ -46,6 +46,33 @@ def _detect_gpus():
         logger.debug('No GPUs detected; mdrun will use CPU only')
 
 
+def gpu_unusable_reasons():
+    """Returns the reasons mdrun cannot use GPU acceleration here; empty if it can.
+
+    Two independent failure modes.  The gmx binary may carry no GPU support
+    at all, or it may carry a backend that cannot drive the hardware that is
+    actually present.  `gpu_ids` is populated from nvidia-smi, so every entry
+    is an NVIDIA device -- and GROMACS dropped NVIDIA OpenCL support, so an
+    OpenCL build (as shipped by conda-forge, and hence by our container image)
+    cannot use them even though its GPU support is not 'disabled'.
+
+    Returns:
+        list: human-readable reasons; an empty list means GPUs are usable
+    """
+    backend = versions.get('gromacs_gpu', 'unknown')
+    reasons = []
+    if backend.lower() in ('disabled', 'no', 'none', 'off'):
+        reasons.append(f'gmx was built with GPU support {backend!r}')
+    if not gpu_ids:
+        reasons.append('no GPU devices detected on this host')
+    elif backend.lower() == 'opencl':
+        reasons.append(
+            f'gmx was built with GPU support {backend!r}, which GROMACS does '
+            'not support on the NVIDIA devices detected here'
+        )
+    return reasons
+
+
 def _mdrun_cmd(base):
     """Appends appropriate GPU/CPU flags to a base mdrun command string.
 
@@ -55,10 +82,10 @@ def _mdrun_cmd(base):
     Returns:
         str: command with GPU flags appended if needed
     """
-    if gpu_ids:
-        return base  # GROMACS auto-selects available GPUs
+    if gpu_unusable_reasons():
+        return f'{base} -nb cpu'  # force CPU for non-bonded when no usable GPU
     else:
-        return f'{base} -nb cpu'  # force CPU for non-bonded when no GPU present
+        return base  # GROMACS auto-selects available GPUs
 
 
 def _get_git_commit():
@@ -154,22 +181,18 @@ def set_gmx_preferences(gromacs_dict={}):
 def _enforce_gpu_consistency(gromacs_dict):
     """Strip mdrun_options.gpu_id when the runtime cannot honor it.
 
-    A `gpu_id` request is invalid (and will crash gmx mdrun) if either
-    (a) the gmx binary was built without GPU support, or (b) no GPU devices
-    are visible on the host.  In either case log a warning and remove the
-    option so the run can proceed on CPU.
+    A `gpu_id` request is invalid (and will crash gmx mdrun) whenever
+    `gpu_unusable_reasons()` is non-empty: the gmx binary lacks GPU support,
+    no GPU devices are visible, or the build's backend cannot drive the
+    devices that are.  Log a warning and remove the option so the run can
+    proceed on CPU.
     """
     if not isinstance(gromacs_dict, dict):
         return
     mdrun_options = gromacs_dict.get('mdrun_options')
     if not isinstance(mdrun_options, dict) or 'gpu_id' not in mdrun_options:
         return
-    gpu_support = versions.get('gromacs_gpu', 'unknown')
-    reasons = []
-    if gpu_support.lower() in ('disabled', 'no', 'none', 'off'):
-        reasons.append(f'gmx was built with GPU support {gpu_support!r}')
-    if not gpu_ids:
-        reasons.append('no GPU devices detected on this host')
+    reasons = gpu_unusable_reasons()
     if reasons:
         requested = mdrun_options.pop('gpu_id')
         logger.warning(
@@ -208,6 +231,9 @@ def to_string():
     r.append(f'{"GPU support":>12s}: {versions.get("gromacs_gpu","unknown")}')
     r.append('GPUs:')
     r.append(f'  {len(gpu_ids)} detected ({", ".join(str(i) for i in gpu_ids) if gpu_ids else "none — mdrun will use CPU"})')
+    unusable = gpu_unusable_reasons()
+    if gpu_ids and unusable:
+        r.append(f'  unusable: {"; ".join(unusable)} — mdrun will use CPU')
     return '\n'.join(r)
 
 

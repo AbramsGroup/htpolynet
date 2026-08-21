@@ -8,6 +8,7 @@ from datetime import datetime
 
 import yaml
 
+import matplotlib
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -18,6 +19,27 @@ from ..external.gromacs import *
 from ..utils.logsetup import setup_logging
 
 logger=logging.getLogger(__name__)
+
+
+def _get_cmap(name):
+    """Returns a named colormap, across matplotlib versions.
+
+    ``matplotlib.cm.get_cmap`` was deprecated in 3.7 and removed in 3.11, so
+    calling it breaks every plot on any reasonably fresh install -- including
+    the container image, which tracks the latest conda-forge matplotlib.  The
+    ``matplotlib.colormaps`` registry is the supported spelling from 3.5 on;
+    fall back to the old call only for matplotlib older than that.
+
+    Args:
+        name (str): colormap name, e.g. 'plasma'
+
+    Returns:
+        matplotlib.colors.Colormap: the named colormap
+    """
+    registry = getattr(matplotlib, 'colormaps', None)
+    if registry is not None:
+        return registry[name]
+    return cm.get_cmap(name)
 
 # prevents "RuntimeError: main thread is not in main loop" tk bug
 plt.switch_backend('agg')
@@ -35,7 +57,7 @@ def scatter(df,xcolumn,columns=[],outfile='plot.png',**kwargs):
     cmapname=kwargs.get('colormap','plasma')
     size=kwargs.get('size',(8,6))
     yunits=kwargs.get('yunits',None)
-    cmap=cm.get_cmap(cmapname)
+    cmap=_get_cmap(cmapname)
     fig,ax=plt.subplots(1,1,figsize=size)
     ax.set_xlabel(xcolumn)
     for n in columns:
@@ -64,7 +86,7 @@ def trace(qty, edrs, outfile='plot.png', yunits=None, **kwargs):
     cmapname = kwargs.get('colormap', 'plasma')
     size = kwargs.get('size', (8,6))
     avgafter = kwargs.get('avgafter', 0)
-    cmap = cm.get_cmap(cmapname)
+    cmap = _get_cmap(cmapname)
     xshift = 0.0
     chkpt = []
     for edr in edrs:
@@ -126,7 +148,7 @@ def multi_trace(dfL, xnames, ynames, labels=[], xlabel='time [ps]',ylabel='', ou
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     cmapname = kwargs.get('colormap', 'plasma')
-    cmap = cm.get_cmap(cmapname)
+    cmap = _get_cmap(cmapname)
 
     ndatasets = len(xnames)
     assert ndatasets == len(ynames)
@@ -164,7 +186,7 @@ def global_trace(df, names, outfile='plot.png', transition_times=[], markers=[],
     plt.xlabel('time (ps)')
     cmapname = kwargs.get('colormap','plasma')
     # yunits=kwargs.get('yunits',None)
-    cmap = cm.get_cmap(cmapname)
+    cmap = _get_cmap(cmapname)
     # print(f'in global_trace:\n{df.head().to_string()}')
 
     interval_times = []
@@ -415,7 +437,7 @@ def network_graph(G,filename,**kwargs):
     figsize=kwargs.get('figsize',(32,32))
     node_size=kwargs.get('node_size',200)
     with_labels=kwargs.get('with_labels',False)
-    cmap=cm.get_cmap('seismic')
+    cmap=_get_cmap('seismic')
     fig,ax=plt.subplots(1,1,figsize=figsize)
     ax.axis('off')
     molnames=list(set([n.get('molecule_name','anonymous') for k,n in G.nodes.items()]))

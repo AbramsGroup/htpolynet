@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Container docs' HPC section now leads with `htpolynet gen-slurm-script`
+  instead of a hand-written batch script -- the subcommand is already
+  Apptainer-aware (`--sif`), but was documented only in `usage.rst`,
+  so container users had no reason to find it.  The old example
+  defaulted to `--gres=gpu:1` and `--nv`, which is actively wrong for
+  this image (see the GPU entry under Fixed); replaced with a warning
+  explaining why CPU partitions are the right target, plus guidance on
+  sizing cores against system size and keeping the submit directory off
+  NFS.
 - `rdkit` promoted from the `[smiles]` optional extra to a core
   runtime dependency.  Every depot example uses atom-mapped SMILES
   (`[CH:1]`, `[NH2:2]`, etc.), so RDKit is required for any normal
@@ -55,6 +64,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Every plot call crashed on matplotlib 3.11.**  `analysis/plot.py`
+  called `matplotlib.cm.get_cmap`, deprecated in 3.7 and removed in
+  3.11, at five sites.  Since `pyproject.toml` floors matplotlib at
+  `>=3.5` with no ceiling, any reasonably fresh install -- including
+  the container image, which tracks latest conda-forge -- died with
+  `AttributeError: module 'matplotlib.cm' has no attribute
+  'get_cmap'` at the first density trace, i.e. *after* densification
+  had already burned its compute.  Replaced with a `_get_cmap()`
+  helper that prefers the `matplotlib.colormaps` registry and falls
+  back to the legacy call only below 3.5.  Caught by running example 6
+  on Picotte through the container.
+- GPU usability is now judged on whether the gmx build can actually
+  drive the detected devices, not merely on whether its GPU support is
+  non-`disabled`.  conda-forge (and hence our container) ships an
+  OpenCL Gromacs build; `gpu_ids` is populated from nvidia-smi and so
+  only ever lists NVIDIA devices, which Gromacs no longer drives via
+  OpenCL.  The previous check passed that combination through, so a
+  `gpu_id` from the config reached an `mdrun` that could not honor it.
+  New `software.gpu_unusable_reasons()` centralizes the predicate and
+  is used by `_mdrun_cmd`, `_enforce_gpu_consistency`, the startup
+  banner, and the `grompp_and_mdrun` backstop, which previously
+  duplicated a weaker hardware-only version of the test.
 - Container image was missing the `graphviz` system package, so the
   `dot` binary `htpolynet.analysis.plot.draw_reaction_dag` shells out
   to was absent.  `pyproject.toml` declares the `graphviz` Python

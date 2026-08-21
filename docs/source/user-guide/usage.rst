@@ -384,6 +384,8 @@ The ``analyze`` subcommand provides a shortcut interfaces to selected ``gmx``-st
 
 The arguments of ``analyze`` are similar to those of ``postsim``, except the configuration file specifies the analysis to perform, and the ``-proj`` specifies which project directories to perform the analysis in.  We demonstrate using ``htpolynet analyze`` in the tutorials.
 
+.. _usage_gen_slurm_script:
+
 ``htpolynet gen-slurm-script``
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
