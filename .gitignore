@@ -17,8 +17,6 @@ __pycache__/
 # C extensions
 *.so
 
-CLAUDE.md
-
 # Distribution / packaging
 .Python
 build/
