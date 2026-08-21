@@ -1,0 +1,50 @@
+cff-version: 1.2.0
+message: >-
+  If you use htpolynet in published work, please cite the SoftwareX article
+  under `preferred-citation`, along with the GAFF and Gromacs papers listed
+  in the documentation.
+title: htpolynet
+abstract: >-
+  Automated molecular-dynamics system builder for amorphous network polymers.
+  Generates atomistic models of cross-linked polymer networks, together with
+  the Gromacs topology and parameter files needed to simulate them, from only
+  the monomer structures, a description of the polymerization chemistry, and a
+  handful of system-size and composition options. Atom typing and parameter
+  generation use the General Amber Force Field.
+type: software
+authors:
+  - family-names: Abrams
+    given-names: Cameron F.
+    email: cfa22@drexel.edu
+    affiliation: Drexel University
+repository-code: https://github.com/cameronabrams/htpolynet
+url: https://htpolynet.readthedocs.io/
+license: MIT
+version: 2.1.0
+date-released: '2026-06-01'
+keywords:
+  - molecular dynamics
+  - crosslinked polymers
+  - thermosets
+  - polymer networks
+  - Gromacs
+  - GAFF
+preferred-citation:
+  type: article
+  title: >-
+    HTPolyNet: A general system generator for all-atom molecular simulations of
+    amorphous crosslinked polymers
+  authors:
+    - family-names: Huang
+      given-names: Ming
+    - family-names: Abrams
+      given-names: Cameron F.
+      email: cfa22@drexel.edu
+      affiliation: Drexel University
+  journal: SoftwareX
+  volume: 21
+  start: 101303
+  year: 2023
+  month: 2
+  issn: 2352-7110
+  doi: 10.1016/j.softx.2022.101303
