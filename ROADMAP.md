@@ -95,6 +95,18 @@ Coverage as of the last measurement: **38.8%** overall.
 
 ## Example depot
 
+- **Example 5 is still not laptop-scale.** The `68d81fb` retune cut the
+  monomer pool to make HTPB/IPDI "fit in a reasonable wall time on a
+  laptop", but a validation run on 16 CPU cores took **10h17m** — about
+  ten times any other example (the next longest, PACM/DGEBA, was 2h15m).
+  The cost is structural: densification starts at 10 kg/m³ in a 27 nm box
+  and needs all 50 NPT repeats to compress geometrically (a steady 2.9%
+  box-side reduction per repeat) up to ~860 kg/m³, and the cure stage then
+  does drag/relax on long chains. Worth revisiting whether the low
+  starting density is really necessary, or whether the example can start
+  denser with a shorter densification.
+
+
 - **More cyanate-ester variants.** Example 6 covers bisphenol-A
   dicyanate. The same reaction and repair machinery carries over to other
   bisphenol bridges with only a SMILES swap in `constituents` — bisphenol
