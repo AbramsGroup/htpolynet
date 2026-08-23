@@ -127,7 +127,7 @@ def _add_run_options(p, loglevel='debug'):
     p.add_argument('-restart',default=False,action='store_true',help='restart in latest proj dir (EXPERIMENTAL: broken at the cure stage; see usage docs)')
     p.add_argument('--no-banner',default=False,action='store_true',help='suppress the startup banner')
     p.add_argument('--force-parameterization',default=False,action='store_true',help='force GAFF parameterization of any input mol2 structures')
-    p.add_argument('--force-checkin',default=False,action='store_true',help='force check-in of generated parameter files to the system library')
+    p.add_argument('--force-checkin',default=False,action='store_true',help='overwrite entries already in the user library (~/.htpolynet, or $HTPOLYNET_CACHE) with newly generated parameter files; a name the library does not yet hold is checked in either way')
     p.add_argument('--param-only',default=False,action='store_true',help='stop after parameterizing molecules without building the full system')
     p.add_argument('--loglevel',type=str,default=loglevel,help='log level for the diagnostic file (debug|info)')
 

@@ -104,6 +104,113 @@ Coverage as of the last measurement: **38.8%** overall.
 - **`-restart` is documented as "EXPERIMENTAL: broken at the cure
   stage".** A build that dies mid-cure currently has to start over — the
   worst possible time to lose work, since cure is the longest stage.
+- **Make `input-check` a real config linter.** It currently reports only
+  the initial atom count. Everything a new config gets wrong is checkable
+  cheaply and statically, before the user spends hours discovering it:
+  (a) that each `symmetry_equivalent_atoms` group really is topologically
+  equivalent — RDKit canonical ranks with `breakTies=False` settle it in
+  about ten lines, and a wrong group silently generates reaction templates
+  the cure stage will never match; (b) that the A2+B3 site counts actually
+  balance at the given monomer `count`s, and that `desired_conversion` is
+  reachable given them; (c) that no `reactive_atoms` name collides with the
+  bare element names `_reset_names_to_element` assigns to every unmapped
+  atom, since the repair stage looks atoms up by name; (d) that the
+  requested `charge_method` matches the provenance record of any cached
+  parameterization of the same name -- the build itself now rejects a
+  mismatch, but reporting it in the pre-flight is cheaper than discovering
+  mid-run that half the molecules need re-parameterizing. Building the
+  cyanate-ester bridge series meant doing (a) and (b) by hand in a throwaway
+  RDKit script, which is exactly the work a user should not have to
+  reinvent.
+- **`-lib` is read-only, and nothing says so.** `pfs.checkout()` and
+  `pfs.exists()` consult the `-lib` user library first, then the user cache,
+  then the system library -- but `pfs.checkin()` writes unconditionally to the
+  user cache, and `UserLibrary` has no `checkin()` method at all. So pointing
+  a run at `-lib somewhere` redirects where it *reads* parameterizations from
+  while leaving where it *writes* them untouched. That asymmetry is invisible
+  from the flag, from `--help`, and from the docs, and it is a natural thing
+  to get wrong: a user who passes `-lib` for provenance reasonably concludes
+  their products are being contained there. Either `checkin()` should prefer
+  the user library when one is configured, or the flag and docs should say
+  plainly that it governs lookup only. Verified empirically 2026-08-23: with
+  `userlibrary` set, `pfs.checkin()` still landed the file in the user cache.
+
+- **No way to run without writing to the user library.** `pfs.checkin()`
+  declines to *replace* an entry unless `--force-checkin` is given, but it
+  always *writes* one the library does not yet hold, so any run adds every
+  molecule name it produces to `~/.htpolynet`. The flag's help text said
+  "force check-in of generated parameter files to the system library", which
+  reads as though check-in happens only with the flag, and it named the wrong
+  library; that wording is fixed, but the missing capability is real. The
+  calibration study wanted exactly this: a way to develop against a config
+  without its intermediate products accumulating in a library shared with
+  other work. Today the only lever is pointing `HTPOLYNET_CACHE` elsewhere,
+  which is a blunt instrument because it also hides the entries you *do* want
+  to reuse. A `--no-checkin` flag threaded through
+  `Runtime._checkin_parameterization()` would cover it in a few lines.
+
+- **Two different defaults for `charge_method`.** `AMBERTOOLS_DEFAULTS` in
+  `external/ambertools.py` says `bcc`, which is what a direct
+  `GAFFParameterize()` call with no directives gets; `Runtime.runtime_defaults`
+  says `gas`, which is what every actual build gets, because
+  `_apply_runtime_defaults()` fills it in before AmberTools is ever reached.
+  Both were already there and the provenance record is consistent either way
+  -- whichever default applies is the one recorded -- so this is a
+  readability trap rather than a live bug. It is still worth collapsing to
+  one value, and the answer is probably `gas`, since changing what builds
+  default to would silently change everyone's charges, which is the exact
+  class of harm the record was added to prevent.
+
+- **Nothing durable records that a build reused parameterizations of
+  unverified provenance.** The parameterization stage now warns per molecule
+  and again in a block at the end of the stage, but both live only in the
+  log, and a log is the first thing discarded. Someone reading a result six
+  months later -- or a reviewer asking what a published network was actually
+  parameterized with -- has no artifact to check. htpolynet writes no build
+  manifest today; `profile.json` holds timings only, and the diagnostic log
+  is the log. A small `build-manifest.json` in the project directory listing
+  each molecule, its origin (`newly parameterized` / `previously
+  parameterized`), and its provenance record where one exists would carry
+  that, and would be worth more than this one flag: it is also the natural
+  home for the config hash, the htpolynet and AmberTools versions, and the
+  seed once seeds exist. Raised by the calibration study, which caught the
+  original cache bug from a wall-clock anomaly rather than from any log line.
+
+- **A cached parameterization is not checked against the input structure
+  it was built from.** The provenance record added alongside the cache now
+  covers `charge_method`, `net_charge` and `atom_type` -- everything in the
+  AmberTools invocation -- but not the structure antechamber consumed. So
+  editing `lib/molecules/inputs/TAZ.mol2` and re-running still reuses the
+  parameterization of the *old* geometry, silently, exactly as the charge
+  method used to. Hashing the input would close it, and for a monomer that
+  is easy: `Molecule.parameterize()` has the input file in the working
+  directory at the moment it runs. Two things stopped it going in with the
+  rest: (a) a molecule built by a reaction has no stable input to hash --
+  `generate()` writes its mol2 from the merged reactant TopoCoord, whose
+  coordinates vary run to run, so hashing it would make every generated
+  molecule a permanent cache miss; the hash would have to be recorded only
+  for `origin == 'unparameterized'` monomers and compared only when both
+  sides carry one. (b) `Runtime._cached_parameterization_mismatch()` runs
+  before `generate()` checks the input structure out, and `pfs` has no way
+  to resolve a library file to an absolute path without copying it into the
+  working directory -- `checkout()` always copies. A `pfs.locate(filename)`
+  returning the resolved source path across user library, user cache and
+  system library is the missing piece, and is worth having on its own.
+
+- **No seed control anywhere, so a build cannot be reproduced.** Three
+  independent sources of randomness are all unseeded: `random.sample` for
+  conformer selection (`core/runtime.py`), `np.random.random()` for the
+  per-bond probability test (`cure/curecontroller.py`), and every `.mdp`
+  sets `gen-vel = yes` without `gen-seed`, so Gromacs picks a pseudo-random
+  one per run. Two runs of one config therefore diverge — example 6 gave 57
+  vs 60 incomplete triazines on two machines at the same 0.90 conversion.
+  That is convenient in one direction (independent replicas of a
+  quenched-disorder ensemble come free by re-running) but it means a build
+  reported in a paper cannot be reproduced exactly, and a failure seen once
+  may not reappear. The fix is a top-level `seed:` that feeds all three:
+  seed `random` and `np.random` at startup and write `gen-seed` into every
+  generated mdp, with replicas then requested by varying it rather than by
+  relying on entropy.
 - **Drop the pre-3.5 matplotlib fallback** in `analysis/plot.py`'s
   `_get_cmap()` once `matplotlib>=3.6` is a safe floor; the
   `matplotlib.colormaps` registry is then always present.

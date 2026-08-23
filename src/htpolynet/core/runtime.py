@@ -13,6 +13,7 @@ from copy import deepcopy
 import numpy as np
 
 from ..analysis.plot import trace
+from ..core import paramcache
 from ..core import projectfilesystem as pfs
 from ..core.configuration import Configuration
 from ..core.molecule import Molecule, MoleculeDict
@@ -148,6 +149,9 @@ class Runtime:
         if restart:
             logger.info(f'Restarting in {pfs.proj()}')
         self.molecules:MoleculeDict={}
+        # molecules reused from a library entry that carries no provenance
+        # record, collected for a stage-end summary; see generate_molecules
+        self.unverified_parameterizations=[]
         self.reactions:ReactionList=[]
         self.molecule_report={}
         self.maxconv=0.0
@@ -279,6 +283,7 @@ class Runtime:
         """
         for mname,M in self.molecules.items():
             M.origin='unparameterized'
+        self.unverified_parameterizations=[]
         pfs.go_to(pfs.Dirs.molecules_parameterized)
         my_logger(f'Templates in {pfs.cwd()}',logger.info)
         ess='' if len(self.molecules)==1 else 's'
@@ -321,6 +326,8 @@ class Runtime:
             for resolve_directive in resolve_type_discrepancies:
                 logger.info(f'Resolving type discrepancies for directive {resolve_directive}')
                 self._type_consistency_check(typename=resolve_directive['typename'],funcidx=resolve_directive.get('funcidx',4),selection_rule=resolve_directive['rule'])
+
+        self._report_unverified_parameterizations()
 
         ess='' if len(self.molecules)==1 else 's'
         logger.info(f'Generated {len(self.molecules)} molecule template{ess}')
@@ -601,6 +608,96 @@ class Runtime:
         except Exception as e:
             logger.warning(f'Could not write profile.json: {e}')
 
+    def _report_unverified_parameterizations(self):
+        """Summarizes, at the end of the parameterization stage, every molecule
+        reused from a library entry whose provenance could not be checked.
+
+        The per-molecule warning is right for grepping but wrong as the only
+        surface: it sits in a log that runs to thousands of lines, alongside
+        the ordinary "Using cached parameterization" line that this whole
+        mechanism exists because people read straight past.  A block at the end
+        of the stage is what someone scanning the tail of a log actually hits,
+        and it arrives while the expensive part of the build is still ahead of
+        them rather than behind.
+        """
+        if not self.unverified_parameterizations:
+            return
+        names = sorted(set(self.unverified_parameterizations))
+        ess = '' if len(names) == 1 else 's'
+        requested = paramcache.build_key(self.cfg.ambertools)
+        my_logger(f'{len(names)} parameterization{ess} of unverified provenance', logger.warning)
+        logger.warning(f'Reused from the library, but the library entry records nothing about how it')
+        logger.warning(f'was built, so this run could not confirm it was parameterized with the')
+        logger.warning(f'requested {requested["charge_method"]!r} charge method:')
+        my_logger(names, logger.warning)
+        logger.warning('Rebuild them from the current directives with --force-parameterization.')
+
+    @staticmethod
+    def _checkin_parameterization(mname, overwrite):
+        """Checks a molecule's parameterization files into the user library.
+
+        The provenance record is checked in only when the data files beside it
+        are.  pfs.checkin() will not replace a file that already exists unless
+        told to, and a library entry can be partially populated, so a record
+        checked in unconditionally could attach itself to files it does not
+        describe -- leaving the library asserting that a gas parameterization
+        was built with bcc, which is worse than the missing record it replaced.
+
+        Args:
+            mname (str): molecule name
+            overwrite (bool): replace files already in the library
+        """
+        entry = f'{pfs.Dirs.molecules_parameterized}/{mname}'
+        wrote_data = overwrite or not pfs.exists(f'{entry}.gro')
+        for ex in ['mol2', 'top', 'tpx', 'itp', 'gro', 'grx']:
+            pfs.checkin(f'{entry}.{ex}', overwrite=overwrite)
+        if wrote_data:
+            pfs.checkin(f'{entry}.{paramcache.CACHE_KEY_EXT}', overwrite=True)
+
+    def _cached_parameterization_mismatch(self, M):
+        """Returns descriptions of every way a cached parameterization of M
+        disagrees with what this run asks AmberTools for.
+
+        The cache is keyed on molecule name alone, so without this check a
+        configuration requesting one charge method silently reuses a
+        parameterization built with another, producing a system with mixed
+        charge methods and no indication of it anywhere in the output.
+
+        A library entry written before provenance records existed carries no
+        record to check.  That is reported and treated as a match, so that an
+        existing library keeps working; --force-parameterization remains the
+        way to be certain of what a build used.
+
+        Args:
+            M (Molecule): the molecule whose cached parameterization is in question
+
+        Returns:
+            list: descriptions of the differing directives; empty if the cached
+                parameterization agrees with this run or carries no record
+        """
+        requested = paramcache.build_key(self.cfg.ambertools)
+        # Discard any record left in the project directory by an earlier run so
+        # that what we check is the record belonging to the library entry that
+        # previously_parameterized() just found.
+        local = paramcache.key_filename(M.name)
+        if os.path.exists(local):
+            os.remove(local)
+        keyfile = os.path.join(pfs.Dirs.molecules_parameterized, local)
+        if pfs.exists(keyfile):
+            pfs.checkout(keyfile)
+        stored = paramcache.read_key(M.name)
+        if stored is None:
+            logger.warning(f'Cached parameterization for {M.name} carries no record of how it was built, '
+                           f'so it cannot be checked against the requested {requested["charge_method"]!r} '
+                           f'charge method; use --force-parameterization to rebuild it')
+            self.unverified_parameterizations.append(M.name)
+            return []
+        diffs = paramcache.describe_mismatch(stored, requested)
+        if diffs:
+            logger.info(f'Cached parameterization for {M.name} was built differently than this run requests '
+                        f'({"; ".join(diffs)}); re-parameterizing')
+        return diffs
+
     def _generate_molecule(self,M:Molecule,**kwargs):
         """Generates and parameterizes a single molecule based on the partially complete instance in parameter M.
 
@@ -609,18 +706,23 @@ class Runtime:
         """
         if M.origin!='unparameterized' and M.origin!='symmetry_product': return
         mname=M.name
-        checkin=pfs.checkin
         force_parameterization=kwargs.get('force_parameterization',False)
         force_checkin=kwargs.get('force_checkin',False)
+        # A cached parameterization is keyed on molecule name, which says nothing
+        # about the charge method, net charge or atom types that produced its
+        # numbers.  Reject one that answers a different question than this run is
+        # asking; see _cached_parameterization_mismatch.
+        use_cache = (not force_parameterization) and M.previously_parameterized()
+        if use_cache and self._cached_parameterization_mismatch(M):
+            use_cache = False
         # Either perform a fresh parameterization or fetch parameterization files
-        if force_parameterization or not M.previously_parameterized():
+        if not use_cache:
             logger.debug(f'Parameterization of {mname} requested -- can we generate {mname}?')
             generatable=(not M.generator) or (all([m in self.molecules for m in M.generator.reactants.values()]))
             if generatable:
                 logger.debug(f'Generating {mname}')
                 M.generate(available_molecules=self.molecules,gaff=self.cfg.gaff,ambertools=self.cfg.ambertools)
-                for ex in ['mol2','top','tpx','itp','gro','grx']:
-                    checkin(f'{pfs.Dirs.molecules_parameterized}/{mname}.{ex}',overwrite=force_checkin)
+                self._checkin_parameterization(mname, force_checkin)
                 M.origin='newly parameterized'
             else:
                 logger.debug(f'Error: could not generate {mname}')
@@ -690,9 +792,7 @@ class Runtime:
                 M.set_sequence_from_moldict(self.molecules)
                 M.generate(available_molecules=self.molecules,
                            gaff=self.cfg.gaff, ambertools=self.cfg.ambertools)
-                for ex in ['mol2','top','tpx','itp','gro','grx']:
-                    checkin(f'{pfs.Dirs.molecules_parameterized}/{mname}.{ex}',
-                            overwrite=True)
+                self._checkin_parameterization(mname, True)
                 M.origin='newly parameterized (stale cache refreshed)'
             else:
                 M.origin='previously parameterized'

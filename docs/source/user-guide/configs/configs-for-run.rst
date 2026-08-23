@@ -53,9 +53,15 @@ In this section we show all subdirectives for each of the five main directives i
     ``ambertools`` subdirective              Type            Description (default)
     =====================================    ==============  =====================
     ``charge_method``                        string          charge model used by ``antechamber`` (default ``gas``)
+    ``net_charge``                           integer         formal charge of each molecule, passed to ``antechamber -nc`` (default ``0``)
+    ``atom_type``                            string          atom-type set used by ``antechamber``, ``parmchk2`` and ``tleap`` (default ``gaff``)
     =====================================    ==============  =====================
 
     For now, you can choose any charging method compatible with ``antechamber``.  The ``antechamber`` directive is optional.
+
+    These three directives determine the parameters ``antechamber`` produces, so each parameterization records them in a ``.parm`` file checked into the library alongside its ``gro``, ``top``, ``itp``, ``tpx`` and ``grx`` files.  Because the library is keyed on molecule name, that record is the only thing distinguishing a molecule parameterized one way from the same molecule parameterized another.  A run whose directives disagree with the record re-parameterizes rather than reusing the cached files, and says which directives differed.
+
+    A parameterization checked in before htpolynet 2.3 has no such record.  It is still used, but the run warns that it cannot verify what produced it; rebuild it with ``--force-parameterization`` if you need to be sure.  Note that re-parameterizing after a mismatch does **not** replace the library entry unless you also pass ``--force-checkin``, so a library holding a ``gas`` parameterization keeps it even after a ``bcc`` run.
 
 * ``GAFF``
 

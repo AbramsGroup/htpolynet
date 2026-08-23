@@ -12,6 +12,7 @@ from itertools import product
 import numpy as np
 import pandas as pd
 
+from ..core import paramcache
 from ..core import projectfilesystem as pfs
 from ..core.bondtemplate import BondTemplate, BondTemplateList, ReactionBond, ReactionBondList
 from ..core.topocoord import TopoCoord
@@ -424,6 +425,12 @@ class Molecule:
                 shutil.copy(f'{self.parentname}.top', f'{self.name}.top')
                 shutil.copy(f'{self.parentname}.grx', f'{self.name}.grx')
                 shutil.copy(f'{self.parentname}.tpx', f'{self.name}.tpx')
+                # The isomer carries the parent's parameters, so it carries the
+                # parent's provenance too; without this it would look like a
+                # library entry of unknown origin on every subsequent run.
+                parent_key = paramcache.key_filename(self.parentname)
+                if os.path.exists(parent_key):
+                    shutil.copy(parent_key, paramcache.key_filename(self.name))
 
         if do_minimization:
             self.minimize(outname)

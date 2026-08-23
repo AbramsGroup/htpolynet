@@ -7,6 +7,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **A cached parameterization is no longer reused for a run that asked for
+  different AmberTools directives.**  `molecules/parameterized` is keyed on
+  molecule name alone, and nothing in that key reflected the charge method.
+  A configuration specifying `charge_method: bcc` therefore reused, without
+  warning, a `gas` parameterization checked into the user library under the
+  same residue name, logging only `Using cached parameterization for TAZ`.
+  Measured on a cyanate-ester triazine, the cached `gas` entry carries ring
+  C +0.1185 / N -0.2249 where a real `bcc` run gives +0.6539 / -0.7160 --
+  5.5x on the charge of the crosslink node -- and the result was a network
+  built with `bcc` on one monomer and Gasteiger on another, with nothing in
+  the output recording it.  The failure was silent and invalidated results
+  without failing the build.
+
+  Each parameterization now writes a `.parm` record beside its
+  gro/top/itp/tpx/grx files listing the `charge_method`, `net_charge` and
+  `atom_type` that produced it, and that record is checked into the library
+  with them.  A run whose directives disagree with the record treats the
+  cache as a miss and re-parameterizes, saying which directives differed.
+
+  A library entry written before this release carries no record.  Those are
+  still used -- an existing library keeps working rather than
+  re-parameterizing wholesale -- but each one now logs a warning naming the
+  charge method that could not be verified, and the parameterization stage
+  ends with a block listing every such molecule and the count.  The
+  per-molecule line is right for grepping but wrong as the only surface: it
+  sits in a log of thousands of lines beside the ordinary `Using cached
+  parameterization` line that this whole mechanism exists because people read
+  past.  The stage-end block arrives while the expensive part of the build is
+  still ahead of the reader rather than behind them.
+
+  Re-parameterizing after a mismatch checks its output in only under
+  `--force-checkin`, so a library entry is never silently replaced by one
+  built with different directives.
+
+### Added
+
+- `tests/unit/test_paramcache.py` (34 tests, no external tools) covering the
+  record's comparison logic and the check-in invariant that a library record
+  either describes the data beside it or is absent, and
+  `tests/unit/test_paramcache_ambertools.py` (6 tests, skipped without the
+  AmberTools chain) running antechamber under both charge methods to confirm
+  that the record describes what actually ran and that the directive it
+  guards changes the charges.
+### Changed
+
+- `--force-checkin`'s help text corrected.  It said "force check-in of
+  generated parameter files to the system library", which reads as though
+  check-in happens only when the flag is given.  It does not: `pfs.checkin()`
+  always writes an entry the library does not yet hold, and the flag governs
+  only whether an entry already there is *overwritten*.  It also named the
+  wrong library -- check-in goes to the user library at `~/.htpolynet` (or
+  `$HTPOLYNET_CACHE`), not the system library.  Behavior is unchanged; the
+  wording had misled a user into believing their work was not reaching a
+  shared library when it was.
+
+- `ambertools.net_charge` and `ambertools.atom_type` configuration
+  directives, defaulting to `0` and `gaff`.  The net charge was previously
+  hardcoded as `-nc 0` in the antechamber invocation, so an ionic or
+  zwitterionic monomer was parameterized as though it were neutral with no
+  way to say otherwise.  The defaults reproduce the previous commands
+  exactly.
+
 ## [2.2.0] - 2026-08-23
 
 ### Changed

@@ -9,10 +9,23 @@ import shutil
 
 import parmed
 
+from ..core import paramcache
 from ..core.coordinates import Coordinates
 from ..external.command import run
 
 logger = logging.getLogger(__name__)
+
+AMBERTOOLS_DEFAULTS = {
+    'charge_method': 'bcc',
+    'net_charge': 0,
+    'atom_type': 'gaff',
+}
+"""Directives that determine the parameters GAFFParameterize produces.
+
+These are the single source of truth for both the antechamber/parmchk2/tleap
+invocations below and the provenance record written beside their output; see
+:mod:`htpolynet.core.paramcache`.
+"""
 
 
 def GAFFParameterize(inputPrefix, outputPrefix, input_structure_format='mol2', ambertools=None):
@@ -29,7 +42,9 @@ def GAFFParameterize(inputPrefix, outputPrefix, input_structure_format='mol2', a
         parmed.exceptions.GromacsError: if parmed fails to convert tleap output
     """
     ambertools = ambertools or {}
-    chargemethod = ambertools.get('charge_method', 'bcc')
+    chargemethod = ambertools.get('charge_method', AMBERTOOLS_DEFAULTS['charge_method'])
+    netcharge    = ambertools.get('net_charge',    AMBERTOOLS_DEFAULTS['net_charge'])
+    atomtype     = ambertools.get('atom_type',     AMBERTOOLS_DEFAULTS['atom_type'])
     logger.info(f'AmberTools> generating GAFF parameters from {inputPrefix}.{input_structure_format}')
 
     structin  = f'{inputPrefix}.{input_structure_format}'
@@ -47,9 +62,9 @@ def GAFFParameterize(inputPrefix, outputPrefix, input_structure_format='mol2', a
         shutil.copy(structin, new_structin)
 
     run(f'antechamber -j 4 -fi {input_structure_format} -fo mol2 -c {chargemethod}'
-        f' -at gaff -i {new_structin} -o {mol2out} -pf Y -nc 0 -eq 1 -pl 10', quiet=False)
+        f' -at {atomtype} -i {new_structin} -o {mol2out} -pf Y -nc {netcharge} -eq 1 -pl 10', quiet=False)
     logger.debug(f'AmberTools> Antechamber generated {mol2out}')
-    run(f'parmchk2 -i {mol2out} -o {frcmodout} -f mol2 -s gaff', quiet=False)
+    run(f'parmchk2 -i {mol2out} -o {frcmodout} -f mol2 -s {atomtype}', quiet=False)
 
     # Antechamber ignores SUBSTRUCTURE records, so patch the antechamber output
     # mol2 with the original resName/resNum before passing it to tleap.
@@ -70,7 +85,7 @@ def GAFFParameterize(inputPrefix, outputPrefix, input_structure_format='mol2', a
 
     with open(f'{inputPrefix}-tleap.in', 'w') as f:
         f.write('\n'.join([
-            'source leaprc.gaff',
+            f'source leaprc.{atomtype}',
             # Load parmchk2's patches BEFORE checking the molecule, otherwise
             # `check` reports any GAFF-coverage gaps (e.g. h5-ce-n2 on cyanate-
             # ester dimers) as `Error!`, the run-wrapper's override needle
@@ -99,4 +114,8 @@ def GAFFParameterize(inputPrefix, outputPrefix, input_structure_format='mol2', a
     except Exception as m:
         logger.error('Unspecified parmed error')
         raise parmed.exceptions.GromacsError(m) from m
+
+    # Record what produced these parameters, so that a later run reusing them
+    # from the library can tell whether they answer the question it is asking.
+    paramcache.write_key(outputPrefix, paramcache.build_key(ambertools))
 
