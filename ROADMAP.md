@@ -122,6 +122,33 @@ Coverage as of the last measurement: **38.8%** overall.
   cyanate-ester bridge series meant doing (a) and (b) by hand in a throwaway
   RDKit script, which is exactly the work a user should not have to
   reinvent.
+- **The bundled Claude skill only reaches people working in a clone.**
+  `.claude/skills/htpolynet/` is picked up when the working directory is the
+  repository, which covers contributors and anyone who cloned to run the
+  examples -- but not the ordinary user who `pip install`s or
+  `conda install`s htpolynet and works in their own project directory, which
+  is most of them. Whether to ship it inside the package is undecided.
+
+  Two things to settle before doing so, neither obvious:
+
+  1. **The skill would be broken as written.** Its central move is "read
+     `docs/source/user-guide/building-a-system.rst`", a repo path that does
+     not exist for an installed user. A shipped version would have to point
+     at the Read the Docs URL instead, or the guide would have to ship as
+     package data. The first is simpler and goes stale differently -- an RTD
+     link tracks `latest`, so an installed 2.3.0 would send its reader to
+     documentation for whatever is current.
+  2. **Delivery.** A skill file inside a wheel does nothing on its own;
+     something has to place it where the tool looks. An `htpolynet skill
+     --install` subcommand copying it into the user's `~/.claude/skills/`
+     is the obvious mechanism, and is also the point at which a scientific
+     package starts carrying vendor-specific tooling and an install-time
+     side effect on a directory it does not own.
+
+  Worth weighing against simply doing nothing: the procedural guide the skill
+  points at is on Read the Docs already, and an agent that reads
+  documentation gets the same content without any of this.
+
 - **Generated topologies cannot be compared byte-wise, because ParmEd
   stamps them.** Every `.top` htpolynet writes opens with a ParmEd header
   recording the invoking user, the host, and the date:
