@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The warnings about a cached parameterization with no provenance record
+  now say that the cached values are being **used**, not merely that they
+  could not be checked.  The old wording ("cannot be checked against the
+  requested 'bcc' charge method") left the decisive fact implicit: the
+  build proceeds with whatever charges that entry holds.  A user who
+  upgrades with an existing library, asks for `bcc` and measures `gas`
+  numbers would reasonably conclude the 2.3.0 cache guard does not work --
+  correct behavior is otherwise indistinguishable from the bug it replaced.
+  Both the per-molecule line and the stage-end block now state that the
+  build carries the cached charges, that they may not match the requested
+  method, and that this is expected for a pre-2.3 entry rather than a
+  failure.  The same clarification is made in the user guide and the
+  `ambertools` directive reference.
+
 ## [2.3.0] - 2026-08-23
 
 ### Fixed

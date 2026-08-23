@@ -619,18 +619,27 @@ class Runtime:
         of the stage is what someone scanning the tail of a log actually hits,
         and it arrives while the expensive part of the build is still ahead of
         them rather than behind.
+
+        Both messages have to say that the cached parameters are being *used*,
+        not merely that they could not be checked.  A reader who upgrades with
+        an existing library, asks for one charge method, and gets another one's
+        numbers will otherwise conclude the cache guard does not work -- the
+        correct behavior here is indistinguishable from the bug it replaced
+        unless the message says which is happening.
         """
         if not self.unverified_parameterizations:
             return
         names = sorted(set(self.unverified_parameterizations))
         ess = '' if len(names) == 1 else 's'
         requested = paramcache.build_key(self.cfg.ambertools)
-        my_logger(f'{len(names)} parameterization{ess} of unverified provenance', logger.warning)
-        logger.warning(f'Reused from the library, but the library entry records nothing about how it')
-        logger.warning(f'was built, so this run could not confirm it was parameterized with the')
-        logger.warning(f'requested {requested["charge_method"]!r} charge method:')
+        my_logger(f'{len(names)} parameterization{ess} reused without provenance', logger.warning)
+        logger.warning('These were taken from the library, which records nothing about how they were')
+        logger.warning('built. This build therefore carries whatever charges those entries hold, and')
+        logger.warning(f'they may not be {requested["charge_method"]!r}:')
         my_logger(names, logger.warning)
-        logger.warning('Rebuild them from the current directives with --force-parameterization.')
+        logger.warning('This is expected for entries written before htpolynet 2.3, and is not a')
+        logger.warning('failure. Rebuild them with --force-parameterization if this build\'s charges')
+        logger.warning('need to be certain.')
 
     @staticmethod
     def _checkin_parameterization(mname, overwrite):
@@ -687,9 +696,11 @@ class Runtime:
             pfs.checkout(keyfile)
         stored = paramcache.read_key(M.name)
         if stored is None:
-            logger.warning(f'Cached parameterization for {M.name} carries no record of how it was built, '
-                           f'so it cannot be checked against the requested {requested["charge_method"]!r} '
-                           f'charge method; use --force-parameterization to rebuild it')
+            logger.warning(f'Reusing cached parameterization for {M.name}, which carries no record of '
+                           f'how it was built: this build takes whatever charges that entry holds, and '
+                           f'they may not be {requested["charge_method"]!r}. Expected for an entry '
+                           f'written before htpolynet 2.3; rebuild it with --force-parameterization '
+                           f'if this build\'s charges need to be certain.')
             self.unverified_parameterizations.append(M.name)
             return []
         diffs = paramcache.describe_mismatch(stored, requested)

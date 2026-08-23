@@ -222,8 +222,9 @@ checked in under the same name.
 .. note::
 
    A parameterization checked in before htpolynet 2.3 carries no record.
-   Those entries are still used, so an existing cache keeps working, but
-   each one logs a warning that its provenance could not be verified, and
+   Those entries are still used **as-is**, so an existing cache keeps
+   working — but the build takes whatever charges they hold, which may not
+   be what your ``charge_method`` asks for.  Each one logs a warning, and
    the parameterization stage ends with a block listing them all.  Rebuild
    them with ``--force-parameterization`` if you need certainty about what
    a build used.

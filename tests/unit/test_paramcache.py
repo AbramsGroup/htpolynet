@@ -181,6 +181,11 @@ class TestCachedParameterizationMismatch:
         assert diffs == []
         assert 'TAZ' in caplog.text
         assert 'force-parameterization' in caplog.text
+        # The message must say the cached values are being USED, not merely
+        # that they could not be checked: correct behavior here is otherwise
+        # indistinguishable from the bug it replaced.
+        assert 'Reusing cached parameterization' in caplog.text
+        assert 'may not be' in caplog.text
         assert runtime.unverified_parameterizations == ['TAZ'], \
             'an unverifiable entry must also reach the stage-end summary'
 
@@ -212,7 +217,7 @@ class TestCachedParameterizationMismatch:
         paramcache.write_key('TAZ', paramcache.build_key({'charge_method': 'bcc'}))
         with caplog.at_level('WARNING'):
             assert _mismatch('TAZ', charge_method='bcc') == []
-        assert 'no record of how it was built' in caplog.text
+        assert 'carries no record of how it was built' in caplog.text
 
 
 class TestCheckinParameterization:
@@ -311,16 +316,27 @@ class TestUnverifiedSummary:
 
     def test_states_the_count_and_the_requested_charge_method(self, caplog):
         text = self._report(['TAZ', 'BAF'], caplog, charge_method='bcc')
-        assert '2 parameterizations of unverified provenance' in text
+        assert '2 parameterizations reused without provenance' in text
         assert "'bcc'" in text
 
     def test_singular_for_one_molecule(self, caplog):
         text = self._report(['TAZ'], caplog, charge_method='bcc')
-        assert '1 parameterization of unverified provenance' in text
+        assert '1 parameterization reused without provenance' in text
+
+    def test_says_the_build_carries_the_cached_charges(self, caplog):
+        # Without this, a reader who upgrades with an existing library, asks
+        # for bcc and gets gas numbers concludes the guard is broken.
+        text = self._report(['TAZ'], caplog, charge_method='bcc')
+        assert 'carries whatever charges those entries hold' in text
+        assert 'may not be' in text
+
+    def test_says_this_is_expected_rather_than_a_failure(self, caplog):
+        text = self._report(['TAZ'], caplog, charge_method='bcc')
+        assert 'is not a' in text and 'failure' in text
 
     def test_says_how_to_resolve_it(self, caplog):
         assert 'force-parameterization' in self._report(['TAZ'], caplog, charge_method='bcc')
 
     def test_a_molecule_reported_twice_is_listed_once(self, caplog):
         text = self._report(['TAZ', 'TAZ'], caplog, charge_method='bcc')
-        assert '1 parameterization of unverified provenance' in text
+        assert '1 parameterization reused without provenance' in text
