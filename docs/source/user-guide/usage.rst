@@ -126,7 +126,18 @@ htpolynet Subcommand Summaries
     --loglevel LOGLEVEL   log level for the diagnostic file (debug|info)
 
 * ``<config>`` refers to the name of the :ref:`configuration input file <configuration_files>`.
-* ``-lib`` names a directory that is treated as a local library of molecular structures.  By default, this is assumed to be ``./lib/`` (that is, the directory you are in when you issue ``htpolynet run`` is expected by default to have a ``lib/`` directory; if not, the ``Library`` subpackage of the ``htpolynet`` package will be queried for any data).  At the beginning of a new run, ``lib/`` should have one subdirectory called ``molecules``.  Under ``molecules`` should be the two directories ``inputs`` and ``parameterized``.  ``htpolynet`` will look for input ``mol2`` or ``pdb`` files in ``lib/molecules/inputs``, and "check-in" the results of parameterized molecules (i.e., Gromacs format ``gro``, ``itp``, and ``top`` files) in ``lib/molecules/parameterized``.
+* ``-lib`` names a directory that is treated as a local library of molecular structures.  By default, this is assumed to be ``./lib/`` (that is, the directory you are in when you issue ``htpolynet run`` is expected by default to have a ``lib/`` directory; if not, the ``Library`` subpackage of the ``htpolynet`` package will be queried for any data).  At the beginning of a new run, ``lib/`` should have one subdirectory called ``molecules``.  Under ``molecules`` should be the two directories ``inputs`` and ``parameterized``.  ``htpolynet`` will look for input ``mol2`` or ``pdb`` files in ``lib/molecules/inputs``, and will consult ``lib/molecules/parameterized`` first when looking for an existing parameterization.
+
+  .. warning::
+
+     ``-lib`` governs **lookup only**.  Parameterizations are checked *in* to
+     the per-user cache at ``~/.htpolynet/molecules/parameterized/`` (see
+     :ref:`parameterization_caching`), regardless of what ``-lib`` is set to.
+     Pointing ``-lib`` at a project-local directory therefore does not stop a
+     run from depositing every molecule it builds into the shared per-user
+     cache, and nothing in the output announces that it did.  If you need a
+     run's products contained, set ``HTPOLYNET_CACHE`` to a directory of your
+     own — that is the variable the check-in path actually reads.
 * ``-proj`` names the project directory.  If not specified, or provided with the value ``next`` (the default), ``htpolynet`` will create the next auto-named project directory.  These are always named as ``proj-0``, ``proj-1``, ``proj-2``, etc. If no project directory exists and an explicit one is not specified by ``-proj``, ``htpolynet`` creates the first one, ``proj-0``:
 
   .. code-block:: console

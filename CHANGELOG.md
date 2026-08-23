@@ -45,6 +45,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `docs/source/user-guide/building-a-system.rst` -- a procedural page taking
+  a user from an idea to a finished build.  The guide was strong on
+  reference and had nothing on order of operations, which is what a new user
+  actually needs: start from the nearest example rather than an empty file,
+  describe monomers in their active form, check what you can before spending
+  compute, and the short list of failures that are known rather than
+  mysterious.  It is honest about what `input-check` does not yet verify and
+  about the absence of seed control.
+- `.claude/skills/htpolynet/SKILL.md` -- a thin skill that routes to that
+  page rather than restating it, carrying only the subcommand table and the
+  handful of facts that are easy to get wrong early.  Deliberately short:
+  a second copy of the user guide would drift from it, which is the failure
+  `docs/source/htpolynetpackage.rst` has already demonstrated in this repo.
+  It also states the rule that kept it short -- a tool behavior that needs a
+  ritual to avoid is a bug to fix or file, not guidance to write down.
+
 - `tests/unit/test_paramcache.py` (34 tests, no external tools) covering the
   record's comparison logic and the check-in invariant that a library record
   either describes the data beside it or is absent, and
@@ -53,6 +69,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   that the record describes what actually ran and that the directive it
   guards changes the charges.
 ### Changed
+
+- The `-lib` description in the user guide corrected.  It said htpolynet
+  would "check-in the results of parameterized molecules ... in
+  `lib/molecules/parameterized`", which is false: `-lib` governs lookup
+  only, and check-in always goes to the per-user cache at `~/.htpolynet`
+  (or `$HTPOLYNET_CACHE`).  A user who set `-lib` to contain a run's output
+  was not contained, and nothing announced the writes.  `HTPOLYNET_CACHE` is
+  now documented as the variable that actually governs where products land.
 
 - The user guide's "Parameterization caching" section corrected to match
   the new behavior.  It stated that a stale entry is silently reused when

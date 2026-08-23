@@ -6,6 +6,7 @@ User Guide
    :maxdepth: 2
    :caption: Contents:
 
+   building-a-system
    usage
    container-usage
    molecular-structure-inputs
