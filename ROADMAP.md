@@ -135,6 +135,16 @@ Coverage as of the last measurement: **38.8%** overall.
   plainly that it governs lookup only. Verified empirically 2026-08-23: with
   `userlibrary` set, `pfs.checkin()` still landed the file in the user cache.
 
+  What makes this more than a naming problem is that the writes are silent
+  and cumulative. Nothing logs them, nothing warns, and a run that is
+  quietly depositing molecules into a shared library looks identical to one
+  that is not -- the only way to discover it is to audit mtimes, which
+  nobody does unprompted. The calibration study ran three sweeps believing
+  `-lib` contained it, and would have added roughly seventy entries to
+  `~/.htpolynet` across its remaining bridges; it was caught by reading
+  `checkin()`, not by anything the tool said. Whatever the fix, a run should
+  be able to say where its parameterizations went.
+
 - **No way to run without writing to the user library.** `pfs.checkin()`
   declines to *replace* an entry unless `--force-checkin` is given, but it
   always *writes* one the library does not yet hold, so any run adds every
