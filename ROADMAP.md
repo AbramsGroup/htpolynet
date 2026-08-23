@@ -143,7 +143,10 @@ Coverage as of the last measurement: **38.8%** overall.
   `-lib` contained it, and would have added roughly seventy entries to
   `~/.htpolynet` across its remaining bridges; it was caught by reading
   `checkin()`, not by anything the tool said. Whatever the fix, a run should
-  be able to say where its parameterizations went.
+  be able to say where its parameterizations went -- which is the same
+  requirement as the build manifest below, approached from the write side
+  rather than the read side. The two may well be one item: *where did this
+  come from, and what produced it*.
 
 - **No way to run without writing to the user library.** `pfs.checkin()`
   declines to *replace* an entry unless `--force-checkin` is given, but it
@@ -185,6 +188,10 @@ Coverage as of the last measurement: **38.8%** overall.
   home for the config hash, the htpolynet and AmberTools versions, and the
   seed once seeds exist. Raised by the calibration study, which caught the
   original cache bug from a wall-clock anomaly rather than from any log line.
+  See also the `-lib` entry above: "a run should be able to say where its
+  parameterizations went" and "a result should be able to say what produced
+  it" are the same requirement from two directions, and a manifest that
+  recorded the check-in destination would answer both.
 
 - **A cached parameterization is not checked against the input structure
   it was built from.** The provenance record added alongside the cache now
