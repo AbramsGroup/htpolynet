@@ -122,6 +122,29 @@ Coverage as of the last measurement: **38.8%** overall.
   cyanate-ester bridge series meant doing (a) and (b) by hand in a throwaway
   RDKit script, which is exactly the work a user should not have to
   reinvent.
+- **Generated topologies cannot be compared byte-wise, because ParmEd
+  stamps them.** Every `.top` htpolynet writes opens with a ParmEd header
+  recording the invoking user, the host, and the date:
+
+      ;   File TAZ.top  was generated
+      ;   By user: cfa (1000)
+      ;   On host: panacea.chemeng.drexel.edu
+      ;   At date: Fri. May  5 15:55:38 2026
+
+  So two physically identical parameterizations never hash the same, and the
+  obvious check -- "did these two builds produce the same parameters for the
+  shared monomers?" -- returns a false difference. The calibration study hit
+  this on its bridge series and nearly reported the series confounded on the
+  strength of an md5; the fix on their side was to strip comment lines before
+  comparing, which every user will have to reinvent. Note the header is
+  itself provenance, but the wrong kind: it records *when and where* rather
+  than *what directives*, which is what the `parm` record now covers, and it
+  actively prevents the comparison you would want. The `.itp` files carry no
+  such header and the `parm` records are JSON with sorted keys, so both
+  already compare cleanly. Worth either normalizing the `.top` header away or
+  shipping a comparison helper; this belongs with the manifest entry below,
+  since both are about being able to answer "is this the same build?".
+
 - **`-lib` is read-only, and nothing says so.** `pfs.checkout()` and
   `pfs.exists()` consult the `-lib` user library first, then the user cache,
   then the system library -- but `pfs.checkin()` writes unconditionally to the
