@@ -63,6 +63,21 @@ Coverage as of the last measurement: **38.8%** overall.
 
 ## Release and distribution
 
+- **External services still keyed to the old repo identity.** The Aug 2026
+  transfer from `AbramsGroup/HTPolyNet` to `cameronabrams/htpolynet` moved
+  the code but left every integration pointing at the old owner. Three
+  broke and were fixed during the 2.2.0 release: the GHCR package path
+  (docs referenced a package that had never been published under the new
+  owner), PyPI trusted publishing (`invalid-publisher` — the claim no
+  longer matched, so the v2.2.0 upload failed until the publisher was
+  re-registered), and Read the Docs, whose project `repository.url` is
+  **still** `https://github.com/AbramsGroup/htpolynet`. Builds succeed
+  anyway because GitHub redirects the clone, but tag versions never sync —
+  `/en/v2.2.0/` 404s and the API reports "No Version matches the given
+  query". Fix the RTD project URL, then activate the tagged version. Worth
+  keeping this list as the checklist if the repo ever moves again.
+
+
 - **Mint a software DOI.** Enable the Zenodo GitHub integration for
   `cameronabrams/htpolynet`, then the next `scripts/release.sh` run
   archives the release automatically. Afterwards, add the concept DOI (not
