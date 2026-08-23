@@ -18,6 +18,12 @@ authors:
     email: cfa22@drexel.edu
     affiliation: Drexel University
 repository-code: https://github.com/cameronabrams/htpolynet
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.22070252
+    description: >-
+      Concept DOI for htpolynet; always resolves to the latest
+      archived release.
 url: https://htpolynet.readthedocs.io/
 license: MIT
 version: 2.1.0
