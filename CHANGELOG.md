@@ -30,14 +30,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   A library entry written before this release carries no record.  Those are
   still used -- an existing library keeps working rather than
-  re-parameterizing wholesale -- but each one now logs a warning naming the
+  re-parameterizing wholesale -- but each one logs a warning naming the
   charge method that could not be verified, and the parameterization stage
-  ends with a block listing every such molecule and the count.  The
-  per-molecule line is right for grepping but wrong as the only surface: it
-  sits in a log of thousands of lines beside the ordinary `Using cached
-  parameterization` line that this whole mechanism exists because people read
-  past.  The stage-end block arrives while the expensive part of the build is
-  still ahead of the reader rather than behind them.
+  ends with a block listing every such molecule and the count.  Rebuild them
+  with `--force-parameterization` if you need certainty about what a build
+  used.
 
   Re-parameterizing after a mismatch checks its output in only under
   `--force-checkin`, so a library entry is never silently replaced by one
@@ -45,63 +42,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `docs/source/user-guide/building-a-system.rst` -- a procedural page taking
-  a user from an idea to a finished build.  The guide was strong on
-  reference and had nothing on order of operations, which is what a new user
-  actually needs: start from the nearest example rather than an empty file,
-  describe monomers in their active form, check what you can before spending
-  compute, and the short list of failures that are known rather than
-  mysterious.  It is honest about what `input-check` does not yet verify and
-  about the absence of seed control.
-- `.claude/skills/htpolynet/SKILL.md` -- a thin skill that routes to that
-  page rather than restating it, carrying only the subcommand table and the
-  handful of facts that are easy to get wrong early.  Deliberately short:
-  a second copy of the user guide would drift from it, which is the failure
-  `docs/source/htpolynetpackage.rst` has already demonstrated in this repo.
-  It also states the rule that kept it short -- a tool behavior that needs a
-  ritual to avoid is a bug to fix or file, not guidance to write down.
-
-- `tests/unit/test_paramcache.py` (34 tests, no external tools) covering the
-  record's comparison logic and the check-in invariant that a library record
-  either describes the data beside it or is absent, and
-  `tests/unit/test_paramcache_ambertools.py` (6 tests, skipped without the
-  AmberTools chain) running antechamber under both charge methods to confirm
-  that the record describes what actually ran and that the directive it
-  guards changes the charges.
-### Changed
-
-- The `-lib` description in the user guide corrected.  It said htpolynet
-  would "check-in the results of parameterized molecules ... in
-  `lib/molecules/parameterized`", which is false: `-lib` governs lookup
-  only, and check-in always goes to the per-user cache at `~/.htpolynet`
-  (or `$HTPOLYNET_CACHE`).  A user who set `-lib` to contain a run's output
-  was not contained, and nothing announced the writes.  `HTPOLYNET_CACHE` is
-  now documented as the variable that actually governs where products land.
-
-- The user guide's "Parameterization caching" section corrected to match
-  the new behavior.  It stated that a stale entry is silently reused when
-  you change "SMILES, atom-naming, or charge method" and that the cache is
-  "keyed by molecule name only"; the charge-method half of the first and
-  all of the second are no longer true.  The warning now covers exactly
-  what the record does not: a constituent's structure, atom-naming or
-  geometry changing without a rename.
-
-- `--force-checkin`'s help text corrected.  It said "force check-in of
-  generated parameter files to the system library", which reads as though
-  check-in happens only when the flag is given.  It does not: `pfs.checkin()`
-  always writes an entry the library does not yet hold, and the flag governs
-  only whether an entry already there is *overwritten*.  It also named the
-  wrong library -- check-in goes to the user library at `~/.htpolynet` (or
-  `$HTPOLYNET_CACHE`), not the system library.  Behavior is unchanged; the
-  wording had misled a user into believing their work was not reaching a
-  shared library when it was.
-
 - `ambertools.net_charge` and `ambertools.atom_type` configuration
   directives, defaulting to `0` and `gaff`.  The net charge was previously
   hardcoded as `-nc 0` in the antechamber invocation, so an ionic or
   zwitterionic monomer was parameterized as though it were neutral with no
   way to say otherwise.  The defaults reproduce the previous commands
   exactly.
+
+- A procedural page in the user guide, **Building a System, Start to
+  Finish**.  The guide was strong on reference and had nothing on order of
+  operations: start from the nearest bundled example rather than an empty
+  file, describe monomers in their active form, check what you can before
+  spending compute, and a short list of failures that are known rather than
+  mysterious.  It states plainly what `input-check` does not yet verify and
+  that there is no seed control, so builds are not reproducible run to run.
+
+- A Claude skill (`.claude/skills/htpolynet/`) for users working in a clone
+  of the repository.  It routes to the guide rather than restating it, and
+  carries the subcommand table and the handful of facts that are easy to get
+  wrong early.
+
+- Test coverage for the parameterization record: 34 tests comparing records
+  without external tools, and 6 that run antechamber under both charge
+  methods to confirm the record describes what actually ran, that the
+  directive it guards changes the charges, and that a library holding a
+  `gas` entry refuses a `bcc` request while still reusing it for a `gas`
+  one.  The latter skip when the AmberTools chain is absent.
+
+### Changed
+
+- The `-lib` description in the user guide corrected.  It said htpolynet
+  would "check-in the results of parameterized molecules ... in
+  `lib/molecules/parameterized`", which is false: `-lib` governs lookup
+  only, and check-in always goes to the per-user cache at `~/.htpolynet`
+  (or `$HTPOLYNET_CACHE`).  A user who set `-lib` expecting to contain a
+  run's output was not contained, and nothing announced the writes.
+  `HTPOLYNET_CACHE` is now documented as the variable that actually governs
+  where products land.
+
+- The user guide's "Parameterization caching" section corrected to match the
+  new behavior.  It stated that a stale entry is silently reused when you
+  change "SMILES, atom-naming, or charge method" and that the cache is
+  "keyed by molecule name only"; the charge-method half of the first and all
+  of the second are no longer true.  The warning now covers exactly what the
+  record does not: a constituent's structure, atom-naming or geometry
+  changing without a rename.
+
+- `--force-checkin`'s help text corrected.  It said "force check-in of
+  generated parameter files to the system library", which reads as though
+  check-in happens only when the flag is given.  It does not: a molecule
+  whose name the library does not yet hold is checked in either way, and the
+  flag governs only whether an entry already there is *overwritten*.  It
+  also named the wrong library -- check-in goes to the per-user library at
+  `~/.htpolynet` (or `$HTPOLYNET_CACHE`), not the system library.  Behavior
+  is unchanged.
 
 ## [2.2.0] - 2026-08-23
 
