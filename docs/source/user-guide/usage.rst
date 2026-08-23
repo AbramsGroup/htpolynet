@@ -119,7 +119,9 @@ htpolynet Subcommand Summaries
     --no-banner           suppress the startup banner
     --force-parameterization
                           force GAFF parameterization of any input mol2 structures
-    --force-checkin       force check-in of generated parameter files to the system library
+    --force-checkin       overwrite entries already in the user library (~/.htpolynet, or
+                          $HTPOLYNET_CACHE) with newly generated parameter files; a name the
+                          library does not yet hold is checked in either way
     --param-only          stop after parameterizing molecules without building the full system
     --loglevel LOGLEVEL   log level for the diagnostic file (debug|info)
 
@@ -167,7 +169,7 @@ These will be explained more fully in the tutorials.
      development-only feature pending a redesign of cure-state persistence.
      Re-running from scratch with the same config is the safe path.
 * ``--force-parameterization`` signals that ``htpolynet`` should perform all molecular parameterizations from scratch even if parameterizations exist in the library.
-* ``--force-checkin`` signals that any parameterizations ``htpolynet`` performs should have their results "checked-in" to the library, even if previous parameterizations are there already.
+* ``--force-checkin`` signals that any parameterizations ``htpolynet`` performs should **overwrite** entries already in the library.  Note that it does not control whether check-in happens at all: a molecule whose name the library does not yet hold is checked in with or without this flag.
 * ``--param-only`` stops after parameterizing all monomers and oligomer templates without proceeding to build the full system.  This is useful for debugging parameterization issues before committing to a full run.
 
 .. _parameterization_caching:
@@ -187,14 +189,33 @@ new working directory.
 This is a performance feature (re-parameterizing AmberTools-heavy monomers
 can take minutes per species), but it has one important consequence:
 
+Since htpolynet 2.3, every parameterization also writes a small ``parm``
+record beside its other files, naming the ``charge_method``, ``net_charge``
+and ``atom_type`` that produced it.  A run whose ``ambertools`` directives
+disagree with that record treats the cache as a **miss** and
+re-parameterizes, reporting which directive differed.  So a config asking
+for ``charge_method: bcc`` will no longer reuse a ``gas`` parameterization
+checked in under the same name.
+
 .. warning::
 
-   **A stale cache entry will silently get reused.**  If you fix a bug in
-   a constituent's SMILES, atom-naming, or charge method, the next run
-   will still pick up the *old* parameterization from
+   **A cache entry that is stale for any *other* reason will still be
+   reused silently.**  The record covers what was passed to AmberTools, not
+   what it was passed *about*.  If you fix a constituent's SMILES, its
+   atom-naming or its geometry without renaming it, the next run still
+   picks up the *old* parameterization from
    ``~/.htpolynet/molecules/parameterized/``.  The symptom is usually a
    downstream error that does not seem to match the config you're looking
-   at.
+   at.  Rebuild with ``--force-parameterization`` after any such edit.
+
+.. note::
+
+   A parameterization checked in before htpolynet 2.3 carries no record.
+   Those entries are still used, so an existing cache keeps working, but
+   each one logs a warning that its provenance could not be verified, and
+   the parameterization stage ends with a block listing them all.  Rebuild
+   them with ``--force-parameterization`` if you need certainty about what
+   a build used.
 
 Knobs to manage the cache:
 
@@ -210,8 +231,10 @@ Knobs to manage the cache:
   re-parameterize *and* overwrite the cache entries with the new results.
   This is the right combination after fixing a constituent's SMILES.
 
-The cache is keyed by molecule name only.  Renaming a constituent in your
-YAML (``HIE`` → ``HEMA``, say) bypasses the stale entry naturally.
+The cache is looked up by molecule name, with the ``parm`` record deciding
+whether a name that matches is actually usable.  Renaming a constituent in
+your YAML (``HIE`` → ``HEMA``, say) bypasses a stale entry naturally, and is
+still the cleanest way to sidestep staleness the record does not cover.
 
 ``htpolynet info``
 !!!!!!!!!!!!!!!!!!

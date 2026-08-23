@@ -54,6 +54,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   guards changes the charges.
 ### Changed
 
+- The user guide's "Parameterization caching" section corrected to match
+  the new behavior.  It stated that a stale entry is silently reused when
+  you change "SMILES, atom-naming, or charge method" and that the cache is
+  "keyed by molecule name only"; the charge-method half of the first and
+  all of the second are no longer true.  The warning now covers exactly
+  what the record does not: a constituent's structure, atom-naming or
+  geometry changing without a rename.
+
 - `--force-checkin`'s help text corrected.  It said "force check-in of
   generated parameter files to the system library", which reads as though
   check-in happens only when the flag is given.  It does not: `pfs.checkin()`
