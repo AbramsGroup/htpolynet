@@ -235,7 +235,7 @@ def _add_gen_slurm_args(p):
 def _add_analysis_args(p):
     """Adds the common arguments shared by the postsim and analyze subcommands."""
     p.add_argument('-proj',type=str,default='',nargs='+',help='name of project directory')
-    p.add_argument('-lib',type=str,default='lib',help='local user library of molecular structures and parameterizations')
+    p.add_argument('-lib',type=str,default=None,help='local user library of molecular structures and parameterizations (default: ./lib if it exists, otherwise none)')
     p.add_argument('-ocfg',type=str,default='',help='original htpolynet config file used to generate project(s)')
     p.add_argument('-cfg',type=str,default='',help='config file specifying the operations to perform')
     p.add_argument('--no-banner',default=False,action='store_true',help='suppress the startup banner')

@@ -208,7 +208,9 @@ class UserLibrary:
             pathname (str): path to the user library directory, defaults to '.'
         """
         self.root = Path(os.path.abspath(pathname))
-        assert self.root.exists() and self.root.is_dir(), f'{pathname} is not a directory'
+        assert self.root.exists() and self.root.is_dir(), (
+            f'user library {pathname!r} (resolved to {self.root}) is not a directory; '
+            f'pass -lib <path> to point at an existing library, or create it')
 
     def exists(self, filename):
         """Checks if filename exists in the user library.
@@ -446,6 +448,28 @@ def pfs_setup(root='.', topdirs=['molecules', 'systems', 'plots'], projdir='next
     _PFS_ = ProjectFileSystem(root=root, topdirs=topdirs, projdir=projdir,
                                verbose=verbose, reProject=reProject,
                                userlibrary=userlibrary, mock=mock)
+
+
+def resolve_user_library(pathname, default='lib'):
+    """Returns the user-library path a subcommand should use, or None for none.
+
+    An explicitly supplied path is returned unchanged, so that a typo fails
+    loudly in UserLibrary rather than silently degrading to no library.  When
+    nothing was supplied, the conventional ``lib/`` is used only if it is
+    actually there: a subcommand that merely reads finished results has no
+    reason to require a molecule library, and demanding one turns the default
+    value of a flag the user never typed into a hard error.
+
+    Args:
+        pathname (str or None): the value of the ``-lib`` flag, or None if unset
+        default (str): the conventional library directory, defaults to 'lib'
+
+    Returns:
+        str or None: path to use as the user library, or None for no user library
+    """
+    if pathname is not None:
+        return pathname
+    return default if os.path.isdir(default) else None
 
 
 def checkout(filename, altpath=[]):

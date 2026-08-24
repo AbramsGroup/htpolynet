@@ -476,3 +476,54 @@ class TestDirsIntegration(unittest.TestCase):
         proj_path = os.path.join(self.base, 'p')
         for d in Dirs.analyze_topdirs:
             self.assertTrue(os.path.isdir(os.path.join(proj_path, d)))
+
+
+class TestResolveUserLibrary(unittest.TestCase):
+    """`htpolynet postsim` used to die in any directory without a `lib/`.
+
+    `-lib` defaulted to the string 'lib' for postsim and analyze, but only
+    `run` creates that tree, so the default value of a flag the user never
+    typed reached UserLibrary and tripped its existence assertion.  The
+    documented container invocation -- postsim against a staged directory
+    holding only finished results -- failed in three seconds.
+    """
+
+    def setUp(self):
+        self.tmpdir = tempfile.mkdtemp()
+        self.orig = os.getcwd()
+        os.chdir(self.tmpdir)
+
+    def tearDown(self):
+        os.chdir(self.orig)
+        shutil.rmtree(self.tmpdir, ignore_errors=True)
+
+    def test_absent_default_resolves_to_no_library(self):
+        self.assertIsNone(pfs.resolve_user_library(None))
+
+    def test_present_default_is_used(self):
+        os.makedirs('lib')
+        self.assertEqual(pfs.resolve_user_library(None), 'lib')
+
+    def test_explicit_path_is_returned_even_when_missing(self):
+        # A typo'd -lib must fail loudly in UserLibrary rather than silently
+        # degrade to no library.
+        self.assertEqual(pfs.resolve_user_library('mylib'), 'mylib')
+
+    def test_explicit_path_still_reaches_the_existence_check(self):
+        with self.assertRaises(AssertionError):
+            UserLibrary(pfs.resolve_user_library('/this/path/does/not/exist'))
+
+    def test_resolved_absent_default_never_reaches_the_check(self):
+        # The regression itself: with no lib/ present and no -lib given,
+        # nothing is constructed, so nothing can assert.
+        resolved = pfs.resolve_user_library(None)
+        self.assertIsNone(resolved)
+        pfs_obj = ProjectFileSystem(root=self.tmpdir, userlibrary=resolved, mock=True)
+        self.assertIsNone(pfs_obj.userlibrary)
+
+    def test_error_message_names_the_flag_and_the_remedy(self):
+        with self.assertRaises(AssertionError) as cm:
+            UserLibrary('/this/path/does/not/exist')
+        msg = str(cm.exception)
+        self.assertIn('-lib', msg)
+        self.assertIn('/this/path/does/not/exist', msg)

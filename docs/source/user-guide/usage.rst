@@ -388,7 +388,9 @@ The purpose of the ``postsim`` subcommand is to control the execution of several
     -h, --help            show this help message and exit
     -proj PROJ [PROJ ...]
                           name of project directory
-    -lib LIB              local user library of molecular structures and parameterizations
+    -lib LIB              local user library of molecular structures and
+                          parameterizations (default: ./lib if it exists,
+                          otherwise none)
     -ocfg OCFG            original htpolynet config file used to generate project(s)
     -cfg CFG              config file specifying the operations to perform
     --no-banner           suppress the startup banner
@@ -411,7 +413,9 @@ The ``analyze`` subcommand provides a shortcut interfaces to selected ``gmx``-st
     -h, --help            show this help message and exit
     -proj PROJ [PROJ ...]
                           name of project directory
-    -lib LIB              local user library of molecular structures and parameterizations
+    -lib LIB              local user library of molecular structures and
+                          parameterizations (default: ./lib if it exists,
+                          otherwise none)
     -ocfg OCFG            original htpolynet config file used to generate project(s)
     -cfg CFG              config file specifying the operations to perform
     --no-banner           suppress the startup banner

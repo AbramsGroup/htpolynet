@@ -90,8 +90,15 @@ def _mdrun_cmd(base):
 
 def _get_git_commit():
     """Records the short git commit hash of the htpolynet source tree and
-    whether there are uncommitted changes.  Falls back to 'unknown' if the
-    working directory is not inside a git repo or git is not available.
+    whether there are uncommitted changes.
+
+    An installed copy -- pip, conda, or the published container -- has no
+    ``.git`` beside it, so the git lookup fails and there is nothing to
+    report.  Reporting 'unknown' there leaves a build with no way to answer
+    "what code produced this" from inside itself, which is exactly the
+    question the parameterization records exist to answer for molecules.
+    Fall back to the installed distribution version, which for a released
+    install maps to a tag and is the honest answer.
     """
     global git_commit
     src = os.path.dirname(__file__)
@@ -108,6 +115,15 @@ def _get_git_commit():
             )
             if dirty.returncode == 0 and dirty.stdout.strip():
                 git_commit += ' (uncommitted changes present)'
+            return
+    except Exception:
+        pass
+    try:
+        from importlib.metadata import version, PackageNotFoundError
+        try:
+            git_commit = f'not a git checkout (installed version {version("htpolynet")})'
+        except PackageNotFoundError:
+            pass
     except Exception:
         pass
 

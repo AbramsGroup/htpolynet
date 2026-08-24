@@ -7,7 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`htpolynet postsim` and `htpolynet analyze` no longer die in a directory
+  without a `lib/`.**  Both took `-lib` with a default of `'lib'`, but only
+  `htpolynet run` creates that tree, so the default value of a flag the user
+  never typed reached `UserLibrary` and tripped its existence assertion:
+  `AssertionError: lib is not a directory`, three seconds in.  The documented
+  container invocation failed on it -- running `postsim` against a staged
+  directory holding only finished results, which is the normal shape of a
+  cluster workflow, where the cure ran somewhere else.
+
+  `-lib` now defaults to nothing for these two subcommands, and the
+  conventional `./lib` is used when it happens to be there.  An explicitly
+  supplied `-lib` is still validated, so a typo fails loudly rather than
+  silently degrading to no library.  The assertion message now names the flag
+  and the resolved path instead of echoing a bare `lib` the user never
+  supplied.
+
 ### Changed
+
+- `htpolynet info` no longer reports `HTPolyNet git commit: unknown` for an
+  installed copy.  pip, conda and the published container have no `.git`
+  beside the package, so the lookup could never succeed and a build had no
+  way to identify its own code from inside itself -- the same question the
+  parameterization records answer for molecules.  It now falls back to the
+  installed distribution version, which for a released install maps to a tag.
 
 - The warnings about a cached parameterization with no provenance record
   now say that the cached values are being **used**, not merely that they

@@ -248,7 +248,7 @@ def analyze(args):
     software.sw_setup()
     logger.debug(f'ogromacs {ogromacs}')
     for d in args.proj:
-        pfs.pfs_setup(root=os.getcwd(),topdirs=pfs.Dirs.analyze_topdirs,verbose=True,projdir=d,reProject=False,userlibrary=args.lib)
+        pfs.pfs_setup(root=os.getcwd(),topdirs=pfs.Dirs.analyze_topdirs,verbose=True,projdir=d,reProject=False,userlibrary=pfs.resolve_user_library(args.lib))
         pfs.go_to(pfs.Dirs.analyze)
         for stage in cfg.stagelist:
             stage.do(**ogromacs)
