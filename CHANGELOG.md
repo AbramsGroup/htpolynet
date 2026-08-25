@@ -25,11 +25,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   reconciled detected hardware against what the gmx build can drive, so the
   CUDA image simply starts passing checks the CPU image fails.
 
-  **The `:cuda` image has not been run on a GPU.**  Nothing in CI can verify
-  offload -- the runner has no device, and the build satisfies conda's
-  `__cuda` virtual package with `CONDA_OVERRIDE_CUDA` to make the solve
-  succeed there.  Check `htpolynet`'s GPU banner on first use and treat a
-  report of `unusable` as a bug worth filing.
+  Verified on hardware, since nothing in CI can check this: on a Picotte
+  V100 node the image reports `GPU support: CUDA` where `:latest` reports
+  OpenCL, `htpolynet info` detects the device instead of calling it
+  `unusable`, and a complete `fetch-example 1` build ran every one of its
+  `gmx mdrun` steps with `-gpu_id 0`, using cuFFT for PME.  The CUDA 12.9
+  runtime in the image runs against that node's 12.4-era driver (550.127.05)
+  under CUDA minor-version compatibility, so a site does not need a
+  bleeding-edge driver to use the tag.
 
 ### Fixed
 

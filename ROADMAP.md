@@ -8,17 +8,6 @@ Rough ordering within each section is by value, not by effort.
 
 ## Container and deployment
 
-- **The `:cuda` image has never been run on a GPU.** The image builds in CI,
-  but nothing in CI can confirm that `mdrun` actually offloads: the workflow
-  satisfies the `__cuda` virtual package with `CONDA_OVERRIDE_CUDA` on a
-  runner that has no device. So the tag is published on the strength of a
-  successful solve, and the first person to run it is the first person to
-  test it. Someone should run a bundled example against it on real hardware
-  and confirm `htpolynet`'s GPU banner reports the device as usable rather
-  than `unusable`, and that the run is actually faster. Picotte is the
-  obvious place, since its own module is `AVX_512` + CUDA and gives a
-  same-hardware comparison; panacea also has a device.
-
 - **The container's Gromacs is generic `AVX2_256`, on both tags.** The
   `:cuda` image fixes the GPU half of this problem and not the SIMD half:
   conda-forge builds for a portable baseline, so on an AVX-512 host both
@@ -26,9 +15,17 @@ Rough ordering within each section is by value, not by effort.
   built or module-provided Gromacs. This is inherent to installing Gromacs
   from conda-forge and cannot be fixed by choosing a different build string
   -- it would take building Gromacs in the image, which trades the weekly
-  rebuild's freshness for a long build and a host-specific artifact. Worth
-  quantifying before deciding it matters: nobody has measured the image
-  against Picotte's module on the same node.
+  rebuild's freshness for a long build and a host-specific artifact.
+
+  Confirmed on hardware 2026-08-25: the `:cuda` image on Picotte's gpu001
+  reports `SIMD instructions: AVX2_256` on a node whose CPUs support
+  AVX-512, and Gromacs itself prints the hint that "AVX_512 ...
+  instructions will perform best on this hardware". Still unquantified, and
+  that is what would decide whether it matters: nobody has run the same
+  system against Picotte's own `abramsGrp-gromacs/2021.2/cpu-gpu` module on
+  the same node. Note Gromacs also observes that AVX2 is often the better
+  choice for runs that offload to a GPU anyway, so the penalty may be small
+  for exactly the case the `:cuda` image serves.
 
 - **Publish a digest or version tag people can pin.** `:latest` moves
   every week via the scheduled rebuild, so a run recorded as "built with
