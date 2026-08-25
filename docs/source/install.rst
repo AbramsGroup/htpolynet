@@ -218,6 +218,24 @@ OpenBabel sources are in ``~/Downloads`` and the install prefix is
 Then set ``PATH``, ``LD_LIBRARY_PATH``, and ``BABEL_LIBDIR`` to point
 at ``${HOME}/opt/obabel``.
 
+Driving htpolynet with Claude Code
+----------------------------------
+
+``htpolynet`` ships a skill for `Claude Code
+<https://claude.com/claude-code>`_ that teaches the agent how to use it:
+start from the nearest example, describe monomers in their active form,
+check a configuration before spending compute, and recognize the failure
+modes that are known rather than mysterious.  Install it once, after
+installing the package:
+
+.. code-block:: console
+
+    $ htpolynet setup-claude
+
+Installing ``htpolynet`` never writes to ``~/.claude/`` on its own; the
+skill is copied only when you run this.  See :doc:`/user-guide/usage` for the options,
+including how to scope the skill to a single project.
+
 Other Prerequisites
 -------------------
 

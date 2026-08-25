@@ -33,21 +33,24 @@ pip install -e .
 
 Once installed, the user has access to the main ``htpolynet`` command.
 
+If you drive htpolynet with [Claude Code](https://claude.com/claude-code), install the bundled skill so the agent knows how to use it:
+```bash
+htpolynet setup-claude
+```
+This writes `~/.claude/skills/htpolynet/SKILL.md`; nothing is installed there unless you run it.
+
 IMPORTANT NOTES: The programs ``antechamber``, ``parmchk2`` and ``tleap`` from AmberTools must be in your path.  These can be installed using the ``ambertools`` package from ``conda-forge`` or compiled from source.  You also need Gromacs installed so ``gmx`` is in your path.  The examples show how to build input monomer structures using OpenBabel, so to use them you need ``obabel`` in your path as well.
 
 ## Docker
 
-As an alternative to a local installation, a prebuilt container image is published at ``ghcr.io/cameronabrams/htpolynet``.  It bundles htpolynet together with Gromacs, AmberTools, and OpenBabel, so no additional dependencies are required on the host beyond Docker (and, optionally, the NVIDIA Container Toolkit for GPU runs).
+As an alternative to a local installation, a prebuilt container image is published at ``ghcr.io/cameronabrams/htpolynet``.  It bundles htpolynet together with Gromacs, AmberTools, and OpenBabel, so no additional dependencies are required on the host beyond Docker.
 
 Run htpolynet against a configuration file in the current directory:
 ```bash
 docker run --rm -v $(pwd):/work ghcr.io/cameronabrams/htpolynet run config.yaml
 ```
 
-With GPU support:
-```bash
-docker run --rm --gpus all -v $(pwd):/work ghcr.io/cameronabrams/htpolynet run config.yaml
-```
+**The image cannot use a GPU.**  Its Gromacs comes from conda-forge, built against OpenCL rather than CUDA, and Gromacs no longer drives NVIDIA devices through OpenCL.  Passing `--gpus all` starts the container and changes nothing about how it computes; on a cluster, target CPU partitions and do not request `--gres=gpu` or pass `--nv`.  If you need GPU-accelerated Gromacs, install htpolynet natively against a CUDA-enabled Gromacs.
 
 A Docker Compose file is also provided in [docker/compose.yml](docker/compose.yml) for a shorter invocation (``docker compose run --rm htpolynet run config.yaml``).  See [docs/source/user-guide/container-usage.rst](docs/source/user-guide/container-usage.rst) for the full story, including Singularity/Apptainer use on HPC systems.
 

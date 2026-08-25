@@ -151,37 +151,28 @@ otherwise it is treated as an ``htpolynet`` subcommand.  So:
   Desktop on Windows always runs as the current user).  Output files will be
   owned correctly without any changes.
 
-GPU support
-"""""""""""
+GPUs: this image cannot use one
+"""""""""""""""""""""""""""""""
 
-If you have an NVIDIA GPU and the
-`NVIDIA Container Toolkit <https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html>`_
-installed, add a ``deploy`` block to your local copy of ``compose.yml``:
+.. warning::
 
-.. code-block:: yaml
+  **The bundled Gromacs is not a CUDA build.**  The image installs Gromacs
+  from conda-forge, whose default package is compiled with OpenCL rather than
+  CUDA, and Gromacs no longer supports OpenCL on NVIDIA devices.  Exposing a
+  GPU to this container therefore buys nothing: there is no code path that can
+  drive the device.
 
-  services:
-    htpolynet:
-      image: ghcr.io/cameronabrams/htpolynet:latest
-      volumes:
-        - ${PWD}:/work:Z
-        - htpolynet-home:/home/htpolynet
-      working_dir: /work
-      environment:
-        - HOME=/home/htpolynet
-        - MPLCONFIGDIR=/tmp/matplotlib
-      deploy:
-        resources:
-          reservations:
-            devices:
-              - driver: nvidia
-                count: all
-                capabilities: [gpu]
+Passing ``--gpus all`` to ``docker run``, or adding a ``deploy.resources``
+block reserving ``nvidia`` devices to ``compose.yml``, will start the
+container successfully and change nothing about how it computes.  Do not
+bother, and on a shared machine do not hold a GPU that another job could use.
 
-  volumes:
-    htpolynet-home:
+``htpolynet`` detects this at startup rather than failing obscurely later: it
+reports ``unusable`` in its GPU banner, drops any ``gpu_id`` from the config's
+``mdrun_options``, and adds ``-nb cpu`` to the ``mdrun`` command line.
 
-``htpolynet`` will detect the available GPU(s) automatically at startup.
+If you need GPU-accelerated Gromacs, run ``htpolynet`` natively against a
+CUDA-enabled Gromacs rather than through this image.  See :doc:`/install`.
 
 HPC Users (Singularity/Apptainer)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -216,15 +207,12 @@ Then run it, binding your working directory:
 
 .. warning::
 
-  **The bundled Gromacs is not a CUDA build.**  The image installs Gromacs
-  from conda-forge, whose default package is compiled with OpenCL rather than
-  CUDA support, and Gromacs no longer supports OpenCL on NVIDIA devices.  So
-  ``--nv`` and ``--gres=gpu:...`` buy you nothing with this image: target a
-  CPU partition instead.  ``htpolynet`` detects this at startup, reports
-  ``unusable`` in its GPU banner, drops any ``gpu_id`` from the config's
-  ``mdrun_options``, and adds ``-nb cpu`` to the ``mdrun`` command line.  If
-  you need GPU-accelerated Gromacs on a cluster, run htpolynet natively
-  against a CUDA-enabled Gromacs module rather than through this container.
+  **Target CPU partitions.**  For the reason given above under `GPUs: this
+  image cannot use one`_, ``--nv`` and ``--gres=gpu:...`` buy you nothing
+  here.  Requesting a GPU only lengthens your queue wait and idles a device
+  another job could use.  If you need GPU-accelerated Gromacs on a cluster,
+  run ``htpolynet`` natively against a CUDA-enabled Gromacs module rather
+  than through this container.
 
 Example shell scripts work the same way as under Docker — the entrypoint will
 recognize ``bash`` as an executable and exec it directly:

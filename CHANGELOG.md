@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **The container documentation told users to give the image a GPU, which it
+  cannot use.**  `container-usage.rst` carried a "GPU support" section
+  walking through the NVIDIA Container Toolkit and a `deploy.resources`
+  block reserving nvidia devices, ending "htpolynet will detect the
+  available GPU(s) automatically at startup" -- and then, sixty lines later
+  in the Singularity section, correctly warned that the image's conda-forge
+  Gromacs is an OpenCL build and cannot drive NVIDIA devices at all.  The
+  page contradicted itself, and `README.md` repeated the wrong half with a
+  `docker run --gpus all` example.
+
+  Both now say the same thing: exposing a GPU to this image starts the
+  container and changes nothing about how it computes, so target CPU
+  partitions and do not hold a device another job could use.  The reason and
+  the detection behavior are stated once, under Docker, and the HPC warning
+  points at it for the `--nv`/`--gres=gpu` specifics.
+
+### Changed
+
+- `htpolynet setup-claude` is now discoverable where a new user will meet
+  it: the installation page and the README, rather than only the subcommand
+  reference.
+
 ## [2.4.0] - 2026-08-25
 
 ### Added
