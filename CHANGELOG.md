@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`htpolynet setup-claude` installs the bundled Claude Code skill**, so it
+  reaches users who `pip install` or `conda install` htpolynet rather than
+  only those working inside a clone.  The skill previously lived at
+  `.claude/skills/htpolynet/`, which the tool finds only when the working
+  directory is the repository -- that is contributors, and not most users.
+  It now ships as package data and is copied to
+  `~/.claude/skills/htpolynet/SKILL.md` on request; `--skills-dir
+  ./.claude/skills` scopes it to one project instead, and `--force`
+  overwrites an existing copy after an upgrade.
+
+  Nothing happens at install time: installing the package never writes to
+  `~/.claude/`.  The repository's `.claude/skills/htpolynet/SKILL.md` is now
+  a symbolic link to the packaged file, so a clone and an install get the
+  same skill and the two cannot drift apart.
+
+  The skill itself was rewritten to stand alone.  It used to be a router --
+  its first instruction was to read
+  `docs/source/user-guide/building-a-system.rst`, a path that does not exist
+  for an installed user -- so it now carries the procedure inline and cites
+  Read the Docs once as the full reference.
+
 ### Fixed
 
 - **The container image now reports the commit it was built from.**  A

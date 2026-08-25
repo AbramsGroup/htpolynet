@@ -5,10 +5,14 @@ Author: Cameron F. Abrams <cfa22@drexel.edu>
 
 import logging
 import os
+import shutil
 import textwrap
 
 import argparse as ap
 import yaml
+
+from importlib.resources import files as pkg_files
+from pathlib import Path
 
 from .analysis.analyze import analyze
 from .analysis.plot import plots
@@ -117,6 +121,37 @@ def fetch_example(args):
     else:
         fullname = args.n
     _fetch_one(depot, fullname)
+
+
+def setup_claude(args: ap.Namespace):
+    """Handles the setup-claude subcommand.
+
+    Copies the bundled skill into the user's skills directory.  This runs only
+    when the user asks for it; installing the package never touches
+    ``~/.claude/``.
+
+    Args:
+        args (argparse.Namespace): parsed arguments
+    """
+    # Resolve through htpolynet.resources, which is a real package; the claude/
+    # subdirectory carries no __init__.py, matching every other resource
+    # subdirectory.
+    source = pkg_files('htpolynet.resources').joinpath('claude', 'SKILL.md')
+    if not source.is_file():
+        raise FileNotFoundError(f'Bundled skill not found at {source}')
+
+    skill_dir = Path(args.skills_dir).expanduser() / 'htpolynet'
+    target = skill_dir / 'SKILL.md'
+
+    if target.exists() and not args.force:
+        print(f'{target} already exists; re-run with --force to overwrite it')
+        return
+
+    skill_dir.mkdir(parents=True, exist_ok=True)
+    with source.open('rb') as fh, open(target, 'wb') as out:
+        shutil.copyfileobj(fh, out)
+    print(f'Written: {target}')
+    print('Claude Code picks the skill up on its next session in any directory.')
 
 
 def _add_run_options(p, loglevel='debug'):
@@ -257,6 +292,7 @@ def cli():
         ('analyze',          analyze,          "perform 'gmx <command>' style analyses specified in the config file"),
         ('gen-slurm-script', gen_slurm_script, 'generate a SLURM submission script for running htpolynet on a cluster'),
         ('make-viz',         make_viz,         'regenerate VMD viz files (.viz.psf + .viz.tcl) from an existing gromacs top + gro pair'),
+        ('setup-claude',     setup_claude,     "install htpolynet's Claude Code skill so an agent can drive htpolynet"),
     ]
 
     parser = ap.ArgumentParser(description=textwrap.dedent(banner_message),formatter_class=ap.RawDescriptionHelpFormatter)
@@ -290,6 +326,10 @@ def cli():
     cp['make-viz'].add_argument('-gro', type=str, default='final.gro', help='input gromacs coordinate file (default: final.gro)')
     cp['make-viz'].add_argument('-grx', type=str, default=None, help='input htpolynet .grx (default: auto-detect <gro-stem>.grx; needed for the constituent-selection macros)')
     cp['make-viz'].add_argument('-prefix', type=str, default=None, help='output basename; the .viz.psf, .viz.tcl, and .viz.macros.tcl are written next to the input gro (default: stem of -gro)')
+
+    cp['setup-claude'].add_argument('--skills-dir', type=str, default='~/.claude/skills',
+                                    help='skills directory to install into (default: %(default)s); use ./.claude/skills to scope the skill to one project')
+    cp['setup-claude'].add_argument('--force', default=False, action='store_true', help='overwrite an existing installed skill')
 
     _add_analysis_args(cp['postsim'])
     _add_analysis_args(cp['analyze'])
