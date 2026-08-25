@@ -333,12 +333,16 @@ Coverage as of the last measurement: **38.8%** overall.
   structures of the same network were held for 5 ns at a 480 K setpoint
   that thermostatted to 477.1 K -- about 11 K *below* the measured
   *T*:sub:`g`, and far longer than the 80 ps the example spends near it.
-  Relaxation there is fast at first and then stops: 85% of an initial
-  35 kg/m³ density gap closes within 3 ns, and the remaining 4.25 kg/m³
-  persists at 7.2 sigma with no further decay out to 5 ns.  So heat and
-  time buy most of the relaxation quickly and then buy nothing, and a
-  residual difference survives that a longer anneal at this scale does not
-  appear able to remove.  Whatever replaces the current anneal should
+  Relaxation there is fast at first and then stops: about 87% of an
+  initial 34.8 kg/m³ density gap -- the gap measured over the first 200 ps
+  -- closes within 3 ns, and the remaining 4.25 kg/m³ persists at
+  7.2 sigma, with a last-half trend of +0.030 kg/m³/ns, i.e. not decaying.
+  (State the baseline and the window whenever this number is quoted: the
+  same data give 83.5-87.8% across the defensible choices of each, so a
+  bare percentage is not a fact.)  So heat and time buy most of the
+  relaxation quickly and then buy nothing, and a residual difference
+  survives that a longer anneal at this scale does not appear able to
+  remove.  Whatever replaces the current anneal should
   therefore be argued as a large improvement, not as a fix; an entry
   promising equilibration would oversell what was measured.
 
