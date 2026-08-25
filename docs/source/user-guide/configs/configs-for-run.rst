@@ -263,6 +263,14 @@ In this section we show all subdirectives for each of the five main directives i
 
     The ``postcure`` directive instructs ``htpolynet`` on running a series of MD simulations after cure.  Its form is identical to that of ``precure``, namely with optional ``preequilibration``, ``anneal``, and ``postequilibration`` subdirectives.
 
+    .. warning::
+
+       **The density at the end of ``postequilibration`` is not an equilibrated density, and should not be quoted as one.**  A crosslinked network only relaxes appreciably above its glass transition, and a postcure anneal whose peak sits near *T*:sub:`g` spends very little time where the network can move -- so the postcure plateau reports an under-relaxed structure no matter how long the plateau itself runs.
+
+       Measured on four independent BPA cyanate-ester builds: the postcure NPT plateau gave 1.1712 ± 0.0029 g/cm³ at 300 K, while the same systems melted and slowly re-cooled gave 1.1983 ± 0.0037 g/cm³ at 293 K -- a 2.31% difference between two extractions of the same quantity.  Against experiment (1.205 by mercury dilatometry, 1.202 by flotation, same monomer), the plateau value is 2.6-2.8% low and the re-cooled value 0.3-0.6% low.  A build reporting the plateau density would have read as a force-field failure when it was a protocol artifact.
+
+       If you need a density, extract it from a melt-and-slow-cool trajectory (an :doc:`htpolynet postsim <configs-for-postsim>` ladder does this) rather than from the postcure plateau.  The same caution applies to any property that depends on the structure having relaxed.
+
 .. _reactions:
 
 * ``reactions``

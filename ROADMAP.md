@@ -314,6 +314,44 @@ Coverage as of the last measurement: **38.8%** overall.
 
 ## Example depot
 
+- **Example 6's postcure anneal peaks too close to *T*:sub:`g` to relax the
+  network, and the fix is not simply "run it longer".** Measured on four
+  independent BPA builds: the postcure NPT plateau gives 1.1712 ± 0.0029
+  g/cm³ where the same systems melted and slowly re-cooled give 1.1983 ±
+  0.0037 g/cm³ -- 2.31% apart, with the plateau 2.6-2.8% below experiment
+  and the re-cooled value within 1%. The plateau is an under-relaxed
+  structure.
+
+  The mechanism, and the reason the obvious fix is the wrong one: the
+  example anneals at a 500 K peak, and the measured *T*:sub:`g` for this
+  system is 487.9 K. That is 12.1 K above the glass transition, for 80 ps.
+  The Tg ladder that produced the relaxed value spent 15,785 ps above
+  *T*:sub:`g`, peaking 112 K above it -- 197x the time, in the only regime
+  where a crosslinked network moves at all. Lengthening an anneal that sits
+  12 K above *T*:sub:`g` extends a process that barely moves anything, so
+  the lever is the peak temperature, not the duration.
+
+  **Untested.** Nobody has yet built with a hotter anneal and compared it
+  against the melt-and-recool value, which is the experiment that would
+  settle it; the argument above is mechanism, not measurement. That is why
+  the example is documented rather than changed. Raising the peak also costs
+  wall-clock in a tutorial that should stay small, so the test needs to
+  report both whether it works and what it costs.
+
+  The general problem is worth more than the instance: **any protocol whose
+  relaxation depends on being above *T*:sub:`g` is fragile when *T*:sub:`g`
+  is unknown at configuration time**, which it always is -- you cannot know
+  it before building the thing. A fixed absolute peak temperature is a guess
+  that happens to be right or wrong per chemistry, silently. Something
+  expressed relative to an estimated or measured *T*:sub:`g`, or a postcure
+  that measures *T*:sub:`g` and then anneals accordingly, would be robust
+  where an absolute number is not. That is a real design change, not a
+  config edit.
+
+  Raised by the calibration study, which had already published the
+  pessimistic density before catching it -- the failure mode is reporting a
+  protocol artifact as a force-field result.
+
 - **Example 5 is still not laptop-scale.** The `68d81fb` retune cut the
   monomer pool to make HTPB/IPDI "fit in a reasonable wall time on a
   laptop", but a validation run on 16 CPU cores took **10h17m** — about

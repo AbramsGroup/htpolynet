@@ -27,6 +27,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Documented that **the density at the end of `postcure` is not an
+  equilibrated density**, in the `postcure` directive reference and at the
+  point in the example 6 tutorial where a reader would take a number off the
+  plot.  A crosslinked network relaxes only above its glass transition, and
+  a postcure anneal peaking near *Tg* spends almost no time where the
+  network can move, so the plateau reports an under-relaxed structure
+  however long the plateau runs.  Measured on four independent BPA builds:
+  the plateau gives 1.1712 +/- 0.0029 g/cm3 against 1.1983 +/- 0.0037 for
+  the same systems melted and slowly re-cooled -- 2.31% apart, with the
+  plateau 2.6-2.8% below experiment and the re-cooled value within 1%.
+  Nothing is computed incorrectly; the protocol simply does not equilibrate
+  what a reader would assume it does.  The example's own anneal peak is
+  unchanged pending a test that raising it actually helps; see `ROADMAP.md`.
+
 - `htpolynet info` no longer reports `HTPolyNet git commit: unknown` for an
   installed copy.  pip, conda and the published container have no `.git`
   beside the package, so the lookup could never succeed and a build had no
