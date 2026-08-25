@@ -8,41 +8,28 @@ Rough ordering within each section is by value, not by effort.
 
 ## Container and deployment
 
-- **CUDA-enabled Gromacs in the container image.** The published image
-  installs Gromacs from conda-forge, whose default linux-64 package is
-  built with OpenCL (not CUDA) and generic `AVX2_256` SIMD. Gromacs no
-  longer drives NVIDIA devices through OpenCL, so the image cannot use a
-  GPU at all, and on an AVX-512 host it also leaves single-core
-  throughput on the table. For reference, Picotte's own module is
-  `AVX_512` + CUDA. Doing this well probably means a second image tag
-  (e.g. `:cuda`) built against `gromacs=*=nompi_cuda*` rather than
-  changing the default, since it pulls in the CUDA runtime and inflates
-  the image substantially. The CPU image should stay the default so that
-  `docker run` on a laptop keeps working. Note that
-  `software.gpu_unusable_reasons()` already reasons about this correctly,
-  so a CUDA image would simply start passing its checks rather than
-  needing new logic.
+- **The `:cuda` image has never been run on a GPU.** The image builds in CI,
+  but nothing in CI can confirm that `mdrun` actually offloads: the workflow
+  satisfies the `__cuda` virtual package with `CONDA_OVERRIDE_CUDA` on a
+  runner that has no device. So the tag is published on the strength of a
+  successful solve, and the first person to run it is the first person to
+  test it. Someone should run a bundled example against it on real hardware
+  and confirm `htpolynet`'s GPU banner reports the device as usable rather
+  than `unusable`, and that the run is actually faster. Picotte is the
+  obvious place, since its own module is `AVX_512` + CUDA and gives a
+  same-hardware comparison; panacea also has a device.
 
-  Checked 2026-08-25, and the pieces are all there: conda-forge ships
-  `gromacs 2026.3` for linux-64 in a `nompi_cuda` variant alongside the
-  `nompi` one the image installs today, so the Dockerfile change is a build
-  string on the existing `mamba install` line, not a source build.
+- **The container's Gromacs is generic `AVX2_256`, on both tags.** The
+  `:cuda` image fixes the GPU half of this problem and not the SIMD half:
+  conda-forge builds for a portable baseline, so on an AVX-512 host both
+  images leave single-core throughput on the table relative to a natively
+  built or module-provided Gromacs. This is inherent to installing Gromacs
+  from conda-forge and cannot be fixed by choosing a different build string
+  -- it would take building Gromacs in the image, which trades the weekly
+  rebuild's freshness for a long build and a host-specific artifact. Worth
+  quantifying before deciding it matters: nobody has measured the image
+  against Picotte's module on the same node.
 
-  **The one real obstacle is the build runner, and it has a known
-  workaround.** The CUDA variant depends on `__cuda`, a *virtual* package
-  that conda synthesizes only where a CUDA driver is present, so the solve
-  fails outright on a GPU-less GitHub Actions runner. Setting
-  `CONDA_OVERRIDE_CUDA=12.9` in the build environment satisfies it and lets
-  the image build on an ordinary runner. That gets the image *built* but not
-  *verified*: whether `mdrun` actually offloads still needs real hardware, so
-  the first CUDA image has to be smoke-tested by hand on a GPU node before it
-  is advertised. Note the CUDA variant also carries a hard
-  `cuda-toolkit >=12.9,<13` dependency, which is where the size goes -- the
-  gromacs package alone is 63 MB against 35 MB, and the toolkit is
-  gigabytes on top of that.
-
-  Picotte is the obvious place to smoke-test it, since its own Gromacs module
-  is `AVX_512` + CUDA and would give a same-hardware comparison.
 - **Publish a digest or version tag people can pin.** `:latest` moves
   every week via the scheduled rebuild, so a run recorded as "built with
   the container" is not reproducible. Per-commit tags already exist;

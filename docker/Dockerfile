@@ -20,10 +20,22 @@
 #
 #   docker run --rm -v $(pwd):/work ghcr.io/cameronabrams/htpolynet run config.yaml
 #
-# GPU support (requires nvidia-container-toolkit):
+# GPUs: the DEFAULT image cannot use one.  Its Gromacs is the conda-forge
+# OpenCL build, and Gromacs no longer drives NVIDIA devices through OpenCL, so
+# --gpus all starts the container and changes nothing about how it computes.
 #
-#   docker run --rm --gpus all -v $(pwd):/work \
-#       ghcr.io/cameronabrams/htpolynet run config.yaml
+# Build the CUDA variant instead, which installs gromacs=*=nompi_cuda*:
+#
+#   CONDA_OVERRIDE_CUDA=12.9 docker build -f docker/Dockerfile \
+#       --build-arg GROMACS_BUILD=nompi_cuda \
+#       --build-arg CONDA_OVERRIDE_CUDA=12.9 \
+#       -t ghcr.io/cameronabrams/htpolynet:cuda .
+#
+# CONDA_OVERRIDE_CUDA is required to build on a machine with no NVIDIA driver:
+# the CUDA package depends on the __cuda virtual package, which conda
+# synthesizes only where a driver is present, so the solve fails on an
+# ordinary CI runner without it.  Running the resulting image does need
+# nvidia-container-toolkit and --gpus all.
 
 FROM condaforge/miniforge3:latest
 
@@ -39,9 +51,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         gosu \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN mamba install -y -n base -c conda-forge \
+# Which Gromacs build to install.  Empty (the default) takes whatever
+# conda-forge considers best, which for linux-64 is the OpenCL build -- correct
+# for a CPU image, and unable to drive an NVIDIA device.  Pass
+# GROMACS_BUILD=nompi_cuda for the CUDA image; that package depends on the
+# __cuda virtual package, so a build host without an NVIDIA driver also needs
+# CONDA_OVERRIDE_CUDA set to a version to satisfy the solve.
+ARG GROMACS_BUILD=
+ARG CONDA_OVERRIDE_CUDA=
+
+RUN CONDA_OVERRIDE_CUDA="${CONDA_OVERRIDE_CUDA}" mamba install -y -n base -c conda-forge \
         ambertools \
-        gromacs \
+        "gromacs${GROMACS_BUILD:+=*=${GROMACS_BUILD}*}" \
         parmed \
         rdkit \
     && mamba clean -afy

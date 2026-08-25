@@ -15,6 +15,29 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # The default image.  conda-forge's preferred linux-64 Gromacs is the
+          # OpenCL build, which cannot drive NVIDIA devices; this image is
+          # CPU-only by design and stays the default so `docker run` on a
+          # laptop keeps working without pulling the CUDA toolkit.
+          - variant: cpu
+            gromacs_build: ""
+            cuda_override: ""
+            tag_prefix: ""
+          # The CUDA image.  gromacs=*=nompi_cuda* depends on the __cuda
+          # virtual package, which conda synthesizes only where an NVIDIA
+          # driver is present -- so the solve fails on this runner unless
+          # CONDA_OVERRIDE_CUDA declares one.  That makes the image buildable
+          # here; it does NOT make it verifiable here.  Nothing in CI can
+          # confirm that mdrun actually offloads, so smoke-test a new CUDA
+          # image on real hardware before recommending it.
+          - variant: cuda
+            gromacs_build: "nompi_cuda"
+            cuda_override: "12.9"
+            tag_prefix: "cuda-"
     steps:
     - uses: actions/checkout@v4
 
@@ -25,6 +48,17 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Compute tags
+      id: tags
+      run: |
+        if [ "${{ matrix.variant }}" = "cuda" ]; then
+          moving="ghcr.io/cameronabrams/htpolynet:cuda"
+        else
+          moving="ghcr.io/cameronabrams/htpolynet:latest"
+        fi
+        printf 'tags<<EOF\n%s\nghcr.io/cameronabrams/htpolynet:%s%s\nEOF\n' \
+          "$moving" "${{ matrix.tag_prefix }}" "${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
@@ -33,6 +67,6 @@ jobs:
         push: true
         build-args: |
           HTPOLYNET_COMMIT=${{ github.sha }}
-        tags: |
-          ghcr.io/cameronabrams/htpolynet:latest
-          ghcr.io/cameronabrams/htpolynet:${{ github.sha }}
+          GROMACS_BUILD=${{ matrix.gromacs_build }}
+          CONDA_OVERRIDE_CUDA=${{ matrix.cuda_override }}
+        tags: ${{ steps.tags.outputs.tags }}

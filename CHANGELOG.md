@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **A CUDA image, published as `ghcr.io/cameronabrams/htpolynet:cuda`.**  The
+  only image until now installed conda-forge's default linux-64 Gromacs,
+  which is an OpenCL build; Gromacs no longer drives NVIDIA devices through
+  OpenCL, so that image cannot use a GPU at all.  The new tag installs
+  `gromacs=*=nompi_cuda*` from the same Dockerfile and can.
+
+  The CPU image remains `:latest` and remains the default, because the CUDA
+  build pulls in the CUDA toolkit and inflates the image substantially --
+  `docker run` on a laptop should not download a toolkit it cannot use.
+  Both tags are built by the same workflow on the same triggers, and both
+  carry the per-commit tag scheme (`:<sha>` and `:cuda-<sha>`).
+
+  `external.software.gpu_unusable_reasons()` needed no change: it already
+  reconciled detected hardware against what the gmx build can drive, so the
+  CUDA image simply starts passing checks the CPU image fails.
+
+  **The `:cuda` image has not been run on a GPU.**  Nothing in CI can verify
+  offload -- the runner has no device, and the build satisfies conda's
+  `__cuda` virtual package with `CONDA_OVERRIDE_CUDA` to make the solve
+  succeed there.  Check `htpolynet`'s GPU banner on first use and treat a
+  report of `unusable` as a bug worth filing.
+
 ### Fixed
 
 - **The container documentation told users to give the image a GPU, which it
