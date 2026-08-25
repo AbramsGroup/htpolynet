@@ -42,10 +42,13 @@ Rough ordering within each section is by value, not by effort.
   old Gromacs and defeat the point of a weekly rebuild. The gap is that
   nothing *records* what a given image resolved to, so the versions are
   discoverable only by running `htpolynet info` inside it and writing the
-  answer down by hand. Candidates: emit a lock file or a `conda list` export
-  as an image label at build time, so `docker inspect` answers it without
-  running the image; or have `htpolynet info` output be machine-readable so a
-  build can capture it. This is the same requirement as the build manifest
+  answer down by hand. The better of two candidates is an image
+  **label** carrying a `conda list` export, written at build time: `docker
+  inspect` then answers the question without running the image, so the record
+  survives reaching someone who cannot run the container at all -- a reviewer,
+  an archive, a future reader holding only the digest. The alternative, making
+  `htpolynet info` machine-readable so a build can capture it, requires the
+  image to still be runnable, which is the weaker guarantee. This is the same requirement as the build manifest
   below, one layer further down -- what produced this build, all the way to
   the compilers.
 
