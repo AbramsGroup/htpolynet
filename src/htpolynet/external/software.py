@@ -97,8 +97,13 @@ def _get_git_commit():
     report.  Reporting 'unknown' there leaves a build with no way to answer
     "what code produced this" from inside itself, which is exactly the
     question the parameterization records exist to answer for molecules.
-    Fall back to the installed distribution version, which for a released
-    install maps to a tag and is the honest answer.
+    The published container bakes the commit it was built from into
+    ``HTPOLYNET_COMMIT``, which is consulted next: the image's version string
+    alone is misleading between releases, since the scheduled rebuild builds
+    from ``main`` HEAD and reports whatever ``pyproject.toml`` last said.
+
+    Failing both, fall back to the installed distribution version, which for a
+    released install maps to a tag and is the honest answer.
     """
     global git_commit
     src = os.path.dirname(__file__)
@@ -118,6 +123,10 @@ def _get_git_commit():
             return
     except Exception:
         pass
+    baked = os.environ.get('HTPOLYNET_COMMIT', '').strip()
+    if baked and baked != 'unknown':
+        git_commit = f'{baked[:7]} (baked in at image build)'
+        return
     try:
         from importlib.metadata import version, PackageNotFoundError
         try:

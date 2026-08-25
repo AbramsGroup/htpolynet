@@ -51,6 +51,14 @@ COPY . /htpolynet
 WORKDIR /htpolynet
 RUN pip install --no-cache-dir .
 
+# The commit this image was built from.  There is no git in the image and no
+# .git beside the installed package, so without this an image cannot say what
+# code it contains -- and its version string is actively misleading between
+# releases, since the weekly rebuild builds from main HEAD.  Declared after the
+# expensive layers so that a changed sha does not invalidate the mamba cache.
+ARG HTPOLYNET_COMMIT=unknown
+ENV HTPOLYNET_COMMIT=${HTPOLYNET_COMMIT}
+
 # Pre-create HOME for the unprivileged user the entrypoint drops to.  When
 # compose.yml mounts a named volume here, Docker initializes the fresh volume
 # from this directory and preserves the 0777 mode.

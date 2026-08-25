@@ -28,35 +28,6 @@ Rough ordering within each section is by value, not by effort.
   the container" is not reproducible. Per-commit tags already exist;
   what's missing is documenting that users should pin one.
 
-- **The container cannot report which commit built it, and its version
-  string is actively misleading between releases.** `htpolynet info` used to
-  print `git commit: unknown` inside the image, because `_get_git_commit()`
-  runs `git rev-parse` against the installed package directory and no
-  installed copy has a `.git` beside it. That now falls back to the
-  installed distribution version, which is right for a pip or conda install
-  and *precisely wrong for the container*: the scheduled rebuild builds from
-  `main` HEAD, which can be many commits past the last tag, so the image
-  reports its `pyproject.toml` version honestly while running code that is
-  not that version.
-
-  This is live, not hypothetical. The 2026-08-24 03:54 scheduled build moved
-  `:latest` to an image built from `948c301` -- four commits past `v2.3.0`
-  -- and that image reports `installed version 2.3.0`. `:latest` is the
-  default thing a user pulls and the weekly cron is what keeps moving it, so
-  the wrong answer is the common case, and it is wrong silently. A user
-  could pull `:latest`, trust the version string, and write "htpolynet
-  2.3.0" in a methods section while having run untagged `main`.
-
-  The fix is to bake the real commit in at image build time -- the build
-  context has `.git`, so `docker.yml` or the Dockerfile can capture
-  `git rev-parse HEAD` and write it where the package can read it. That
-  touches the Dockerfile and the release story together, which is why it was
-  kept out of the bugfix that added the version fallback. It belongs with
-  the build-manifest entry below: both answer "what produced this build",
-  and a manifest that recorded an unreliable version string would launder
-  the problem rather than solve it. Raised by the calibration study, which
-  has correct provenance only because it pins the image by full sha
-  externally -- which remains the right practice either way.
 - **Retire `ghcr.io/abramsgroup/htpolynet`.** Superseded by the
   `cameronabrams` package; still public and still serving a June image to
   anyone with an old link.

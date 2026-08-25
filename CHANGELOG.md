@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **The container image now reports the commit it was built from.**  A
+  published image had no way to say what code it contained: there is no git
+  in the image and no `.git` beside the installed package, so
+  `htpolynet info` fell back to the installed version -- which is right for
+  pip and conda and *misleading for the container*, because the weekly
+  scheduled rebuild builds from `main` HEAD and reports whatever
+  `pyproject.toml` last said.  An image built four commits past a release
+  claimed to be that release, and `:latest` is the default thing people
+  pull.  A user could pull `:latest`, trust the version string, and record
+  the wrong version in a methods section.
+
+  The build now passes the commit as a `HTPOLYNET_COMMIT` build argument,
+  the image carries it in its environment, and `htpolynet info` reports it
+  in preference to the version fallback.  A real git checkout still wins
+  over both, since it reflects the working tree including uncommitted
+  changes.  The container-usage guide explains why `:latest` moves and how
+  to pull by digest or per-commit tag when provenance has to be stateable
+  later.
+
 ## [2.3.1] - 2026-08-25
 
 ### Fixed

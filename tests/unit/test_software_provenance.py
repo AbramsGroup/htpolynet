@@ -30,6 +30,12 @@ def _no_git(monkeypatch):
     monkeypatch.setattr(subprocess, 'run', boom)
 
 
+@pytest.fixture(autouse=True)
+def clear_baked_commit(monkeypatch):
+    """The baked commit is environment state; a developer machine has none."""
+    monkeypatch.delenv('HTPOLYNET_COMMIT', raising=False)
+
+
 class TestGitCommitReporting:
 
     def test_a_checkout_reports_a_commit(self):
@@ -59,3 +65,52 @@ class TestGitCommitReporting:
         _no_git(monkeypatch)
         monkeypatch.setattr(software, '__name__', software.__name__)
         software._get_git_commit()
+
+
+class TestBakedCommit:
+    """The published container has no git and no .git beside the package, and
+    its version string is misleading between releases -- the scheduled rebuild
+    builds from main HEAD and reports whatever pyproject.toml last said.  The
+    image therefore bakes its commit in at build time.
+    """
+
+    def test_baked_commit_is_reported_when_git_is_unavailable(self, monkeypatch):
+        _no_git(monkeypatch)
+        monkeypatch.setenv('HTPOLYNET_COMMIT', 'a1b2c3d4e5f6a7b8c9d0')
+        software.git_commit = 'unset'
+        software._get_git_commit()
+        assert 'a1b2c3d' in software.git_commit
+        assert 'image build' in software.git_commit
+
+    def test_baked_commit_beats_the_version_fallback(self, monkeypatch):
+        # The whole point: a version string alone cannot distinguish a release
+        # image from a weekly rebuild of untagged main.
+        _no_git(monkeypatch)
+        monkeypatch.setenv('HTPOLYNET_COMMIT', 'a1b2c3d4e5f6a7b8c9d0')
+        software.git_commit = 'unset'
+        software._get_git_commit()
+        assert 'installed version' not in software.git_commit
+
+    def test_the_dockerfile_default_is_not_reported_as_a_commit(self, monkeypatch):
+        # ARG HTPOLYNET_COMMIT=unknown is the default for a local docker build
+        # with no --build-arg; it must not be echoed back as if it were a sha.
+        _no_git(monkeypatch)
+        monkeypatch.setenv('HTPOLYNET_COMMIT', 'unknown')
+        software.git_commit = 'unset'
+        software._get_git_commit()
+        assert 'installed version' in software.git_commit
+
+    def test_an_empty_value_falls_through(self, monkeypatch):
+        _no_git(monkeypatch)
+        monkeypatch.setenv('HTPOLYNET_COMMIT', '   ')
+        software.git_commit = 'unset'
+        software._get_git_commit()
+        assert 'installed version' in software.git_commit
+
+    def test_a_real_checkout_still_wins(self, monkeypatch):
+        # In a dev checkout git is more authoritative: it reflects the working
+        # tree, including uncommitted changes, which a baked value cannot.
+        monkeypatch.setenv('HTPOLYNET_COMMIT', 'a1b2c3d4e5f6a7b8c9d0')
+        software.git_commit = 'unset'
+        software._get_git_commit()
+        assert 'image build' not in software.git_commit

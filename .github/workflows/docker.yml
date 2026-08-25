@@ -31,6 +31,8 @@ jobs:
         context: .
         file: docker/Dockerfile
         push: true
+        build-args: |
+          HTPOLYNET_COMMIT=${{ github.sha }}
         tags: |
           ghcr.io/cameronabrams/htpolynet:latest
           ghcr.io/cameronabrams/htpolynet:${{ github.sha }}

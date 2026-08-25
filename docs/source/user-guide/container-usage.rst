@@ -99,6 +99,25 @@ The ``compose.yml`` file mounts the current directory into the container as
 ``/work`` and runs the process as your host user, so all output files are
 written with your own ownership.
 
+.. admonition:: Which code is in your image?
+   :class: note
+
+   ``htpolynet info`` reports the exact commit the image was built from, which
+   is baked in at build time.  This matters because ``:latest`` moves: besides
+   moving on every release, it is rebuilt weekly from ``main`` to pick up new
+   Gromacs and AmberTools builds, so an image tagged ``:latest`` is frequently
+   built from a commit *after* the last release and its version number alone
+   will not tell you that.
+
+   For anything whose provenance you need to be able to state later -- a
+   published result, a long campaign you want to keep consistent -- pull by
+   digest or by the per-commit tag rather than ``:latest``, and record what
+   you pulled::
+
+     $ docker pull ghcr.io/cameronabrams/htpolynet@sha256:<digest>
+
+   Every build is also pushed as ``ghcr.io/cameronabrams/htpolynet:<commit-sha>``.
+
 Running example shell scripts
 """""""""""""""""""""""""""""
 
