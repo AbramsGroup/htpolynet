@@ -329,6 +329,19 @@ Coverage as of the last measurement: **38.8%** overall.
   12 K above *T*:sub:`g` extends a process that barely moves anything, so
   the lever is the peak temperature, not the duration.
 
+  **But raising the peak is unlikely to close the gap entirely.** Two
+  structures of the same network were held at 480 K for 5 ns -- within
+  8 K of the measured *T*:sub:`g`, and far longer than the 80 ps the
+  example spends near it.  Relaxation there is fast at first and then
+  stops: 85% of an initial 35 kg/m³ density gap closes within 3 ns, and
+  the remaining 4.25 kg/m³ persists at 7.2 sigma with no further decay out
+  to 5 ns.  So heat and time buy most of the relaxation quickly and then
+  buy nothing, and a residual difference survives that a longer anneal at
+  this scale does not appear able to remove.  Whatever replaces the
+  current anneal should therefore be argued as a large improvement, not as
+  a fix; an entry promising equilibration would oversell what was
+  measured.
+
   **Untested.** Nobody has yet built with a hotter anneal and compared it
   against the melt-and-recool value, which is the experiment that would
   settle it; the argument above is mechanism, not measurement. That is why
