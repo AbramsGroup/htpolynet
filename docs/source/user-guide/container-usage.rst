@@ -118,6 +118,19 @@ written with your own ownership.
 
    Every build is also pushed as ``ghcr.io/cameronabrams/htpolynet:<commit-sha>``.
 
+   Note that the image pins more than the ``htpolynet`` code.  Gromacs and
+   AmberTools are installed unpinned from conda-forge at build time, so two
+   images built days apart can carry different versions of either while
+   running identical ``htpolynet`` code -- and a charge method or an
+   integrator is not something you want silently varying across a campaign.
+   Two distinct habits protect against this and are worth keeping apart:
+   **pulling once** and reusing that image gives a campaign a constant tool
+   chain, while **recording the digest** is what lets you say afterwards what
+   that tool chain was.  Doing only the first leaves you consistent but unable
+   to state what you did; doing only the second leaves every fresh pull free
+   to move under you.  ``htpolynet info`` prints the AmberTools and Gromacs
+   versions actually present, so record its output alongside the digest.
+
 Running example shell scripts
 """""""""""""""""""""""""""""
 

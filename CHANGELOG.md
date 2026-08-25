@@ -28,6 +28,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to pull by digest or per-commit tag when provenance has to be stateable
   later.
 
+- The container-usage guide now distinguishes two habits that are easy to
+  conflate: **pulling once** gives a campaign a constant tool chain, while
+  **recording the digest** is what lets you state afterwards what that tool
+  chain was.  The image pins more than the htpolynet code -- Gromacs and
+  AmberTools come unpinned from conda-forge at build time, so two images
+  built days apart can carry different versions of either while running
+  identical htpolynet code.
+
 ## [2.3.1] - 2026-08-25
 
 ### Fixed

@@ -28,6 +28,30 @@ Rough ordering within each section is by value, not by effort.
   the container" is not reproducible. Per-commit tags already exist;
   what's missing is documenting that users should pin one.
 
+- **The image's Gromacs and AmberTools are unpinned, so two images with
+  identical htpolynet code can compute different numbers.** `docker/Dockerfile`
+  installs `ambertools`, `gromacs`, `parmed` and `rdkit` from conda-forge with
+  no version constraints, and the weekly rebuild exists precisely to pick up
+  whatever is newest. So the commit stamp now tells you which htpolynet
+  produced a build, and still does not tell you which force-field tool chain
+  did. Observed live: the image built 2026-08-25 carries AmberTools 26.0 and
+  Gromacs 2026.3, while panacea's native environment is on Gromacs
+  2025.4 -- a different major version against the same htpolynet.
+
+  Unpinning is deliberate and mostly right: pinning would freeze the image on
+  old Gromacs and defeat the point of a weekly rebuild. The gap is that
+  nothing *records* what a given image resolved to, so the versions are
+  discoverable only by running `htpolynet info` inside it and writing the
+  answer down by hand. Candidates: emit a lock file or a `conda list` export
+  as an image label at build time, so `docker inspect` answers it without
+  running the image; or have `htpolynet info` output be machine-readable so a
+  build can capture it. This is the same requirement as the build manifest
+  below, one layer further down -- what produced this build, all the way to
+  the compilers.
+
+  Raised by the calibration study, which found the 2025.4/2026.3 split only
+  because it went looking after an unrelated prompt.
+
 - **Retire `ghcr.io/abramsgroup/htpolynet`.** Superseded by the
   `cameronabrams` package; still public and still serving a June image to
   anyone with an old link.
