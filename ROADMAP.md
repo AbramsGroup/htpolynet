@@ -48,9 +48,9 @@ Rough ordering within each section is by value, not by effort.
   survives reaching someone who cannot run the container at all -- a reviewer,
   an archive, a future reader holding only the digest. The alternative, making
   `htpolynet info` machine-readable so a build can capture it, requires the
-  image to still be runnable, which is the weaker guarantee. This is the same requirement as the build manifest
-  below, one layer further down -- what produced this build, all the way to
-  the compilers.
+  image to still be runnable, which is the weaker guarantee. This is the same
+  requirement as the build manifest below, one layer further down -- what
+  produced this build, all the way to the compilers.
 
   Raised by the calibration study, which found the 2025.4/2026.3 split only
   because it went looking after an unrelated prompt.
