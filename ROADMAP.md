@@ -166,12 +166,34 @@ Coverage as of the last measurement: **38.8%** overall.
      package data. The first is simpler and goes stale differently -- an RTD
      link tracks `latest`, so an installed 2.3.0 would send its reader to
      documentation for whatever is current.
-  2. **Delivery.** A skill file inside a wheel does nothing on its own;
-     something has to place it where the tool looks. An `htpolynet skill
-     --install` subcommand copying it into the user's `~/.claude/skills/`
-     is the obvious mechanism, and is also the point at which a scientific
-     package starts carrying vendor-specific tooling and an install-time
-     side effect on a directory it does not own.
+
+     Note this is a rewrite, not a link swap. The current skill is
+     deliberately a *router*: "Do not restate the docs here; when they and
+     this file disagree, the docs are right." Pestifer's shipped skill takes
+     the opposite stance -- it carries the working loop inline and cites RTD
+     once, at the bottom, as a full reference. A shipped htpolynet skill has
+     to make the same move, because a router whose target it cannot
+     guarantee the reader will fetch is worse than no skill at all. The
+     router stance was right for a file that only ever ran inside a clone.
+  2. **Delivery -- settled by precedent.** A skill file inside a wheel does
+     nothing on its own; something has to place it where the tool looks.
+     Pestifer already does this, and its shape answers the objection that
+     was raised here: a `setup-claude` subcommand
+     (`pestifer/subcommands/setup_claude.py`) resolves the file through
+     `importlib.resources` and copies it to `~/.claude/skills/pestifer/`,
+     with `--skills-dir` to scope it to one project instead and `--force`
+     to overwrite. Nothing happens at install time -- the user runs it, so
+     the package never touches a directory it does not own unless asked.
+     Re-running after an upgrade is how the installed skill is refreshed.
+     Copy that design rather than inventing one; htpolynet's CLI takes a
+     subcommand as one entry in the `subcommands` table in `cli.py` plus a
+     handler, so the work is the packaging and the skill rewrite, not the
+     plumbing.
+
+     What remains genuinely undecided is only whether a scientific package
+     should carry vendor-specific tooling at all. That is a taste question
+     about scope, and it now has a precedent in the same author's other
+     package pointing one way.
 
   Worth weighing against simply doing nothing: the procedural guide the skill
   points at is on Read the Docs already, and an agent that reads
