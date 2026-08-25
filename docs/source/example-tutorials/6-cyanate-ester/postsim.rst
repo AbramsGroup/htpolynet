@@ -87,6 +87,22 @@ Run it:
 Density during annealing and equilibration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. warning::
+
+   The density this stage settles at is **not** an equilibrated density.
+   This example's postcure anneal peaks at 500 K, and the measured
+   *T*:sub:`g` for this system is about 488 K -- so the anneal spends its
+   80 ps of peak time only ~12 K above the glass transition, where a
+   crosslinked network barely moves.  On four independent builds the
+   postcure plateau came out 2.31% below the same systems' density after a
+   melt and slow re-cool, and 2.6-2.8% below experiment, where the
+   re-cooled value agrees with experiment to under 1%.
+
+   The 500 K peak is fine for this tutorial's purpose, which is to show the
+   workflow.  It is not a basis for quoting a density.  Take densities from
+   the cooling ladder below instead.
+
+
 .. admonition:: Placeholder
    :class: caution
 
