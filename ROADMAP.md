@@ -324,23 +324,33 @@ Coverage as of the last measurement: **38.8%** overall.
   example anneals at a 500 K peak, and the measured *T*:sub:`g` for this
   system is 487.9 K. That is 12.1 K above the glass transition, for 80 ps.
   The Tg ladder that produced the relaxed value spent 15,785 ps above
-  *T*:sub:`g`, peaking 112 K above it -- 197x the time, in the only regime
-  where a crosslinked network moves at all. Lengthening an anneal that sits
-  12 K above *T*:sub:`g` extends a process that barely moves anything, so
-  the lever is the peak temperature, not the duration.
+  *T*:sub:`g`, peaking 112 K above it -- 197x the time, in the regime where
+  a crosslinked network actually moves. Lengthening an anneal that sits 12 K
+  above *T*:sub:`g` extends a process that barely moves anything, so the
+  lever is the peak temperature, not the duration.
 
   **But raising the peak is unlikely to close the gap entirely.** Two
-  structures of the same network were held at 480 K for 5 ns -- within
-  8 K of the measured *T*:sub:`g`, and far longer than the 80 ps the
-  example spends near it.  Relaxation there is fast at first and then
-  stops: 85% of an initial 35 kg/m³ density gap closes within 3 ns, and
-  the remaining 4.25 kg/m³ persists at 7.2 sigma with no further decay out
-  to 5 ns.  So heat and time buy most of the relaxation quickly and then
-  buy nothing, and a residual difference survives that a longer anneal at
-  this scale does not appear able to remove.  Whatever replaces the
-  current anneal should therefore be argued as a large improvement, not as
-  a fix; an entry promising equilibration would oversell what was
-  measured.
+  structures of the same network were held for 5 ns at a 480 K setpoint
+  that thermostatted to 477.1 K -- about 11 K *below* the measured
+  *T*:sub:`g`, and far longer than the 80 ps the example spends near it.
+  Relaxation there is fast at first and then stops: 85% of an initial
+  35 kg/m³ density gap closes within 3 ns, and the remaining 4.25 kg/m³
+  persists at 7.2 sigma with no further decay out to 5 ns.  So heat and
+  time buy most of the relaxation quickly and then buy nothing, and a
+  residual difference survives that a longer anneal at this scale does not
+  appear able to remove.  Whatever replaces the current anneal should
+  therefore be argued as a large improvement, not as a fix; an entry
+  promising equilibration would oversell what was measured.
+
+  Note what that hold also says about *T*:sub:`g` itself: **relaxation does
+  not switch off at the glass transition**, it slows continuously through
+  it.  A transition 20-34 K wide by experiment means 11 K below
+  *T*:sub:`g` is inside the transition, not deep in the glass, so fast
+  early relaxation there is expected rather than anomalous.  This does not
+  soften the argument above -- the 197x figure is unchanged and a peak well
+  clear of the transition is still the lever -- but it does mean *T*:sub:`g`
+  is a soft kinetic boundary for this material, which any protocol
+  expressed relative to it has to accommodate.
 
   **Untested.** Nobody has yet built with a hotter anneal and compared it
   against the melt-and-recool value, which is the experiment that would
