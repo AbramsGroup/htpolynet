@@ -523,6 +523,15 @@ class Runtime:
             if bond_conversion is not None:
                 msg += f'; the cure reported a bond conversion of {bond_conversion:.3f}'
             my_logger(msg, logger.info)
+            # the transfer count is what predicts whether this stage survives,
+            # so it belongs next to the conversion rather than mid-log
+            if st.get('n_transferred'):
+                tmsg = f'Repair transferred {st["n_transferred"]} cap fragments'
+                if st.get('min_clearance_nm') is not None:
+                    tmsg += f'; tightest placement {st["min_clearance_nm"]:.3f} nm'
+                if st.get('n_below_target'):
+                    tmsg += f'; {st["n_below_target"]} below the clearance target'
+                my_logger(tmsg, logger.info)
         try:
             with open('repair-summary.yaml', 'w') as f:
                 yaml.dump(record, f, default_flow_style=False)

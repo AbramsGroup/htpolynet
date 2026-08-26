@@ -153,6 +153,7 @@ Spec fields
        cap_residue: CYN
        cap_template: BPA~O1-C1~CYN
        cap_search_radius: 0.6   # nm
+       cap_min_clearance: 0.15  # nm
 
 * ``crosslinker`` — names the trifunctional residue to be inspected.
   ``ring_carbon_atoms`` / ``ring_nitrogen_atoms`` give the
@@ -169,6 +170,17 @@ Spec fields
   types / charges / bonded interactions get spliced in for each
   bridge-O-to-cap-C bond.  ``cap_template`` is the ``product:`` field
   of a ``stage: repair`` reaction declared elsewhere in the YAML.
+* ``cap_min_clearance`` — how much room (nm) a transferred cap tries
+  to leave itself.  The cap is first placed along the bridge-O's old
+  O-H vector, as it always was; if that direction is already occupied
+  the driver searches the sphere for the clearest direction, holding
+  both bond lengths fixed so only the orientation moves, and stops as
+  soon as it reaches this clearance.  Default 0.15 nm, which is about
+  what a steepest-descent minimization absorbs and which is actually
+  achievable in a box at polymer density — 0.22 nm is not, and asking
+  for it would flag every cap.  When no direction reaches the target,
+  the driver says so and names the worst offenders; see
+  :ref:`what repair reports <postcure_repair_reporting>`.
 * ``cap_search_radius`` — radius (nm) within which a free-cap
   fragment looks for an unreacted bridge-O.  Expanded up to 10× on
   miss; falls back to globally nearest as a last resort.  Atom
@@ -321,6 +333,30 @@ directory, for reading across a series of runs:
      n_complete: 176
      n_dismantled: 64
      crosslinker_conversion: 0.7333333333333333
+
+The stage also reports how many **cap fragments it transferred**, and
+how tightly they landed::
+
+    Repair transferred 158 cap fragments; tightest placement 0.128 nm
+
+That count is worth watching, because it is the quantity that predicts
+whether this stage survives.  It is an identity — every bond the cure
+did not form leaves a bridge site unreacted, and every unreacted
+bridge site receives one transferred fragment::
+
+    transferred fragments = total reactive sites - bonds formed
+
+so it *rises as conversion falls*, and a low-conversion build can be
+placing several hundred.  Each one is a two-atom group being dropped
+into an already-dense box.  If the following minimization dies with a
+Lennard-Jones term of order 1e15, this is where to look, and the
+warning about caps that could not reach ``cap_min_clearance`` names
+the specific oxygens involved.
+
+Note that this count depends only on the bond conversion, not on how
+the bonds are distributed, so ``completion_bias`` does not reduce it.
+At a *matched crosslinker conversion* the bias in fact increases it,
+because it reaches that conversion by forming fewer bonds.
 
 To *raise* the crosslinker conversion rather than merely report it,
 see the ``CURE.controls.completion_bias`` directive in

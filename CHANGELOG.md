@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Transferred `-C#N` caps are no longer placed blind, which is what has been
+  killing low-conversion builds.**  The repair stage relocates a cap by
+  putting it along the bridge oxygen's old O-H vector, with no regard for
+  what is already there.  In a box at polymer density that direction is
+  usually occupied: in a synthetic 13000-atom box at 93 atoms/nm³, blind
+  placement put 91 of 158 caps within 0.10 nm of a neighbour and the worst at
+  0.008 nm -- effectively superimposed, which is the step-0 Lennard-Jones
+  term of order 1e15 that no minimization recovers from.
+
+  The cap is now still tried along the O-H vector first, so a cap in open
+  space lands exactly where it always did; only when that direction is
+  occupied does the driver search the sphere for the clearest one, holding
+  both bond lengths fixed so only the orientation moves.  Caps already placed
+  are part of the neighbourhood the next one sees.  On the same synthetic box
+  no cap lands closer than 0.128 nm, at either 158 or 378 transfers.
+
+  This matters more the lower the conversion, because the number of caps to
+  place is an identity -- `total reactive sites - bonds formed` -- so it rises
+  as conversion falls.  `completion_bias` does not reduce it.
+
+- **The stage now says how many fragments it transferred, and complains about
+  the ones it could not place well.**  The transfer count is the quantity that
+  predicts whether repair survives and it was buried in one mid-log INFO line;
+  it is now reported next to the conversion, along with the tightest placement
+  achieved.  A cap that could not reach `cap_min_clearance` (new, default
+  0.15 nm) in any direction is named, with its oxygen, while that is still
+  cheap to act on -- the alternative was working back to cap placement from a
+  GROMACS internal error at step 0.
+
 ### Added
 
 - **`completion_bias` now says so when it is ranking the wrong side of the

@@ -106,6 +106,10 @@ def _place_cyn_along(bpa_o_xyz, bpa_o_h_xyz, oc_len=0.136, cn_len=0.116):
     direction from BPA-O toward the (about-to-be-deleted) H, so the new
     cap sticks out along the original O-H bond.
 
+    This is the unconditioned placement: it is where the cap goes if that
+    direction happens to be empty, and it is blind to whether it is.  See
+    :func:`_choose_cap_placement`, which uses it as its first candidate.
+
     Lengths in nm: standard -O-C ester ~1.36 A, -C#N ~1.16 A.
     Returns (C_xyz, N_xyz).
     """
@@ -122,12 +126,140 @@ def _place_cyn_along(bpa_o_xyz, bpa_o_h_xyz, oc_len=0.136, cn_len=0.116):
     return c_xyz, n_xyz
 
 
+_PLACEMENT_LOCALITY = 0.8
+"""nm: an atom farther than this from the target oxygen cannot constrain a cap
+that reaches only ~0.25 nm from it, so it is not scored against."""
+
+
+def _report_placements(placements, target):
+    """Say how well the transferred caps landed, and complain about the tight ones.
+
+    The transfer count is the quantity that predicts whether this stage will
+    survive, so it is stated plainly rather than left to be inferred, and a
+    placement that could not reach the target clearance is named while it is
+    still cheap to act on -- the alternative is reading it back out of a
+    Lennard-Jones term at step 0.
+
+    Args:
+        placements (list): one dict per transferred cap, with 'o' and 'clearance'
+        target (float): the clearance in nm that was being aimed for
+
+    Returns:
+        dict: n_transferred, n_direction_searched, n_below_target, min_clearance_nm
+    """
+    if not placements:
+        return {'n_transferred': 0, 'n_direction_searched': 0,
+                'n_below_target': 0, 'min_clearance_nm': None}
+    gaps = np.array([p['clearance'] for p in placements], dtype=float)
+    searched = sum(1 for p in placements if not p['kept_o_h_direction'])
+    below = [p for p in placements if p['clearance'] < target]
+    logger.info(
+        f'triazine_to_cyanate_cap: placed {len(placements)} transferred caps '
+        f'({searched} needed a direction search); clearance min/median '
+        f'{gaps.min():.3f}/{float(np.median(gaps)):.3f} nm against a target of {target:.3f}'
+    )
+    if below:
+        worst = sorted(below, key=lambda p: p['clearance'])[:5]
+        detail = ', '.join(f'O {int(p["o"])} at {p["clearance"]:.3f} nm' for p in worst)
+        logger.warning(
+            f'triazine_to_cyanate_cap: {len(below)} of {len(placements)} transferred '
+            f'caps could not reach {target:.3f} nm of clearance in any direction '
+            f'(worst: {detail}). The box is too crowded here for this many caps; '
+            f'if the following minimization fails with a huge Lennard-Jones term, '
+            f'this is why.'
+        )
+    return {
+        'n_transferred': len(placements),
+        'n_direction_searched': searched,
+        'n_below_target': len(below),
+        'min_clearance_nm': float(gaps.min()),
+    }
+
+
+def _sphere_directions(n=48):
+    """``n`` roughly uniform unit vectors on the sphere, deterministically.
+
+    A Fibonacci spiral: no randomness, so a rebuild of the same system places
+    its caps identically.
+
+    Args:
+        n (int): how many directions to generate
+
+    Returns:
+        numpy.ndarray: (n, 3) array of unit vectors
+    """
+    k = np.arange(n) + 0.5
+    phi = np.arccos(1.0 - 2.0 * k / n)
+    theta = np.pi * (1.0 + 5.0 ** 0.5) * k
+    return np.stack([np.cos(theta) * np.sin(phi),
+                     np.sin(theta) * np.sin(phi),
+                     np.cos(phi)], axis=1)
+
+
+def _clearance(c_xyz, n_xyz, neighbors, box):
+    """Smallest distance from either cap atom to any neighbouring atom.
+
+    Args:
+        c_xyz (numpy.ndarray): position of the cap carbon
+        n_xyz (numpy.ndarray): position of the cap nitrogen
+        neighbors (numpy.ndarray): (m, 3) positions to stay clear of
+        box (numpy.ndarray): orthorhombic box lengths, for minimum image
+
+    Returns:
+        float: the smallest such distance in nm, or inf if there are no neighbours
+    """
+    if neighbors is None or len(neighbors) == 0:
+        return float('inf')
+    return float(min(_min_image_dist(c_xyz, neighbors, box).min(),
+                     _min_image_dist(n_xyz, neighbors, box).min()))
+
+
+def _choose_cap_placement(o_xyz, ref_xyz, neighbors, box, oc_len=0.136,
+                          cn_len=0.116, target=0.15, n_directions=48):
+    """Place a transferred -C#N group in the clearest direction available.
+
+    The old O-H vector is tried first and kept if it is clear enough, so a
+    cap in open space lands exactly where it always did.  Only when that
+    direction is occupied does this search the sphere -- which is the case
+    that used to produce a step-0 Lennard-Jones term around 1e15 and a
+    minimization that could not recover.  Bond lengths are held fixed; only
+    the direction moves, so the chemistry is unchanged.
+
+    Args:
+        o_xyz (numpy.ndarray): position of the bridge oxygen the cap attaches to
+        ref_xyz (numpy.ndarray): position defining the preferred direction, normally the O's about-to-be-deleted H
+        neighbors (numpy.ndarray): (m, 3) positions the cap must avoid
+        box (numpy.ndarray): orthorhombic box lengths, for minimum image
+        oc_len (float): O-C bond length in nm
+        cn_len (float): C#N bond length in nm
+        target (float): clearance in nm that counts as good enough to stop searching; the default 0.15 is about what a steepest-descent minimization absorbs without trouble, and is achievable in a box at polymer density -- 0.22 is not, and asking for it would flag every cap
+        n_directions (int): how many directions to try when the preferred one is occupied
+
+    Returns:
+        tuple: (C position, N position, achieved clearance in nm, whether the preferred direction was kept)
+    """
+    o = np.asarray(o_xyz, dtype=float)
+    c_xyz, n_xyz = _place_cyn_along(o, ref_xyz, oc_len=oc_len, cn_len=cn_len)
+    best = _clearance(c_xyz, n_xyz, neighbors, box)
+    if best >= target:
+        return c_xyz, n_xyz, best, True
+    for u in _sphere_directions(n_directions):
+        cc = o + u * oc_len
+        nn = cc + u * cn_len
+        gap = _clearance(cc, nn, neighbors, box)
+        if gap > best:
+            best, c_xyz, n_xyz = gap, cc, nn
+            if best >= target:
+                break
+    return c_xyz, n_xyz, best, False
+
+
 # ---------------------------------------------------------------------------
 # Main driver
 # ---------------------------------------------------------------------------
 
 
-def _completion_stats(residue_name, n_crosslinkers, n_incomplete, log=True):
+def _completion_stats(residue_name, n_crosslinkers, n_incomplete, log=True, placement=None):
     """Summarize crosslinker completion and log it.
 
     A crosslinker survives this repair only if every one of its sites is
@@ -142,6 +274,7 @@ def _completion_stats(residue_name, n_crosslinkers, n_incomplete, log=True):
         n_crosslinkers (int): number of crosslinker residues in the system
         n_incomplete (int): how many of them are being dismantled
         log (bool): emit the summary message; False when there is nothing to summarize
+        placement (dict): cap-placement summary from :func:`_report_placements`, merged into the result
 
     Returns:
         dict: n_crosslinkers, n_complete, n_dismantled, crosslinker_conversion
@@ -154,13 +287,16 @@ def _completion_stats(residue_name, n_crosslinkers, n_incomplete, log=True):
             f'{residue_name} residues are complete and survive repair; '
             f'crosslinker conversion {chi:.3f}'
         )
-    return {
+    out = {
         'residue': residue_name,
         'n_crosslinkers': n_crosslinkers,
         'n_complete': n_complete,
         'n_dismantled': n_incomplete,
         'crosslinker_conversion': chi,
     }
+    if placement:
+        out.update(placement)
+    return out
 
 
 def triazine_to_cyanate_cap(TC, moldict, spec, reactions):
@@ -287,34 +423,60 @@ def triazine_to_cyanate_cap(TC, moldict, spec, reactions):
             ts.reassign_residue(TC, [cap['c'], cap['n']], cap_residue_name, new_resnum)
             ts.set_atom_attributes(TC, cap['c'], atomName='C1')
             ts.set_atom_attributes(TC, cap['n'], atomName='N1')
-            cap_records.append({'c': cap['c'], 'n': cap['n'], 'o': target_o, 'resnum': new_resnum})
+            cap_records.append({'c': cap['c'], 'n': cap['n'], 'o': target_o,
+                                'resnum': new_resnum, 'free': cap['bonded_o'] is None})
             new_resnum += 1
 
     # 3d. for free-cap donations: relocate the CYN atoms next to their target O
-    for rec in cap_records:
-        cap_in_plans = next(
-            (c for p in incomplete_plans for c in p['caps']
-             if c['c'] == rec['c'] and c['n'] == rec['n']),
-            None,
-        )
-        if cap_in_plans is None or cap_in_plans['bonded_o'] is not None:
-            continue
-        o_idx = rec['o']
-        o_xyz = ts.positions(TC, [o_idx])[0]
-        # use the (about-to-be-deleted) H on the O as the direction reference
-        o_h_idx = _find_bonded_hydrogen(TC, o_idx)
-        if o_h_idx is None:
-            # no H to use as reference (shouldn't happen for a still-reactive O,
-            # but if it does, just push the cap along +x by the rest length)
-            ref_xyz = o_xyz + np.array([1.0, 0.0, 0.0])
-        else:
-            ref_xyz = ts.positions(TC, [o_h_idx])[0]
-            h_to_delete.add(int(o_h_idx))
-        c_xyz, n_xyz = _place_cyn_along(o_xyz, ref_xyz)
-        ts.set_atom_attributes(TC, rec['c'],
-                               posX=float(c_xyz[0]), posY=float(c_xyz[1]), posZ=float(c_xyz[2]))
-        ts.set_atom_attributes(TC, rec['n'],
-                               posX=float(n_xyz[0]), posY=float(n_xyz[1]), posZ=float(n_xyz[2]))
+    #
+    # This is the phase that fails catastrophically when it fails at all.  A
+    # cap dropped blindly along the old O-H vector can land on top of a
+    # neighbour, and the resulting step-0 Lennard-Jones term -- of order 1e15
+    # kJ/mol -- is not something the following minimization recovers from.
+    # The count of caps to place here is an identity, (total reactive sites -
+    # bonds formed), so it rises as conversion falls: a low-conversion build
+    # places hundreds and is where this has been seen to kill runs.
+    #
+    # So each cap is placed against its local neighbourhood, and every cap
+    # already placed is part of the neighbourhood the next one sees.
+    free_records = [rec for rec in cap_records if rec['free']]
+    placements = []
+    placement_summary = None
+    if free_records:
+        box = TC.Coordinates.box.diagonal()
+        target_clearance = float(spec.get('cap_min_clearance', 0.15))
+        # the O's H is consumed in forming the cap; collect them all up front
+        # so that a cap placed early does not dodge an atom about to vanish
+        for rec in free_records:
+            h = _find_bonded_hydrogen(TC, rec['o'])
+            rec['o_h'] = h
+            if h is not None:
+                h_to_delete.add(int(h))
+        moving = {int(rec['c']) for rec in free_records} | {int(rec['n']) for rec in free_records}
+        A = TC.Coordinates.A
+        going = moving | {int(x) for x in h_to_delete}
+        background = A.loc[~A['globalIdx'].isin(going),
+                           ['posX', 'posY', 'posZ']].to_numpy(dtype=float)
+        for rec in free_records:
+            o_xyz = ts.positions(TC, [rec['o']])[0]
+            if rec['o_h'] is None:
+                # no H to take a direction from (shouldn't happen for a
+                # still-reactive O); any direction will do as a starting guess
+                ref_xyz = o_xyz + np.array([1.0, 0.0, 0.0])
+            else:
+                ref_xyz = ts.positions(TC, [rec['o_h']])[0]
+            # only atoms near this O can constrain a group that reaches
+            # 0.25 nm from it; the rest are not worth scoring against
+            local = background[_min_image_dist(o_xyz, background, box) < _PLACEMENT_LOCALITY]
+            c_xyz, n_xyz, gap, kept = _choose_cap_placement(
+                o_xyz, ref_xyz, local, box, target=target_clearance)
+            ts.set_atom_attributes(TC, rec['c'],
+                                   posX=float(c_xyz[0]), posY=float(c_xyz[1]), posZ=float(c_xyz[2]))
+            ts.set_atom_attributes(TC, rec['n'],
+                                   posX=float(n_xyz[0]), posY=float(n_xyz[1]), posZ=float(n_xyz[2]))
+            background = np.vstack([background, c_xyz, n_xyz])
+            placements.append({'o': rec['o'], 'clearance': gap, 'kept_o_h_direction': kept})
+        placement_summary = _report_placements(placements, target_clearance)
 
     # ---- Phase 4: splice template params (forms BPA-O-C bond with full
     # angle/dihedral/pair entries from the cap_template molecule) ----
@@ -362,7 +524,8 @@ def triazine_to_cyanate_cap(TC, moldict, spec, reactions):
                 msg='triazine_to_cyanate_cap post-deletion rebalance',
             )
 
-    return _completion_stats(cl['residue'], len(cl_residues), len(incomplete_plans))
+    return _completion_stats(cl['residue'], len(cl_residues), len(incomplete_plans),
+                             placement=placement_summary)
 
 
 # ---------------------------------------------------------------------------

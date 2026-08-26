@@ -194,34 +194,20 @@ Coverage as of the last measurement: **38.8%** overall.
   truncation and that is where to look. Until someone runs it, the directive
   is documented as untested at scale.
 
-- **The repair stage's cap placement does not scale to low conversion.**
-  At a bond conversion of 0.90 the triazine-to-cyanate driver places on the
-  order of a hundred caps; at 0.30 it places hundreds and transfers hundreds
-  of fragments, and runs have died at the repair NVT with a step-0 potential
-  energy around 7e15 dominated by Lennard-Jones -- atom overlap from cap
-  placement. It is packing-dependent rather than systematic: siblings at the
-  same conversion survive.
-
-  `completion_bias` does **not** relieve this, contrary to what this entry
-  and the v2.5.0 changelog first said. Only *transferred* caps are placed
-  geometrically -- `_place_cyn_along` runs solely where `bonded_o is None` --
-  and their count is an identity, `total_sites - bonds`, carrying no term for
-  how the bonds are distributed. The bias therefore cannot change it at a
-  matched bond conversion, and at a matched crosslinker conversion it makes
-  it worse: it reaches that conversion with fewer bonds, and every bond not
-  formed leaves a bridge site unreacted, which is one more fragment to
-  transfer. At a crosslinker conversion of 0.475 the unbiased route transfers
-  158 fragments and the biased route 378 -- and 360 has already killed a
-  build. What the bias does reduce is the *dismantling*, which was never the
-  part that broke.
-
-  So this is the fix that actually unblocks a sub-gel-point series, and it is
-  not optional for one. It is in `repair/cyanate_cap.py::_place_cyn_along`
-  and the greedy matcher around it: place against the local neighbourhood
-  rather than along the old O-H vector alone, or minimize incrementally as
-  caps are placed. The identity above is also the cheap instrument for
-  judging any fix -- the driver already logs the free-fragment count, and it
-  should always equal total sites minus bonds.
+- **Cap placement is greedy and never backtracks.** Transferred `-C#N`
+  fragments are now placed against the local neighbourhood rather than blindly
+  along the old O-H vector, which removes the catastrophic overlaps: in a
+  synthetic box at polymer density, blind placement put 91 of 158 caps within
+  0.10 nm of a neighbour and the worst at 0.008 nm, while the neighbourhood
+  search puts none below 0.128 nm. What it does not do is relax. Each cap is
+  placed once, in the clearest direction available *at that moment*, and later
+  caps must work around it; in a genuinely over-packed box a residue of
+  sub-target placements remains (17 of 158, 33 of 378 in the same synthetic
+  test) and is reported rather than fixed. The next lever is minimizing
+  incrementally as caps land, or placing in order of how constrained each site
+  is rather than in match order. Do it if the reported clearance warnings turn
+  out to correlate with builds that still die -- the instrumentation to decide
+  that now exists, and did not before.
 
 - **`bdf.loc[:abs_max]` takes one bond more than the limit.** In
   `curecontroller.py::_searchbonds`, the truncation that applies
