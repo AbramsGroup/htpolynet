@@ -107,6 +107,16 @@ Coverage as of the last measurement: **38.8%** overall.
   passed the preflight, because the deps genuinely did match. Nobody
   noticed until a bot email got read.
 
+  Fixed on 2026-08-26 by dropping `pip check` from the recipe's test section
+  (it fails on `ambertools`' bundled distributions, never on ours) and
+  merging the 2.4.0 bump, which closed the other three. **The damage is
+  permanent and visible**: conda-forge's version list for this package now
+  reads 1.0.9 -> 2.1.0 -> 2.4.0, because 2.2.0, 2.3.0 and 2.3.1 were never
+  built there and never will be. That is worth knowing as a diagnostic in
+  its own right -- a published version list that skips releases the project
+  actually made is the retroactive signature of this failure, in any
+  package, without needing to have run any check at the time.
+
   The check is cheap: query `api.anaconda.org/package/conda-forge/htpolynet`
   for `latest_version` and compare it against the version being superseded.
   A mismatch does not have to block the release -- the fix is usually on the
