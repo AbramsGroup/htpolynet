@@ -7,6 +7,8 @@ import os
 import random
 import shutil
 
+import yaml
+
 from collections import namedtuple
 from copy import deepcopy
 
@@ -470,8 +472,9 @@ class Runtime:
         from ..repair import run_repair
         TC = self.TopoCoord
         my_logger(f'Postcure repair in {pfs.cwd()}', logger.info)
-        n_repaired = run_repair(TC, self.molecules, specs, self.reactions)
+        n_repaired, repair_stats = run_repair(TC, self.molecules, specs, self.reactions)
         my_logger(f'Postcure repair performed {n_repaired} dismantle operations', logger.info)
+        self._report_repair_conversion(repair_stats)
         # Write out the repaired system so the relaxation can pick it up
         TC.write_grx_attributes('repaired.grx')
         TC.write_gro('repaired.gro')
@@ -486,6 +489,45 @@ class Runtime:
             self._do_equilibration({'ensemble': 'nvt', 'temperature': 300, 'ps': 5},
                                    deffnm='repair-nvt')
         return {c: os.path.basename(x) for c, x in TC.files.items() if c != 'mol2'}
+
+    def _report_repair_conversion(self, repair_stats):
+        """Reports the conversion a repaired system actually carries, next to the one the cure reported.
+
+        The cure iterates on bond conversion: bonds formed over bonds
+        possible.  Repair then dismantles every crosslinker that did not fill
+        all of its sites, so the structure that leaves this stage contains
+        only complete crosslinkers, and the fraction of those is what an
+        experiment measures.  The two numbers differ -- for a trifunctional
+        crosslinker under random placement the second is roughly the cube of
+        the first -- and reporting only the cure's number invites a run at a
+        bond conversion of 0.90 to be written up as a 0.90 when it is closer
+        to 0.76.  Both numbers, and the counts behind them, are also written
+        to ``repair-summary.yaml`` in this stage's directory.
+
+        Args:
+            repair_stats (list): statistics dicts returned by :func:`htpolynet.repair.run_repair`
+        """
+        if not any(st['n_crosslinkers'] for st in repair_stats):
+            return
+        bond_conversion = None
+        cc = getattr(self, 'cc', None)
+        if cc is not None:
+            bond_conversion = cc.conversion()
+        record = {'bond_conversion': bond_conversion, 'repairs': repair_stats}
+        for st in repair_stats:
+            if not st['n_crosslinkers']:
+                continue
+            msg = (f'Crosslinker conversion after repair: '
+                   f'{st["crosslinker_conversion"]:.3f} '
+                   f'({st["n_complete"]}/{st["n_crosslinkers"]} {st["residue"]} complete)')
+            if bond_conversion is not None:
+                msg += f'; the cure reported a bond conversion of {bond_conversion:.3f}'
+            my_logger(msg, logger.info)
+        try:
+            with open('repair-summary.yaml', 'w') as f:
+                yaml.dump(record, f, default_flow_style=False)
+        except Exception as e:
+            logger.warning(f'Could not write repair-summary.yaml: {e}')
 
     @cp.enableCheckpoint
     def do_postcure(self):

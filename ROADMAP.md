@@ -164,6 +164,55 @@ Coverage as of the last measurement: **38.8%** overall.
   it read `3.10 | 3.11 | 3.12 | 3.13`, which CI already verifies at both
   ends.
 
+## Cure and repair
+
+- **`completion_bias` biases the `B` side only, and that is a convention,
+  not a law.** The new `CURE.controls.completion_bias` ranks bond candidates
+  by how many bonds their `B`-side residue already carries, because
+  htpolynet's A2+B3 idiom puts the multifunctional crosslinker in the `B`
+  position -- as example 6 does. A user who declares the crosslinker as `A`
+  gets no bias at all, silently, because every candidate scores zero on a
+  difunctional bridge and the ordering collapses back to distance. The
+  generalization is small (rank on the `A` side, or on the sum of both) but
+  each variant is a different physical claim about which partly-reacted
+  species is an intermediate, and none of them has been run. Do it when
+  someone has a chemistry that needs it, and make them say which side.
+
+- **Nobody has run example 6 with `completion_bias` on.** The ranking is
+  unit-tested -- ordering, tie-breaks, missing residues, the fallback when a
+  `.grx` predates the `nreactions` attribute -- but the acceptance criteria
+  that matter are system-scale and need gmx and a multi-hour build:
+  incomplete triazines should collapse from tens to ~1 at
+  `desired_conversion: 0.90`, crosslinker conversion should rise from ~0.76
+  to ~0.90, `TAZ + CYN/3` must still equal the initial triazine count
+  exactly, and atom conservation must still be exact. If the incomplete
+  count does *not* collapse, the sort key is not surviving as far as the
+  truncation and that is where to look. Until someone runs it, the directive
+  is documented as untested at scale.
+
+- **The repair stage's cap placement does not scale to low conversion.**
+  At a bond conversion of 0.90 the triazine-to-cyanate driver places on the
+  order of a hundred caps; at 0.30 it places hundreds and transfers hundreds
+  of fragments, and runs have died at the repair NVT with a step-0 potential
+  energy around 7e15 dominated by Lennard-Jones -- atom overlap from cap
+  placement. It is packing-dependent rather than systematic: siblings at the
+  same conversion survive. `completion_bias` makes the stage nearly empty
+  and so hides this, but the geometry is still wrong for a crowded box, and
+  a sub-gel-point study that wants the unbiased ranking will hit it again.
+  The fix is in `repair/cyanate_cap.py::_place_cyn_along` and the greedy
+  matcher around it: place against the local neighbourhood rather than along
+  the old O-H vector alone, or minimize incrementally as caps are placed.
+
+- **`bdf.loc[:abs_max]` takes one bond more than the limit.** In
+  `curecontroller.py::_searchbonds`, the truncation that applies
+  `max_conversion_per_iteration` uses `.loc` with a slice, which is
+  inclusive of its endpoint, so an iteration limited to `n` bonds forms
+  `n + 1`. Harmless in practice -- the limit is a throttle, not a
+  correctness bound -- but it is off by one, and fixing it changes the
+  trajectory of every existing config by one bond per throttled iteration.
+  Worth doing at a version boundary where a small reproducibility break is
+  already expected, not before.
+
 ## Usability
 
 - **`gen-slurm-script` doesn't stage to scratch.** The emitted script

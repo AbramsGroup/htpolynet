@@ -127,6 +127,42 @@ def _place_cyn_along(bpa_o_xyz, bpa_o_h_xyz, oc_len=0.136, cn_len=0.116):
 # ---------------------------------------------------------------------------
 
 
+def _completion_stats(residue_name, n_crosslinkers, n_incomplete, log=True):
+    """Summarize crosslinker completion and log it.
+
+    A crosslinker survives this repair only if every one of its sites is
+    filled; the incomplete ones are dismantled back into caps.  So the
+    fraction of crosslinkers that survive intact -- not the bond conversion
+    the cure iterates against -- is the quantity an experiment measures.
+    For a cyanate ester that is the FTIR -OCN conversion, because each
+    complete triazine consumes exactly three -OCN groups.
+
+    Args:
+        residue_name (str): crosslinker residue name, used only in the message
+        n_crosslinkers (int): number of crosslinker residues in the system
+        n_incomplete (int): how many of them are being dismantled
+        log (bool): emit the summary message; False when there is nothing to summarize
+
+    Returns:
+        dict: n_crosslinkers, n_complete, n_dismantled, crosslinker_conversion
+    """
+    n_complete = n_crosslinkers - n_incomplete
+    chi = n_complete / n_crosslinkers if n_crosslinkers else 0.0
+    if log:
+        logger.info(
+            f'triazine_to_cyanate_cap: {n_complete} of {n_crosslinkers} '
+            f'{residue_name} residues are complete and survive repair; '
+            f'crosslinker conversion {chi:.3f}'
+        )
+    return {
+        'residue': residue_name,
+        'n_crosslinkers': n_crosslinkers,
+        'n_complete': n_complete,
+        'n_dismantled': n_incomplete,
+        'crosslinker_conversion': chi,
+    }
+
+
 def triazine_to_cyanate_cap(TC, moldict, spec, reactions):
     """Execute the triazine-to-cyanate-cap repair.
 
@@ -139,7 +175,7 @@ def triazine_to_cyanate_cap(TC, moldict, spec, reactions):
         reactions: ReactionList (currently unused; reserved for cross-checks).
 
     Returns:
-        int: number of incomplete triazines dismantled.
+        dict: completion statistics as returned by :func:`_completion_stats`.
     """
     cl = spec['crosslinker']
     br = spec['bridge']
@@ -158,7 +194,7 @@ def triazine_to_cyanate_cap(TC, moldict, spec, reactions):
     cl_residues = _find_crosslinker_residues(TC, cl['residue'])
     if not cl_residues:
         logger.info(f'triazine_to_cyanate_cap: no {cl["residue"]} residues found; nothing to do')
-        return 0
+        return _completion_stats(cl['residue'], 0, 0, log=False)
 
     incomplete_plans = []     # list of dicts, one per incomplete triazine
     h_to_delete = set()       # global H indices, batched for final deletion
@@ -197,7 +233,7 @@ def triazine_to_cyanate_cap(TC, moldict, spec, reactions):
             f'triazine_to_cyanate_cap: all {len(cl_residues)} {cl["residue"]} '
             f'residues are fully bonded; nothing to do'
         )
-        return 0
+        return _completion_stats(cl['residue'], len(cl_residues), 0)
 
     total_caps = sum(len(p['caps']) for p in incomplete_plans)
     free_caps_planned = sum(1 for p in incomplete_plans for c in p['caps'] if c['bonded_o'] is None)
@@ -326,7 +362,7 @@ def triazine_to_cyanate_cap(TC, moldict, spec, reactions):
                 msg='triazine_to_cyanate_cap post-deletion rebalance',
             )
 
-    return len(incomplete_plans)
+    return _completion_stats(cl['residue'], len(cl_residues), len(incomplete_plans))
 
 
 # ---------------------------------------------------------------------------

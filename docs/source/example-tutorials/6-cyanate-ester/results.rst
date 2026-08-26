@@ -39,6 +39,23 @@ Diagnostic-log plots:
    with k<3 are the ones the postcure repair stage subsequently
    dismantled.
 
+.. warning::
+
+   The 90 % above is a **bond** conversion, and it is not the number
+   this structure would be reported as in an experiment.  Repair
+   dismantles every triazine that did not fill all three of its
+   sites, so what survives is complete triazines plus unreacted
+   cyanate — and the fraction of triazines that survive is what FTIR
+   measures at 2270 cm\ :sup:`-1`.  Under random placement that
+   fraction is about the cube of the bond conversion, so a run at
+   0.90 leaves a cyanate conversion near 0.73.  htpolynet reports
+   both figures at the end of the repair stage and writes them to
+   ``repair-summary.yaml``; see :ref:`what repair reports
+   <postcure_repair_reporting>`.  If what you want is a structure
+   that really is 90 % converted, see the
+   ``CURE.controls.completion_bias`` directive.
+
+
 For end-to-end traces:
 
 .. code-block:: console

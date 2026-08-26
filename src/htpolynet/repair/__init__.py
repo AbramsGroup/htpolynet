@@ -24,16 +24,21 @@ def run_repair(TC, moldict, repair_specs, reactions):
             parameter templates by the drivers.
 
     Returns:
-        int: number of repairs performed across all drivers.
+        tuple: (int, list) -- the number of repairs performed across all
+            drivers, and one statistics dict per driver that reported any
+            (see :func:`htpolynet.repair.cyanate_cap._completion_stats`).
     """
     if not repair_specs:
-        return 0
+        return 0, []
     total = 0
+    stats = []
     for spec in repair_specs:
         rtype = spec.get('type')
         if rtype == 'triazine_to_cyanate_cap':
             from .cyanate_cap import triazine_to_cyanate_cap
-            total += triazine_to_cyanate_cap(TC, moldict, spec, reactions)
+            result = triazine_to_cyanate_cap(TC, moldict, spec, reactions)
+            total += result['n_dismantled']
+            stats.append(result)
         else:
             logger.warning(f'Unknown postcure_repair type "{rtype}"; skipping')
-    return total
+    return total, stats

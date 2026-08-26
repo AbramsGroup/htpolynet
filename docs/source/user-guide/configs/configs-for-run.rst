@@ -208,6 +208,8 @@ In this section we show all subdirectives for each of the five main directives i
     ``gromacs``                              list                 any ``mdp`` keyword:value pairs to include in all ``mdp`` files in the ``CURE`` sequence
     =====================================    =================    =====================
 
+.. _cure.controls:
+
     * ``CURE.controls`` parameters
 
         ==================================    =================   ======================
@@ -221,9 +223,14 @@ In this section we show all subdirectives for each of the five main directives i
         ``late_threshold``                    float [0-1]         conversion above which bond probabilities are ignored (default 0.85)
         ``max_conversion_per_iteration``      float [0-1]         upper limit, as a fraction of total reactable bonds, on the new bonds formed in any single iteration (default 1.0)
         ``min_allowable_bondcycle_length``    int                 minimum number of C atoms allowed in a cycle of C-C bonds that form via polymerization (default 0, disallow all such cycles)
+        ``completion_bias``                   bool                rank bond candidates by how many bonds their ``B``-side residue already carries, and only then by distance, so that partly-reacted crosslinkers are completed before untouched ones are started (default ``False``)
         ==================================    =================   ======================
 
       The ``min_bonds_per_iteration`` knob batches small late-stage finds together: instead of accepting whichever 1-2 bonds happen to lie within the initial 0.5 nm radius and immediately moving on to relax + equilibrate, the search grows the radius until at least 10 (the default) eligible bonds have been gathered.  On the DGEBA/PACM example, raising it from 1 to 10 cuts the cure iteration count from 41 to 15; raising further to 20 only buys one more iteration.  The default of 10 is roughly the diminishing-returns sweet spot.
+
+      ``completion_bias`` changes which bonds a CURE iteration chooses, and with it what ``desired_conversion`` means physically, so it is off by default and every shipped example runs without it.  Candidates are ranked by separation alone by default.  Separation is uncorrelated with how many bonds a crosslinker already carries, so in an A2+B3 system the bonds spread evenly across every ``B`` in the box rather than finishing any of them: at a bond conversion of 0.90, a trifunctional crosslinker placed at random is complete with probability 0.90\ :sup:`3`, about 0.73.  Turning ``completion_bias`` on makes the number of bonds already on the candidate's ``B``-side residue the primary sort key, with separation as the tie-break inside each group, so a crosslinker with two of three sites filled is finished before an untouched one is started.  Nothing else about the search changes -- same radius growth, same dragging and relaxation, same probabilities, same cycle handling.
+
+      Which conversion this matters for depends on the chemistry.  Where a partly-reacted crosslinker is a real, stable species, the unbiased ranking is the more faithful one.  Where it is a reactive intermediate -- a cyclotrimerizing cyanate ester, whose triazine ring either closes or does not -- the biased ranking is, and the difference shows up directly in what :ref:`postcure repair <postcure_repair>` has to dismantle.  Note that the two settings reach different structures at the same ``desired_conversion``: a config that yields a crosslinker conversion of 0.76 at ``desired_conversion: 0.90`` unbiased will yield about 0.90 biased.  Comparisons across the setting have to be made at matched crosslinker conversion, not matched ``desired_conversion``.
 
       The ``min_allowable_bondcycle_length`` refers to the fact that in systems that polymerize via activation of carbon-carbon double bonds, it is possible in the htpolynet implementation that the "head" of a chain of C-C bonds can attack the "tail" and form a cycle, because those represent atom types that can react.  It is unclear whether such cycles actually form; if a monomer remains bound to a radical initiator it is hard to see how the head of the growing chain could attack it, but maybe it could.  Setting ``min_allowable_bondcycle_length`` to zero (the default) disallows any bonds that would form cycles involving only atoms that were once part of C=C double bonds.  (Think about the backbone of polystyrene, for example.)  In a given CURE iteration, htpolynet tests the full set of suggested bonds to see if together they result in any cycles, and for each nascent cycle longer than ``min_allowable_bondcycle_length``, htpolynet will disallow the nascent bond that has the longest initial length.
 

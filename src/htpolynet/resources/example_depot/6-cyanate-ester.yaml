@@ -128,8 +128,16 @@ CURE:
     radial_increment: 0.25      # nm
     min_bonds_per_iteration: 10
     max_iterations: 150
-    desired_conversion: 0.90
+    desired_conversion: 0.90    # BOND conversion; the cyanate (FTIR) conversion
+                                # this yields is lower -- roughly its cube, since
+                                # a triazine survives repair only if all three of
+                                # its sites filled.  Both numbers are reported at
+                                # the end of the repair stage.
     late_threshold: 0.80
+    # completion_bias: true     # finish partly-reacted triazines before starting
+                                # untouched ones, so desired_conversion means the
+                                # cyanate conversion.  Off here so this example
+                                # keeps its published behavior.
   drag:
     trigger_distance: 0.6   # nm
     increment: 0.08         # nm

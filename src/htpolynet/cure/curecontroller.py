@@ -27,6 +27,43 @@ from ..utils.stringthings import my_logger
 
 logger = logging.getLogger(__name__)
 
+def residue_reaction_counts(adf):
+    """Counts, per residue, how many bonds that residue's atoms have already formed.
+
+    Args:
+        adf (pandas.DataFrame): the global atom dataframe; must carry the 'resNum' and 'nreactions' attributes
+
+    Returns:
+        pandas.Series: number of bonds already formed, indexed by residue number
+    """
+    return adf.groupby('resNum')['nreactions'].sum()
+
+def rank_bond_candidates(bdf,reaction_counts=None):
+    """Orders bond candidates ahead of the greedy one-bond-per-residue downselection.
+
+    The default ordering is by pair separation alone.  Separation is
+    uncorrelated with how many bonds a crosslinker already carries, so bonds
+    spread evenly over all crosslinkers rather than completing the
+    partly-reacted ones.  Supplying ``reaction_counts`` promotes candidates
+    whose B-side residue already carries the most bonds, with each such group
+    still ordered by separation; because the downselection that follows is
+    greedy and admits at most one bond per residue per iteration, this ordering
+    is what decides which residues react.
+
+    Args:
+        bdf (pandas.DataFrame): bond candidates, with column 'r' and, when biasing, column 'rj'
+        reaction_counts (pandas.Series): bonds already formed per residue, as returned by :func:`residue_reaction_counts`; None (the default) selects the distance-only ordering
+
+    Returns:
+        pandas.DataFrame: bdf reordered; its columns are unchanged
+    """
+    if reaction_counts is None:
+        return bdf.sort_values('r',axis=0,ignore_index=True).reset_index(drop=True)
+    ranked=bdf.copy()
+    ranked['_nrx']=ranked['rj'].map(reaction_counts).fillna(0).astype(int)
+    ranked=ranked.sort_values(['_nrx','r'],ascending=[False,True],ignore_index=True)
+    return ranked.drop(columns=['_nrx']).reset_index(drop=True)
+
 class cure_step(Enum):
     """Enumerated CURE step
     """
@@ -127,6 +164,7 @@ class CureController:
             'desired_conversion': 0.5,
             'min_allowable_bondcycle_length':-1, # not set
             'min_bonds_per_iteration': 10, # grow radius until >= this many bonds (or max radius)
+            'completion_bias': False, # rank bond candidates by B-side completion before distance
             'ncpu' : os.cpu_count()
         },
         'drag': {
@@ -260,6 +298,19 @@ class CureController:
         """
         if not self.state.max_nxlinkbonds: return 0
         return float(self.state.cum_nxlinkbonds)/self.state.max_nxlinkbonds
+
+    def conversion(self):
+        """Returns the current bond conversion: the fraction of all possible crosslink bonds that have been formed.
+
+        This is the number the cure iterates against and reports.  For a
+        chemistry whose crosslinkers only count as reacted once every one of
+        their sites is filled, it is an upper bound on the conversion an
+        experiment would measure; see :mod:`htpolynet.repair.cyanate_cap`.
+
+        Returns:
+            float: bond conversion
+        """
+        return self._curr_conversion()
 
     def reset(self):
         """Resets this CureController object by resetting its CureState, its bonds dataframe, and its search_failed member.
@@ -569,6 +620,22 @@ class CureController:
         self.state.current_stage[mode]=0
         self.state._to_yaml()
 
+    def _completion_bias_counts(self,adf):
+        """Returns per-residue reaction counts when the completion bias is enabled, else None.
+
+        Args:
+            adf (pandas.DataFrame): the global atom dataframe
+
+        Returns:
+            pandas.Series: per-residue bond counts, or None to rank by distance alone
+        """
+        if not self.dicts['controls'].get('completion_bias',False):
+            return None
+        if 'nreactions' not in adf.columns:
+            logger.warning('completion_bias is enabled but the atom dataframe carries no "nreactions" attribute; ranking bond candidates by distance alone')
+            return None
+        return residue_reaction_counts(adf)
+
     # TODO: move to searchbonds.by; split into make_candidates() and apply_filters()
     def _searchbonds(self,TC:TopoCoord,RL:ReactionList,MD:MoleculeDict,stage=reaction_stage.cure,abs_max=0,apply_probabilities=False,reentry=False):
         """Manages the search for bonds.
@@ -679,7 +746,11 @@ class CureController:
         #     logger.debug(ln)
 
         if stage==reaction_stage.cure and bdf.shape[0]>0:
-            bdf=bdf.sort_values('r',axis=0,ignore_index=True).reset_index(drop=True)
+            reaction_counts=self._completion_bias_counts(adf)
+            bdf=rank_bond_candidates(bdf,reaction_counts)
+            if reaction_counts is not None:
+                nrx=bdf['rj'].map(reaction_counts).fillna(0).astype(int)
+                logger.debug(f'Completion bias: {int((nrx>0).sum())} of {bdf.shape[0]} candidates extend an already-reacted B-side residue (most bonds already carried: {int(nrx.max())})')
             bdf['allowed']=[True for x in range(bdf.shape[0])]
             unique_atomidx=set(bdf.ai.to_list()).union(set(bdf.aj.to_list()))
             unique_resids=set(bdf.ri.to_list()).union(set(bdf.rj.to_list()))

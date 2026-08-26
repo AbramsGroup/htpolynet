@@ -9,6 +9,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **The conversion a cyanate-ester run reports is now the conversion the
+  structure actually carries.**  The cure iterates on bond conversion --
+  bonds formed over bonds possible -- and that is the only number it printed.
+  But `postcure_repair` then dismantles every crosslinker that did not fill
+  all of its sites, so the structure leaving the repair stage contains only
+  *complete* crosslinkers, and the fraction of those is what an experiment
+  measures.  For a trifunctional crosslinker under random placement the
+  second number is roughly the cube of the first, so a run at a bond
+  conversion of 0.90 leaves a cyanate conversion near 0.73 -- and nothing
+  said so.  The repair stage now logs both figures side by side and writes
+  them, with the counts behind them, to `repair-summary.yaml` in the repair
+  directory.
+
+- **`CURE.controls.completion_bias`, an opt-in change to how bond candidates
+  are ranked.**  Candidates have always been ordered by pair separation
+  alone.  Separation is uncorrelated with how many bonds a crosslinker
+  already carries, and the downselection that follows admits at most one bond
+  per residue per iteration, so bonds spread evenly across every crosslinker
+  in the box instead of finishing any of them.  With `completion_bias: true`
+  the number of bonds already on the candidate's `B`-side residue becomes the
+  primary sort key and separation the tie-break within each group, so a
+  crosslinker with two of three sites filled is completed before an untouched
+  one is started.  Nothing else about the search changes: same radius growth,
+  same dragging and relaxation, same probability application, same cycle
+  handling.
+
+  This is a modelling option, not a fix, and it is **off by default** so that
+  every existing config and every shipped example behaves exactly as before.
+  Where a partly-reacted crosslinker is a stable species the old ranking is
+  the more faithful one; where it is a reactive intermediate -- a
+  cyclotrimerizing cyanate ester, whose triazine ring either closes or does
+  not -- the new one is.  Turning it on changes what `desired_conversion`
+  means physically: a config that reaches a crosslinker conversion of 0.76 at
+  `desired_conversion: 0.90` unbiased reaches about 0.90 biased, so runs
+  either side of the setting must be compared at matched crosslinker
+  conversion, not matched `desired_conversion`.
+
+  It also nearly empties the repair stage, which is worth having on its own
+  terms: repair has been seen to blow up at low conversion, where it places
+  hundreds of caps and transfers hundreds of fragments and the cap-placement
+  geometry produces atom overlaps that a step-0 minimization cannot recover
+  from.  Completing crosslinkers instead of decorating them leaves it almost
+  nothing to do.
+
 - **A CUDA image, published as `ghcr.io/cameronabrams/htpolynet:cuda`.**  The
   only image until now installed conda-forge's default linux-64 Gromacs,
   which is an OpenCL build; Gromacs no longer drives NVIDIA devices through
@@ -33,6 +77,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   runtime in the image runs against that node's 12.4-era driver (550.127.05)
   under CUDA minor-version compatibility, so a site does not need a
   bleeding-edge driver to use the tag.
+
+### Changed
+
+- **Repair drivers now return a statistics dict rather than an operation
+  count**, and `htpolynet.repair.run_repair` returns `(total, stats)` rather
+  than a bare total.  This is what carries the crosslinker-conversion figures
+  out to the runtime for reporting.  Only affects code that calls a repair
+  driver directly; the `postcure_repair` config surface is unchanged.
 
 ### Fixed
 

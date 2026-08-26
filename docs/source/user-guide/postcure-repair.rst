@@ -275,6 +275,60 @@ What it does *not* do
   positions).  Other ring shapes or crosslinker sizes would need
   their own driver.
 
+.. _postcure_repair_reporting:
+
+What repair reports
+-------------------
+
+Repair is also where the conversion a run can honestly claim gets
+decided, so the stage reports it.
+
+The cure iterates on **bond conversion**: bonds formed over bonds
+possible.  That is the number in every ``Iteration N current
+conversion`` line and the number ``desired_conversion`` sets.  But
+repair dismantles every crosslinker that did not fill all of its
+sites, so the structure leaving this stage contains only *complete*
+crosslinkers plus unreacted bridge sites.  The fraction of
+crosslinkers that survive intact is a different, lower number, and it
+is the one an experiment measures — for a cyanate ester it is the
+FTIR ``-OCN`` conversion, because each complete triazine consumes
+exactly three ``-OCN`` groups.
+
+The gap is not small and it is not noise.  Under random placement a
+trifunctional crosslinker survives only if all three of its sites are
+filled, so the crosslinker conversion is roughly the **cube** of the
+bond conversion: a run at a bond conversion of 0.90 lands near 0.73,
+and proximity effects in a real box lift that only slightly.  A run
+reported as "90 % cured" on the strength of the cure log is, as a
+cured structure, closer to 76 % converted.
+
+So at the end of the stage htpolynet logs both, together --
+illustrated here with the cube-law figures for a 240-triazine box
+taken to a bond conversion of 0.90::
+
+    Crosslinker conversion after repair: 0.733 (176/240 TAZ complete);
+    the cure reported a bond conversion of 0.900
+
+and writes the same figures to ``repair-summary.yaml`` in the repair
+directory, for reading across a series of runs:
+
+.. code-block:: yaml
+
+   bond_conversion: 0.9
+   repairs:
+   - residue: TAZ
+     n_crosslinkers: 240
+     n_complete: 176
+     n_dismantled: 64
+     crosslinker_conversion: 0.7333333333333333
+
+To *raise* the crosslinker conversion rather than merely report it,
+see the ``CURE.controls.completion_bias`` directive in
+:ref:`the run-configuration reference <cure.controls>`: it makes the
+cure finish partly-reacted crosslinkers before starting untouched
+ones, which is both the more physical rule for a cyclotrimerizing
+chemistry and the thing that empties this stage's work queue.
+
 Writing a new repair driver
 ---------------------------
 
@@ -284,7 +338,8 @@ A repair driver is a Python function with the signature
 
    def my_driver(TC, moldict, spec, reactions):
        # ... arbitrary topology surgery on TC ...
-       return n_operations
+       return {'residue': ..., 'n_crosslinkers': ..., 'n_complete': ...,
+               'n_dismantled': ..., 'crosslinker_conversion': ...}
 
 * ``TC`` — the :class:`htpolynet.core.topocoord.TopoCoord` for the
   cured system.  Modified in place.
@@ -296,8 +351,12 @@ A repair driver is a Python function with the signature
 * ``reactions`` — the full ``ReactionList`` (rarely needed; useful
   for cross-checks against the configured reaction set).
 
-The driver should return an integer count of operations performed
-(used in the runtime log message).  It is free to call into
+The driver should return a statistics dict.  ``n_dismantled`` is the
+count of operations performed, used in the runtime log message and
+summed across drivers; the remaining keys feed the conversion report
+described in :ref:`what repair reports <postcure_repair_reporting>`
+and may be omitted by a driver for which crosslinker completion is not
+a meaningful notion.  It is free to call into
 :mod:`htpolynet.repair.topology_surgery` for the heavy lifting and
 into :class:`htpolynet.core.topocoord.TopoCoord` and
 :class:`htpolynet.core.topology.Topology` directly for anything
