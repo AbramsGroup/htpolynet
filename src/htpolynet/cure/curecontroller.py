@@ -38,6 +38,22 @@ def residue_reaction_counts(adf):
     """
     return adf.groupby('resNum')['nreactions'].sum()
 
+def residue_functionality(adf):
+    """Counts, per residue, how many reactive sites it started with.
+
+    Forming a bond decrements an atom's 'z' and increments its 'nreactions' in
+    the same operation, so their sum is conserved per atom for the whole cure.
+    Summed over a residue it is that residue's initial functionality, and it
+    reads the same at iteration 0 as at the end.
+
+    Args:
+        adf (pandas.DataFrame): the global atom dataframe; must carry the 'resNum', 'z' and 'nreactions' attributes
+
+    Returns:
+        pandas.Series: initial reactive sites, indexed by residue number
+    """
+    return adf.groupby('resNum')[['z','nreactions']].sum().sum(axis=1)
+
 def rank_bond_candidates(bdf,reaction_counts=None):
     """Orders bond candidates ahead of the greedy one-bond-per-residue downselection.
 
@@ -212,6 +228,9 @@ class CureController:
                         self.dicts[k][kk]=vv
 
         self.chain_manager=None
+        # once-per-run: has the completion bias been checked against which side
+        # of the reaction actually carries the more functional residue?
+        self.bias_side_checked=False
         self.dragging_enabled=False
         d=self.dicts['drag']
         if (d['nstages']>0 or d['increment']>0.0) and d['limit']>0.0:
@@ -636,6 +655,33 @@ class CureController:
             return None
         return residue_reaction_counts(adf)
 
+    def _check_bias_side(self,adf,bdf):
+        """Warns, once per run, if the completion bias is ranking the less functional side.
+
+        The bias ranks on the ``B`` reactant because htpolynet's A2+B3 idiom
+        puts the crosslinker there.  Declare the crosslinker as ``A`` instead
+        and the bias silently starts completing the *bridges*, which is a
+        different claim about which species is a reactive intermediate and
+        almost certainly not the one that was wanted.  It cannot be caught by
+        looking for an all-zero bias key -- a difunctional bridge accumulates
+        reactions perfectly well, so the key is non-zero and the ranking looks
+        healthy.  What distinguishes the two cases is which side is the more
+        functional one, and that is fixed at setup.
+
+        Args:
+            adf (pandas.DataFrame): the global atom dataframe
+            bdf (pandas.DataFrame): the bond candidates for this iteration
+        """
+        if self.bias_side_checked: return
+        if not all(c in adf.columns for c in ('z','nreactions')): return
+        self.bias_side_checked=True
+        func=residue_functionality(adf)
+        a=bdf['ri'].map(func).dropna()
+        b=bdf['rj'].map(func).dropna()
+        if a.empty or b.empty: return
+        if a.max()>b.max():
+            logger.warning(f'completion_bias ranks candidates on the B-side residue, but the A side is the more functional one here ({int(a.max())} reactive sites vs {int(b.max())}). The bias will complete B-side residues, which is probably not what was intended; declare the crosslinker as the second reactant to bias toward it.')
+
     # TODO: move to searchbonds.by; split into make_candidates() and apply_filters()
     def _searchbonds(self,TC:TopoCoord,RL:ReactionList,MD:MoleculeDict,stage=reaction_stage.cure,abs_max=0,apply_probabilities=False,reentry=False):
         """Manages the search for bonds.
@@ -749,6 +795,7 @@ class CureController:
             reaction_counts=self._completion_bias_counts(adf)
             bdf=rank_bond_candidates(bdf,reaction_counts)
             if reaction_counts is not None:
+                self._check_bias_side(adf,bdf)
                 nrx=bdf['rj'].map(reaction_counts).fillna(0).astype(int)
                 logger.debug(f'Completion bias: {int((nrx>0).sum())} of {bdf.shape[0]} candidates extend an already-reacted B-side residue (most bonds already carried: {int(nrx.max())})')
             bdf['allowed']=[True for x in range(bdf.shape[0])]

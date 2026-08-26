@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`completion_bias` now says so when it is ranking the wrong side of the
+  reaction.**  The bias ranks on the `B` reactant, because htpolynet's A2+B3
+  idiom puts the crosslinker there.  Declare the crosslinker as `A` instead
+  and the bias quietly starts completing the *bridges* -- a different claim
+  about which partly-reacted species is a reactive intermediate, and almost
+  certainly not the one that was wanted.  The first cure iteration now
+  compares the initial functionality of the two sides and warns if the `A`
+  side is the more functional one.
+
+  Worth recording why the obvious detector does not work: looking for an
+  all-zero bias key catches nothing, because a difunctional bridge
+  accumulates reactions perfectly well and the key is non-zero.  What
+  separates the two cases is which side carries more reactive sites, and that
+  is readable straight off the atom dataframe -- forming a bond decrements an
+  atom's `z` and increments its `nreactions` in the same operation, so their
+  sum is conserved and reads the same at iteration 0 as at the end.
+
 ## [2.5.0] - 2026-08-26
 
 ### Added
@@ -48,12 +67,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   either side of the setting must be compared at matched crosslinker
   conversion, not matched `desired_conversion`.
 
-  It also nearly empties the repair stage, which is worth having on its own
-  terms: repair has been seen to blow up at low conversion, where it places
-  hundreds of caps and transfers hundreds of fragments and the cap-placement
-  geometry produces atom overlaps that a step-0 minimization cannot recover
-  from.  Completing crosslinkers instead of decorating them leaves it almost
-  nothing to do.
+  It also reduces the repair stage's dismantling work: at a bond conversion
+  of 0.90 the driver dismantles roughly 24 crosslinkers instead of 58, and
+  places 72 caps instead of 174.
+
+  **Corrected 2026-08-26, after this section was published:** the original
+  text here claimed the bias also relieves the cap-placement blowup that has
+  killed builds at low conversion.  It does not.  Only *transferred* caps are
+  placed geometrically -- `_place_cyn_along` runs solely where
+  `bonded_o is None` -- and the number of those is an identity,
+  `total_sites - bonds`, with no term for how the bonds are distributed.  So
+  the bias cannot change it at a matched bond conversion, and at a matched
+  crosslinker conversion it makes it *worse*, because it reaches that
+  conversion by forming fewer bonds and every bond not formed is a fragment
+  that must be transferred.  The blowup is a separate defect in
+  `repair/cyanate_cap.py`; see `ROADMAP.md`.
 
 - **A CUDA image, published as `ghcr.io/cameronabrams/htpolynet:cuda`.**  The
   only image until now installed conda-forge's default linux-64 Gromacs,

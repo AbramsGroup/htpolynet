@@ -171,12 +171,16 @@ Coverage as of the last measurement: **38.8%** overall.
   by how many bonds their `B`-side residue already carries, because
   htpolynet's A2+B3 idiom puts the multifunctional crosslinker in the `B`
   position -- as example 6 does. A user who declares the crosslinker as `A`
-  gets no bias at all, silently, because every candidate scores zero on a
-  difunctional bridge and the ordering collapses back to distance. The
-  generalization is small (rank on the `A` side, or on the sum of both) but
-  each variant is a different physical claim about which partly-reacted
-  species is an intermediate, and none of them has been run. Do it when
-  someone has a chemistry that needs it, and make them say which side.
+  gets the bias pointed at their *bridges* instead: not a no-op, a different
+  claim about which partly-reacted species is a reactive intermediate. That
+  case is now warned about at the first cure iteration, by comparing the
+  initial functionality of the two sides, so it is visible rather than silent
+  -- but it is still not *served*. The generalization is small (rank on the
+  `A` side, or on the sum of both) and each variant is a different physical
+  claim, none of them run. Do it when someone has a chemistry that needs it,
+  and make them say which side rather than inferring it from functionality:
+  the warning's heuristic is good enough to flag a probable mistake and not
+  good enough to silently redirect the ranking on.
 
 - **Nobody has run example 6 with `completion_bias` on.** The ranking is
   unit-tested -- ordering, tie-breaks, missing residues, the fallback when a
@@ -196,12 +200,28 @@ Coverage as of the last measurement: **38.8%** overall.
   of fragments, and runs have died at the repair NVT with a step-0 potential
   energy around 7e15 dominated by Lennard-Jones -- atom overlap from cap
   placement. It is packing-dependent rather than systematic: siblings at the
-  same conversion survive. `completion_bias` makes the stage nearly empty
-  and so hides this, but the geometry is still wrong for a crowded box, and
-  a sub-gel-point study that wants the unbiased ranking will hit it again.
-  The fix is in `repair/cyanate_cap.py::_place_cyn_along` and the greedy
-  matcher around it: place against the local neighbourhood rather than along
-  the old O-H vector alone, or minimize incrementally as caps are placed.
+  same conversion survive.
+
+  `completion_bias` does **not** relieve this, contrary to what this entry
+  and the v2.5.0 changelog first said. Only *transferred* caps are placed
+  geometrically -- `_place_cyn_along` runs solely where `bonded_o is None` --
+  and their count is an identity, `total_sites - bonds`, carrying no term for
+  how the bonds are distributed. The bias therefore cannot change it at a
+  matched bond conversion, and at a matched crosslinker conversion it makes
+  it worse: it reaches that conversion with fewer bonds, and every bond not
+  formed leaves a bridge site unreacted, which is one more fragment to
+  transfer. At a crosslinker conversion of 0.475 the unbiased route transfers
+  158 fragments and the biased route 378 -- and 360 has already killed a
+  build. What the bias does reduce is the *dismantling*, which was never the
+  part that broke.
+
+  So this is the fix that actually unblocks a sub-gel-point series, and it is
+  not optional for one. It is in `repair/cyanate_cap.py::_place_cyn_along`
+  and the greedy matcher around it: place against the local neighbourhood
+  rather than along the old O-H vector alone, or minimize incrementally as
+  caps are placed. The identity above is also the cheap instrument for
+  judging any fix -- the driver already logs the free-fragment count, and it
+  should always equal total sites minus bonds.
 
 - **`bdf.loc[:abs_max]` takes one bond more than the limit.** In
   `curecontroller.py::_searchbonds`, the truncation that applies
