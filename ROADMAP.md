@@ -95,6 +95,30 @@ Coverage as of the last measurement: **38.8%** overall.
 
 ## Release and distribution
 
+- **The release preflight cannot tell whether the *previous* release
+  actually shipped to conda-forge.** `scripts/check-conda-sync.py` compares
+  `pyproject.toml`'s runtime deps against the feedstock recipe, which
+  catches dependency drift the autotick bot cannot handle. It says nothing
+  about whether the bot's last PR ever merged. That gap ran for four
+  releases: `pip check` in the recipe's test section started failing when
+  `ambertools` began pulling in distributions with unsatisfiable metadata,
+  so the bot PRs for 2.2.0, 2.3.0, 2.3.1 and 2.4.0 all sat red and unmerged
+  while conda-forge served 2.1.0 from June. Every one of those releases
+  passed the preflight, because the deps genuinely did match. Nobody
+  noticed until a bot email got read.
+
+  The check is cheap: query `api.anaconda.org/package/conda-forge/htpolynet`
+  for `latest_version` and compare it against the version being superseded.
+  A mismatch does not have to block the release -- the fix is usually on the
+  feedstock, not here -- but it must be loud, because the failure mode is
+  silence. Consider also listing open PRs on the feedstock, since a red bot
+  PR is the specific thing to look at.
+
+  The deeper point is that publishing to conda-forge is the one leg of the
+  release that completes *after* `release.sh` exits and on someone else's
+  infrastructure, so it is the only one that can fail without anything here
+  noticing.
+
 - **External services still keyed to the old repo identity.** The Aug 2026
   transfer from `AbramsGroup/HTPolyNet` to `cameronabrams/htpolynet` moved
   the code but left every integration pointing at the old owner. Three
@@ -108,6 +132,12 @@ Coverage as of the last measurement: **38.8%** overall.
   `/en/v2.2.0/` 404s and the API reports "No Version matches the given
   query". Fix the RTD project URL, then activate the tagged version. Worth
   keeping this list as the checklist if the repo ever moves again.
+
+  A fourth instance turned up on 2026-08-26 and is fixed: the conda-forge
+  recipe's `about:` block still gave `AbramsGroup/HTPolyNet` for `home` and
+  `dev_url`, and a `doc_url` of `abramsgroup.github.io/HTPolyNet` that
+  returns 404. Corrected in the same feedstock PR that unblocked the version
+  bumps.
 
 
 - **Mint a software DOI.** Enable the Zenodo GitHub integration for
