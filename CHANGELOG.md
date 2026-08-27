@@ -15,7 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   overlap" from a claim measured on a synthetic lattice into a number measured
   on the system actually being built.  Reported alongside the achieved
   clearance and carried in `repair-summary.yaml` as `blind_min_clearance_nm`
-  and `n_blind_would_overlap`.  This is what tells someone whether structures
+  `blind_median_clearance_nm`, and `n_blind_would_overlap`, with
+  `median_clearance_nm` alongside them -- a minimum says whether one build is
+  in danger, but correlating placement quality against outcomes across a
+  series of runs needs a statistic that is not an extreme value.  This is what tells someone whether structures
   built before v2.6.0 were shaped by overlap resolution rather than by
   placement -- a question that could not be answered from those runs' own
   output.

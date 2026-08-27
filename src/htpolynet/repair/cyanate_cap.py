@@ -177,12 +177,17 @@ def _report_placements(placements, target):
             f'if the following minimization fails with a huge Lennard-Jones term, '
             f'this is why.'
         )
+    # medians as well as minima: a single worst placement says whether this
+    # build is in danger, but correlating placement quality against outcomes
+    # across a series of runs needs a statistic that is not an extreme value
     return {
         'n_transferred': len(placements),
         'n_direction_searched': searched,
         'n_below_target': len(below),
         'min_clearance_nm': float(gaps.min()),
+        'median_clearance_nm': float(np.median(gaps)),
         'blind_min_clearance_nm': float(blind.min()) if blind.size else None,
+        'blind_median_clearance_nm': float(np.median(blind)) if blind.size else None,
         'n_blind_would_overlap': int((blind < 0.10).sum()) if blind.size else None,
     }
 

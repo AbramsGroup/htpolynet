@@ -113,6 +113,8 @@ class TestReportPlacements(unittest.TestCase):
         self.assertEqual(summary['n_below_target'], 0)
         self.assertEqual(summary['n_direction_searched'], 0)
         self.assertAlmostEqual(summary['min_clearance_nm'], 0.30)
+        self.assertAlmostEqual(summary['median_clearance_nm'], 0.30)
+        self.assertAlmostEqual(summary['blind_median_clearance_nm'], 0.30)
 
     def test_names_the_tight_ones(self):
         placements = [{'o': 7, 'clearance': 0.05, 'kept_o_h_direction': False,
@@ -128,3 +130,6 @@ class TestReportPlacements(unittest.TestCase):
         self.assertEqual(summary['n_direction_searched'], 1)
         self.assertEqual(summary['n_blind_would_overlap'], 1)
         self.assertAlmostEqual(summary['blind_min_clearance_nm'], 0.01)
+        # a median, not just the extreme, is what survives averaging over runs
+        self.assertAlmostEqual(summary['median_clearance_nm'], 0.175)
+        self.assertAlmostEqual(summary['blind_median_clearance_nm'], 0.155)
