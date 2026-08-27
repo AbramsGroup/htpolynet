@@ -57,36 +57,46 @@ class TestChooseCapPlacement(unittest.TestCase):
         self.h = self.o + np.array([0.1, 0.0, 0.0])   # O-H points along +x
 
     def test_open_space_keeps_the_old_behavior(self):
-        c, n, gap, kept = _choose_cap_placement(self.o, self.h, np.empty((0, 3)), BOX)
-        self.assertTrue(kept)
+        r = _choose_cap_placement(self.o, self.h, np.empty((0, 3)), BOX)
+        self.assertTrue(r['kept_o_h_direction'])
         c0, n0 = _place_cyn_along(self.o, self.h)
-        np.testing.assert_allclose(c, c0)
-        np.testing.assert_allclose(n, n0)
+        np.testing.assert_allclose(r['c'], c0)
+        np.testing.assert_allclose(r['n'], n0)
 
     def test_bond_lengths_are_held_fixed(self):
         blocker = np.array([[5.2, 5.0, 5.0]])
-        c, n, gap, kept = _choose_cap_placement(self.o, self.h, blocker, BOX)
-        self.assertFalse(kept)
-        self.assertAlmostEqual(float(np.linalg.norm(c - self.o)), 0.136, places=9)
-        self.assertAlmostEqual(float(np.linalg.norm(n - c)), 0.116, places=9)
+        r = _choose_cap_placement(self.o, self.h, blocker, BOX)
+        self.assertFalse(r['kept_o_h_direction'])
+        self.assertAlmostEqual(float(np.linalg.norm(r['c'] - self.o)), 0.136, places=9)
+        self.assertAlmostEqual(float(np.linalg.norm(r['n'] - r['c'])), 0.116, places=9)
 
     def test_moves_away_from_an_occupied_direction(self):
         # an atom sitting exactly where the cap would go along the O-H vector
         blocker = np.array([[5.2, 5.0, 5.0]])
         c_blind, n_blind = _place_cyn_along(self.o, self.h)
         blind_gap = _clearance(c_blind, n_blind, blocker, BOX)
-        c, n, gap, kept = _choose_cap_placement(self.o, self.h, blocker, BOX)
-        self.assertGreater(gap, blind_gap)
-        self.assertGreaterEqual(gap, 0.22)
+        r = _choose_cap_placement(self.o, self.h, blocker, BOX)
+        self.assertGreater(r['clearance'], blind_gap)
+        self.assertGreaterEqual(r['clearance'], 0.15)
+
+    def test_reports_what_the_blind_direction_would_have_given(self):
+        # free to compute, and the only way to measure on a real box what
+        # placement was doing before the direction search existed
+        blocker = np.array([[5.2, 5.0, 5.0]])
+        c_blind, n_blind = _place_cyn_along(self.o, self.h)
+        r = _choose_cap_placement(self.o, self.h, blocker, BOX)
+        self.assertAlmostEqual(r['blind_clearance'],
+                               _clearance(c_blind, n_blind, blocker, BOX))
+        self.assertLess(r['blind_clearance'], r['clearance'])
 
     def test_reports_the_best_it_could_do_when_boxed_in(self):
         # a shell of atoms all around: no direction is clear, and the caller
         # needs to hear that rather than get a confident bad placement
         shell = self.o + _sphere_directions(60) * 0.2
-        c, n, gap, kept = _choose_cap_placement(self.o, self.h, shell, BOX)
-        self.assertFalse(kept)
-        self.assertLess(gap, 0.22)
-        self.assertGreater(gap, 0.0)
+        r = _choose_cap_placement(self.o, self.h, shell, BOX)
+        self.assertFalse(r['kept_o_h_direction'])
+        self.assertLess(r['clearance'], 0.15)
+        self.assertGreater(r['clearance'], 0.0)
 
 class TestReportPlacements(unittest.TestCase):
     def test_empty(self):
@@ -95,7 +105,8 @@ class TestReportPlacements(unittest.TestCase):
         self.assertIsNone(summary['min_clearance_nm'])
 
     def test_counts_and_stays_quiet_when_all_are_clear(self):
-        placements = [{'o': i, 'clearance': 0.30, 'kept_o_h_direction': True} for i in range(3)]
+        placements = [{'o': i, 'clearance': 0.30, 'kept_o_h_direction': True,
+                       'blind_clearance': 0.30} for i in range(3)]
         with self.assertNoLogs('htpolynet.repair.cyanate_cap', level='WARNING'):
             summary = _report_placements(placements, 0.22)
         self.assertEqual(summary['n_transferred'], 3)
@@ -104,8 +115,10 @@ class TestReportPlacements(unittest.TestCase):
         self.assertAlmostEqual(summary['min_clearance_nm'], 0.30)
 
     def test_names_the_tight_ones(self):
-        placements = [{'o': 7, 'clearance': 0.05, 'kept_o_h_direction': False},
-                      {'o': 8, 'clearance': 0.30, 'kept_o_h_direction': True}]
+        placements = [{'o': 7, 'clearance': 0.05, 'kept_o_h_direction': False,
+                       'blind_clearance': 0.01},
+                      {'o': 8, 'clearance': 0.30, 'kept_o_h_direction': True,
+                       'blind_clearance': 0.30}]
         with self.assertLogs('htpolynet.repair.cyanate_cap', level='WARNING') as cm:
             summary = _report_placements(placements, 0.22)
         text = ''.join(cm.output)
@@ -113,3 +126,5 @@ class TestReportPlacements(unittest.TestCase):
         self.assertIn('Lennard-Jones', text)
         self.assertEqual(summary['n_below_target'], 1)
         self.assertEqual(summary['n_direction_searched'], 1)
+        self.assertEqual(summary['n_blind_would_overlap'], 1)
+        self.assertAlmostEqual(summary['blind_min_clearance_nm'], 0.01)

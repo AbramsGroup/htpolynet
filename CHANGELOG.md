@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Repair now records what blind cap placement *would* have given, on the
+  real box.**  The O-H direction is tried first anyway, so its clearance is
+  free to compute; logging it turns "blind placement was putting caps in
+  overlap" from a claim measured on a synthetic lattice into a number measured
+  on the system actually being built.  Reported alongside the achieved
+  clearance and carried in `repair-summary.yaml` as `blind_min_clearance_nm`
+  and `n_blind_would_overlap`.  This is what tells someone whether structures
+  built before v2.6.0 were shaped by overlap resolution rather than by
+  placement -- a question that could not be answered from those runs' own
+  output.
+
 ## [2.6.0] - 2026-08-26
 
 ### Fixed

@@ -158,6 +158,15 @@ def _report_placements(placements, target):
         f'({searched} needed a direction search); clearance min/median '
         f'{gaps.min():.3f}/{float(np.median(gaps)):.3f} nm against a target of {target:.3f}'
     )
+    blind = np.array([p['blind_clearance'] for p in placements
+                      if p.get('blind_clearance') is not None], dtype=float)
+    if blind.size:
+        logger.info(
+            f'triazine_to_cyanate_cap: along the O-H vector alone these same caps '
+            f'would have had min/median {blind.min():.3f}/{float(np.median(blind)):.3f} nm, '
+            f'with {int((blind < 0.10).sum())} under 0.10 nm -- that is what placement '
+            f'did before the direction search existed, measured on this box'
+        )
     if below:
         worst = sorted(below, key=lambda p: p['clearance'])[:5]
         detail = ', '.join(f'O {int(p["o"])} at {p["clearance"]:.3f} nm' for p in worst)
@@ -173,6 +182,8 @@ def _report_placements(placements, target):
         'n_direction_searched': searched,
         'n_below_target': len(below),
         'min_clearance_nm': float(gaps.min()),
+        'blind_min_clearance_nm': float(blind.min()) if blind.size else None,
+        'n_blind_would_overlap': int((blind < 0.10).sum()) if blind.size else None,
     }
 
 
@@ -236,13 +247,19 @@ def _choose_cap_placement(o_xyz, ref_xyz, neighbors, box, oc_len=0.136,
         n_directions (int): how many directions to try when the preferred one is occupied
 
     Returns:
-        tuple: (C position, N position, achieved clearance in nm, whether the preferred direction was kept)
+        dict: 'c' and 'n' positions, 'clearance' achieved, 'kept_o_h_direction',
+        and 'blind_clearance' -- what the O-H direction alone would have given.
+        The last is free to compute, since that direction is tried first, and it
+        is the only way to measure on a real box what the old blind placement
+        was actually doing.
     """
     o = np.asarray(o_xyz, dtype=float)
     c_xyz, n_xyz = _place_cyn_along(o, ref_xyz, oc_len=oc_len, cn_len=cn_len)
-    best = _clearance(c_xyz, n_xyz, neighbors, box)
+    blind = _clearance(c_xyz, n_xyz, neighbors, box)
+    best = blind
     if best >= target:
-        return c_xyz, n_xyz, best, True
+        return {'c': c_xyz, 'n': n_xyz, 'clearance': best,
+                'kept_o_h_direction': True, 'blind_clearance': blind}
     for u in _sphere_directions(n_directions):
         cc = o + u * oc_len
         nn = cc + u * cn_len
@@ -251,7 +268,8 @@ def _choose_cap_placement(o_xyz, ref_xyz, neighbors, box, oc_len=0.136,
             best, c_xyz, n_xyz = gap, cc, nn
             if best >= target:
                 break
-    return c_xyz, n_xyz, best, False
+    return {'c': c_xyz, 'n': n_xyz, 'clearance': best,
+            'kept_o_h_direction': False, 'blind_clearance': blind}
 
 
 # ---------------------------------------------------------------------------
@@ -468,14 +486,14 @@ def triazine_to_cyanate_cap(TC, moldict, spec, reactions):
             # only atoms near this O can constrain a group that reaches
             # 0.25 nm from it; the rest are not worth scoring against
             local = background[_min_image_dist(o_xyz, background, box) < _PLACEMENT_LOCALITY]
-            c_xyz, n_xyz, gap, kept = _choose_cap_placement(
-                o_xyz, ref_xyz, local, box, target=target_clearance)
+            placed = _choose_cap_placement(o_xyz, ref_xyz, local, box, target=target_clearance)
+            c_xyz, n_xyz = placed['c'], placed['n']
             ts.set_atom_attributes(TC, rec['c'],
                                    posX=float(c_xyz[0]), posY=float(c_xyz[1]), posZ=float(c_xyz[2]))
             ts.set_atom_attributes(TC, rec['n'],
                                    posX=float(n_xyz[0]), posY=float(n_xyz[1]), posZ=float(n_xyz[2]))
             background = np.vstack([background, c_xyz, n_xyz])
-            placements.append({'o': rec['o'], 'clearance': gap, 'kept_o_h_direction': kept})
+            placements.append({'o': rec['o'], **{k: v for k, v in placed.items() if k not in ('c', 'n')}})
         placement_summary = _report_placements(placements, target_clearance)
 
     # ---- Phase 4: splice template params (forms BPA-O-C bond with full
