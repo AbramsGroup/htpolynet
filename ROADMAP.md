@@ -206,6 +206,25 @@ Coverage as of the last measurement: **38.8%** overall.
   the exclusion buys an uncensored statistic rather than rescuing a dead one.
   Worth knowing before treating a change in that median as physics.
 
+- **The cap direction search stops at the first adequate direction, not the
+  best one.** `_choose_cap_placement` breaks out as soon as a direction
+  reaches `cap_min_clearance`, so a cap that could have had 0.25 nm of room
+  may be left with 0.15. Two consequences. The placement is worse than it
+  needs to be, for compute that is genuinely negligible -- the angle window
+  admits about 43 % of a 48-direction Fibonacci spiral, so a full scan is
+  ~21 vectorized distance evaluations against a neighbour list of order 100.
+  And `median_clearance_nm` is partly a readout of the threshold rather than
+  of the box, since the distribution is truncated from below at the target.
+
+  Deliberately not changed for 2.6.1: taking the best direction moves every
+  cap that needed a search, and doing that on the same release as the
+  clearance fix means the next real build cannot attribute a change in the
+  numbers to either one. Do it after there is one clean real-box measurement
+  to compare against. Until then the docs say which fields are placement
+  outcomes and which are crowding measurements, and
+  `blind_median_clearance_nm` -- one fixed direction, no search, no early
+  exit -- is the statistic to correlate on.
+
 - **The shortfall from the cube law between `f` and many iterations is
   unexplained.** Below `f` iterations crosslinker conversion is exactly zero,
   a counting constraint; at nine iterations real runs land 1--3 % above the

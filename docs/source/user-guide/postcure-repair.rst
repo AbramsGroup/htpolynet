@@ -395,6 +395,44 @@ how tightly they landed::
 
     Repair transferred 158 cap fragments; tightest placement 0.128 nm
 
+with the full placement record in the same YAML file:
+
+.. code-block:: yaml
+
+     n_transferred: 158
+     n_direction_searched: 31
+     n_preferred_out_of_angle: 0
+     n_below_target: 17
+     min_clearance_nm: 0.128
+     median_clearance_nm: 0.196
+     blind_min_clearance_nm: 0.008
+     blind_median_clearance_nm: 0.161
+     n_blind_would_overlap: 9
+
+These do not all mean the same kind of thing, and reading them as if
+they did is the mistake to avoid:
+
+* ``min_clearance_nm`` and ``n_below_target`` describe the **tail**,
+  which is where a placement failure actually lives, and they are what
+  ``cap_min_clearance`` should be calibrated against.
+* ``median_clearance_nm`` is a **placement outcome, not a measurement
+  of the site**.  The search stops at the first direction that reaches
+  the target, so this number is pulled toward ``cap_min_clearance`` by
+  construction and partly reports the threshold you set rather than
+  how crowded the box is.  It answers "how did the caps end up", which
+  is a fair question, but it is not a crowding statistic.
+* ``blind_min_clearance_nm`` and ``blind_median_clearance_nm`` are the
+  crowding statistics.  They are measured along the single fixed O-H
+  direction with no search and no early exit, so they describe the
+  site rather than the algorithm, and they are the ones to correlate
+  across a series of runs.  ``n_blind_would_overlap`` counts the caps
+  that direction alone would have put inside 0.10 nm of a neighbour —
+  which is what placement did before the direction search existed.
+* ``n_preferred_out_of_angle`` separates the two reasons a preferred
+  direction gets abandoned.  A large value means the C-O-C angle
+  window is rejecting real O-H vectors, which would look exactly like
+  a crowded box in every other field.
+
 That count is worth watching, because it is the quantity that predicts
 whether this stage survives.  It is an identity — every bond the cure
 did not form leaves a bridge site unreacted, and every unreacted
