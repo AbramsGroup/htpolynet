@@ -173,13 +173,28 @@ Spec fields
 * ``cap_min_clearance`` — how much room (nm) a transferred cap tries
   to leave itself.  The cap is first placed along the bridge-O's old
   O-H vector, as it always was; if that direction is already occupied
-  the driver searches the sphere for the clearest direction, holding
-  both bond lengths fixed so only the orientation moves, and stops as
-  soon as it reaches this clearance.  Default 0.15 nm, which is about
-  what a steepest-descent minimization absorbs and which is actually
-  achievable in a box at polymer density — 0.22 nm is not, and asking
-  for it would flag every cap.  When no direction reaches the target,
-  the driver says so and names the worst offenders; see
+  the driver searches for the clearest direction, holding both bond
+  lengths fixed so only the orientation moves, and stops as soon as it
+  reaches this clearance.  Default 0.15 nm, which is about what a
+  steepest-descent minimization absorbs.
+
+  The clearance is measured only against atoms the cap is *not* bonded
+  through — the bridge oxygen itself and its aryl carbon are excluded,
+  because their distance to the cap is set by bond geometry rather
+  than by how crowded the site is.  Leaving either in makes the number
+  stop varying: with the oxygen in it is exactly the O-C bond length
+  for every candidate direction, and with the aryl carbon in it is
+  bounded by the C-O-C geometry, so a comfortably placed cap reports a
+  constant instead of a measurement.  The search is restricted to
+  C-O-C angles between 90° and 150° instead, which is what actually
+  keeps the cap off the ring it hangs from — and off the linear
+  geometry that pure clearance would otherwise drift toward, since
+  antiparallel maximizes distance from the rest of the molecule.
+
+  When no direction reaches the target, the driver says so and names
+  the worst offenders; it also reports separately how many preferred
+  directions were abandoned because of the angle window rather than
+  because of crowding, so the two do not get read as each other.  See
   :ref:`what repair reports <postcure_repair_reporting>`.
 * ``cap_search_radius`` — radius (nm) within which a free-cap
   fragment looks for an unreacted bridge-O.  Expanded up to 10× on

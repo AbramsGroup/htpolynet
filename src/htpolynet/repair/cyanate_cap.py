@@ -145,13 +145,21 @@ def _report_placements(placements, target):
         target (float): the clearance in nm that was being aimed for
 
     Returns:
-        dict: n_transferred, n_direction_searched, n_below_target, min_clearance_nm
+        dict: n_transferred, n_direction_searched, n_below_target,
+        n_preferred_out_of_angle, min_clearance_nm and the medians
     """
     if not placements:
         return {'n_transferred': 0, 'n_direction_searched': 0,
-                'n_below_target': 0, 'min_clearance_nm': None}
+                'n_below_target': 0, 'n_preferred_out_of_angle': 0,
+                'min_clearance_nm': None}
     gaps = np.array([p['clearance'] for p in placements], dtype=float)
     searched = sum(1 for p in placements if not p['kept_o_h_direction'])
+    # why the preferred direction was abandoned matters as much as how often.
+    # A metric that rejects every preferred direction for a reason unrelated
+    # to crowding is what 2.6.0 shipped, and it read as a crowded box; this
+    # separates "the site was occupied" from "the O-H vector was not a
+    # placeable C-O-C angle", which would point at the angle window instead.
+    out_of_window = sum(1 for p in placements if not p.get('blind_in_window', True))
     below = [p for p in placements if p['clearance'] < target]
     logger.info(
         f'triazine_to_cyanate_cap: placed {len(placements)} transferred caps '
@@ -166,6 +174,12 @@ def _report_placements(placements, target):
             f'would have had min/median {blind.min():.3f}/{float(np.median(blind)):.3f} nm, '
             f'with {int((blind < 0.10).sum())} under 0.10 nm -- that is what placement '
             f'did before the direction search existed, measured on this box'
+        )
+    if out_of_window:
+        logger.info(
+            f'triazine_to_cyanate_cap: {out_of_window} of {len(placements)} preferred '
+            f'O-H directions were outside the placeable C-O-C angle window and were '
+            f'searched away from for that reason rather than for crowding'
         )
     if below:
         worst = sorted(below, key=lambda p: p['clearance'])[:5]
@@ -184,6 +198,7 @@ def _report_placements(placements, target):
         'n_transferred': len(placements),
         'n_direction_searched': searched,
         'n_below_target': len(below),
+        'n_preferred_out_of_angle': out_of_window,
         'min_clearance_nm': float(gaps.min()),
         'median_clearance_nm': float(np.median(gaps)),
         'blind_min_clearance_nm': float(blind.min()) if blind.size else None,
@@ -212,35 +227,36 @@ def _sphere_directions(n=48):
                      np.cos(phi)], axis=1)
 
 
-def _placement_neighbors(o_idx, o_xyz, background, background_idx, box,
-                         locality=_PLACEMENT_LOCALITY):
-    """The atoms a cap hung on oxygen ``o_idx`` actually has to stay clear of.
+def _placement_neighbors(o_xyz, background, background_idx, box,
+                         bonded=(), locality=_PLACEMENT_LOCALITY):
+    """The atoms a cap hung on this oxygen actually has to stay clear of.
 
     Two filters.  Distance: an atom farther than ``locality`` from the oxygen
     cannot constrain a group that reaches only ~0.25 nm from it, so it is not
-    worth scoring against.  Identity: the oxygen the cap bonds *to* is not an
-    obstacle, and leaving it in silently destroys the metric -- the cap carbon
-    sits at exactly ``oc_len`` from that oxygen in *every* candidate direction,
-    so :func:`_clearance` returns 0.136 nm whichever direction is scored, and
-    the search stops being able to tell directions apart at all.
+    worth scoring against.  Identity: an atom the cap is *bonded* through is
+    not an obstacle, and leaving one in silently destroys the metric, because
+    its distance to the cap is fixed by the bond geometry rather than by how
+    crowded the site is.
 
-    The oxygen's bonded aryl carbon deliberately stays in.  It is the only
-    thing preventing the search from choosing a direction that folds the cap
-    back on top of it: a linear C-O-C maximizes clearance from everything else
-    in the box, and nothing else in this routine knows that is not a bond
-    angle.  Keeping it caps the reachable clearance at 0.272 nm (cap carbon to
-    aryl carbon, antiparallel) and puts the chemically sensible ~120 degree
-    placement at 0.236 nm, both comfortably above the default target.
+    Both members of ``bonded`` matter and for the same reason.  The oxygen
+    itself sits at exactly ``oc_len`` from the cap carbon in *every* candidate
+    direction, so leaving it in pins :func:`_clearance` at 0.136 nm and the
+    search cannot tell directions apart at all.  The oxygen's aryl carbon is
+    softer but has the same character: with it in, the reachable clearance is
+    bounded by the C-O-C geometry at 0.272 nm, so every comfortably-placed cap
+    reports that constant instead of a measurement and the median saturates.
+    A distance metric cannot do clash detection and bond-angle enforcement at
+    once; the angle is enforced separately, in :func:`_choose_cap_placement`.
 
-    Only *this* cap's oxygen is dropped.  Every other cap's attachment oxygen
-    is a real atom in the way, as is every cap already placed -- those carry
-    an index of -1 and are never masked out here.
+    Only *this* cap's bonded atoms are dropped.  Every other cap's attachment
+    oxygen is a real atom in the way, as is every cap already placed -- those
+    carry an index of -1 and are never masked out here.
 
     Args:
-        o_idx (int): global index of the oxygen this cap attaches to
-        o_xyz (numpy.ndarray): its position
+        o_xyz (numpy.ndarray): position of the oxygen this cap attaches to
         background (numpy.ndarray): (m, 3) candidate obstacle positions
         background_idx (numpy.ndarray): (m,) global indices, -1 for already-placed cap atoms
+        bonded (iterable): global indices the cap is bonded through -- the oxygen and its aryl carbon
         box (numpy.ndarray): orthorhombic box lengths, for minimum image
         locality (float): nm; ignore anything farther than this from the oxygen
 
@@ -250,7 +266,9 @@ def _placement_neighbors(o_idx, o_xyz, background, background_idx, box,
     if len(background) == 0:
         return background
     near = _min_image_dist(o_xyz, background, box) < locality
-    near &= (np.asarray(background_idx, dtype=int) != int(o_idx))
+    drop = {int(i) for i in bonded if i is not None}
+    if drop:
+        near &= ~np.isin(np.asarray(background_idx, dtype=int), list(drop))
     return background[near]
 
 
@@ -272,8 +290,45 @@ def _clearance(c_xyz, n_xyz, neighbors, box):
                      _min_image_dist(n_xyz, neighbors, box).min()))
 
 
+_MIN_COC_ANGLE = 90.0
+_MAX_COC_ANGLE = 150.0
+"""degrees: the window of C-O-C angles a cap may be placed at.  An aryl ether
+sits near 120; this is deliberately generous, because placement is a starting
+guess and the angle potential does the rest.  What it excludes is the two ends
+that are qualitatively wrong -- a cap folded back onto the ring it hangs off,
+and a linear C-O-C, which is what a pure clearance search converges to since
+antiparallel maximizes distance from the rest of the molecule."""
+
+
+def _angle_window(directions, o_xyz, anchor_xyz,
+                  min_angle=_MIN_COC_ANGLE, max_angle=_MAX_COC_ANGLE):
+    """Boolean mask of ``directions`` whose C-O-C angle is inside the window.
+
+    Args:
+        directions (numpy.ndarray): (n, 3) unit vectors from the oxygen
+        o_xyz (numpy.ndarray): the oxygen's position
+        anchor_xyz (numpy.ndarray): the aryl carbon's position, or None for no constraint
+        min_angle (float): degrees; below this the cap is folding onto the ring
+        max_angle (float): degrees; above this the ether is unphysically extended
+
+    Returns:
+        numpy.ndarray: (n,) boolean, all True when there is no anchor
+    """
+    d = np.atleast_2d(np.asarray(directions, dtype=float))
+    if anchor_xyz is None:
+        return np.ones(len(d), dtype=bool)
+    a = np.asarray(anchor_xyz, dtype=float) - np.asarray(o_xyz, dtype=float)
+    na = np.linalg.norm(a)
+    if na < 1e-8:
+        return np.ones(len(d), dtype=bool)
+    cosines = d @ (a / na)
+    return ((cosines <= np.cos(np.radians(min_angle))) &
+            (cosines >= np.cos(np.radians(max_angle))))
+
+
 def _choose_cap_placement(o_xyz, ref_xyz, neighbors, box, oc_len=0.136,
-                          cn_len=0.116, target=0.15, n_directions=48):
+                          cn_len=0.116, target=0.15, n_directions=48,
+                          anchor_xyz=None):
     """Place a transferred -C#N group in the clearest direction available.
 
     The old O-H vector is tried first and kept if it is clear enough, so a
@@ -283,6 +338,13 @@ def _choose_cap_placement(o_xyz, ref_xyz, neighbors, box, oc_len=0.136,
     minimization that could not recover.  Bond lengths are held fixed; only
     the direction moves, so the chemistry is unchanged.
 
+    The search is over directions inside a C-O-C angle window rather than the
+    whole sphere.  Clearance alone is maximized by a linear ether, since
+    antiparallel puts the cap as far as possible from the ring it hangs off,
+    so a pure clearance search drifts toward a geometry no aryl ether adopts.
+    The window says that explicitly instead of leaving it to a distance metric
+    that cannot express it; see :data:`_MIN_COC_ANGLE`.
+
     Args:
         o_xyz (numpy.ndarray): position of the bridge oxygen the cap attaches to
         ref_xyz (numpy.ndarray): position defining the preferred direction, normally the O's about-to-be-deleted H
@@ -290,8 +352,9 @@ def _choose_cap_placement(o_xyz, ref_xyz, neighbors, box, oc_len=0.136,
         box (numpy.ndarray): orthorhombic box lengths, for minimum image
         oc_len (float): O-C bond length in nm
         cn_len (float): C#N bond length in nm
-        target (float): clearance in nm that counts as good enough to stop searching; the default 0.15 is about what a steepest-descent minimization absorbs without trouble, and sits under the geometric ceiling this metric can reach -- the attachment oxygen's aryl carbon stays in ``neighbors`` and holds the best achievable clearance to 0.272 nm even in vacuum, so a target near or above that would flag every cap for a reason that has nothing to do with crowding
+        target (float): clearance in nm that counts as good enough to stop searching; the default 0.15 is about what a steepest-descent minimization absorbs without trouble.  ``neighbors`` must already have the cap's own bonded atoms removed (see :func:`_placement_neighbors`) or this number is meaningless -- with the attachment oxygen left in, every direction scores exactly ``oc_len``
         n_directions (int): how many directions to try when the preferred one is occupied
+        anchor_xyz (numpy.ndarray): position of the oxygen's aryl carbon, defining the C-O-C angle; None disables the angular guard
 
     Returns:
         dict: 'c' and 'n' positions, 'clearance' achieved, 'kept_o_h_direction',
@@ -303,11 +366,24 @@ def _choose_cap_placement(o_xyz, ref_xyz, neighbors, box, oc_len=0.136,
     o = np.asarray(o_xyz, dtype=float)
     c_xyz, n_xyz = _place_cyn_along(o, ref_xyz, oc_len=oc_len, cn_len=cn_len)
     blind = _clearance(c_xyz, n_xyz, neighbors, box)
-    best = blind
-    if best >= target:
-        return {'c': c_xyz, 'n': n_xyz, 'clearance': best,
-                'kept_o_h_direction': True, 'blind_clearance': blind}
-    for u in _sphere_directions(n_directions):
+    # the O-H direction is kept only if it is both clear enough and a sane
+    # C-O-C angle; for a real hydroxyl it always is the latter, but the
+    # fallback direction used when the O has no H need not be
+    blind_ok = bool(_angle_window((c_xyz - o) / oc_len, o, anchor_xyz)[0])
+    if blind_ok and blind >= target:
+        return {'c': c_xyz, 'n': n_xyz, 'clearance': blind,
+                'kept_o_h_direction': True, 'blind_clearance': blind,
+                'blind_in_window': True}
+    directions = _sphere_directions(n_directions)
+    allowed = directions[_angle_window(directions, o, anchor_xyz)]
+    # a window this wide always leaves a good fraction of the sphere, but a
+    # caller narrowing it should still get a placement rather than nothing
+    if len(allowed) == 0:
+        allowed = directions
+    best = blind if blind_ok else -1.0
+    if not blind_ok:
+        c_xyz, n_xyz = None, None
+    for u in allowed:
         cc = o + u * oc_len
         nn = cc + u * cn_len
         gap = _clearance(cc, nn, neighbors, box)
@@ -316,7 +392,8 @@ def _choose_cap_placement(o_xyz, ref_xyz, neighbors, box, oc_len=0.136,
             if best >= target:
                 break
     return {'c': c_xyz, 'n': n_xyz, 'clearance': best,
-            'kept_o_h_direction': False, 'blind_clearance': blind}
+            'kept_o_h_direction': False, 'blind_clearance': blind,
+            'blind_in_window': blind_ok}
 
 
 # ---------------------------------------------------------------------------
@@ -515,6 +592,10 @@ def triazine_to_cyanate_cap(TC, moldict, spec, reactions):
         for rec in free_records:
             h = _find_bonded_hydrogen(TC, rec['o'])
             rec['o_h'] = h
+            # the aryl carbon on the far side of the O: excluded from the
+            # clearance metric, since its distance is set by bond geometry,
+            # and used instead as the anchor for the C-O-C angle
+            rec['o_anchor'] = _find_bonded_heavy(TC, rec['o'])
             if h is not None:
                 h_to_delete.add(int(h))
         moving = {int(rec['c']) for rec in free_records} | {int(rec['n']) for rec in free_records}
@@ -522,8 +603,8 @@ def triazine_to_cyanate_cap(TC, moldict, spec, reactions):
         going = moving | {int(x) for x in h_to_delete}
         staying = A.loc[~A['globalIdx'].isin(going),
                         ['globalIdx', 'posX', 'posY', 'posZ']]
-        # indices travel alongside the positions so each cap can drop the one
-        # atom it is bonded to; placed caps get -1 and are never dropped
+        # indices travel alongside the positions so each cap can drop the
+        # atoms it is bonded through; placed caps get -1 and are never dropped
         background_idx = staying['globalIdx'].to_numpy(dtype=int)
         background = staying[['posX', 'posY', 'posZ']].to_numpy(dtype=float)
         for rec in free_records:
@@ -534,9 +615,13 @@ def triazine_to_cyanate_cap(TC, moldict, spec, reactions):
                 ref_xyz = o_xyz + np.array([1.0, 0.0, 0.0])
             else:
                 ref_xyz = ts.positions(TC, [rec['o_h']])[0]
-            local = _placement_neighbors(rec['o'], o_xyz, background,
-                                         background_idx, box)
-            placed = _choose_cap_placement(o_xyz, ref_xyz, local, box, target=target_clearance)
+            local = _placement_neighbors(o_xyz, background, background_idx, box,
+                                         bonded=(rec['o'], rec['o_anchor']))
+            anchor_xyz = (ts.positions(TC, [rec['o_anchor']])[0]
+                          if rec['o_anchor'] is not None else None)
+            placed = _choose_cap_placement(o_xyz, ref_xyz, local, box,
+                                           target=target_clearance,
+                                           anchor_xyz=anchor_xyz)
             c_xyz, n_xyz = placed['c'], placed['n']
             ts.set_atom_attributes(TC, rec['c'],
                                    posX=float(c_xyz[0]), posY=float(c_xyz[1]), posZ=float(c_xyz[2]))
@@ -621,6 +706,19 @@ def _find_bonded_hydrogen(TC, idx):
     for nbr in TC.Topology.bondlist.partners_of(int(idx)):
         name = ts.get_attr(TC, nbr, 'atomName')
         if str(name).upper().startswith('H'):
+            return int(nbr)
+    return None
+
+
+def _find_bonded_heavy(TC, idx):
+    """Return globalIdx of the first non-hydrogen atom bonded to ``idx``, or None.
+
+    For a bridge oxygen about to take a cap this is its aryl carbon, which is
+    the anchor the C-O-C angle is measured against.
+    """
+    for nbr in TC.Topology.bondlist.partners_of(int(idx)):
+        name = ts.get_attr(TC, nbr, 'atomName')
+        if not str(name).upper().startswith('H'):
             return int(nbr)
     return None
 

@@ -29,19 +29,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   chemistry was never affected -- every conservation identity held through
   2.6.0.
 
-  Each cap now drops its own attachment oxygen from its neighbour set and
-  nothing else: every *other* cap's oxygen is a real atom in the way, as is
-  every cap already placed.  The oxygen's bonded aryl carbon deliberately
-  stays in, because it is the only thing preventing the search from folding
-  the cap back onto the ring -- a linear C-O-C maximizes clearance from
-  everything else in the box.  Keeping it holds the reachable clearance to
-  0.272 nm, which is now the number a target has to stay under; the default
-  0.150 nm does.
+  Each cap now drops the atoms it is bonded *through* -- its attachment oxygen
+  and that oxygen's aryl carbon -- and nothing else.  Every *other* cap's
+  oxygen is a real atom in the way, as is every cap already placed.  Both
+  exclusions are for the same reason: a distance fixed by bond geometry is not
+  a measurement of how crowded the site is.  The oxygen is the hard case, at
+  exactly 0.136 nm in every direction.  The aryl carbon is the soft one, and
+  keeping it would have left `median_clearance_nm` saturated at the C-O-C
+  geometry -- so a healthy run would still have reported a constant, just a
+  larger one, which is the same defect one bond further out.
 
-  The 2.6.0 calibration missed this because it was done on a jittered cubic
-  lattice with no bonded attachment oxygen -- the fixture lacked the one
-  feature that defeats the fix.  The regression test added here supplies it,
-  and asserts the pinning at 0.136 nm that the released code produces.
+  Keeping the cap off the ring it hangs from is now an explicit constraint
+  rather than a side effect of the metric: the direction search is restricted
+  to C-O-C angles between 90 and 150 degrees.  That guards an end the aryl
+  carbon never did -- clearance alone is *maximized* by a linear ether, since
+  antiparallel puts the cap as far as possible from the rest of the molecule,
+  so a pure clearance search drifts toward a geometry no aryl ether adopts.
+  Bond lengths are still held fixed and open-space caps still land on the O-H
+  vector, so nothing moves for a cap that was already comfortable.
+
+  Because a systematically rejected preferred direction would reproduce the
+  exact symptom being fixed here -- everything searched, everything flagged,
+  for a reason unrelated to crowding -- repair now reports
+  `n_preferred_out_of_angle` separately from `n_direction_searched`.
+
+  The 2.6.0 calibration missed the original bug because it was done on a
+  jittered cubic lattice with no bonded attachment oxygen -- the fixture
+  lacked the one feature that defeats the fix.  The regression test added here
+  supplies it, and asserts the pinning at 0.136 nm that the released code
+  produces.
 
 - **Container releases now carry a version tag.**  `docker.yml` pushed only
   the moving tag (`:latest` / `:cuda`) and the commit sha, so

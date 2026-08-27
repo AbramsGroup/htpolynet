@@ -12,7 +12,8 @@ logger=logging.getLogger(__name__)
 import numpy as np
 from htpolynet.repair.cyanate_cap import (
     _sphere_directions, _clearance, _choose_cap_placement, _place_cyn_along,
-    _report_placements, _placement_neighbors,
+    _report_placements, _placement_neighbors, _angle_window,
+    _MIN_COC_ANGLE, _MAX_COC_ANGLE,
 )
 
 OC_LEN = 0.136
@@ -137,28 +138,39 @@ class TestReportPlacements(unittest.TestCase):
         self.assertAlmostEqual(summary['blind_median_clearance_nm'], 0.155)
 
 class TestPlacementNeighbors(unittest.TestCase):
-    """The attachment oxygen is bonded to the cap, and must not be scored against.
+    """The atoms a cap is bonded through must not be scored against.
 
     This is the configuration the rest of this module's fixtures lack, and its
     absence let a released version report a clearance that was pinned at the
-    O-C bond length on every cap in every run.  The first test below fails
-    against that version.
+    O-C bond length on every cap in every run.  The attachment oxygen is the
+    hard case -- it fixes the metric at exactly `oc_len` -- and its aryl carbon
+    is the soft one, bounding the metric at the C-O-C geometry so that a
+    comfortably placed cap reports a constant instead of a measurement.
     """
     def setUp(self):
         self.o_idx = 7
+        self.aryl_idx = 8
         self.o = np.array([5.0, 5.0, 5.0])
         self.h = self.o + np.array([0.1, 0.0, 0.0])       # O-H along +x
         self.aryl = self.o - np.array([OC_LEN, 0.0, 0.0])  # aryl C along -x
         # a real neighbourhood: the bonded O, its aryl carbon, and one
         # unrelated atom sitting in the O-H direction
         self.background = np.array([self.o, self.aryl, self.o + np.array([0.20, 0.0, 0.0])])
-        self.background_idx = np.array([self.o_idx, 8, 900])
+        self.background_idx = np.array([self.o_idx, self.aryl_idx, 900])
+        self.bonded = (self.o_idx, self.aryl_idx)
 
-    def test_drops_the_bonded_oxygen(self):
-        local = _placement_neighbors(self.o_idx, self.o, self.background,
-                                     self.background_idx, BOX)
-        self.assertEqual(len(local), 2)
+    def _local(self, idx=None, bonded=None, bg=None):
+        return _placement_neighbors(self.o,
+                                    self.background if bg is None else bg,
+                                    self.background_idx if idx is None else idx,
+                                    BOX,
+                                    bonded=self.bonded if bonded is None else bonded)
+
+    def test_drops_the_bonded_oxygen_and_its_aryl_carbon(self):
+        local = self._local()
+        self.assertEqual(len(local), 1)
         self.assertFalse(np.any(np.all(np.isclose(local, self.o), axis=1)))
+        self.assertFalse(np.any(np.all(np.isclose(local, self.aryl), axis=1)))
 
     def test_clearance_is_no_longer_pinned_at_the_bond_length(self):
         # with the bonded O left in, every candidate direction scores exactly
@@ -168,51 +180,170 @@ class TestPlacementNeighbors(unittest.TestCase):
         self.assertAlmostEqual(pinned['clearance'], OC_LEN, places=6)
         self.assertLess(pinned['clearance'], 0.15)
         # with it dropped, the search can actually discriminate
-        local = _placement_neighbors(self.o_idx, self.o, self.background,
-                                     self.background_idx, BOX)
-        real = _choose_cap_placement(self.o, self.h, local, BOX)
+        real = _choose_cap_placement(self.o, self.h, self._local(), BOX,
+                                     anchor_xyz=self.aryl)
         self.assertGreater(real['clearance'], OC_LEN)
         self.assertGreaterEqual(real['clearance'], 0.15)
 
-    def test_keeps_the_aryl_carbon(self):
-        # nothing else stops the search folding the cap back onto the ring
-        local = _placement_neighbors(self.o_idx, self.o, self.background,
-                                     self.background_idx, BOX)
-        self.assertTrue(np.any(np.all(np.isclose(local, self.aryl), axis=1)))
-
-    def test_the_aryl_carbon_caps_what_is_reachable(self):
-        # in vacuum but for the aryl carbon, the best any direction can do is
-        # 0.272 nm -- a target at or above that would flag every cap
-        local = _placement_neighbors(self.o_idx, self.o,
-                                     np.array([self.o, self.aryl]),
-                                     np.array([self.o_idx, 8]), BOX)
-        blocked = _choose_cap_placement(self.o, self.o + np.array([0.001, 0, 0]),
-                                        local, BOX, target=0.40)
-        self.assertLessEqual(blocked['clearance'], 2 * OC_LEN + 1e-6)
+    def test_the_aryl_carbon_would_saturate_the_metric(self):
+        # left in, it bounds clearance at the C-O-C geometry (0.272 nm at
+        # 180 deg), so any cap with no real neighbour nearby reports that
+        # constant rather than a measurement and the median stops varying
+        with_aryl = _placement_neighbors(self.o, np.array([self.o, self.aryl]),
+                                         np.array([self.o_idx, self.aryl_idx]),
+                                         BOX, bonded=(self.o_idx,))
+        capped = _choose_cap_placement(self.o, self.h, with_aryl, BOX, target=0.40)
+        self.assertLessEqual(capped['clearance'], 2 * OC_LEN + 1e-6)
+        # dropped, an empty neighbourhood reads as empty
+        without = _placement_neighbors(self.o, np.array([self.o, self.aryl]),
+                                       np.array([self.o_idx, self.aryl_idx]),
+                                       BOX, bonded=self.bonded)
+        self.assertEqual(len(without), 0)
 
     def test_keeps_another_caps_oxygen(self):
-        # only this cap's own O is bonded to it; the others are real obstacles
-        local = _placement_neighbors(self.o_idx, self.o, self.background,
-                                     np.array([99, 8, 900]), BOX)
+        # only this cap's own bonded atoms go; the others are real obstacles
+        local = self._local(idx=np.array([99, 100, 900]))
         self.assertEqual(len(local), 3)
 
     def test_keeps_already_placed_caps(self):
-        # placed cap atoms carry -1 and must never be masked out
         bg = np.vstack([self.background, self.o + np.array([0.0, 0.3, 0.0])])
         idx = np.concatenate([self.background_idx, [-1]])
-        local = _placement_neighbors(self.o_idx, self.o, bg, idx, BOX)
-        self.assertEqual(len(local), 3)
+        local = self._local(idx=idx, bg=bg)
+        self.assertEqual(len(local), 2)
 
     def test_still_drops_the_distant(self):
-        far = np.vstack([self.background, self.o + np.array([2.0, 0.0, 0.0])])
+        bg = np.vstack([self.background, self.o + np.array([2.0, 0.0, 0.0])])
         idx = np.concatenate([self.background_idx, [1000]])
-        local = _placement_neighbors(self.o_idx, self.o, far, idx, BOX)
+        self.assertEqual(len(self._local(idx=idx, bg=bg)), 1)
+
+    def test_tolerates_a_missing_anchor(self):
+        # an O with no heavy partner shouldn't crash the exclusion
+        local = self._local(bonded=(self.o_idx, None))
         self.assertEqual(len(local), 2)
 
     def test_empty_background(self):
-        out = _placement_neighbors(self.o_idx, self.o, np.empty((0, 3)),
-                                   np.empty(0, dtype=int), BOX)
+        out = _placement_neighbors(self.o, np.empty((0, 3)), np.empty(0, dtype=int),
+                                   BOX, bonded=self.bonded)
         self.assertEqual(len(out), 0)
+
+
+class TestAngleWindow(unittest.TestCase):
+    """Clearance cannot express a bond angle, so the angle is stated separately."""
+    def setUp(self):
+        self.o = np.array([5.0, 5.0, 5.0])
+        self.aryl = self.o - np.array([OC_LEN, 0.0, 0.0])   # anchor along -x
+
+    def _mask(self, angles_deg):
+        # direction at angle theta from the O->aryl vector (which points -x)
+        d = np.array([[-np.cos(np.radians(a)), np.sin(np.radians(a)), 0.0]
+                      for a in angles_deg])
+        return _angle_window(d, self.o, self.aryl)
+
+    def test_rejects_fold_back_onto_the_ring(self):
+        self.assertFalse(self._mask([0.0, 30.0, 60.0, 89.0]).any())
+
+    def test_rejects_the_linear_ether(self):
+        self.assertFalse(self._mask([151.0, 170.0, 180.0]).any())
+
+    def test_accepts_the_chemical_angle(self):
+        self.assertTrue(self._mask([109.0, 118.0, 120.0, 130.0]).all())
+
+    def test_bounds_are_inclusive(self):
+        self.assertTrue(self._mask([_MIN_COC_ANGLE + 1e-6, _MAX_COC_ANGLE - 1e-6]).all())
+
+    def test_no_anchor_allows_everything(self):
+        d = _sphere_directions(48)
+        self.assertTrue(_angle_window(d, self.o, None).all())
+
+    def test_leaves_a_usable_fraction_of_the_sphere(self):
+        # the search needs somewhere to go; the window is a spherical zone of
+        # solid-angle fraction (cos 90 - cos 150)/2 = 0.43
+        d = _sphere_directions(400)
+        frac = _angle_window(d, self.o, self.aryl).mean()
+        self.assertAlmostEqual(frac, 0.433, delta=0.03)
+
+
+class TestAngularGuardInPlacement(unittest.TestCase):
+    def setUp(self):
+        self.o = np.array([5.0, 5.0, 5.0])
+        self.aryl = self.o - np.array([OC_LEN, 0.0, 0.0])
+
+    def _coc_angle(self, c_xyz):
+        u = (np.asarray(c_xyz) - self.o) / np.linalg.norm(np.asarray(c_xyz) - self.o)
+        a = (self.aryl - self.o) / np.linalg.norm(self.aryl - self.o)
+        return float(np.degrees(np.arccos(np.clip(u @ a, -1.0, 1.0))))
+
+    def test_open_space_would_go_linear_without_the_guard(self):
+        # nothing in the box: the first direction that reaches an unreachable
+        # target wins, and unguarded that can be any angle at all
+        h = self.o + np.array([0.0, 0.1, 0.0])   # O-H at 90 deg, just outside
+        free = _choose_cap_placement(self.o, h, np.empty((0, 3)), BOX,
+                                     anchor_xyz=self.aryl)
+        ang = self._coc_angle(free['c'])
+        self.assertGreaterEqual(ang, _MIN_COC_ANGLE)
+        self.assertLessEqual(ang, _MAX_COC_ANGLE)
+
+    def test_a_blocked_cap_still_lands_in_the_window(self):
+        h = self.o + np.array([0.1, 0.0, 0.0])
+        blockers = self.o + np.array([[0.20, 0.0, 0.0], [0.0, 0.20, 0.0]])
+        placed = _choose_cap_placement(self.o, h, blockers, BOX, anchor_xyz=self.aryl)
+        self.assertFalse(placed['kept_o_h_direction'])
+        ang = self._coc_angle(placed['c'])
+        self.assertGreaterEqual(ang, _MIN_COC_ANGLE)
+        self.assertLessEqual(ang, _MAX_COC_ANGLE)
+
+    def test_an_out_of_window_preferred_direction_is_not_kept(self):
+        # the fallback direction used when an O has no H can point anywhere;
+        # clear space alone must not be enough to keep it
+        bad = self.o + np.array([-0.1, 0.0, 0.0])     # straight at the aryl C
+        placed = _choose_cap_placement(self.o, bad, np.empty((0, 3)), BOX,
+                                       anchor_xyz=self.aryl)
+        self.assertFalse(placed['kept_o_h_direction'])
+        self.assertGreaterEqual(self._coc_angle(placed['c']), _MIN_COC_ANGLE)
+
+    def test_no_anchor_reproduces_the_unguarded_search(self):
+        h = self.o + np.array([0.1, 0.0, 0.0])
+        blockers = self.o + np.array([[0.20, 0.0, 0.0]])
+        a = _choose_cap_placement(self.o, h, blockers, BOX)
+        b = _choose_cap_placement(self.o, h, blockers, BOX, anchor_xyz=None)
+        np.testing.assert_allclose(a['c'], b['c'])
+
+    def test_bond_lengths_survive_the_guard(self):
+        h = self.o + np.array([0.0, 0.1, 0.0])
+        p = _choose_cap_placement(self.o, h, np.empty((0, 3)), BOX, anchor_xyz=self.aryl)
+        self.assertAlmostEqual(np.linalg.norm(p['c'] - self.o), OC_LEN, places=9)
+        self.assertAlmostEqual(np.linalg.norm(p['n'] - p['c']), 0.116, places=9)
+
+
+class TestOutOfAngleReporting(unittest.TestCase):
+    """The two reasons a preferred direction is abandoned must stay separable.
+
+    2.6.0 shipped a metric that rejected every preferred direction for a
+    reason unrelated to crowding, and the output read as a crowded box.  If
+    the angle window ever bites the O-H vector systematically it produces the
+    same symptom, so it is counted separately.
+    """
+    def _p(self, in_window, clearance=0.2):
+        return {'o': 1, 'clearance': clearance, 'kept_o_h_direction': False,
+                'blind_clearance': 0.05, 'blind_in_window': in_window}
+
+    def test_counts_the_out_of_window_ones(self):
+        out = _report_placements([self._p(True), self._p(False), self._p(False)], 0.15)
+        self.assertEqual(out['n_preferred_out_of_angle'], 2)
+        self.assertEqual(out['n_direction_searched'], 3)
+
+    def test_zero_when_every_preferred_direction_was_placeable(self):
+        out = _report_placements([self._p(True), self._p(True)], 0.15)
+        self.assertEqual(out['n_preferred_out_of_angle'], 0)
+
+    def test_defaults_to_in_window_for_records_without_the_key(self):
+        rec = self._p(True)
+        del rec['blind_in_window']
+        self.assertEqual(_report_placements([rec], 0.15)['n_preferred_out_of_angle'], 0)
+
+    def test_empty(self):
+        self.assertEqual(_report_placements([], 0.15)['n_preferred_out_of_angle'], 0)
+
 
 if __name__ == '__main__':
     unittest.main()

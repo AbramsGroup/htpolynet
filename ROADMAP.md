@@ -183,12 +183,28 @@ Coverage as of the last measurement: **38.8%** overall.
   -- were taken with the bug present and are uninformative. The geometry now
   bounds the achievable clearance at 0.272 nm (cap carbon to the attachment
   oxygen's aryl carbon, antiparallel), with the chemically sensible ~120
-  degree placement at 0.236 nm, so anything in 0.15--0.20 is defensible on
-  paper. What is unknown is the fire rate in a box at polymer density. Next
-  time a full cyanate-ester build runs, read `min_clearance_nm`,
-  `median_clearance_nm` and `n_below_target` out of `repair-summary.yaml` and
-  set the default so it flags the tail rather than the bulk. A threshold that
-  fires on everything is not a threshold.
+  degree placement at 0.236 nm -- but the aryl carbon has since been excluded
+  from the metric precisely so it does not saturate, so that bound no longer
+  applies and there is no analytic ceiling to reason from at all. What is
+  unknown is the fire rate in a box at polymer density. Next time a full
+  cyanate-ester build runs, read `min_clearance_nm`, `median_clearance_nm`,
+  `n_below_target` and `n_preferred_out_of_angle` out of `repair-summary.yaml`
+  and set the default so it flags the tail rather than the bulk. A threshold
+  that fires on everything is not a threshold. If `n_preferred_out_of_angle`
+  comes back large, the 90--150 degree window is biting real O-H vectors and
+  is the thing to change, not the clearance.
+
+  One thing the synthetic sweep did settle, so nobody re-derives it: the
+  clipping the aryl-carbon exclusion removes is density-dependent, and at melt
+  density it was mild. Median clearance against random neighbourhoods at 5,
+  15, 33 and 60 heavy atoms per nm^3 ran 0.316 / 0.230 / 0.193 / 0.177 nm with
+  the aryl carbon excluded and 0.233 / 0.222 / 0.191 / 0.174 nm with it in.
+  It pins hard at 0.233 nm -- the C-O-C geometry at 118 degrees -- only in
+  sparse surroundings, where the caps are comfortable anyway; by 33/nm^3 real
+  neighbours are usually closer than the geometric bound and the two agree to
+  about 2 %. So the median was censored from above rather than constant, and
+  the exclusion buys an uncensored statistic rather than rescuing a dead one.
+  Worth knowing before treating a change in that median as physics.
 
 - **The shortfall from the cube law between `f` and many iterations is
   unexplained.** Below `f` iterations crosslinker conversion is exactly zero,
