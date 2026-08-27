@@ -313,15 +313,38 @@ bond conversion: a run at a bond conversion of 0.90 lands near 0.73.
 A run reported as "90 % cured" on the strength of the cure log is, as
 a cured structure, closer to three-quarters converted.
 
-Treat the cube as a floor rather than an estimate.  Real runs land a
-little above it, because bonds are not placed at random: the search is
-distance-ranked, and a partly-bonded crosslinker already sits in a
-bridge-rich neighbourhood, so proximity supplies a weak version of
-``completion_bias`` for free.  A measured crosslinker conversion a
-couple of percent above the cube is the expected behaviour and not a
-sign that anything is wrong.  It also sets the bar the directive has
-to clear to be worth its complexity: it has to beat what proximity
-already achieves, not the random-placement figure.
+**The cube law holds only when the cure took many iterations**, and
+which side of it you land on is set by the iteration count, not by the
+conversion.  Two opposite effects compete:
+
+* The bond downselection admits **at most one bond per residue per
+  iteration**.  So a crosslinker with ``f`` sites cannot be complete
+  in fewer than ``f`` iterations, whatever the bond conversion — and
+  near that limit the rule actively *spreads* bonds across
+  crosslinkers rather than finishing any.  Below ``f`` iterations the
+  crosslinker conversion is exactly **zero**, and at ``f`` it is far
+  under the cube, not over it.  Here the cube is an unreachable
+  ceiling.
+* Given many iterations, proximity works the other way.  The search is
+  distance-ranked and a partly-bonded crosslinker already sits in a
+  bridge-rich neighbourhood, so it keeps getting re-found: a weak
+  version of ``completion_bias`` for free.  Here real runs land a
+  couple of percent *above* the cube, and that is expected behaviour
+  rather than a sign anything is wrong.
+
+So use the cube as a floor only in the many-iteration limit, and treat
+it as unreachable when the cure converged in about as many iterations
+as the crosslinker has sites.  A cure that hits its target conversion
+in two iterations builds a monomer melt with no junctions at all,
+however healthy its reported bond conversion looks; htpolynet warns
+when that happens, since nothing else in the output would tell you.
+
+``completion_bias`` does not lift the iteration floor — it changes
+which residues react, not the one-per-residue-per-iteration rule — so
+it is not the remedy for a low crosslinker conversion caused by too
+few iterations.  What it does buy has to be judged against what
+proximity already achieves in the many-iteration limit, not against
+the random-placement figure.
 
 So at the end of the stage htpolynet logs both, together --
 illustrated here with the cube-law figures for a 240-triazine box

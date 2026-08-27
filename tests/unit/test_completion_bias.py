@@ -157,3 +157,64 @@ class TestBiasSideCheck(unittest.TestCase):
         bdf=pd.DataFrame({'ri':[2],'rj':[1],'r':[0.3]})
         self.cc._check_bias_side(adf,bdf)
         self.assertFalse(self.cc.bias_side_checked)
+
+class TestIterationsVsFunctionality(unittest.TestCase):
+    """A crosslinker with f sites cannot complete in fewer than f iterations,
+    because the downselection admits one bond per residue per iteration.  The
+    resulting system has no junctions and nothing else says so."""
+
+    class FakeTC:
+        def __init__(self, adf): self._adf = adf
+        def gro_DataFrame(self, name): return self._adf if name == 'atoms' else None
+
+    def controller(self, iterations):
+        cc = CureController({})
+        cc.state.iter = iterations
+        return cc
+
+    def trifunctional(self):
+        return pd.DataFrame({
+            'resNum':    [1, 1, 2, 2, 2],
+            'resName':   ['BPA', 'BPA', 'TAZ', 'TAZ', 'TAZ'],
+            'z':         [1, 1, 1, 1, 1],
+            'nreactions':[0, 0, 0, 0, 0],
+        })
+
+    def test_warns_when_iterations_are_below_functionality(self):
+        cc = self.controller(2)
+        with self.assertLogs('htpolynet.cure.curecontroller', level='WARNING') as cm:
+            cc.check_iterations_vs_functionality(self.FakeTC(self.trifunctional()))
+        text = ''.join(cm.output)
+        self.assertIn('TAZ', text)
+        self.assertIn('no crosslink junctions', text)
+        self.assertIn('completion_bias does not change this', text)
+
+    def test_silent_at_exactly_the_functionality(self):
+        cc = self.controller(3)
+        with self.assertNoLogs('htpolynet.cure.curecontroller', level='WARNING'):
+            cc.check_iterations_vs_functionality(self.FakeTC(self.trifunctional()))
+
+    def test_silent_with_plenty_of_iterations(self):
+        cc = self.controller(9)
+        with self.assertNoLogs('htpolynet.cure.curecontroller', level='WARNING'):
+            cc.check_iterations_vs_functionality(self.FakeTC(self.trifunctional()))
+
+    def test_counts_sites_already_spent(self):
+        # functionality is z + nreactions, so a partly-reacted crosslinker
+        # still counts as trifunctional and still triggers the check
+        adf = self.trifunctional()
+        adf.loc[2:3, ['z', 'nreactions']] = [0, 1]
+        cc = self.controller(2)
+        with self.assertLogs('htpolynet.cure.curecontroller', level='WARNING'):
+            cc.check_iterations_vs_functionality(self.FakeTC(adf))
+
+    def test_silent_when_nothing_is_multifunctional(self):
+        adf = pd.DataFrame({'resNum': [1, 2], 'resName': ['A', 'B'],
+                            'z': [1, 1], 'nreactions': [0, 0]})
+        cc = self.controller(1)
+        with self.assertNoLogs('htpolynet.cure.curecontroller', level='WARNING'):
+            cc.check_iterations_vs_functionality(self.FakeTC(adf))
+
+    def test_no_crash_without_the_attributes(self):
+        cc = self.controller(2)
+        cc.check_iterations_vs_functionality(self.FakeTC(pd.DataFrame({'resNum': [1]})))

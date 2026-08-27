@@ -25,17 +25,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **The docs now present the cube law as a floor rather than an estimate.**
-  A trifunctional crosslinker survives repair only if all three of its sites
-  are filled, so crosslinker conversion goes as roughly the cube of bond
-  conversion -- but real runs land a couple of percent above that, because the
-  bond search is distance-ranked and a partly-bonded crosslinker already sits
-  in a bridge-rich neighbourhood.  Proximity supplies a weak version of
-  `completion_bias` at no cost.  Worth stating because a measured value above
-  the cube is the expected behaviour rather than a symptom, and because it is
-  the bar `completion_bias` actually has to clear to be worth its complexity.
+- **The docs now say which side of the cube law a run lands on, and why it
+  depends on the iteration count.**  Crosslinker conversion goes as roughly
+  the cube of bond conversion, but two opposite effects compete and neither is
+  small.  Given many iterations, proximity lifts real runs a couple of percent
+  *above* the cube -- the search is distance-ranked and a partly-bonded
+  crosslinker sits in a bridge-rich neighbourhood, so `completion_bias` gets a
+  weak version of itself for free.  Given few, the one-bond-per-residue-per-
+  iteration rule pushes hard the other way and the cube becomes an unreachable
+  ceiling.  Stating only the first half, as this page briefly did, is wrong in
+  exactly the regime where the number matters most.
 
 ### Added
+
+- **htpolynet warns when a cure ran too few iterations for its crosslinkers to
+  complete.**  The bond downselection admits at most one bond per residue per
+  iteration, so a residue with `f` reactive sites cannot be fully reacted in
+  fewer than `f` iterations -- whatever bond conversion was reached.  A cure
+  that hits its target in two iterations therefore leaves *every*
+  trifunctional crosslinker incomplete, and a system with no complete
+  crosslinker has no junctions: it is a monomer melt that equilibrates,
+  reports a sensible density, and looks in every other respect like a cured
+  network.
+
+  Nothing else surfaces this.  The conversion the cure reports is a bond
+  conversion and is perfectly happy with it; only a `postcure_repair` stage
+  would notice, and only if one is configured.  The warning also says that
+  `completion_bias` is not the fix -- it changes which residues react, not the
+  one-per-residue-per-iteration rule -- because it is the first thing a user
+  would reach for on seeing a low crosslinker conversion.
 
 - **Repair now records what blind cap placement *would* have given, on the
   real box.**  The O-H direction is tried first anyway, so its clearance is

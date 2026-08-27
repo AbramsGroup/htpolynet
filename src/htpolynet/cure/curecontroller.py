@@ -639,6 +639,40 @@ class CureController:
         self.state.current_stage[mode]=0
         self.state._to_yaml()
 
+    def check_iterations_vs_functionality(self,TC:TopoCoord):
+        """Warns if the cure ran too few iterations for its crosslinkers to have completed.
+
+        The bond downselection admits at most one bond per residue per
+        iteration, so a residue with ``f`` reactive sites cannot be fully
+        reacted in fewer than ``f`` iterations — whatever the bond conversion
+        says.  A cure that reaches its target conversion in two iterations
+        therefore leaves *every* trifunctional crosslinker incomplete, and a
+        system with no complete crosslinker has no junctions: it is a monomer
+        melt that equilibrates, reports a sensible density, and looks in every
+        other respect like a cured network.
+
+        Nothing else surfaces this.  The conversion the cure reports is a bond
+        conversion and is perfectly happy; only a postcure repair stage would
+        notice, and only if one is configured.  ``completion_bias`` does not
+        help — it changes which residues react, not the one-per-residue-per-
+        iteration rule — which matters because it is the first thing a user
+        would reach for on seeing a low crosslinker conversion.
+
+        Args:
+            TC (TopoCoord): global system topology and coordinates
+        """
+        adf=TC.gro_DataFrame('atoms')
+        if adf is None or not all(c in adf.columns for c in ('resNum','z','nreactions')): return
+        func=residue_functionality(adf)
+        if func.empty: return
+        fmax=int(func.max())
+        iterations=self.state.iter
+        if fmax<2 or iterations>=fmax: return
+        top=func.idxmax()
+        names=adf.loc[adf['resNum']==top,'resName']
+        resname=names.iloc[0] if len(names) else f'residue {top}'
+        logger.warning(f'The cure ran {iterations} iteration(s), but {resname} carries {fmax} reactive sites and the bond search admits at most one bond per residue per iteration. No {resname} can have reacted at all {fmax} of its sites, whatever bond conversion was reached, so this system contains no fully-reacted {resname} and therefore no crosslink junctions. completion_bias does not change this. To spend more iterations reaching the same conversion, lower CURE.controls.max_conversion_per_iteration or min_bonds_per_iteration.')
+
     def _completion_bias_counts(self,adf):
         """Returns per-residue reaction counts when the completion bias is enabled, else None.
 
