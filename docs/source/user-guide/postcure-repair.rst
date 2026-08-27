@@ -309,10 +309,19 @@ exactly three ``-OCN`` groups.
 The gap is not small and it is not noise.  Under random placement a
 trifunctional crosslinker survives only if all three of its sites are
 filled, so the crosslinker conversion is roughly the **cube** of the
-bond conversion: a run at a bond conversion of 0.90 lands near 0.73,
-and proximity effects in a real box lift that only slightly.  A run
-reported as "90 % cured" on the strength of the cure log is, as a
-cured structure, closer to 76 % converted.
+bond conversion: a run at a bond conversion of 0.90 lands near 0.73.
+A run reported as "90 % cured" on the strength of the cure log is, as
+a cured structure, closer to three-quarters converted.
+
+Treat the cube as a floor rather than an estimate.  Real runs land a
+little above it, because bonds are not placed at random: the search is
+distance-ranked, and a partly-bonded crosslinker already sits in a
+bridge-rich neighbourhood, so proximity supplies a weak version of
+``completion_bias`` for free.  A measured crosslinker conversion a
+couple of percent above the cube is the expected behaviour and not a
+sign that anything is wrong.  It also sets the bar the directive has
+to clear to be worth its complexity: it has to beat what proximity
+already achieves, not the random-placement figure.
 
 So at the end of the stage htpolynet logs both, together --
 illustrated here with the cube-law figures for a 240-triazine box

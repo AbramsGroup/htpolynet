@@ -48,7 +48,9 @@ Diagnostic-log plots:
    cyanate — and the fraction of triazines that survive is what FTIR
    measures at 2270 cm\ :sup:`-1`.  Under random placement that
    fraction is about the cube of the bond conversion, so a run at
-   0.90 leaves a cyanate conversion near 0.73.  htpolynet reports
+   0.90 leaves a cyanate conversion near 0.73 -- a little above it in
+   practice, since the distance-ranked search already favours
+   crosslinkers that are partly bonded.  htpolynet reports
    both figures at the end of the repair stage and writes them to
    ``repair-summary.yaml``; see :ref:`what repair reports
    <postcure_repair_reporting>`.  If what you want is a structure

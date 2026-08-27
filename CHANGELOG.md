@@ -23,6 +23,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Releases before this one are unaffected and still have no version tag; the
   container docs now say so and say how to resolve one to its commit sha.
 
+### Changed
+
+- **The docs now present the cube law as a floor rather than an estimate.**
+  A trifunctional crosslinker survives repair only if all three of its sites
+  are filled, so crosslinker conversion goes as roughly the cube of bond
+  conversion -- but real runs land a couple of percent above that, because the
+  bond search is distance-ranked and a partly-bonded crosslinker already sits
+  in a bridge-rich neighbourhood.  Proximity supplies a weak version of
+  `completion_bias` at no cost.  Worth stating because a measured value above
+  the cube is the expected behaviour rather than a symptom, and because it is
+  the bar `completion_bias` actually has to clear to be worth its complexity.
+
 ### Added
 
 - **Repair now records what blind cap placement *would* have given, on the
