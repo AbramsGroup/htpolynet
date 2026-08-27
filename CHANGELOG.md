@@ -75,6 +75,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The docs now say which placement fields measure the box and which measure
+  the search.**  `repair-summary.yaml` carries nine numbers about cap
+  placement and they are not the same kind of thing, which is worth knowing
+  before treating any of them as physics.  `min_clearance_nm` and
+  `n_below_target` describe the tail, and are what `cap_min_clearance` should
+  be calibrated against.  `median_clearance_nm` is a placement *outcome*: the
+  direction search stops at the first direction that reaches the target, so
+  the number is pulled toward the threshold you set and partly reports it back
+  to you.  `blind_min_clearance_nm` and `blind_median_clearance_nm` are the
+  crowding statistics -- one fixed direction, no search, no early exit -- and
+  are the ones to correlate across a series of runs.
+
+  `cap_min_clearance` is also now described honestly as a demanding default.
+  At the heavy-atom density of a cured thermoset it sits slightly above the
+  room a typical site has along the O-H vector, so the direction search runs
+  for roughly half of all caps.  That is the intent -- the search exists for
+  the crowded half -- but a run reporting that most caps needed a search is
+  the default working, not a symptom.
+
 - **The docs now bound the cube law by what has actually been measured.**
   Crosslinker conversion goes as roughly the cube of bond conversion, but only
   in the many-iteration limit, where proximity lifts real runs a couple of
