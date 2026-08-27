@@ -12,8 +12,10 @@ logger=logging.getLogger(__name__)
 import numpy as np
 from htpolynet.repair.cyanate_cap import (
     _sphere_directions, _clearance, _choose_cap_placement, _place_cyn_along,
-    _report_placements,
+    _report_placements, _placement_neighbors,
 )
+
+OC_LEN = 0.136
 
 BOX = np.array([10.0, 10.0, 10.0])
 
@@ -133,3 +135,84 @@ class TestReportPlacements(unittest.TestCase):
         # a median, not just the extreme, is what survives averaging over runs
         self.assertAlmostEqual(summary['median_clearance_nm'], 0.175)
         self.assertAlmostEqual(summary['blind_median_clearance_nm'], 0.155)
+
+class TestPlacementNeighbors(unittest.TestCase):
+    """The attachment oxygen is bonded to the cap, and must not be scored against.
+
+    This is the configuration the rest of this module's fixtures lack, and its
+    absence let a released version report a clearance that was pinned at the
+    O-C bond length on every cap in every run.  The first test below fails
+    against that version.
+    """
+    def setUp(self):
+        self.o_idx = 7
+        self.o = np.array([5.0, 5.0, 5.0])
+        self.h = self.o + np.array([0.1, 0.0, 0.0])       # O-H along +x
+        self.aryl = self.o - np.array([OC_LEN, 0.0, 0.0])  # aryl C along -x
+        # a real neighbourhood: the bonded O, its aryl carbon, and one
+        # unrelated atom sitting in the O-H direction
+        self.background = np.array([self.o, self.aryl, self.o + np.array([0.20, 0.0, 0.0])])
+        self.background_idx = np.array([self.o_idx, 8, 900])
+
+    def test_drops_the_bonded_oxygen(self):
+        local = _placement_neighbors(self.o_idx, self.o, self.background,
+                                     self.background_idx, BOX)
+        self.assertEqual(len(local), 2)
+        self.assertFalse(np.any(np.all(np.isclose(local, self.o), axis=1)))
+
+    def test_clearance_is_no_longer_pinned_at_the_bond_length(self):
+        # with the bonded O left in, every candidate direction scores exactly
+        # oc_len, the target is unreachable by construction, and the metric
+        # carries no information about crowding
+        pinned = _choose_cap_placement(self.o, self.h, self.background, BOX)
+        self.assertAlmostEqual(pinned['clearance'], OC_LEN, places=6)
+        self.assertLess(pinned['clearance'], 0.15)
+        # with it dropped, the search can actually discriminate
+        local = _placement_neighbors(self.o_idx, self.o, self.background,
+                                     self.background_idx, BOX)
+        real = _choose_cap_placement(self.o, self.h, local, BOX)
+        self.assertGreater(real['clearance'], OC_LEN)
+        self.assertGreaterEqual(real['clearance'], 0.15)
+
+    def test_keeps_the_aryl_carbon(self):
+        # nothing else stops the search folding the cap back onto the ring
+        local = _placement_neighbors(self.o_idx, self.o, self.background,
+                                     self.background_idx, BOX)
+        self.assertTrue(np.any(np.all(np.isclose(local, self.aryl), axis=1)))
+
+    def test_the_aryl_carbon_caps_what_is_reachable(self):
+        # in vacuum but for the aryl carbon, the best any direction can do is
+        # 0.272 nm -- a target at or above that would flag every cap
+        local = _placement_neighbors(self.o_idx, self.o,
+                                     np.array([self.o, self.aryl]),
+                                     np.array([self.o_idx, 8]), BOX)
+        blocked = _choose_cap_placement(self.o, self.o + np.array([0.001, 0, 0]),
+                                        local, BOX, target=0.40)
+        self.assertLessEqual(blocked['clearance'], 2 * OC_LEN + 1e-6)
+
+    def test_keeps_another_caps_oxygen(self):
+        # only this cap's own O is bonded to it; the others are real obstacles
+        local = _placement_neighbors(self.o_idx, self.o, self.background,
+                                     np.array([99, 8, 900]), BOX)
+        self.assertEqual(len(local), 3)
+
+    def test_keeps_already_placed_caps(self):
+        # placed cap atoms carry -1 and must never be masked out
+        bg = np.vstack([self.background, self.o + np.array([0.0, 0.3, 0.0])])
+        idx = np.concatenate([self.background_idx, [-1]])
+        local = _placement_neighbors(self.o_idx, self.o, bg, idx, BOX)
+        self.assertEqual(len(local), 3)
+
+    def test_still_drops_the_distant(self):
+        far = np.vstack([self.background, self.o + np.array([2.0, 0.0, 0.0])])
+        idx = np.concatenate([self.background_idx, [1000]])
+        local = _placement_neighbors(self.o_idx, self.o, far, idx, BOX)
+        self.assertEqual(len(local), 2)
+
+    def test_empty_background(self):
+        out = _placement_neighbors(self.o_idx, self.o, np.empty((0, 3)),
+                                   np.empty(0, dtype=int), BOX)
+        self.assertEqual(len(out), 0)
+
+if __name__ == '__main__':
+    unittest.main()

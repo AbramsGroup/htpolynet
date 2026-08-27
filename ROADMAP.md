@@ -173,6 +173,39 @@ Coverage as of the last measurement: **38.8%** overall.
 
 ## Cure and repair
 
+- **`cap_min_clearance` has never been calibrated against a working metric.**
+  The 0.150 nm default was chosen in 2.6.0 against a clearance that was pinned
+  at 0.136 nm by a bug, so it fired on 100 % of caps for a reason that had
+  nothing to do with crowding, and the 0.22 nm value rejected before it was
+  rejected on the same broken measurement. The metric is real as of the fix,
+  but the only two data points on a real box -- the accept260 builds on
+  picotte, `/ifs/groups/abramsGrp/cfa22/htpolynet/cyanate-bridge-series/accept260/{unbiased,biased}/`
+  -- were taken with the bug present and are uninformative. The geometry now
+  bounds the achievable clearance at 0.272 nm (cap carbon to the attachment
+  oxygen's aryl carbon, antiparallel), with the chemically sensible ~120
+  degree placement at 0.236 nm, so anything in 0.15--0.20 is defensible on
+  paper. What is unknown is the fire rate in a box at polymer density. Next
+  time a full cyanate-ester build runs, read `min_clearance_nm`,
+  `median_clearance_nm` and `n_below_target` out of `repair-summary.yaml` and
+  set the default so it flags the tail rather than the bulk. A threshold that
+  fires on everything is not a threshold.
+
+- **The shortfall from the cube law between `f` and many iterations is
+  unexplained.** Below `f` iterations crosslinker conversion is exactly zero,
+  a counting constraint; at nine iterations real runs land 1--3 % above the
+  cube. In between, measured ratios to the cube law are 0.06 and 0.46--0.50 at
+  three iterations and 0.86 at four -- an eightfold spread at an *identical*
+  iteration count, so the iteration count does not determine it. The
+  one-bond-per-residue-per-iteration rule was simulated against this and moves
+  the n=3 prediction only from 30.0 to 25.9 against 15 observed: about a fifth
+  of the gap. The leading untested guess is spatial anti-correlation --
+  bonds forming preferentially on crosslinkers that already have room, leaving
+  the rest to compete. This matters because it is the regime where a user's
+  reported conversion is most wrong, and because a warning better than the
+  current `iterations < f` one needs a mechanism to threshold on. Widening
+  that warning to `n < 2f` was considered and rejected: the eightfold spread
+  at fixed `n` shows no threshold on `n` can work.
+
 - **`completion_bias` biases the `B` side only, and that is a convention,
   not a law.** The new `CURE.controls.completion_bias` ranks bond candidates
   by how many bonds their `B`-side residue already carries, because

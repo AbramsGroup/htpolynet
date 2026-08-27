@@ -212,6 +212,48 @@ def _sphere_directions(n=48):
                      np.cos(phi)], axis=1)
 
 
+def _placement_neighbors(o_idx, o_xyz, background, background_idx, box,
+                         locality=_PLACEMENT_LOCALITY):
+    """The atoms a cap hung on oxygen ``o_idx`` actually has to stay clear of.
+
+    Two filters.  Distance: an atom farther than ``locality`` from the oxygen
+    cannot constrain a group that reaches only ~0.25 nm from it, so it is not
+    worth scoring against.  Identity: the oxygen the cap bonds *to* is not an
+    obstacle, and leaving it in silently destroys the metric -- the cap carbon
+    sits at exactly ``oc_len`` from that oxygen in *every* candidate direction,
+    so :func:`_clearance` returns 0.136 nm whichever direction is scored, and
+    the search stops being able to tell directions apart at all.
+
+    The oxygen's bonded aryl carbon deliberately stays in.  It is the only
+    thing preventing the search from choosing a direction that folds the cap
+    back on top of it: a linear C-O-C maximizes clearance from everything else
+    in the box, and nothing else in this routine knows that is not a bond
+    angle.  Keeping it caps the reachable clearance at 0.272 nm (cap carbon to
+    aryl carbon, antiparallel) and puts the chemically sensible ~120 degree
+    placement at 0.236 nm, both comfortably above the default target.
+
+    Only *this* cap's oxygen is dropped.  Every other cap's attachment oxygen
+    is a real atom in the way, as is every cap already placed -- those carry
+    an index of -1 and are never masked out here.
+
+    Args:
+        o_idx (int): global index of the oxygen this cap attaches to
+        o_xyz (numpy.ndarray): its position
+        background (numpy.ndarray): (m, 3) candidate obstacle positions
+        background_idx (numpy.ndarray): (m,) global indices, -1 for already-placed cap atoms
+        box (numpy.ndarray): orthorhombic box lengths, for minimum image
+        locality (float): nm; ignore anything farther than this from the oxygen
+
+    Returns:
+        numpy.ndarray: (k, 3) positions to pass to :func:`_choose_cap_placement`
+    """
+    if len(background) == 0:
+        return background
+    near = _min_image_dist(o_xyz, background, box) < locality
+    near &= (np.asarray(background_idx, dtype=int) != int(o_idx))
+    return background[near]
+
+
 def _clearance(c_xyz, n_xyz, neighbors, box):
     """Smallest distance from either cap atom to any neighbouring atom.
 
@@ -248,7 +290,7 @@ def _choose_cap_placement(o_xyz, ref_xyz, neighbors, box, oc_len=0.136,
         box (numpy.ndarray): orthorhombic box lengths, for minimum image
         oc_len (float): O-C bond length in nm
         cn_len (float): C#N bond length in nm
-        target (float): clearance in nm that counts as good enough to stop searching; the default 0.15 is about what a steepest-descent minimization absorbs without trouble, and is achievable in a box at polymer density -- 0.22 is not, and asking for it would flag every cap
+        target (float): clearance in nm that counts as good enough to stop searching; the default 0.15 is about what a steepest-descent minimization absorbs without trouble, and sits under the geometric ceiling this metric can reach -- the attachment oxygen's aryl carbon stays in ``neighbors`` and holds the best achievable clearance to 0.272 nm even in vacuum, so a target near or above that would flag every cap for a reason that has nothing to do with crowding
         n_directions (int): how many directions to try when the preferred one is occupied
 
     Returns:
@@ -478,8 +520,12 @@ def triazine_to_cyanate_cap(TC, moldict, spec, reactions):
         moving = {int(rec['c']) for rec in free_records} | {int(rec['n']) for rec in free_records}
         A = TC.Coordinates.A
         going = moving | {int(x) for x in h_to_delete}
-        background = A.loc[~A['globalIdx'].isin(going),
-                           ['posX', 'posY', 'posZ']].to_numpy(dtype=float)
+        staying = A.loc[~A['globalIdx'].isin(going),
+                        ['globalIdx', 'posX', 'posY', 'posZ']]
+        # indices travel alongside the positions so each cap can drop the one
+        # atom it is bonded to; placed caps get -1 and are never dropped
+        background_idx = staying['globalIdx'].to_numpy(dtype=int)
+        background = staying[['posX', 'posY', 'posZ']].to_numpy(dtype=float)
         for rec in free_records:
             o_xyz = ts.positions(TC, [rec['o']])[0]
             if rec['o_h'] is None:
@@ -488,9 +534,8 @@ def triazine_to_cyanate_cap(TC, moldict, spec, reactions):
                 ref_xyz = o_xyz + np.array([1.0, 0.0, 0.0])
             else:
                 ref_xyz = ts.positions(TC, [rec['o_h']])[0]
-            # only atoms near this O can constrain a group that reaches
-            # 0.25 nm from it; the rest are not worth scoring against
-            local = background[_min_image_dist(o_xyz, background, box) < _PLACEMENT_LOCALITY]
+            local = _placement_neighbors(rec['o'], o_xyz, background,
+                                         background_idx, box)
             placed = _choose_cap_placement(o_xyz, ref_xyz, local, box, target=target_clearance)
             c_xyz, n_xyz = placed['c'], placed['n']
             ts.set_atom_attributes(TC, rec['c'],
@@ -498,6 +543,7 @@ def triazine_to_cyanate_cap(TC, moldict, spec, reactions):
             ts.set_atom_attributes(TC, rec['n'],
                                    posX=float(n_xyz[0]), posY=float(n_xyz[1]), posZ=float(n_xyz[2]))
             background = np.vstack([background, c_xyz, n_xyz])
+            background_idx = np.concatenate([background_idx, [-1, -1]])
             placements.append({'o': rec['o'], **{k: v for k, v in placed.items() if k not in ('c', 'n')}})
         placement_summary = _report_placements(placements, target_clearance)
 

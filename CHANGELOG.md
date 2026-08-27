@@ -9,6 +9,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Cap-placement clearance was pinned at the O-C bond length and measured
+  nothing** (regression in 2.6.0).  The neighbour set a transferred `-C#N` cap
+  was scored against excluded the cap atoms being moved and the hydrogens
+  about to be deleted, but not the bridge oxygen the cap bonds *to*.  The cap
+  carbon sits at exactly `oc_len` = 0.136 nm from that oxygen in every
+  candidate direction, so the reported clearance was 0.136 nm whichever
+  direction was scored.  Two independent acceptance builds on different
+  topologies both reported `min_clearance_nm` 0.136, median 0.136, and 71 of
+  71 caps below the 0.150 nm target -- identical to three decimals, which is
+  what a constant looks like when it is being read as a distribution.
+
+  Consequences: the reported clearance carried no information about crowding;
+  the default target was unreachable by construction, so the "could not reach
+  clearance" warning fired on every cap in every run and
+  `n_direction_searched` was always 100 %; and the search, while not dead,
+  could only reject directions worse than 0.136 nm rather than pick the
+  clearest one.  Placement was degraded, not disabled, and the repair
+  chemistry was never affected -- every conservation identity held through
+  2.6.0.
+
+  Each cap now drops its own attachment oxygen from its neighbour set and
+  nothing else: every *other* cap's oxygen is a real atom in the way, as is
+  every cap already placed.  The oxygen's bonded aryl carbon deliberately
+  stays in, because it is the only thing preventing the search from folding
+  the cap back onto the ring -- a linear C-O-C maximizes clearance from
+  everything else in the box.  Keeping it holds the reachable clearance to
+  0.272 nm, which is now the number a target has to stay under; the default
+  0.150 nm does.
+
+  The 2.6.0 calibration missed this because it was done on a jittered cubic
+  lattice with no bonded attachment oxygen -- the fixture lacked the one
+  feature that defeats the fix.  The regression test added here supplies it,
+  and asserts the pinning at 0.136 nm that the released code produces.
+
 - **Container releases now carry a version tag.**  `docker.yml` pushed only
   the moving tag (`:latest` / `:cuda`) and the commit sha, so
   `docker pull ...:v2.6.0` -- the obvious thing to type, and what the release
@@ -25,16 +59,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **The docs now say which side of the cube law a run lands on, and why it
-  depends on the iteration count.**  Crosslinker conversion goes as roughly
-  the cube of bond conversion, but two opposite effects compete and neither is
-  small.  Given many iterations, proximity lifts real runs a couple of percent
-  *above* the cube -- the search is distance-ranked and a partly-bonded
+- **The docs now bound the cube law by what has actually been measured.**
+  Crosslinker conversion goes as roughly the cube of bond conversion, but only
+  in the many-iteration limit, where proximity lifts real runs a couple of
+  percent *above* it -- the search is distance-ranked and a partly-bonded
   crosslinker sits in a bridge-rich neighbourhood, so `completion_bias` gets a
-  weak version of itself for free.  Given few, the one-bond-per-residue-per-
-  iteration rule pushes hard the other way and the cube becomes an unreachable
-  ceiling.  Stating only the first half, as this page briefly did, is wrong in
-  exactly the regime where the number matters most.
+  weak version of itself for free.  Below that limit the page now says two
+  things and no more than two.  Under `f` iterations the crosslinker
+  conversion is *exactly zero*, which is a counting constraint and holds
+  unconditionally.  At or above `f` it falls short of the cube by an amount
+  set by how the bonds were distributed across the iterations, not by how many
+  there were: two trifunctional runs at three iterations apiece came out at
+  6 % and 50 % of the cube-law figure.  An earlier draft of this page claimed
+  the iteration count decides where a run lands and that the
+  one-bond-per-residue rule accounts for the shortfall; the eightfold spread
+  refutes the first, and the rule is worth only about a fifth of the second.
+  The remaining mechanism is unidentified and the page now says so rather than
+  guessing.
 
 ### Added
 

@@ -53,7 +53,8 @@ Diagnostic-log plots:
    search keeps re-finding crosslinkers that are partly bonded.  The
    cube is only a floor in that many-iteration limit; a cure that
    reaches its target in two or three iterations lands far below it,
-   because at most one bond per residue forms per iteration.  htpolynet reports
+   and in fewer than three it lands at exactly zero, because at most
+   one bond per residue forms per iteration.  htpolynet reports
    both figures at the end of the repair stage and writes them to
    ``repair-summary.yaml``; see :ref:`what repair reports
    <postcure_repair_reporting>`.  If what you want is a structure

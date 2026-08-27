@@ -313,31 +313,40 @@ bond conversion: a run at a bond conversion of 0.90 lands near 0.73.
 A run reported as "90 % cured" on the strength of the cure log is, as
 a cured structure, closer to three-quarters converted.
 
-**The cube law holds only when the cure took many iterations**, and
-which side of it you land on is set by the iteration count, not by the
-conversion.  Two opposite effects compete:
+**The cube law holds only when the cure took many iterations.**  Below
+that it overstates the result, and there are two regimes with a hard
+boundary between them.
 
-* The bond downselection admits **at most one bond per residue per
-  iteration**.  So a crosslinker with ``f`` sites cannot be complete
-  in fewer than ``f`` iterations, whatever the bond conversion — and
-  near that limit the rule actively *spreads* bonds across
-  crosslinkers rather than finishing any.  Below ``f`` iterations the
-  crosslinker conversion is exactly **zero**, and at ``f`` it is far
-  under the cube, not over it.  Here the cube is an unreachable
-  ceiling.
-* Given many iterations, proximity works the other way.  The search is
-  distance-ranked and a partly-bonded crosslinker already sits in a
-  bridge-rich neighbourhood, so it keeps getting re-found: a weak
-  version of ``completion_bias`` for free.  Here real runs land a
-  couple of percent *above* the cube, and that is expected behaviour
-  rather than a sign anything is wrong.
+* **Fewer than** ``f`` **iterations: the crosslinker conversion is
+  exactly zero.**  The bond downselection admits at most one bond per
+  residue per iteration, so a crosslinker with ``f`` sites cannot have
+  filled all of them in fewer than ``f`` passes.  This is a counting
+  constraint rather than a tendency: it holds whatever the bond
+  conversion reached.  A cure that hits its target in two iterations
+  builds a monomer melt with no junctions at all, however healthy its
+  reported bond conversion looks, and htpolynet warns when a run ends
+  this way since nothing else in the output would tell you.
+* **At or above** ``f`` **iterations: the shortfall depends on how the
+  bonds were distributed across those iterations, not on how many
+  there were.**  Two trifunctional runs that both took three
+  iterations came out at 6 % and 50 % of the cube-law figure — an
+  eightfold spread at an identical iteration count.  Measured ratios
+  to the cube law across a series of runs: 0.00 at two iterations,
+  0.06–0.50 at three, 0.86 at four, 1.01–1.04 at nine.  The mechanism
+  behind the residual is not identified; the one-bond-per-residue rule
+  accounts for only about a fifth of it.
 
-So use the cube as a floor only in the many-iteration limit, and treat
-it as unreachable when the cure converged in about as many iterations
-as the crosslinker has sites.  A cure that hits its target conversion
-in two iterations builds a monomer melt with no junctions at all,
-however healthy its reported bond conversion looks; htpolynet warns
-when that happens, since nothing else in the output would tell you.
+Given many iterations, proximity works the other way.  The search is
+distance-ranked and a partly-bonded crosslinker already sits in a
+bridge-rich neighbourhood, so it keeps getting re-found: a weak
+version of ``completion_bias`` for free.  That is what puts long runs
+a couple of percent *above* the cube, and it is expected behaviour
+rather than a sign anything is wrong.
+
+So the cube is a floor only in the many-iteration limit.  Anywhere
+below it the iteration count will not tell you how far short you fell,
+and the only trustworthy number is the measured one that repair
+reports.
 
 ``completion_bias`` does not lift the iteration floor — it changes
 which residues react, not the one-per-residue-per-iteration rule — so
