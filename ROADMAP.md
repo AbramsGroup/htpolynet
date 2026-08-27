@@ -206,6 +206,37 @@ Coverage as of the last measurement: **38.8%** overall.
   the exclusion buys an uncensored statistic rather than rescuing a dead one.
   Worth knowing before treating a change in that median as physics.
 
+  For the cyanate-ester system specifically, the study session measured the
+  box: heavy-atom count is conversion-independent at 7560 (14,040 atoms less
+  6,480 H, and the cure removes only hydrogen), post-repair mass 100,192
+  g/mol, and measured densities of 1.171--1.198 g/cm^3 across the as-cured,
+  ladder-cold-end and monomer-melt states bracket **~53 heavy atoms per
+  nm^3**. Repair runs before the postcure anneal so the placement-time value
+  is not directly measured, but the spread between those three is smaller than
+  the uncertainty over which stage to attribute. That is inside the swept
+  range, so nothing here extrapolates. Rerunning the sweep at 53/nm^3 gives
+  median blind clearance 0.143 nm (p10 0.075, p90 0.212), median searched
+  clearance 0.179 nm, and about 45 % of caps keeping the O-H direction, with
+  the censored and uncensored medians differing by under 1 %. Two things
+  follow: the aryl-carbon exclusion should *not* visibly move this system's
+  numbers, so do not attribute a change to it; and a
+  `blind_median_clearance_nm` anywhere near 0.233 in a box believed to be at
+  this density is unambiguous evidence the box is wrong, since that value is
+  only legitimate in the sparse regime.
+
+  Two caveats on those figures. The sweep places uncorrelated Poisson points
+  with a hole around the oxygen, which is not a melt -- real packing is
+  correlated and has excluded volume between the neighbours too -- so it gives
+  a scale, not a prediction, and in particular its `n_below_target` of zero is
+  certainly optimistic. And replicate scatter in this system is topological
+  rather than numerical: the study session measures density sd rising from
+  0.71 kg/m^3 at chi_OCN 0 to 3.25 at 0.746, a factor of 4.6, because at zero
+  conversion every build is the same molecular liquid. Cap sites are network
+  sites, so expect the scatter in `blind_median_clearance_nm` to grow with
+  conversion the same way, and size any series meant to calibrate the default
+  accordingly rather than assuming the high-conversion points are as tight as
+  the low ones.
+
 - **The cap direction search stops at the first adequate direction, not the
   best one.** `_choose_cap_placement` breaks out as soon as a direction
   reaches `cap_min_clearance`, so a cap that could have had 0.25 nm of room
