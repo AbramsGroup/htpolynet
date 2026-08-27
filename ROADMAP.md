@@ -250,6 +250,16 @@ Coverage as of the last measurement: **38.8%** overall.
   put it. Script at
   `~/devtests/htpolynet/bridge-series/verify_blind_clearance_scale.py`.
 
+  A trap in that check, flagged by the study session and worth disarming
+  before someone rederives it: the disjoint-sphere floor,
+  `(ln 2 / (8/3 pi rho))^(1/3)`, evaluates to 0.116 nm at rho = 53, which is
+  also `cn_len`, the C-N bond length. That is arithmetic coincidence at this
+  one density and nothing else. The floor tracks number density -- 0.127 at
+  40/nm^3, 0.116 at 53, 0.111 at 60, 0.101 at 80 -- while the bond length is
+  fixed. Anyone who writes down "the floor is the C-N bond length" has made a
+  claim that is invisible here and wrong everywhere else, and has attributed a
+  number-density result to cap geometry.
+
   Two caveats on those figures. The sweep places uncorrelated Poisson points
   with a hole around the oxygen, which is not a melt -- real packing is
   correlated and has excluded volume between the neighbours too -- so it gives
