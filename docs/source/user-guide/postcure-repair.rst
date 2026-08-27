@@ -176,7 +176,13 @@ Spec fields
   the driver searches for the clearest direction, holding both bond
   lengths fixed so only the orientation moves, and stops as soon as it
   reaches this clearance.  Default 0.15 nm, which is about what a
-  steepest-descent minimization absorbs.
+  steepest-descent minimization absorbs.  It is a demanding default:
+  at the heavy-atom density of a cured thermoset it sits a little
+  above the room a typical site has along the O-H vector, so the
+  direction search runs for roughly half of all caps rather than
+  rubber-stamping them.  That is the intent — the search exists for
+  the crowded half — but it means a run reporting that most caps
+  needed a search is behaving normally, not signalling a bad box.
 
   The clearance is measured only against atoms the cap is *not* bonded
   through — the bridge oxygen itself and its aryl carbon are excluded,

@@ -217,12 +217,38 @@ Coverage as of the last measurement: **38.8%** overall.
   range, so nothing here extrapolates. Rerunning the sweep at 53/nm^3 gives
   median blind clearance 0.143 nm (p10 0.075, p90 0.212), median searched
   clearance 0.179 nm, and about 45 % of caps keeping the O-H direction, with
-  the censored and uncensored medians differing by under 1 %. Two things
-  follow: the aryl-carbon exclusion should *not* visibly move this system's
-  numbers, so do not attribute a change to it; and a
-  `blind_median_clearance_nm` anywhere near 0.233 in a box believed to be at
-  this density is unambiguous evidence the box is wrong, since that value is
-  only legitimate in the sparse regime.
+  the censored and uncensored medians differing by under 1 %. Three things
+  follow.
+
+  First, and this needs stating at commit granularity rather than as "the
+  clearance fix", because the two commits move the numbers by wildly different
+  amounts in the same release: 5a58d3d, dropping the attachment oxygen, turns
+  `median_clearance_nm` from the constant 0.136 into a distribution, so every
+  placement field moves enormously between the accept260 runs and whatever
+  comes next. That is the released bug being fixed and is expected. 82ddd3e,
+  dropping the aryl carbon, is the <1 % above. Read as one change, the large
+  shift becomes evidence about the aryl-carbon exclusion, which it is not.
+
+  Second, a `blind_median_clearance_nm` anywhere near 0.233 in a box believed
+  to be at this density is unambiguous evidence the box is wrong, since that
+  value is only legitimate in the sparse regime.
+
+  Third, the default sits *above* the blind median: 0.150 against 0.143, which
+  is the same fact as only ~45 % of caps keeping the O-H vector. So at melt
+  density roughly half of all cap sites cannot reach `cap_min_clearance` along
+  the preferred direction and the search is doing real work rather than
+  rubber-stamping. That makes 0.150 demanding but not absurd -- which is more
+  than it was when it was unreachable by construction -- and it suggests the
+  recalibration may move it *down* rather than up. Not the direction either
+  session guessed, and worth not being surprised by.
+
+  Independent check on the scale, by the study session: uncorrelated Poisson
+  at 53/nm^3 has a median nearest-neighbour distance of 0.1462 nm from a probe
+  point, dropping to 0.1236 when minimized over both atoms of a -C#N group at
+  0.116 nm separation. The swept 0.143 sits inside [0.124, 0.146], near the
+  top, which is where the excluded hole around the attachment oxygen should
+  put it. Script at
+  `~/devtests/htpolynet/bridge-series/verify_blind_clearance_scale.py`.
 
   Two caveats on those figures. The sweep places uncorrelated Poisson points
   with a hole around the oxygen, which is not a melt -- real packing is
