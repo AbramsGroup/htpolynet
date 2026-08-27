@@ -116,7 +116,21 @@ written with your own ownership.
 
      $ docker pull ghcr.io/cameronabrams/htpolynet@sha256:<digest>
 
-   Every build is also pushed as ``ghcr.io/cameronabrams/htpolynet:<commit-sha>``.
+   Every build is also pushed as ``ghcr.io/cameronabrams/htpolynet:<commit-sha>``,
+   and every *release* additionally gets a version tag, in both spellings, so
+   that either guess works::
+
+     $ docker pull ghcr.io/cameronabrams/htpolynet:v2.6.1
+     $ docker pull ghcr.io/cameronabrams/htpolynet:2.6.1
+     $ apptainer pull docker://ghcr.io/cameronabrams/htpolynet:v2.6.1
+
+   The CUDA variant prefixes the same names with ``cuda-``, e.g.
+   ``:cuda-v2.6.1``.  Note that releases before v2.6.1 have **no** version
+   tag -- they were pushed only as ``:latest`` and as their commit sha, so a
+   pull of, say, ``:v2.5.0`` fails with ``manifest unknown``.  That reads like
+   a failed build but means the tag is named something else; resolve the
+   release to its commit with ``git rev-parse v2.5.0`` (or the GitHub tag API)
+   and pull that sha instead.
 
    Note that the image pins more than the ``htpolynet`` code.  Gromacs and
    AmberTools are installed unpinned from conda-forge at build time, so two

@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Container releases now carry a version tag.**  `docker.yml` pushed only
+  the moving tag (`:latest` / `:cuda`) and the commit sha, so
+  `docker pull ...:v2.6.0` -- the obvious thing to type, and what the release
+  notes imply -- failed with `manifest unknown`.  That error reads like the
+  image failed to build rather than like the tag is named something else, and
+  it sent a user off to resolve the release through the GitHub tag API by
+  hand.  A `v*` push now also tags `:v<version>` and `:<version>`, in both
+  spellings because nothing tells a user which convention a registry chose,
+  with the `cuda-` prefix for the CUDA variant.  A `d*` tag is a
+  Dockerfile-only rebuild rather than a release and gets neither.
+
+  Releases before this one are unaffected and still have no version tag; the
+  container docs now say so and say how to resolve one to its commit sha.
+
 ### Added
 
 - **Repair now records what blind cap placement *would* have given, on the

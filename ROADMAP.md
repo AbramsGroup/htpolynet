@@ -27,10 +27,17 @@ Rough ordering within each section is by value, not by effort.
   choice for runs that offload to a GPU anyway, so the penalty may be small
   for exactly the case the `:cuda` image serves.
 
-- **Publish a digest or version tag people can pin.** `:latest` moves
-  every week via the scheduled rebuild, so a run recorded as "built with
-  the container" is not reproducible. Per-commit tags already exist;
-  what's missing is documenting that users should pin one.
+- **Releases before v2.6.1 have no version tag in the registry.** From
+  v2.6.1 on, `docker.yml` pushes `:v<version>` and `:<version>` (and the
+  `cuda-` variants) alongside the commit sha, but the earlier releases were
+  pushed as `:latest` and a sha only. So `pull ...:v2.5.0` returns `manifest
+  unknown`, which reads like a failed build rather than a differently-named
+  tag. The docs now say how to resolve an old release to its sha, which is
+  the cheap half. Retagging the existing images would be better and is a
+  registry operation, not a code change: `docker buildx imagetools create -t
+  ghcr.io/cameronabrams/htpolynet:v2.5.0 ghcr.io/cameronabrams/htpolynet:<sha>`
+  for each past release, which needs a token with `write:packages`. Worth
+  doing if anyone reports hitting it a second time.
 
 - **The image's Gromacs and AmberTools are unpinned, so two images with
   identical htpolynet code can compute different numbers.** `docker/Dockerfile`

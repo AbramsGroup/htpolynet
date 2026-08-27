@@ -50,14 +50,38 @@ jobs:
 
     - name: Compute tags
       id: tags
+      env:
+        REF_NAME: ${{ github.ref_name }}
+        REF_TYPE: ${{ github.ref_type }}
       run: |
+        repo="ghcr.io/cameronabrams/htpolynet"
+        prefix="${{ matrix.tag_prefix }}"
         if [ "${{ matrix.variant }}" = "cuda" ]; then
-          moving="ghcr.io/cameronabrams/htpolynet:cuda"
+          moving="$repo:cuda"
         else
-          moving="ghcr.io/cameronabrams/htpolynet:latest"
+          moving="$repo:latest"
         fi
-        printf 'tags<<EOF\n%s\nghcr.io/cameronabrams/htpolynet:%s%s\nEOF\n' \
-          "$moving" "${{ matrix.tag_prefix }}" "${{ github.sha }}" >> "$GITHUB_OUTPUT"
+        {
+          echo "tags<<EOF"
+          echo "$moving"
+          echo "$repo:${prefix}${{ github.sha }}"
+          # A release also gets a tag people can *guess*.  Until now the only
+          # stable name was the commit sha, so `pull ...:v2.6.0` failed with
+          # `manifest unknown` -- which reads like the build failed rather than
+          # like the tag is named something else.  Emit both spellings, the git
+          # tag as written and the bare version, because there is no way for a
+          # user to know which convention this registry chose.  A `d*` tag is a
+          # Dockerfile-only rebuild, not a release, so it gets neither.
+          if [ "$REF_TYPE" = "tag" ]; then
+            case "$REF_NAME" in
+              v*)
+                echo "$repo:${prefix}${REF_NAME}"
+                echo "$repo:${prefix}${REF_NAME#v}"
+                ;;
+            esac
+          fi
+          echo "EOF"
+        } >> "$GITHUB_OUTPUT"
 
     - name: Build and push
       uses: docker/build-push-action@v6
