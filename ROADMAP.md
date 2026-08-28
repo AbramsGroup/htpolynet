@@ -410,6 +410,34 @@ Coverage as of the last measurement: **38.8%** overall.
   re-examining against bond conversion as a covariate rather than being taken
   as settled. Do not write that up until the pairing exists.
 
+- **The too-few-iterations warning could threshold on something known at
+  config time.** This follows from the entry above: chi_bond predicts the
+  ratio-to-cube to within 1.36x, and unlike a bond distribution -- which does
+  not exist until the cure runs -- it is knowable before the cure starts. So
+  htpolynet could warn at config time that a run will yield far less
+  crosslinker conversion than the cube law implies, which is the number a user
+  is actually reasoning with. The existing `iterations < f` warning fires only
+  after the fact and only in the exactly zero regime.
+
+  **Do not key it on `desired_conversion`.** chi_bond is a config-time proxy,
+  not the governing quantity, and this is the framing that would bite. chi_bond
+  and bonds-per-iteration are collinear in every build measured -- the 8x pair
+  differs 1.25x in bonds per iteration (96 vs 120) alongside 7.7x in
+  ratio-to-cube -- so nothing in the data separates them. They come apart in
+  practice: `min_bonds_per_iteration` and `max_conversion_per_iteration` set
+  bonds-per-iteration independently of `desired_conversion`, which is exactly
+  what the warning at `cure/curecontroller.py:674` already tells a user to do
+  to spend more iterations at the same conversion, and what this project plans
+  in order to reach 9+ iterations. A threshold keyed on `desired_conversion`
+  alone would misfire on precisely the runs that took htpolynet's own advice.
+
+  So keep it qualitative until something separates the two. A warning saying
+  "below about 0.7 the cube law overstates badly, and worsens as you go lower"
+  needs no attribution and could ship soon. One that quotes a number needs both
+  the separation and a sense of how much of the curve is BADCy-specific -- it
+  is one chemistry, one force field, one cure protocol, n = 1 per target apart
+  from a single duplicate.
+
 - **`completion_bias` biases the `B` side only, and that is a convention,
   not a law.** The new `CURE.controls.completion_bias` ranks bond candidates
   by how many bonds their `B`-side residue already carries, because
