@@ -363,10 +363,12 @@ Coverage as of the last measurement: **38.8%** overall.
   +2.64 % sd 1.39 % (n = 4), giving P = 0.03 -- an order of magnitude apart --
   and at n = 4 the sd's 95 % CI is [0.79, 5.18], so the two cannot be
   distinguished. 3`f` is untested, not disproved. Settling it wants more runs
-  at 3`f`, not a wider distribution borrowed from a lower one. Whatever mechanism
-  explains the shortfall has to switch off within a factor of two of `f`. The
-  one-bond-per-residue-per-iteration rule was simulated against this and moves
-  the n=3 prediction only from 30.0 to 25.9 against 15 observed: about a fifth
+  at 3`f`, not a wider distribution borrowed from a lower one. Whatever
+  mechanism explains the shortfall has to switch off within a factor of two
+  of `f`.
+
+  The one-bond-per-residue-per-iteration rule was simulated against this and
+  moves the n=3 prediction only from 30.0 to 25.9 against 15 observed: a fifth
   of the gap. The leading untested guess is spatial anti-correlation --
   bonds forming preferentially on crosslinkers that already have room, leaving
   the rest to compete. This matters because it is the regime where a user's
@@ -374,6 +376,27 @@ Coverage as of the last measurement: **38.8%** overall.
   current `iterations < f` one needs a mechanism to threshold on. Widening
   that warning to `n < 2f` was considered and rejected: the eightfold spread
   at fixed `n` shows no threshold on `n` can work.
+
+  **Measured below the band, 2026-08-28** (study session; picotte 22132281,
+  12 BPA builds at v2.6.1, cures final, ladders still running): at bond
+  conversions of 0.40--0.73 the deviation from the cube is one-sided and
+  large -- 11 of 12 below, mean -19.9 %, worsening monotonically as bond
+  conversion falls, -93.6 % at 0.40. The single build inside the documented
+  band (0.7306, +1.5 %) agrees with it, so nothing here disturbs the
+  1.7--2.7`f` scoping.
+
+  The open question this creates is which variable is doing the work. The
+  documented band is *both* 1.7--2.7`f` and bond conversion 0.74--0.90; this
+  array varies bond conversion and its iteration counts are not yet in hand
+  (they live in `diagnostics.log`, returned only when a task ends -- expected
+  early 2026-08-29). So the docs state the degradation against bond
+  conversion, which is what was measured, and do not attribute it to `n`/`f`.
+  When the counts land, the test worth running is whether they also explain
+  the eightfold spread at fixed iteration count recorded above -- if the low
+  runs turn out to be the few-iteration ones, the two findings are one
+  finding, and the "iteration count does not determine it" conclusion needs
+  re-examining against bond conversion as a covariate rather than being taken
+  as settled. Do not write that up until the pairing exists.
 
 - **`completion_bias` biases the `B` side only, and that is a convention,
   not a law.** The new `CURE.controls.completion_bias` ranks bond candidates

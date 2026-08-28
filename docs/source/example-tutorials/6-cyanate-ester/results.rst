@@ -51,8 +51,10 @@ Diagnostic-log plots:
    0.90 leaves a cyanate conversion near 0.73 -- a little above it
    here, since this cure takes nine iterations and the distance-ranked
    search keeps re-finding crosslinkers that are partly bonded.  The
-   cube is an estimate rather than a bound: at five to eight iterations
-   real runs scatter a few percent either side of it.  A cure that
+   cube is an estimate rather than a bound, and only near this run's
+   own bond conversion: at 0.74–0.90 real runs scatter a few percent
+   either side of it, but by 0.5 they fall short of it by tens of
+   percent, always on the same side.  A cure that
    reaches its target in two or three iterations lands far below it,
    and in fewer than three it lands at exactly zero, because at most
    one bond per residue forms per iteration.  htpolynet reports

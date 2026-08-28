@@ -40,6 +40,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   1.7-2.7 `f` cannot be carried to 3 `f` when regime dependence is the point
   at issue.  The docs now say 3 `f` is untested rather than either way.
 
+- **The docs now say the cube law's accuracy band has a floor.**  The
+  two-sided +/- 3 % figure was stated for 1.7-2.7 `f` iterations without
+  saying that those runs were also all at bond conversions of 0.74-0.90.
+  Below that, on 12 further builds at 0.40-0.73, the cube law is not a mild
+  two-sided estimate: 11 of the 12 fall below it, by -19.9 % on average,
+  worsening monotonically as bond conversion falls and reaching -93.6 % at
+  0.40.  A reader carrying +/- 3 % down to a bond conversion of 0.5
+  understates the error by an order of magnitude and in a predictable
+  direction.  The degradation is stated against bond conversion because that
+  is what was varied; the iteration counts for those builds are not yet in
+  hand, so `n`/`f` is not offered as the mechanism.
+
 - **The placement documentation now quotes real-box numbers instead of
   synthetic ones.**  `cap_min_clearance`'s "demanding default" was described
   from a synthetic sweep that put the blind median at 0.143 nm and had about

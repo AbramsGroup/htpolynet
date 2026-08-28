@@ -383,6 +383,21 @@ range of −3.7 % to +6.3 %; 3 of the 14 landed *below* the cube,
 against a replicate scatter of 0.8–1.8 %, so those excursions are real
 and not measurement noise.
 
+That band is bounded from below, and the bound is sharp.  A separate
+array of 12 runs at bond conversions of 0.40–0.73 does not behave like
+a two-sided estimate at all: 11 of the 12 landed *below* the cube, by
+−19.9 % on average, worsening monotonically as the bond conversion
+falls and reaching −93.6 % at a bond conversion of 0.40 — an
+overstatement by a factor of 15.  So ± 3 % is not the cube law's
+general accuracy.  Carried down to a bond conversion of 0.5 it
+understates the error by an order of magnitude, and in a predictable
+direction: the cube is always the optimistic side down there.  Note
+that the 14 runs above were at bond conversions of 0.74–0.90 *and* at
+1.7–2.7 ``f`` iterations, and the two cannot be separated with this
+data — the accuracy is stated against bond conversion because that is
+what was varied and measured, not because the iteration count has been
+ruled out as the controlling variable.
+
 Further out than that it is not settled.  The four runs of the
 nine-iteration cohort all landed above the cube, by +0.6 % to +3.5 %,
 which reads like a bound — but four points cannot separate a bound
@@ -393,11 +408,13 @@ here.  So the correction below applies where it was measured: at
 1.7–2.7 ``f`` the cube is demonstrably not a floor.  At 3 ``f`` it is
 untested, not disproved.
 
-So the cube is a useful estimate — good to about 3 % once a run is
-past roughly 1.7 ``f`` iterations — and across the band where that has
-been checked it is not a floor.  Below that band it overstates the
-result by an amount the iteration count will not tell you, and the
-only trustworthy number is the measured one that repair reports.
+So the cube is a useful estimate over a specific band — good to about
+3 % at bond conversions of 0.74–0.90 and 1.7–2.7 ``f`` iterations, and
+across that band not a floor.  Outside it, in either direction, it
+overstates the result: by an amount the iteration count will not tell
+you below ``f``, and by up to a factor of 15 at low bond conversion.
+The only trustworthy number anywhere is the measured one that repair
+reports.
 
 ``completion_bias`` does not lift the iteration floor — it changes
 which residues react, not the one-per-residue-per-iteration rule — so
