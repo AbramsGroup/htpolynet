@@ -356,17 +356,21 @@ hard boundary between them.
   builds a monomer melt with no junctions at all, however healthy its
   reported bond conversion looks, and htpolynet warns when a run ends
   this way since nothing else in the output would tell you.
-* **At or above** ``f`` **iterations: the shortfall depends on how the
-  bonds were distributed across those iterations, not on how many
-  there were.**  Two trifunctional runs that both took three
-  iterations came out at 6 % and 50 % of the cube-law figure — an
-  eightfold spread at an identical iteration count.  Measured ratios
-  to the cube law across a series of runs: 0.00 at two iterations,
-  0.06–0.50 at three, 0.86 at four, 1.02 ± 0.03 over 14 runs at five
-  to eight, 1.01–1.04 across the four-run nine-iteration cohort.  The shortfall is therefore confined to
-  a narrow band just above ``f``, and the mechanism behind it is not
-  identified; the one-bond-per-residue rule accounts for only about a
-  fifth of it.
+* **At or above** ``f`` **iterations: the iteration count does not
+  determine the shortfall.**  Two trifunctional runs that both took
+  three iterations came out at 6 % and 50 % of the cube-law figure —
+  an eightfold spread at an identical iteration count.  Those two runs
+  were at bond conversions of 0.40 and 0.50, and at a fixed bond
+  conversion the residual spread is 1.4× rather than 8×, so nearly all
+  of that gap is the bond conversion and not anything about how the
+  iterations went.  The 0.40 figure reproduces to three digits across
+  two htpolynet versions five months apart.  Measured ratios to the
+  cube law across a series of runs: 0.00 at two iterations, 0.06–0.50
+  at three — which is the bond-conversion spread just described, not
+  an iteration effect — 0.86 at four, 1.02 ± 0.03 over 14 runs at five
+  to eight, 1.01–1.04 across the four-run nine-iteration cohort.  What
+  is not explained is the size of the shortfall itself; the
+  one-bond-per-residue rule accounts for only about a fifth of it.
 
 Proximity works the other way, and it is what closes the gap.  The
 search is distance-ranked and a partly-bonded crosslinker already sits

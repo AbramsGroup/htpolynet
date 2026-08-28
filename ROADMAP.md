@@ -374,8 +374,20 @@ Coverage as of the last measurement: **38.8%** overall.
   the rest to compete. This matters because it is the regime where a user's
   reported conversion is most wrong, and because a warning better than the
   current `iterations < f` one needs a mechanism to threshold on. Widening
-  that warning to `n < 2f` was considered and rejected: the eightfold spread
-  at fixed `n` shows no threshold on `n` can work.
+  that warning to `n < 2f` was considered and rejected: no threshold on `n`
+  alone can work.
+
+  That conclusion survives a correction to its own evidence, and comes out
+  stronger. The 8x pair was **confounded**: conv40 r3 and conv50 r1 are both
+  n = 3 but sit at chi_bond 0.40 and 0.50, so they never isolated `n` either.
+  The new low-conversion builds split it -- at fixed chi_bond the residual
+  spread is 1.36x, not 8x, and the chi_bond 0.40 ratio-to-cube reproduces to
+  three digits across v2.3.0 and v2.6.1 five months apart. So at fixed `n` the
+  ratio moves 7--10x purely with chi_bond, which is a sharper refutation of an
+  `n` threshold than the confounded pair was. What does *not* survive is the
+  explanation: the "product of per-iteration bond fractions" account is
+  superseded by plain chi_bond, which is simpler and reproduces across
+  versions. Docs corrected.
 
   **Measured below the band, 2026-08-28** (study session; picotte 22132281,
   12 BPA builds at v2.6.1, cures final, ladders still running): at bond

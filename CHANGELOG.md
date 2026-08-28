@@ -52,6 +52,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is what was varied; the iteration counts for those builds are not yet in
   hand, so `n`/`f` is not offered as the mechanism.
 
+- **The eightfold spread at a fixed iteration count is no longer attributed to
+  how the bonds were distributed.**  The docs used that pair -- two
+  trifunctional runs, both three iterations, at 6 % and 50 % of the cube --
+  to conclude that the iteration count does not determine the shortfall, and
+  credited the spread to the distribution of bonds across iterations.  The
+  pair was confounded: those runs are at bond conversions of 0.40 and 0.50.
+  At a fixed bond conversion the residual spread is 1.4x rather than 8x, so
+  nearly all of it is the bond conversion.  The conclusion is unchanged and
+  now rests on better evidence -- at a fixed iteration count the ratio moves
+  7-10x with bond conversion alone -- but the explanation is withdrawn.
+
 - **The placement documentation now quotes real-box numbers instead of
   synthetic ones.**  `cap_min_clearance`'s "demanding default" was described
   from a synthetic sweep that put the blind median at 0.143 nm and had about
