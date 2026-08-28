@@ -305,6 +305,19 @@ Coverage as of the last measurement: **38.8%** overall.
   against, and it weakens the earlier guess that recalibration would move the
   default down.
 
+  **The placement change is density-neutral at high conversion, 2026-08-28**
+  (study session; picotte 22107390 complete, 14/14, exit 0:0). v2.6.1 anchors
+  at chi_OCN 0.7438 give 1197.59 kg/m^3 (n = 2) against v2.3.0's 1197.94 +/-
+  3.25 at 0.7458 (n = 8): offset -0.34 on a combined SE of 2.38, i.e. 0.1
+  sigma, bounding |offset| < 4.7 kg/m^3 at 2 sigma. So the net of 5a58d3d and
+  82ddd3e does not move bulk density where it has been checked. Two limits.
+  The bound is small against the 21 kg/m^3 rise across the series, so the two
+  versions pool for curve shape -- but it is *not* small against the 3.0 kg/m^3
+  basin depth, so it licenses nothing about the basin. And it does not
+  calibrate `cap_min_clearance`: a placement change being invisible in bulk
+  density is a much weaker statement than the threshold being right, and this
+  item stays open exactly as written above.
+
 - **The cap direction search stops at the first adequate direction, not the
   best one.** `_choose_cap_placement` breaks out as soon as a direction
   reaches `cap_min_clearance`, so a cap that could have had 0.25 nm of room
