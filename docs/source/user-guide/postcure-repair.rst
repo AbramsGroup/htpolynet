@@ -176,13 +176,22 @@ Spec fields
   the driver searches for the clearest direction, holding both bond
   lengths fixed so only the orientation moves, and stops as soon as it
   reaches this clearance.  Default 0.15 nm, which is about what a
-  steepest-descent minimization absorbs.  It is a demanding default:
-  at the heavy-atom density of a cured thermoset it sits a little
-  above the room a typical site has along the O-H vector, so the
-  direction search runs for roughly half of all caps rather than
-  rubber-stamping them.  That is the intent — the search exists for
-  the crowded half — but it means a run reporting that most caps
-  needed a search is behaving normally, not signalling a bad box.
+  steepest-descent minimization absorbs.  It is a demanding default,
+  and deliberately so: at the heavy-atom density of a cured thermoset
+  it sits well above the room a typical site has along the O-H vector,
+  so the direction search runs for most caps rather than
+  rubber-stamping them.  Measured on 14 independent cured
+  bisphenol-A-cyanate-ester boxes at about 53 heavy atoms per
+  nm\ :sup:`3` (1955 caps in total), the median clearance along the
+  O-H vector was 0.120 nm — below the target — and 37 % of caps would
+  have been placed within 0.10 nm of a neighbour had that direction
+  been taken blind.  That is the intent, and it is not a symptom: a
+  run reporting that most caps needed a search is the default working.
+
+  Demanding is not the same as unreachable.  In those same 14 boxes
+  the search found the target for all but 1 cap of 1955, so a run
+  reporting more than an occasional ``n_below_target`` is saying
+  something about the box, not about the threshold.
 
   The clearance is measured only against atoms the cap is *not* bonded
   through — the bridge oxygen itself and its aryl carbon are excluded,
@@ -418,26 +427,39 @@ with the full placement record in the same YAML file:
 These do not all mean the same kind of thing, and reading them as if
 they did is the mistake to avoid:
 
-* ``min_clearance_nm`` and ``n_below_target`` describe the **tail**,
-  which is where a placement failure actually lives, and they are what
-  ``cap_min_clearance`` should be calibrated against.
-* ``median_clearance_nm`` is a **placement outcome, not a measurement
-  of the site**.  The search stops at the first direction that reaches
-  the target, so this number is pulled toward ``cap_min_clearance`` by
-  construction and partly reports the threshold you set rather than
-  how crowded the box is.  It answers "how did the caps end up", which
-  is a fair question, but it is not a crowding statistic.
+* ``n_below_target`` is the one **achieved** number that describes the
+  tail, which is where a placement failure actually lives.
+* ``min_clearance_nm`` and ``median_clearance_nm`` are **placement
+  outcomes, not measurements of the site**.  The search stops at the
+  first direction that reaches the target, so both are pulled toward
+  ``cap_min_clearance`` by construction and partly report the
+  threshold you set rather than how crowded the box is.  The median is
+  pulled; the minimum is pinned.  Whenever the search succeeds for
+  every cap, the worst-placed cap is by construction one that only
+  just cleared the target, so ``min_clearance_nm`` lands just above it
+  — measured at 0.1503 ± 0.0006 nm against a 0.150 nm target across 14
+  independent boxes, and the single box that came in below (0.1488)
+  was the single box with a non-zero ``n_below_target``.  So
+  ``min_clearance_nm`` carries nothing that ``n_below_target`` has not
+  already said, and in particular it is not something to calibrate
+  ``cap_min_clearance`` against: it is the threshold seen from above.
 * ``blind_min_clearance_nm`` and ``blind_median_clearance_nm`` are the
-  crowding statistics.  They are measured along the single fixed O-H
-  direction with no search and no early exit, so they describe the
-  site rather than the algorithm, and they are the ones to correlate
-  across a series of runs.  ``n_blind_would_overlap`` counts the caps
-  that direction alone would have put inside 0.10 nm of a neighbour —
-  which is what placement did before the direction search existed.
+  crowding statistics, and the blind minimum is the real tail
+  statistic — it ranged 0.006–0.048 nm across those 14 boxes while the
+  achieved minimum sat on the target.  Both are measured along the
+  single fixed O-H direction with no search and no early exit, so they
+  describe the site rather than the algorithm, and they are the ones
+  to correlate across a series of runs and to calibrate the target
+  against.  ``n_blind_would_overlap`` counts the caps that direction
+  alone would have put inside 0.10 nm of a neighbour — which is what
+  placement did before the direction search existed, and which came to
+  37 % of caps on those boxes.
 * ``n_preferred_out_of_angle`` separates the two reasons a preferred
   direction gets abandoned.  A large value means the C-O-C angle
   window is rejecting real O-H vectors, which would look exactly like
-  a crowded box in every other field.
+  a crowded box in every other field.  On the 14 boxes above it was
+  6 % of caps, so the 90–150° window is not what is sending caps to
+  the search; a value several times that is the one to act on.
 
 That count is worth watching, because it is the quantity that predicts
 whether this stage survives.  It is an identity — every bond the cure

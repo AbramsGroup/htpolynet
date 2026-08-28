@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`min_clearance_nm` is documented as a placement outcome, not a tail
+  statistic.**  2.6.1's docs said `min_clearance_nm` and `n_below_target` were
+  the tail and were what `cap_min_clearance` should be calibrated against.
+  The first half is wrong for the same reason the median was: the direction
+  search exits at the first direction reaching the target, so whenever it
+  succeeds for every cap the worst-placed cap is one that only just cleared,
+  and the reported minimum is pinned to the threshold by construction.  Across
+  14 independent real boxes it came in at 0.1503 +/- 0.0006 nm against a
+  0.150 nm target, and the single box that fell below it was the single box
+  with a non-zero `n_below_target`.  The minimum therefore carries nothing
+  `n_below_target` does not already say.  `blind_min_clearance_nm`, which
+  ranged 0.006-0.048 nm over the same boxes, is the real tail statistic, and
+  the `blind_*` fields are what to calibrate the target against.
+
+- **The placement documentation now quotes real-box numbers instead of
+  synthetic ones.**  `cap_min_clearance`'s "demanding default" was described
+  from a synthetic sweep that put the blind median at 0.143 nm and had about
+  half of caps needing a search.  On real cured boxes at the same heavy-atom
+  density the blind median is 0.120 nm -- ~16 % tighter, in the direction the
+  sweep's own caveat predicted -- so the search runs for well over half of all
+  caps and 37 % of them would have been placed inside 0.10 nm blind.  It
+  nonetheless reaches the target for all but 1 cap in 1955, so the default is
+  demanding and reachable at once.  `n_preferred_out_of_angle` came in at 6 %,
+  which the docs now give as the scale for reading that field: the 90-150
+  degree window is not what is sending caps to the search.
+
 ## [2.6.1] - 2026-08-27
 
 ### Fixed

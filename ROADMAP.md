@@ -186,13 +186,15 @@ Coverage as of the last measurement: **38.8%** overall.
   degree placement at 0.236 nm -- but the aryl carbon has since been excluded
   from the metric precisely so it does not saturate, so that bound no longer
   applies and there is no analytic ceiling to reason from at all. What is
-  unknown is the fire rate in a box at polymer density. Next time a full
-  cyanate-ester build runs, read `min_clearance_nm`, `median_clearance_nm`,
-  `n_below_target` and `n_preferred_out_of_angle` out of `repair-summary.yaml`
-  and set the default so it flags the tail rather than the bulk. A threshold
-  that fires on everything is not a threshold. If `n_preferred_out_of_angle`
-  comes back large, the 90--150 degree window is biting real O-H vectors and
-  is the thing to change, not the clearance.
+  unknown was the fire rate in a box at polymer density, and that has now been
+  measured (see the real-box block at the end of this entry). What is left is
+  the recalibration itself: set the default so it flags the tail rather than
+  the bulk, using `blind_min_clearance_nm`, `blind_median_clearance_nm` and
+  `n_below_target`. Do **not** calibrate against `min_clearance_nm` -- it
+  saturates at whatever target is set. A threshold that fires on everything is
+  not a threshold. The `n_preferred_out_of_angle` escape hatch is closed: it
+  came back at 6 %, so the 90--150 degree window is not biting real O-H
+  vectors and is not the thing to change.
 
   One thing the synthetic sweep did settle, so nobody re-derives it: the
   clipping the aryl-carbon exclusion removes is density-dependent, and at melt
@@ -273,6 +275,36 @@ Coverage as of the last measurement: **38.8%** overall.
   accordingly rather than assuming the high-conversion points are as tight as
   the low ones.
 
+  **Measured on real boxes, 2026-08-27** (study session, job 22107390): 14
+  independent cured BPA-cyanate-ester boxes at v2.6.1, chi_bond 0.740--0.901,
+  1955 caps, ~53 heavy atoms/nm^3 -- the first placement numbers taken without
+  the clearance bug present. `blind_median_clearance_nm` 0.1198 +/- 0.0061
+  against the synthetic sweep's 0.143: real boxes are ~16 % *tighter*, in the
+  direction the sweep's own caveat predicted, so the sweep's absolute values
+  should not be used to set the default. `blind_min_clearance_nm` 0.006--0.048.
+  722 of 1955 caps (37 %) would have been placed inside 0.10 nm blind.
+  `n_preferred_out_of_angle` 109 (6 %). `n_below_target` 1 of 1955, against
+  the sweep's 0 that was flagged "certainly optimistic".
+
+  And a correction to this entry's own advice, which the numbers force:
+  `min_clearance_nm` is **not** a tail statistic and must not be calibrated
+  against. Across all 14 boxes it came in at 0.1503 +/- 0.0006 against a 0.150
+  target -- the target seen from above, not a measurement. The search exits at
+  the first direction reaching target, so whenever it succeeds for every cap
+  the worst-placed cap is one that only just cleared, and the minimum is
+  pinned to the threshold by construction. The one box below it (cb0773,
+  0.1488) is the one box with `n_below_target` = 1. This is the searched-median
+  defect one statistic further along; it was missed because the median's
+  version of it was the one being written up. Docs corrected.
+
+  So the recalibration is unblocked and wants the `blind_*` columns. Note that
+  0.150 sits well above the measured blind median of 0.120, not marginally
+  above 0.143 as the sweep suggested -- so the search runs for well over half
+  of all caps -- yet it succeeds for 1954 of 1955. Demanding and reachable at
+  once, which is a different situation from the one this entry was written
+  against, and it weakens the earlier guess that recalibration would move the
+  default down.
+
 - **The cap direction search stops at the first adequate direction, not the
   best one.** `_choose_cap_placement` breaks out as soon as a direction
   reaches `cap_min_clearance`, so a cap that could have had 0.25 nm of room
@@ -281,16 +313,19 @@ Coverage as of the last measurement: **38.8%** overall.
   admits about 43 % of a 48-direction Fibonacci spiral, so a full scan is
   ~21 vectorized distance evaluations against a neighbour list of order 100.
   And `median_clearance_nm` is partly a readout of the threshold rather than
-  of the box, since the distribution is truncated from below at the target.
+  of the box, since the distribution is truncated from below at the target --
+  as is `min_clearance_nm`, which is pinned *at* the target rather than merely
+  pulled toward it, measured at 0.1503 +/- 0.0006 across 14 real boxes.
+  Removing the early exit would give both fields their meaning back.
 
   Deliberately not changed for 2.6.1: taking the best direction moves every
   cap that needed a search, and doing that on the same release as the
   clearance fix means the next real build cannot attribute a change in the
-  numbers to either one. Do it after there is one clean real-box measurement
-  to compare against. Until then the docs say which fields are placement
-  outcomes and which are crowding measurements, and
-  `blind_median_clearance_nm` -- one fixed direction, no search, no early
-  exit -- is the statistic to correlate on.
+  numbers to either one. That precondition is now satisfied -- the 14-box
+  measurement of 2026-08-27 recorded above is the clean pre-change baseline,
+  so this is ready to do. Note that changing it invalidates the achieved
+  columns of anything built before it while leaving the `blind_*` columns
+  comparable, which is another reason those are the ones to correlate on.
 
 - **The shortfall from the cube law between `f` and many iterations is
   unexplained.** Below `f` iterations crosslinker conversion is exactly zero,
