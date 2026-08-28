@@ -343,9 +343,9 @@ bond conversion: a run at a bond conversion of 0.90 lands near 0.73.
 A run reported as "90 % cured" on the strength of the cure log is, as
 a cured structure, closer to three-quarters converted.
 
-**The cube law holds only when the cure took many iterations.**  Below
-that it overstates the result, and there are two regimes with a hard
-boundary between them.
+**The cube law holds only once the cure has taken enough iterations.**
+Below that it overstates the result, and there are two regimes with a
+hard boundary between them.
 
 * **Fewer than** ``f`` **iterations: the crosslinker conversion is
   exactly zero.**  The bond downselection admits at most one bond per
@@ -362,21 +362,42 @@ boundary between them.
   iterations came out at 6 % and 50 % of the cube-law figure — an
   eightfold spread at an identical iteration count.  Measured ratios
   to the cube law across a series of runs: 0.00 at two iterations,
-  0.06–0.50 at three, 0.86 at four, 1.01–1.04 at nine.  The mechanism
-  behind the residual is not identified; the one-bond-per-residue rule
-  accounts for only about a fifth of it.
+  0.06–0.50 at three, 0.86 at four, 1.02 ± 0.03 over 14 runs at five
+  to eight, 1.01–1.04 across the four-run nine-iteration cohort.  The shortfall is therefore confined to
+  a narrow band just above ``f``, and the mechanism behind it is not
+  identified; the one-bond-per-residue rule accounts for only about a
+  fifth of it.
 
-Given many iterations, proximity works the other way.  The search is
-distance-ranked and a partly-bonded crosslinker already sits in a
-bridge-rich neighbourhood, so it keeps getting re-found: a weak
-version of ``completion_bias`` for free.  That is what puts long runs
-a couple of percent *above* the cube, and it is expected behaviour
-rather than a sign anything is wrong.
+Proximity works the other way, and it is what closes the gap.  The
+search is distance-ranked and a partly-bonded crosslinker already sits
+in a bridge-rich neighbourhood, so it keeps getting re-found: a weak
+version of ``completion_bias`` for free.  That is a bias of a couple
+of percent, not a bound, and runs land on both sides of the cube.
 
-So the cube is a floor only in the many-iteration limit.  Anywhere
-below it the iteration count will not tell you how far short you fell,
-and the only trustworthy number is the measured one that repair
-reports.
+The recovery is complete well before the many-iteration limit, but it
+arrives as a two-sided estimate rather than as a floor.  Across 14
+independent trifunctional runs at 1.7–2.7 ``f`` iterations and bond
+conversions of 0.74–0.90, the crosslinker conversion sat **+2.0 %**
+from the cube on average, with a standard deviation of 2.9 % and a
+range of −3.7 % to +6.3 %; 3 of the 14 landed *below* the cube,
+against a replicate scatter of 0.8–1.8 %, so those excursions are real
+and not measurement noise.
+
+Further out than that it is not settled.  The four runs of the
+nine-iteration cohort all landed above the cube, by +0.6 % to +3.5 %,
+which reads like a bound — but four points cannot separate a bound
+from the upper tail of a two-sided distribution, and the scatter
+measured at 1.7–2.7 ``f`` cannot simply be carried to 3 ``f``, since
+whether the deviation depends on the regime is the very thing at issue
+here.  So the correction below applies where it was measured: at
+1.7–2.7 ``f`` the cube is demonstrably not a floor.  At 3 ``f`` it is
+untested, not disproved.
+
+So the cube is a useful estimate — good to about 3 % once a run is
+past roughly 1.7 ``f`` iterations — and across the band where that has
+been checked it is not a floor.  Below that band it overstates the
+result by an amount the iteration count will not tell you, and the
+only trustworthy number is the measured one that repair reports.
 
 ``completion_bias`` does not lift the iteration floor — it changes
 which residues react, not the one-per-residue-per-iteration rule — so

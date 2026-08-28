@@ -23,6 +23,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ranged 0.006-0.048 nm over the same boxes, is the real tail statistic, and
   the `blind_*` fields are what to calibrate the target against.
 
+- **The cube law is documented as a two-sided estimate, not a floor.**  The
+  docs said crosslinker conversion sits at or above the cube of bond
+  conversion in the many-iteration limit.  Measured on 14 independent
+  trifunctional runs in the previously unmeasured band at 1.7-2.7 `f`
+  iterations, it sits +2.0 % from the cube with a standard deviation of 2.9 %
+  and 3 of 14 runs *below* it, to -3.7 %, against a replicate scatter of
+  0.8-1.8 % -- so the excursions below are real.  The recovery to the cube is
+  therefore complete much earlier than the docs implied, confining the
+  unexplained shortfall to a narrow band just above `f`, but it arrives as an
+  estimate good to about 3 % either way rather than as a bound.  The claim is
+  scoped to the band it was measured in.  The four runs of the nine-iteration
+  cohort landed +0.6 % to +3.5 % above the cube, and all four being above was
+  over-read as evidence of a floor -- but four points cannot separate a bound
+  from the upper tail of a two-sided distribution, and the scatter measured at
+  1.7-2.7 `f` cannot be carried to 3 `f` when regime dependence is the point
+  at issue.  The docs now say 3 `f` is untested rather than either way.
+
 - **The placement documentation now quotes real-box numbers instead of
   synthetic ones.**  `cap_min_clearance`'s "demanding default" was described
   from a synthetic sweep that put the blind median at 0.143 nm and had about

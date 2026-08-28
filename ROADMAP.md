@@ -328,11 +328,30 @@ Coverage as of the last measurement: **38.8%** overall.
   comparable, which is another reason those are the ones to correlate on.
 
 - **The shortfall from the cube law between `f` and many iterations is
-  unexplained.** Below `f` iterations crosslinker conversion is exactly zero,
-  a counting constraint; at nine iterations real runs land 1--3 % above the
-  cube. In between, measured ratios to the cube law are 0.06 and 0.46--0.50 at
-  three iterations and 0.86 at four -- an eightfold spread at an *identical*
-  iteration count, so the iteration count does not determine it. The
+  unexplained, and is now known to be narrow.** Below `f` iterations
+  crosslinker conversion is exactly zero, a counting constraint; the four runs
+  of the nine-iteration cohort land +0.6 to +3.5 % above the cube (attested at
+  nine for two of the four; the other two are the same cohort at the same
+  target with the count unrecorded). In between, measured ratios
+  to the cube law are 0.06 and 0.46--0.50 at three iterations and 0.86 at
+  four -- an eightfold spread at an *identical* iteration count, so the
+  iteration count does not determine it. The band above that is now measured
+  and shows no shortfall at all: 14 runs at `n`/`f` 1.67--2.67 sit at
+  1.020 +/- 0.029 of the cube, with 3 of the 14 *below* it to -3.7 % against
+  replicate scatter of 0.8--1.8 %. So the unexplained region is only
+  `f` to about 1.7`f`, and across 1.7--2.7`f` the cube is a two-sided estimate
+  rather than the floor the docs used to call it -- corrected there.
+
+  What that does **not** settle is 3`f`, and the temptation to settle it by
+  arithmetic should be resisted: applying the 1.7--2.7`f` scatter to the
+  nine-iteration cohort gives P(below cube) = 0.245 and makes four-of-four
+  above a one-in-three outcome, but that presupposes the deviation is
+  regime-independent, which is the claim in question. The cohort on its own is
+  +2.64 % sd 1.39 % (n = 4), giving P = 0.03 -- an order of magnitude apart --
+  and at n = 4 the sd's 95 % CI is [0.79, 5.18], so the two cannot be
+  distinguished. 3`f` is untested, not disproved. Settling it wants more runs
+  at 3`f`, not a wider distribution borrowed from a lower one. Whatever mechanism
+  explains the shortfall has to switch off within a factor of two of `f`. The
   one-bond-per-residue-per-iteration rule was simulated against this and moves
   the n=3 prediction only from 30.0 to 25.9 against 15 observed: about a fifth
   of the gap. The leading untested guess is spatial anti-correlation --
