@@ -357,20 +357,27 @@ hard boundary between them.
   reported bond conversion looks, and htpolynet warns when a run ends
   this way since nothing else in the output would tell you.
 * **At or above** ``f`` **iterations: the iteration count does not
-  determine the shortfall.**  Two trifunctional runs that both took
-  three iterations came out at 6 % and 50 % of the cube-law figure —
-  an eightfold spread at an identical iteration count.  Those two runs
-  were at bond conversions of 0.40 and 0.50, and at a fixed bond
-  conversion the residual spread is 1.4× rather than 8×, so nearly all
-  of that gap is the bond conversion and not anything about how the
-  iterations went.  The 0.40 figure reproduces to three digits across
-  two htpolynet versions five months apart.  Measured ratios to the
-  cube law across a series of runs: 0.00 at two iterations, 0.06–0.50
-  at three — which is the bond-conversion spread just described, not
-  an iteration effect — 0.86 at four, 1.02 ± 0.03 over 14 runs at five
-  to eight, 1.01–1.04 across the four-run nine-iteration cohort.  What
-  is not explained is the size of the shortfall itself; the
-  one-bond-per-residue rule accounts for only about a fifth of it.
+  determine the shortfall.**  Four trifunctional runs that each took
+  exactly three iterations came out at 0.06, 0.63, 0.80 and 0.94 of
+  the cube-law figure — a fifteenfold spread at an identical iteration
+  count, ordered by their bond conversions of 0.40, 0.50, 0.55 and
+  0.58.  Measured ratios to the cube law across a series of runs: 0.00
+  at two iterations, 0.06–0.94 at three, 0.86 at four, 1.02 ± 0.03
+  over 14 runs at five to eight, 1.01–1.04 across the four-run
+  nine-iteration cohort — where the spread at three iterations is the
+  bond-conversion spread just described, not an iteration effect.
+  What sets the *size* of the shortfall looks like the distribution of
+  the bonds across those iterations, and specifically how many the
+  last iteration formed — it is the one that has to supply a
+  crosslinker's final bond, and the per-iteration bond count decays
+  steeply, so the average is not what matters.  The run at 0.06 above
+  spent its last iteration on 9 bonds against an average of 96, so
+  almost no crosslinker could complete; a run at the same bond
+  conversion built five months earlier under an older htpolynet spent
+  its own last iteration on 10 and landed at the same ratio to three
+  digits.  That is the best account available and it rests on few
+  runs.  The one-bond-per-residue rule alone accounts for about a
+  fifth of the shortfall.
 
 Proximity works the other way, and it is what closes the gap.  The
 search is distance-ranked and a partly-bonded crosslinker already sits
@@ -395,12 +402,21 @@ falls and reaching −93.6 % at a bond conversion of 0.40 — an
 overstatement by a factor of 15.  So ± 3 % is not the cube law's
 general accuracy.  Carried down to a bond conversion of 0.5 it
 understates the error by an order of magnitude, and in a predictable
-direction: the cube is always the optimistic side down there.  Note
-that the 14 runs above were at bond conversions of 0.74–0.90 *and* at
-1.7–2.7 ``f`` iterations, and the two cannot be separated with this
-data — the accuracy is stated against bond conversion because that is
-what was varied and measured, not because the iteration count has been
-ruled out as the controlling variable.
+direction: the cube is always the optimistic side down there.
+
+The accuracy is stated against bond conversion because that is what it
+tracks — over 26 runs the correlation with bond conversion is +0.81
+against +0.57 for the iteration count, and the fifteenfold spread at a
+fixed iteration count above rules the iteration count out as the sole
+determinant.  It does not follow that the bond conversion is the
+governing quantity.  Within a fixed iteration count the *average*
+number of bonds formed per iteration is exactly proportional to the
+bond conversion, so no set of runs sharing an iteration count can tell
+those two apart, and every run here shares one with several others.
+Treat the bond conversion as the variable to *read* the accuracy
+against; the mechanism, as far as it is understood, is the one
+described above, and the bond conversion stands in for how the bonds
+were distributed rather than replacing it.
 
 Further out than that it is not settled.  The four runs of the
 nine-iteration cohort all landed above the cube, by +0.6 % to +3.5 %,

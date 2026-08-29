@@ -389,6 +389,25 @@ Coverage as of the last measurement: **38.8%** overall.
   superseded by plain chi_bond, which is simpler and reproduces across
   versions. Docs corrected.
 
+  **Reinstated 2026-08-29**, and worth recording because it was withdrawn and
+  reinstated inside two days. The "product of per-iteration bond fractions"
+  account was not superseded -- it was under-evidenced, and the iteration logs
+  now make it the best-evidenced thing in this entry. Bonds per iteration decay
+  steeply (bpa-fl0500: 156, 145, 59; bpa-cb0900: 162, 148, 128, 92, 46, 29, 17,
+  26), so `720 x chi_bond / n` is an average no build actually realises. What
+  matters is the LAST iteration, the one that has to supply a triazine's third
+  bond: bpa-fl0400 spent 9 bonds there against an average of 96 and came in at
+  ratio 0.064, and conv40 r3 -- same conversion, v2.3.0, five months earlier --
+  spent 10 on its own last iteration and also came in at 0.064.
+
+  So chi_bond is a **proxy for the distribution, not a replacement for it**.
+  The algebra above still holds for *average* bonds-per-iteration, which is
+  exactly collinear with chi_bond at fixed n (r = 1.0000). The *last-iteration*
+  count is a third variable at r = 0.980 with chi_bond -- separable in
+  principle, not on four points. The withdrawal on 08-28 was made on the
+  strength of a correlation, which is the move this entry already warns about
+  one paragraph earlier.
+
   **Measured below the band, 2026-08-28** (study session; picotte 22132281,
   12 BPA builds at v2.6.1, cures final, ladders still running): at bond
   conversions of 0.40--0.73 the deviation from the cube is one-sided and
@@ -403,33 +422,79 @@ Coverage as of the last measurement: **38.8%** overall.
   (they live in `diagnostics.log`, returned only when a task ends -- expected
   early 2026-08-29). So the docs state the degradation against bond
   conversion, which is what was measured, and do not attribute it to `n`/`f`.
-  When the counts land, the test worth running is whether they also explain
-  the eightfold spread at fixed iteration count recorded above -- if the low
-  runs turn out to be the few-iteration ones, the two findings are one
-  finding, and the "iteration count does not determine it" conclusion needs
-  re-examining against bond conversion as a covariate rather than being taken
-  as settled. Do not write that up until the pairing exists.
+  **Resolved 2026-08-29**, counts returned with the array. Four builds sit at
+  exactly n = 3 spanning 15x in ratio-to-cube (0.064 / 0.633 / 0.795 / 0.937 at
+  chi_bond 0.40 / 0.50 / 0.55 / 0.58), monotone in chi_bond. So "iteration
+  count does not determine the shortfall" is established directly, on four
+  same-n runs, rather than inferred from the confounded pair. Over all 26
+  builds r(ratio, chi_bond) = +0.813 against r(ratio, n/f) = +0.567, with
+  r(chi_bond, n/f) = +0.905; counts run 3 to 8, n/f 1.00 to 2.67. Docs cite
+  the four-run evidence now.
 
-- **The too-few-iterations warning could threshold on something known at
-  config time.** This follows from the entry above: chi_bond predicts the
-  ratio-to-cube to within 1.36x, and unlike a bond distribution -- which does
-  not exist until the cure runs -- it is knowable before the cure starts. So
+- **The too-few-iterations warning is silent on the failure it exists to
+  catch.** `check_iterations_vs_functionality` returns early on
+  `iterations >= fmax` (`cure/curecontroller.py`), so it fires only for the
+  counting impossibility `n < f`. A cure at `n = f` that spends its last
+  iteration on almost nothing reaches the same outcome -- no junctions -- and
+  says nothing at all. Observed: bpa-fl0400 ran n = 3 against fmax = 3, passed
+  the test, spent its last iteration on 9 bonds, and finished with **one
+  complete crosslinker out of 240** (chi_OCN 0.004167 = 1/240 exactly), with no
+  warning in `diagnostics.log`. Same outcome as the case the warning was
+  written for; route never tested.
+
+  The fix is to test the outcome instead of the precondition, and it needs no
+  new measurement. The warning already runs after the cure, and both halves are
+  in the same module: `residue_reaction_counts` gives bonds formed per residue,
+  `residue_functionality` gives the sites it started with, so the number of
+  complete crosslinkers is `(counts >= func)` summed over the multifunctional
+  residues. That is an exact count of the thing the user cares about, available
+  at the moment the warning fires. Warn when it is a small fraction of the
+  crosslinkers present; keep the existing `n < f` text as the special case
+  where the count is zero by construction and the cause is known and worth
+  naming.
+
+  Note the existing message's advice -- lower `max_conversion_per_iteration` or
+  `min_bonds_per_iteration` to spend more iterations -- is right and stays. The
+  gap is only in when the message appears.
+
+- **A config-time version of that warning, before any compute is spent.**
+  Largely superseded by the item above -- nothing needs a proxy for a quantity
+  that is exactly known by the time the cure ends -- and worth keeping only for
+  what the post-hoc check cannot do: warn *before* a multi-hour build rather
+  than after it. That is a weaker claim on much worse evidence, so it is a
+  separate feature and not a substitute. The reasoning that motivated it:
+  chi_bond predicts the ratio-to-cube to within 1.36x, and unlike a bond
+  distribution -- which does not exist until the cure runs -- it is knowable
+  before the cure starts. So
   htpolynet could warn at config time that a run will yield far less
   crosslinker conversion than the cube law implies, which is the number a user
   is actually reasoning with. The existing `iterations < f` warning fires only
   after the fact and only in the exactly zero regime.
 
-  **Do not key it on `desired_conversion`.** chi_bond is a config-time proxy,
-  not the governing quantity, and this is the framing that would bite. chi_bond
-  and bonds-per-iteration are collinear in every build measured -- the 8x pair
-  differs 1.25x in bonds per iteration (96 vs 120) alongside 7.7x in
-  ratio-to-cube -- so nothing in the data separates them. They come apart in
-  practice: `min_bonds_per_iteration` and `max_conversion_per_iteration` set
-  bonds-per-iteration independently of `desired_conversion`, which is exactly
-  what the warning at `cure/curecontroller.py:674` already tells a user to do
-  to spend more iterations at the same conversion, and what this project plans
-  in order to reach 9+ iterations. A threshold keyed on `desired_conversion`
-  alone would misfire on precisely the runs that took htpolynet's own advice.
+  **Do not key it on `desired_conversion`, and do not key it on chi_bond
+  either.** chi_bond is a config-time proxy, not the governing quantity, and
+  the collinearity is not an accident of sampling that more builds would fix.
+  Within a fixed iteration count `bonds = 720 x chi_bond` for this system, so
+  bonds-per-iteration `= 720 x chi_bond / n` is *exactly* proportional to
+  chi_bond. No dataset at fixed `n` can separate them, however large. Breaking
+  the proportionality needs `max_conversion_per_iteration` or
+  `min_bonds_per_iteration` varied AT FIXED `desired_conversion` -- which is
+  a deliberate experiment nobody has run, not something a wider sweep of
+  conversions will deliver.
+
+  There is a further reason to keep it qualitative: the quantity that appears
+  to govern the shortfall is the number of bonds formed in the *last*
+  iteration, and that is not knowable at config time at all -- it is an
+  outcome of the cure, not a setting. Any config-time warning is necessarily
+  keyed on a proxy for it.
+
+  Those same two directives are also why `desired_conversion` is the wrong
+  key in ordinary use: they set bonds-per-iteration independently of it, which
+  is exactly what the warning at `cure/curecontroller.py:674` already tells a
+  user to do to spend more iterations at the same conversion, and what this
+  project plans in order to reach 9+ iterations. A threshold keyed on
+  `desired_conversion` alone would misfire on precisely the runs that took
+  htpolynet's own advice.
 
   So keep it qualitative until something separates the two. A warning saying
   "below about 0.7 the cube law overstates badly, and worsens as you go lower"

@@ -52,16 +52,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is what was varied; the iteration counts for those builds are not yet in
   hand, so `n`/`f` is not offered as the mechanism.
 
-- **The eightfold spread at a fixed iteration count is no longer attributed to
-  how the bonds were distributed.**  The docs used that pair -- two
-  trifunctional runs, both three iterations, at 6 % and 50 % of the cube --
-  to conclude that the iteration count does not determine the shortfall, and
-  credited the spread to the distribution of bonds across iterations.  The
-  pair was confounded: those runs are at bond conversions of 0.40 and 0.50.
-  At a fixed bond conversion the residual spread is 1.4x rather than 8x, so
-  nearly all of it is the bond conversion.  The conclusion is unchanged and
-  now rests on better evidence -- at a fixed iteration count the ratio moves
-  7-10x with bond conversion alone -- but the explanation is withdrawn.
+- **The cube-law shortfall is documented against better evidence, and against
+  the right variable.**  The docs concluded that the iteration count does not
+  determine the shortfall -- right, but resting on one pair of runs that were
+  both at three iterations and 8x apart, and also at bond conversions of 0.40
+  and 0.50, so it never isolated the iteration count.  That now rests on four
+  runs which each took exactly three iterations and span 15x in ratio-to-cube
+  (0.06, 0.63, 0.80, 0.94), ordered by bond conversion.
+
+  The size of the shortfall is still attributed to how the bonds were
+  distributed across the iterations, and the docs now say which part of the
+  distribution: the number formed in the last iteration, which is the one that
+  has to supply a crosslinker's final bond.  Per-iteration bond counts decay
+  steeply, so the average is not the operative number.  The run at 0.06 spent
+  its last iteration on 9 bonds against an average of 96; a run at the same
+  bond conversion five months earlier, under an older htpolynet, spent its own
+  last iteration on 10 and reached the same ratio to three digits.
+
+  Bond conversion is what the accuracy is stated against, because it is what
+  the shortfall tracks: r = +0.81 against +0.57 for the iteration count over
+  26 runs.  The docs are explicit that this is not a mechanism.  Within a
+  fixed iteration count the bonds formed per iteration are exactly
+  proportional to the bond conversion, so no set of runs sharing an iteration
+  count can distinguish the two, and nothing here does.
 
 - **The placement documentation now quotes real-box numbers instead of
   synthetic ones.**  `cap_min_clearance`'s "demanding default" was described
