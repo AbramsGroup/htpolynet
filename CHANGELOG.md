@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **The too-few-iterations warning was silent on the failure it exists to
+  catch.**  `check_iterations_vs_functionality` returned early whenever the
+  cure ran at least `f` iterations, so it fired only for the counting
+  impossibility `n < f`.  But `n >= f` only makes completion *possible*.  The
+  bonds a cure forms are not spread evenly across its iterations -- the
+  per-iteration count decays steeply, and it is the last iteration that has to
+  supply each crosslinker its final bond -- so a cure that runs exactly `f`
+  iterations and spends its last one on almost nothing arrives at the same
+  place as one that ran too few.  A build did exactly that: three iterations
+  against a functionality of three, target bond conversion reached, last
+  iteration spent on 9 bonds, and **one complete crosslinker out of 240**,
+  with nothing in the log about it.  The system it wrote is a monomer melt
+  that equilibrates and reports a sensible density.
+
+  The check now tests the outcome rather than the precondition, which needs no
+  new measurement: by the time it runs, how many crosslinkers reacted at all
+  of their sites is exactly known.  It logs that count on every cure and warns
+  when the fraction falls below the crosslinker conversion an ideal randomly
+  branching network of the same functionality would show at its gel point --
+  12.5 % for a trifunctional crosslinker.  That figure is an idealization and
+  is used only to decide when to raise the volume; the count itself is exact
+  and is reported either way.  The `n < f` case keeps its own message, because
+  there the cause is known exactly and worth naming.
+
+  The regression test suite had the bug written into it: a test asserted that
+  a run at exactly `f` iterations with no complete crosslinkers stays silent.
+
 ### Changed
 
 - **`min_clearance_nm` is documented as a placement outcome, not a tail

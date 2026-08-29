@@ -354,8 +354,7 @@ hard boundary between them.
   constraint rather than a tendency: it holds whatever the bond
   conversion reached.  A cure that hits its target in two iterations
   builds a monomer melt with no junctions at all, however healthy its
-  reported bond conversion looks, and htpolynet warns when a run ends
-  this way since nothing else in the output would tell you.
+  reported bond conversion looks.
 * **At or above** ``f`` **iterations: the iteration count does not
   determine the shortfall.**  Four trifunctional runs that each took
   exactly three iterations came out at 0.06, 0.63, 0.80 and 0.94 of
@@ -378,6 +377,18 @@ hard boundary between them.
   digits.  That is the best account available and it rests on few
   runs.  The one-bond-per-residue rule alone accounts for about a
   fifth of the shortfall.
+
+htpolynet warns about both of these at the end of the cure, because
+nothing else in the output would tell you.  Below ``f`` iterations it
+says so by name, since the cause is then known exactly.  At or above
+``f`` it counts how many crosslinkers actually ended up reacted at all
+of their sites — an exact number by that point, not an estimate — and
+warns when that is a small enough fraction that a percolating network
+should not be assumed.  The count is logged either way.  The second
+case is the one that matters in practice: a cure can run exactly ``f``
+iterations, reach its target bond conversion, and still finish with
+almost no complete crosslinkers if its last iteration formed few
+bonds.
 
 Proximity works the other way, and it is what closes the gap.  The
 search is distance-ranked and a partly-bonded crosslinker already sits

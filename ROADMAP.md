@@ -431,35 +431,10 @@ Coverage as of the last measurement: **38.8%** overall.
   r(chi_bond, n/f) = +0.905; counts run 3 to 8, n/f 1.00 to 2.67. Docs cite
   the four-run evidence now.
 
-- **The too-few-iterations warning is silent on the failure it exists to
-  catch.** `check_iterations_vs_functionality` returns early on
-  `iterations >= fmax` (`cure/curecontroller.py`), so it fires only for the
-  counting impossibility `n < f`. A cure at `n = f` that spends its last
-  iteration on almost nothing reaches the same outcome -- no junctions -- and
-  says nothing at all. Observed: bpa-fl0400 ran n = 3 against fmax = 3, passed
-  the test, spent its last iteration on 9 bonds, and finished with **one
-  complete crosslinker out of 240** (chi_OCN 0.004167 = 1/240 exactly), with no
-  warning in `diagnostics.log`. Same outcome as the case the warning was
-  written for; route never tested.
-
-  The fix is to test the outcome instead of the precondition, and it needs no
-  new measurement. The warning already runs after the cure, and both halves are
-  in the same module: `residue_reaction_counts` gives bonds formed per residue,
-  `residue_functionality` gives the sites it started with, so the number of
-  complete crosslinkers is `(counts >= func)` summed over the multifunctional
-  residues. That is an exact count of the thing the user cares about, available
-  at the moment the warning fires. Warn when it is a small fraction of the
-  crosslinkers present; keep the existing `n < f` text as the special case
-  where the count is zero by construction and the cause is known and worth
-  naming.
-
-  Note the existing message's advice -- lower `max_conversion_per_iteration` or
-  `min_bonds_per_iteration` to spend more iterations -- is right and stays. The
-  gap is only in when the message appears.
-
 - **A config-time version of that warning, before any compute is spent.**
-  Largely superseded by the item above -- nothing needs a proxy for a quantity
-  that is exactly known by the time the cure ends -- and worth keeping only for
+  Largely superseded by the completed-crosslinker check that shipped -- nothing
+  needs a proxy for a quantity that is exactly known by the time the cure
+  ends -- and worth keeping only for
   what the post-hoc check cannot do: warn *before* a multi-hour build rather
   than after it. That is a weaker claim on much worse evidence, so it is a
   separate feature and not a substitute. The reasoning that motivated it:

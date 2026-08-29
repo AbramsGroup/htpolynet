@@ -159,9 +159,11 @@ class TestBiasSideCheck(unittest.TestCase):
         self.assertFalse(self.cc.bias_side_checked)
 
 class TestIterationsVsFunctionality(unittest.TestCase):
-    """A crosslinker with f sites cannot complete in fewer than f iterations,
-    because the downselection admits one bond per residue per iteration.  The
-    resulting system has no junctions and nothing else says so."""
+    """A system whose crosslinkers did not complete has no junctions, and
+    nothing else says so.  Two routes there: too few iterations to be possible
+    at all, and enough iterations but a last one that formed almost nothing.
+    The second is not bounded away by any iteration count, so the completed
+    count is checked directly."""
 
     class FakeTC:
         def __init__(self, adf): self._adf = adf
@@ -180,6 +182,21 @@ class TestIterationsVsFunctionality(unittest.TestCase):
             'nreactions':[0, 0, 0, 0, 0],
         })
 
+    def complete_trifunctional(self):
+        adf = self.trifunctional()
+        adf.loc[2:4, ['z', 'nreactions']] = [0, 1]   # TAZ: all three sites spent
+        return adf
+
+    def taz_population(self, n_taz, n_complete):
+        """n_taz trifunctional TAZ, n_complete of them fully reacted."""
+        rows = []
+        for i in range(n_taz):
+            done = i < n_complete
+            for _ in range(3):
+                rows.append({'resNum': i + 1, 'resName': 'TAZ',
+                             'z': 0 if done else 1, 'nreactions': 1 if done else 0})
+        return pd.DataFrame(rows)
+
     def test_warns_when_iterations_are_below_functionality(self):
         cc = self.controller(2)
         with self.assertLogs('htpolynet.cure.curecontroller', level='WARNING') as cm:
@@ -189,15 +206,49 @@ class TestIterationsVsFunctionality(unittest.TestCase):
         self.assertIn('no crosslink junctions', text)
         self.assertIn('completion_bias does not change this', text)
 
-    def test_silent_at_exactly_the_functionality(self):
+    def test_warns_at_the_functionality_when_nothing_completed(self):
+        # the route the iteration-count test passes in silence: n == f, so
+        # completion is possible, but the last iteration formed almost nothing
         cc = self.controller(3)
-        with self.assertNoLogs('htpolynet.cure.curecontroller', level='WARNING'):
+        with self.assertLogs('htpolynet.cure.curecontroller', level='WARNING') as cm:
+            cc.check_iterations_vs_functionality(self.FakeTC(self.trifunctional()))
+        text = ''.join(cm.output)
+        self.assertIn('0 of 1 TAZ', text)
+        self.assertIn('do not assume this system percolates', text)
+
+    def test_warns_with_plenty_of_iterations_when_nothing_completed(self):
+        cc = self.controller(9)
+        with self.assertLogs('htpolynet.cure.curecontroller', level='WARNING'):
             cc.check_iterations_vs_functionality(self.FakeTC(self.trifunctional()))
 
-    def test_silent_with_plenty_of_iterations(self):
-        cc = self.controller(9)
+    def test_silent_when_the_crosslinkers_completed(self):
+        adf = self.complete_trifunctional()
+        cc = self.controller(3)
         with self.assertNoLogs('htpolynet.cure.curecontroller', level='WARNING'):
-            cc.check_iterations_vs_functionality(self.FakeTC(self.trifunctional()))
+            cc.check_iterations_vs_functionality(self.FakeTC(adf))
+
+    def test_one_in_240_warns(self):
+        # the observed build: n == f, target conversion reached, and a single
+        # complete crosslinker out of 240
+        cc = self.controller(3)
+        with self.assertLogs('htpolynet.cure.curecontroller', level='WARNING') as cm:
+            cc.check_iterations_vs_functionality(self.FakeTC(self.taz_population(240, 1)))
+        self.assertIn('1 of 240 TAZ (0.4%)', ''.join(cm.output))
+
+    def test_silent_above_the_gel_point(self):
+        # 60 of 240 is 25%, above the 12.5% an ideal f=3 network shows at its
+        # gel point, so the completed count is not remarked on
+        cc = self.controller(3)
+        with self.assertNoLogs('htpolynet.cure.curecontroller', level='WARNING'):
+            cc.check_iterations_vs_functionality(self.FakeTC(self.taz_population(240, 60)))
+
+    def test_counting_message_still_wins_below_the_functionality(self):
+        # below f the cause is known exactly, so say that rather than quoting
+        # a fraction that could not have been anything else
+        cc = self.controller(2)
+        with self.assertLogs('htpolynet.cure.curecontroller', level='WARNING') as cm:
+            cc.check_iterations_vs_functionality(self.FakeTC(self.taz_population(240, 0)))
+        self.assertIn('at most one bond per residue per iteration', ''.join(cm.output))
 
     def test_counts_sites_already_spent(self):
         # functionality is z + nreactions, so a partly-reacted crosslinker
