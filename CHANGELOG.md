@@ -52,58 +52,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ranged 0.006-0.048 nm over the same boxes, is the real tail statistic, and
   the `blind_*` fields are what to calibrate the target against.
 
-- **The cube law is documented as a two-sided estimate, not a floor.**  The
-  docs said crosslinker conversion sits at or above the cube of bond
-  conversion in the many-iteration limit.  Measured on 14 independent
-  trifunctional runs in the previously unmeasured band at 1.7-2.7 `f`
-  iterations, it sits +2.0 % from the cube with a standard deviation of 2.9 %
-  and 3 of 14 runs *below* it, to -3.7 %, against a replicate scatter of
-  0.8-1.8 % -- so the excursions below are real.  The recovery to the cube is
-  therefore complete much earlier than the docs implied, confining the
-  unexplained shortfall to a narrow band just above `f`, but it arrives as an
-  estimate good to about 3 % either way rather than as a bound.  The claim is
-  scoped to the band it was measured in.  The four runs of the nine-iteration
-  cohort landed +0.6 % to +3.5 % above the cube, and all four being above was
-  over-read as evidence of a floor -- but four points cannot separate a bound
-  from the upper tail of a two-sided distribution, and the scatter measured at
-  1.7-2.7 `f` cannot be carried to 3 `f` when regime dependence is the point
-  at issue.  The docs now say 3 `f` is untested rather than either way.
+- **The cube law is documented as an estimate over a measured band, not as a
+  floor.**  The docs said crosslinker conversion sits at or above the cube of
+  bond conversion in the many-iteration limit.  It does not, and the band over
+  which the cube is even a good estimate is narrower than that claim implied.
 
-- **The docs now say the cube law's accuracy band has a floor.**  The
-  two-sided +/- 3 % figure was stated for 1.7-2.7 `f` iterations without
-  saying that those runs were also all at bond conversions of 0.74-0.90.
-  Below that, on 12 further builds at 0.40-0.73, the cube law is not a mild
-  two-sided estimate: 11 of the 12 fall below it, by -19.9 % on average,
-  worsening monotonically as bond conversion falls and reaching -93.6 % at
-  0.40.  A reader carrying +/- 3 % down to a bond conversion of 0.5
-  understates the error by an order of magnitude and in a predictable
-  direction.  The degradation is stated against bond conversion because that
-  is what was varied; the iteration counts for those builds are not yet in
-  hand, so `n`/`f` is not offered as the mechanism.
+  *Where it holds*: across 14 trifunctional runs at 1.7-2.7 `f` iterations and
+  bond conversions of 0.74-0.90, the crosslinker conversion sits +2.0 % from
+  the cube with a standard deviation of 2.9 %, and 3 of the 14 land *below*
+  it, to -3.7 %, against a replicate scatter of 0.8-1.8 % -- so the excursions
+  below are real and it is a two-sided estimate, good to about 3 %.
 
-- **The cube-law shortfall is documented against better evidence, and against
-  the right variable.**  The docs concluded that the iteration count does not
-  determine the shortfall -- right, but resting on one pair of runs that were
-  both at three iterations and 8x apart, and also at bond conversions of 0.40
-  and 0.50, so it never isolated the iteration count.  That now rests on four
-  runs which each took exactly three iterations and span 15x in ratio-to-cube
-  (0.06, 0.63, 0.80, 0.94), ordered by bond conversion.
+  *Below that band*: on 12 further builds at bond conversions of 0.40-0.73 it
+  is neither mild nor two-sided.  11 of the 12 fall below the cube, by -19.9 %
+  on average, worsening monotonically as the bond conversion falls and
+  reaching -93.6 % at 0.40.  Carrying +/- 3 % down to a bond conversion of 0.5
+  understates the error by an order of magnitude, in a predictable direction.
 
-  The size of the shortfall is still attributed to how the bonds were
-  distributed across the iterations, and the docs now say which part of the
-  distribution: the number formed in the last iteration, which is the one that
-  has to supply a crosslinker's final bond.  Per-iteration bond counts decay
-  steeply, so the average is not the operative number.  The run at 0.06 spent
-  its last iteration on 9 bonds against an average of 96; a run at the same
-  bond conversion five months earlier, under an older htpolynet, spent its own
-  last iteration on 10 and reached the same ratio to three digits.
+  *Above it*: the four runs of the nine-iteration cohort all landed +0.6 % to
+  +3.5 % above the cube, which reads like a bound but cannot establish one --
+  four points cannot separate a bound from the upper tail of a two-sided
+  distribution, and the scatter measured at 1.7-2.7 `f` cannot be carried to
+  3 `f` when regime dependence is exactly what is at issue.  The docs say 3 `f`
+  is untested rather than either way.
 
-  Bond conversion is what the accuracy is stated against, because it is what
-  the shortfall tracks: r = +0.81 against +0.57 for the iteration count over
-  26 runs.  The docs are explicit that this is not a mechanism.  Within a
-  fixed iteration count the bonds formed per iteration are exactly
+  *What sets the shortfall*: not the iteration count.  Four runs that each took
+  exactly three iterations span 15x in ratio-to-cube (0.06, 0.63, 0.80, 0.94).
+  It is how the bonds were distributed across those iterations, and
+  specifically how many the last one formed, since that is the iteration which
+  has to supply each crosslinker its final bond -- per-iteration bond counts
+  decay steeply, so the average is not the operative number.  The run at 0.06
+  spent its last iteration on 9 bonds against an average of 96; a run at the
+  same bond conversion five months earlier, under an older htpolynet, spent its
+  own last iteration on 10 and reached the same ratio to three digits.
+
+  *Which variable to read it against*: bond conversion, because that is what
+  the shortfall tracks -- r = +0.81, against +0.57 for the iteration count,
+  over 26 runs.  The docs are explicit that this is not the mechanism.  Within
+  a fixed iteration count the *average* bonds formed per iteration is exactly
   proportional to the bond conversion, so no set of runs sharing an iteration
-  count can distinguish the two, and nothing here does.
+  count can distinguish those two, and none here does.
 
 - **The placement documentation now quotes real-box numbers instead of
   synthetic ones.**  `cap_min_clearance`'s "demanding default" was described
